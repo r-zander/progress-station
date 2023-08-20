@@ -20,6 +20,7 @@ let gameData = {
     currentSkill: null,
     currentProperty: null,
     currentMisc: null,
+    currentBattle: null,
 
     stationName: defaultStationName,
     selectedTab: 'jobs',
@@ -44,6 +45,7 @@ const tabButtons = {
     'rebirth': document.getElementById('rebirthTabButton'),
     'settings': document.getElementById('settingsTabButton'),
 }
+const gameOverMessage = document.getElementById('gameOverMessage');
 
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
@@ -265,6 +267,15 @@ function updateQuickTaskDisplay(taskType) {
     progressBar.getElementsByClassName('progressFill')[0].style.width = currentTask.xp / currentTask.getMaxXp() * 100 + '%';
 }
 
+function updateBattleTaskDisplay() {
+    const currentTask = gameData.currentBattle;
+    const progressBar = document.getElementById('battleProgressBar');
+    const nameTitle = document.getElementById('battleName');
+    nameTitle.textContent = currentTask.name;
+    progressBar.getElementsByClassName('name')[0].textContent = currentTask.name + ' layer ' + (currentTask.maxLayers - currentTask.level);
+    progressBar.getElementsByClassName('progressFill')[0].style.width = (1 - (currentTask.xp / currentTask.getMaxXp())) * 100 + '%';
+}
+
 function updateRequiredRows(data, categoryType) {
     const requiredRows = document.getElementsByClassName('requiredRow');
     for (let requiredRow of requiredRows) {
@@ -456,6 +467,7 @@ function updateBodyClasses() {
 }
 
 function doTask(task) {
+    if (task == null || task.done) return;
     task.increaseXp();
     if (task instanceof Job) {
         increaseCoins();
@@ -608,7 +620,7 @@ function formatPopulation(population) {
 
 function getTaskElement(taskName) {
     const task = gameData.taskData[taskName];
-    return document.getElementById(task.id);
+    return document.getElementById(task?.id);
 }
 
 function getItemElement(itemName) {
@@ -811,6 +823,7 @@ function updateUI() {
     updateHeaderRows(skillCategories);
     updateQuickTaskDisplay('job');
     updateQuickTaskDisplay('skill');
+    updateBattleTaskDisplay();
     hideEntities();
     updateText();
     updateBodyClasses();
@@ -822,6 +835,7 @@ function update() {
     autoLearn();
     doTask(gameData.currentJob);
     doTask(gameData.currentSkill);
+    doTask(gameData.currentBattle);
     applyExpenses();
     updateUI();
 }
@@ -917,10 +931,23 @@ function init() {
 
     displayLoaded();
 
+    gameData.currentBattle = new Battle({name: 'The Destroyer', maxXp: 50, income: 5}, 5, 'battleProgressBar');
+    gameOverMessage.hidden = true;
+
     update();
     setInterval(update, 1000 / updateSpeed);
     setInterval(saveGameData, 3000);
     setInterval(setSkillWithLowestMaxXp, 1000);
 }
+
+Events.GameOver.subscribe(function (data) {
+    gameOverMessage.hidden = false;
+
+    if (data.bossDefeated) {
+        gameOverMessage.textContent = GameOverMessageWin;
+    } else {
+        gameOverMessage.textContent = GameOverMessageLose;
+    }
+});
 
 init();
