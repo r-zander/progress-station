@@ -4,7 +4,7 @@
 
 .progress-fill {
     /* Smooth out progress bar filling */
-    transition: width 50ms linear;
+    transition: width 50ms linear; /* TODO Don't transition when resetting a bar */
 }
 
 .game-playing .progress-fill.current {
