@@ -272,6 +272,13 @@ function createAllRows(categoryType, tableId) {
     }
 }
 
+function initSidebar(){
+    const energyDisplayElement = document.querySelector('#energyDisplay');
+    energyDisplayElement.addEventListener('click', function () {
+        energyDisplayElement.classList.toggle('detailed');
+    });
+}
+
 function updateQuickTaskDisplay(taskType) {
     const currentTask = taskType === 'job' ? gameData.currentJob : gameData.currentSkill;
     const quickTaskDisplayElement = document.getElementById('quickTaskDisplay');
@@ -431,9 +438,17 @@ function updateText() {
 
     formatCoins(gameData.coins, document.getElementById('coinDisplay'));
     setSignDisplay();
-    formatCoins(getNet(), document.getElementById('netDisplay'));
+    formatCoins(Math.abs(getNet()), document.getElementById('netDisplay'));
     formatCoins(getIncome(), document.getElementById('incomeDisplay'));
     formatCoins(getExpense(), document.getElementById('expenseDisplay'));
+
+    const energyDisplayElement = document.getElementById('energyDisplay');
+    updateEnergyDisplay(getIncome(), energyDisplayElement.querySelector('.energy-generated > data'));
+    updateEnergyDisplay(getNet(), energyDisplayElement.querySelector('.energy-net > data'), {forceSign: true});
+    updateEnergyDisplay(gameData.coins, energyDisplayElement.querySelector('.energy-stored > data'), {unit: units.storedEnergy});
+    updateEnergyDisplay(getMaxEnergy(), energyDisplayElement.querySelector('.energy-max > data'), {unit: units.storedEnergy});
+    updateEnergyDisplay(getExpense(), energyDisplayElement.querySelector('.energy-usage > data'));
+    energyDisplayElement.querySelector('.energy-fill').style.width = Math.min(gameData.coins / getMaxEnergy(), 1.0) * 100 + '%';
 
     document.getElementById('happinessDisplay').textContent = formatPopulation(getPopulation());
 
@@ -442,6 +457,20 @@ function updateText() {
 
     document.getElementById('timeWarpingDisplay').textContent = 'x' + gameData.taskData['Time warping'].getEffect().toFixed(2);
     document.getElementById('timeWarpingButton').textContent = gameData.timeWarpingEnabled ? 'Disable warp' : 'Enable warp';
+}
+
+/**
+ *
+ * @param {number} amount
+ * @param {HTMLDataElement} dataElement
+ * @param formatConfig
+ */
+function updateEnergyDisplay(amount, dataElement, formatConfig = {}) {
+    dataElement.value = String(amount);
+    dataElement.textContent = format(amount, Object.assign({
+        unit: units.energy,
+        prefixes: metricPrefixes
+    }, formatConfig));
 }
 
 function setSignDisplay() {
@@ -459,7 +488,7 @@ function setSignDisplay() {
 }
 
 function getNet() {
-    return Math.abs(getIncome() - getExpense());
+    return getIncome() - getExpense();
 }
 
 function hideEntities() {
@@ -495,6 +524,11 @@ function getIncome() {
     let income = 0;
     income += gameData.currentJob.getIncome();
     return income;
+}
+
+function getMaxEnergy() {
+    // TODO
+    return 1000 + getIncome() * 1000;
 }
 
 function increaseCoins() {
@@ -590,23 +624,53 @@ function increaseDays() {
     gameData.days += increase;
 }
 
-function format(number) {
+/**
+ *
+ * @param {number} number
+ * @param config
+ * @return {string}
+ */
+function format(number, config = {}) {
+    const defaultConfig = {
+        prefixes: magnitudes,
+        unit: '',
+        forceSign: false,
+    };
+    config = Object.assign({}, defaultConfig, config);
 
     // what tier? (determines SI symbol)
     const tier = Math.log10(number) / 3 | 0;
 
+    let prefix = '';
+    if (config.forceSign) {
+        if (Math.abs(number) <= 0.001) {
+            prefix = '±';
+        } else if (number > 0) {
+            prefix = '+';
+        }
+    }
+
     // if zero, we don't need a suffix
-    if (tier === 0) return number;
+    // if (tier === 0) {
+    //     return prefix + number;
+    // }
 
     // get suffix and determine scale
-    const suffix = units[tier];
+    let suffix = config.prefixes[tier];
+    if (typeof config.unit === 'string' && config.unit.length > 0) {
+        suffix = ' ' + suffix + config.unit;
+    }
+
+    if (tier === 0) {
+        return prefix + number.toFixed(0) + suffix;
+    }
     const scale = Math.pow(10, tier * 3);
 
     // scale the number
     const scaled = number / scale;
 
     // format number and add suffix
-    return scaled.toFixed(1) + suffix;
+    return prefix + scaled.toFixed(1) + suffix;
 }
 
 function formatCoins(coins, element) {
@@ -615,7 +679,7 @@ function formatCoins(coins, element) {
     for (let tier of coinTiers) {
         let x = Math.floor(leftOver / Math.pow(10, (coinTiers.length - i) * 2));
         leftOver = Math.floor(leftOver - x * Math.pow(10, (coinTiers.length - i) * 2));
-        let text = format(String(x)) + tier + ' ';
+        let text = format(x) + tier + ' ';
         element.children[i].textContent = x > 0 ? text : '';
         element.children[i].style.color = coinColors[tier];
         i += 1;
@@ -975,6 +1039,8 @@ function init() {
     createAllRows(jobCategories, 'jobTable');
     createAllRows(skillCategories, 'skillTable');
     createAllRows(itemCategories, 'itemTable');
+
+    initSidebar();
 
     createData(gameData.taskData, jobBaseData);
     createData(gameData.taskData, skillBaseData);

@@ -55,7 +55,35 @@
                     </span>
                 </span>
 
-                <div style="font-size: large" id="coinDisplay">
+                <div id="energyDisplay">
+                    <p class="energy-generated energy-text">
+                        <span>Generated:</span>
+                        <data value="200">200 W</data>
+                    </p>
+                    <div class="energy-bar">
+                        <p class="energy-stored energy-text">Stored:
+                            <data value="800">800 Wh</data>
+                        </p>
+                        <div class="energy-fill" style="width: 45%">
+                            <p class="energy-net energy-text">Net:
+                                <data value="20">+20 W</data>
+                            </p>
+
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between">
+                        <p class="energy-usage energy-text">
+                            <span>Usage:</span>
+                            <data value="180">180 W</data>
+                        </p>
+                        <p class="energy-max energy-text">
+                            <span>Max:</span>
+                            <data value="2200">2.2 kW</data>
+                        </p>
+                    </div>
+                </div>
+
+                <div style="font-size: large; margin-top: 1rem;" id="coinDisplay">
                     <span></span>
                     <span></span>
                     <span></span>

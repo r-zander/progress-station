@@ -2,22 +2,30 @@ body {
     background-color: var(--light-bg-color);
 }
 
-.w3-bar-item {
-    width: 100px;
-    height: 40px;
-    text-align: center;
+p {
+    margin: 0;
 }
 
 td {
     vertical-align: middle !important;
 }
 
+data {
+    font-family: monospace;
+}
+
+.w3-bar-item {
+    width: 100px;
+    height: 40px;
+    text-align: center;
+}
+
 .progress-text {
     position: absolute;
-    top: 0px;
-    bottom: 0px;
+    top: 0;
+    bottom: 0;
     padding: 5px;
-    color: white
+    color: white;
 }
 
 .progress-bar {
@@ -34,6 +42,89 @@ td {
 
 .progress-fill.current {
     background-color: orange;
+}
+
+#energyDisplay {
+    cursor: pointer;
+    position: relative;
+}
+
+.energy-bar {
+    position: relative;
+    background-color: rgb(12, 101, 173);
+    width: 100%;
+    color: white;
+    line-height: 23px;
+}
+
+.energy-text {
+    white-space: nowrap;
+}
+
+.energy-fill {
+    position: relative; /* Contain the text elements */
+    height: 23px;
+    background-color: rgb(46, 148, 231)
+}
+
+#energyDisplay:hover .energy-fill,
+#energyDisplay.detailed .energy-fill {
+    position: static; /* Release the inner elements */
+}
+
+.energy-net {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    left: 0;
+    text-align: right;
+}
+
+.energy-stored {
+    display: none;
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    /*transform: translateX(-50%);*/
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+#energyDisplay:hover .energy-net,
+#energyDisplay.detailed .energy-net {
+    /*!* TODO Ensure the element doesn't exeed the right side of its parent *!*/
+    /*right: auto;*/
+    /*left: 100%;*/
+    /*!*transform: translateX(-50%);*!*/
+    right: 0;
+    left: auto;
+}
+
+#energyDisplay:hover .energy-stored,
+#energyDisplay.detailed .energy-stored {
+    display: block;
+}
+
+.energy-generated {
+    text-align: center;
+}
+
+.energy-max {
+    /*float: right;*/
+}
+
+.energy-generated {
+    color: #4CAF50;
+}
+
+.energy-usage {
+    color: #e63946;
+    /*float: left;*/
 }
 
 .hidden {
@@ -100,44 +191,6 @@ button:focus {
 
 .sidebar-element {
     margin-bottom: 16px;
-}
-
-.slidecontainer {
-    width: 100%;
-}
-
-.slider {
-    -webkit-appearance: none;
-    width: 50%;
-    height: 15px;
-    border-radius: 5px;
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-}
-
-.slider:hover {
-    opacity: 1;
-}
-
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    background: #4CAF50;
-    cursor: pointer;
-}
-
-.slider::-moz-range-thumb {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    background: #4CAF50;
-    cursor: pointer;
 }
 
 .inline {
