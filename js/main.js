@@ -4,6 +4,7 @@
 let gameData = {
     taskData: {},
     itemData: {},
+    battleData: {},
 
     coins: 0,
     days: 365 * 14,
@@ -45,7 +46,8 @@ const tabButtons = {
     'rebirth': document.getElementById('rebirthTabButton'),
     'settings': document.getElementById('settingsTabButton'),
 }
-const gameOverMessage = document.getElementById('gameOverMessage');
+const gameOverMessageWinElement = document.getElementById('gameOverMessageWin');
+const gameOverMessageLoseElement = document.getElementById('gameOverMessageLose');
 
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
@@ -172,7 +174,12 @@ function createData(data, baseData) {
 }
 
 function createEntity(data, entity) {
-    if ('income' in entity) {
+    if ('maxLayers' in entity) {
+        const battle = new Battle(entity);
+        battle.init();
+        data[entity.name] = battle;
+    }
+    else if ('income' in entity) {
         data[entity.name] = new Job(entity);
     } else if ('maxXp' in entity) {
         data[entity.name] = new Skill(entity);
@@ -269,6 +276,9 @@ function updateQuickTaskDisplay(taskType) {
 
 function updateBattleTaskDisplay() {
     const currentTask = gameData.currentBattle;
+    if (currentTask.isDone()) {
+        return;
+    }
     const progressBar = document.getElementById('battleProgressBar');
     const nameTitle = document.getElementById('battleName');
     nameTitle.textContent = currentTask.name;
@@ -467,7 +477,8 @@ function updateBodyClasses() {
 }
 
 function doTask(task) {
-    if (task == null || task.done) return;
+    if (task == null) return;
+    if (task instanceof LayeredTask && task.isDone()) return;
     task.increaseXp();
     if (task instanceof Job) {
         increaseCoins();
@@ -620,7 +631,12 @@ function formatPopulation(population) {
 
 function getTaskElement(taskName) {
     const task = gameData.taskData[taskName];
-    return document.getElementById(task?.id);
+    return document.getElementById(task.id);
+}
+
+function getBattleElement(taskName) {
+    const task = gameData.battleData[taskName];
+    return document.getElementById(task.baseData.progressBarId);
 }
 
 function getItemElement(itemName) {
@@ -743,6 +759,14 @@ function assignMethods() {
         gameData.itemData[key] = item;
     }
 
+    for (let key in gameData.battleData) {
+        let battle = gameData.battleData[key];
+        battle.baseData = battleBaseData[battle.name];
+        battle = Object.assign(new Battle(battleBaseData[battle.name]), battle);
+        battle.init();
+        gameData.battleData[key] = battle;
+    }
+
     for (let key in gameData.requirements) {
         let requirement = gameData.requirements[key];
         switch (requirement.type) {
@@ -806,6 +830,7 @@ function loadGameData() {
         replaceSaveDict(gameData.requirements, gameDataSave.requirements);
         replaceSaveDict(gameData.taskData, gameDataSave.taskData);
         replaceSaveDict(gameData.itemData, gameDataSave.itemData);
+        replaceSaveDict(gameData.battleData, gameDataSave.battleData);
 
         gameData = gameDataSave;
     }
@@ -874,6 +899,27 @@ function initStationName() {
     });
 }
 
+function initCurrentValues() {
+    gameData.currentJob = gameData.taskData['Beggar'];
+    gameData.currentSkill = gameData.taskData['Concentration'];
+    gameData.currentProperty = gameData.itemData['Homeless'];
+    gameData.currentMisc = [];
+    gameData.currentBattle = gameData.battleData['Destroyer'];
+}
+
+function initGameOverState(){
+    gameOverMessageWinElement.hidden = true;
+    gameOverMessageLoseElement.hidden = true;
+
+    Events.GameOver.subscribe(function (data) {
+        if (data.bossDefeated) {
+            gameOverMessageWinElement.hidden = false;
+        } else {
+            gameOverMessageLoseElement.hidden = false;
+        }
+    });
+}
+
 function initSettings() {
     const background = gameData.settings.background;
     if (isString(background)) {
@@ -900,12 +946,10 @@ function init() {
 
     createData(gameData.taskData, jobBaseData);
     createData(gameData.taskData, skillBaseData);
+    createData(gameData.battleData, battleBaseData);
     createData(gameData.itemData, itemBaseData);
 
-    gameData.currentJob = gameData.taskData['Beggar'];
-    gameData.currentSkill = gameData.taskData['Concentration'];
-    gameData.currentProperty = gameData.itemData['Homeless'];
-    gameData.currentMisc = [];
+    initGameOverState();
 
     gameData.requirements = createRequirements(getElementsByClass, getTaskElement, getItemElement);
 
@@ -915,6 +959,7 @@ function init() {
     }
 
     loadGameData();
+    initCurrentValues();
 
     setCustomEffects();
     addMultipliers();
@@ -931,23 +976,10 @@ function init() {
 
     displayLoaded();
 
-    gameData.currentBattle = new Battle({name: 'The Destroyer', maxXp: 50, income: 5}, 5, 'battleProgressBar');
-    gameOverMessage.hidden = true;
-
     update();
     setInterval(update, 1000 / updateSpeed);
     setInterval(saveGameData, 3000);
     setInterval(setSkillWithLowestMaxXp, 1000);
 }
-
-Events.GameOver.subscribe(function (data) {
-    gameOverMessage.hidden = false;
-
-    if (data.bossDefeated) {
-        gameOverMessage.textContent = GameOverMessageWin;
-    } else {
-        gameOverMessage.textContent = GameOverMessageLose;
-    }
-});
 
 init();

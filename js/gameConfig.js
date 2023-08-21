@@ -7,9 +7,6 @@ const baseLifespan = 365 * 70;
 
 const defaultStationName = 'USS Progressor';
 const emptyStationName = 'Unknown Station';
-const GameOverMessageWin = 'Congratulations! \n You managed to blast through the Destroyer\'s near endless defenses. Your world is safe.';
-const GameOverMessageLose = 'The Destroyer\'s power is overwhelming. Your only hope is to engage the Temporus artifact and attempt a time jump. You will lose all of your Modules and Exploration progress, but will progress much faster the next time around.';
-
 
 // Not const to allow easy game speed increase
 // TODO change before release
@@ -25,8 +22,8 @@ const coinColors = {
     'c': '#a15c2f'
 };
 
-const BattleData = {
-    'Destroyer': {name: 'Destroyer', maxXp: 50, income: 5},
+const battleBaseData = {
+    'Destroyer': {name: 'Destroyer', maxXp: 50, maxLayers: 5, progressBarId: 'battleProgressBar'},
 };
 
 const jobBaseData = {
@@ -194,15 +191,14 @@ const tooltips = {
     'Library': 'Stores a collection of books, each containing vast amounts of information from basic life skills to complex magic spells.',
 };
 
-const layerData = {
-    0: new LayerData('#ffe119'),
-    1: new LayerData('#f58231'),
-    2: new LayerData('#e6194B'),
-    3: new LayerData('#911eb4'),
-    4: new LayerData('#4363d8'),
-    5: new LayerData('#47ff00'),
-}
-const layerCount = Object.keys(layerData).length;
+const layerData = [
+    new LayerData('#ffe119'),
+    new LayerData('#f58231'),
+    new LayerData('#e6194B'),
+    new LayerData('#911eb4'),
+    new LayerData('#4363d8'),
+    new LayerData('#47ff00'),
+]
 const lastLayerData= new LayerData('#000000');
 
 function createRequirements(getElementsByClass, getTaskElement, getItemElement) {

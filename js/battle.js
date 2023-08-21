@@ -5,12 +5,13 @@ class LayerData {
 }
 
 class LayeredTask extends Task {
-    constructor(baseData, maxLayers, progressBarId) {
-        super(baseData);
-        this.maxLayers = maxLayers;
-        this.done = false;
-        this.taskProgressBar = document.getElementById('battleProgressBar');
+    _done = false;
+
+    init(){
+        this.maxLayers = this.baseData.maxLayers;
+        this.taskProgressBar = document.getElementById(this.baseData.progressBarId);
         this.taskProgressBarFill = this.taskProgressBar.getElementsByClassName('progressFill')[0];
+
         this.adjustLayerColorsByLevel();
     }
 
@@ -20,7 +21,7 @@ class LayeredTask extends Task {
     }
 
     adjustLayerColorsByLevel() {
-        if (this.level >= this.maxLayers) {
+        if (this._done || this.level >= this.maxLayers) {
             this.onDone();
             return;
         }
@@ -28,7 +29,7 @@ class LayeredTask extends Task {
         this.taskProgressBarFill.style.backgroundColor = layerData[this.level].color;
 
         let newBackgroundColor;
-        if (this.level < this.maxLayers - 1 && this.level < layerCount - 1) {
+        if (this.level < this.maxLayers - 1 && this.level < layerData.length - 1) {
             newBackgroundColor = layerData[this.level + 1].color;
         } else {
             newBackgroundColor = lastLayerData.color;
@@ -37,19 +38,22 @@ class LayeredTask extends Task {
     }
 
     onDone() {
-        this.done = true;
+        this.taskProgressBar.style.backgroundColor = lastLayerData.color;
+        this.taskProgressBarFill.style.width = '0%';
+        this.taskProgressBar.getElementsByClassName('name')[0].textContent = 'Defeated';
+        this._done = true;
+    }
+
+    isDone(){
+        return this._done;
     }
 }
 
 class Battle extends LayeredTask {
-    constructor(baseData, maxLayers, progressBarId) {
-        super(baseData, maxLayers, progressBarId);
-    }
-
     onDone() {
         super.onDone();
         Events.GameOver.trigger({
-            bossDefeated: this.done,
+            bossDefeated: this._done,
         });
     }
 }

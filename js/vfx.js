@@ -160,7 +160,6 @@ function onetimeSplash(element, numberOfParticles, fnX, fnY) {
 }
 
 ParticleSystem.onetimeSplash = function (element, numberOfParticles) {
-    if (!element) return;
     let height = element.clientHeight;
     onetimeSplash(
         element,
@@ -182,14 +181,20 @@ Events.TaskLevelChanged.subscribe(function (taskInfo) {
     if (taskInfo.previousLevel >= taskInfo.nextLevel) return;
 
     let numberOfParticles = 10;
-    let taskProgressBar = getTaskElement(taskInfo.name)?.querySelector('.progressBar');
-    if (taskProgressBar != null && isVisible(taskProgressBar)) {
+    let taskProgressBar;
+    if (taskInfo.type === 'Battle'){
+        taskProgressBar = getBattleElement(taskInfo.name);
+    }
+    else{
+        taskProgressBar = getTaskElement(taskInfo.name).querySelector('.progressBar');
+    }
+    if (isVisible(taskProgressBar)) {
         // Don't spawn particles on elements that are invisible
         ParticleSystem.onetimeSplash(taskProgressBar, numberOfParticles);
         VFX.flash(taskProgressBar);
     }
     let quickTaskProgressBar = document.querySelector(`#quickTaskDisplay .${taskInfo.type}.progressBar`);
-    if (!quickTaskProgressBar) return;
+    if (quickTaskProgressBar == null) return;
     ParticleSystem.onetimeSplash(quickTaskProgressBar, numberOfParticles);
     VFX.flash(quickTaskProgressBar);
 });

@@ -152,7 +152,10 @@ button:focus {
     margin-bottom: 2px;
 }
 
-.center {
-    margin: auto;
-    width: 50%;
+#battleName {
+    margin-bottom: 1rem;
+}
+
+.gameOverMessage{
+    margin-top: 1rem;
 }
