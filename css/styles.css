@@ -148,14 +148,45 @@ button:focus {
     background-color: white;
 }
 
-.small-margin  {
+.small-margin {
     margin-bottom: 2px;
 }
 
-#battleName {
-    margin-bottom: 1rem;
+.text-strap {
+    color: gray;
+    margin-bottom: -1rem;
+}
+
+.battle-flavor-text {
+    color: antiquewhite;
+    padding: 10px;
+    border: 2px solid darkorange;
+}
+
+.battle-flavor-text-win {
+    color: lightcyan;
+    padding: 10px;
+    border: 2px solid cyan;
+}
+
+.battle-flavor-text-lose {
+    color: lightcoral;
+    padding: 10px;
+    border: 2px solid darkred;
+}
+
+.medium-margin {
+    margin-bottom: 1.5rem;
 }
 
 .gameOverMessage{
     margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.battle-bar {
+    position: relative;
+    background-color: rgb(12, 101, 173);
+    margin: auto auto 1.5rem;
+    width: 50%;
 }
