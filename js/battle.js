@@ -5,8 +5,6 @@ class LayerData {
 }
 
 class LayeredTask extends Task {
-    #done = false;
-
     init(){
         this.maxLayers = this.baseData.maxLayers;
         this.taskProgressBar = document.getElementById(this.baseData.progressBarId);
@@ -21,7 +19,7 @@ class LayeredTask extends Task {
     }
 
     adjustLayerColorsByLevel() {
-        if (this.#done || this.level >= this.maxLayers) {
+        if (this.isDone()) {
             this.onDone();
             return;
         }
@@ -41,11 +39,10 @@ class LayeredTask extends Task {
         this.taskProgressBar.style.backgroundColor = lastLayerData.color;
         this.taskProgressBarFill.style.width = '0%';
         this.taskProgressBar.getElementsByClassName('name')[0].textContent = 'Defeated';
-        this.#done = true;
     }
 
     isDone(){
-        return this.#done;
+        return this.level >= this.maxLayers;
     }
 }
 
