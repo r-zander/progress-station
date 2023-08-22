@@ -1,5 +1,9 @@
 body {
     background-color: rgb(243, 243, 243);
+    background-image: url("../img/background.svg");
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
 }
 
 .w3-bar-item {
@@ -145,7 +149,7 @@ button:focus {
 }
 
 .panel {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.8);
 }
 
 .small-margin  {

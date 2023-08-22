@@ -4,7 +4,7 @@
 }
 
 .dark .panel {
-    background-color: rgb(46, 46, 46);
+    background-color: rgba(46, 46, 46, 0.8);
 }
 
 .dark .button {
