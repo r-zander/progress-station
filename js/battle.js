@@ -5,7 +5,7 @@ class LayerData {
 }
 
 class LayeredTask extends Task {
-    _done = false;
+    #done = false;
 
     init(){
         this.maxLayers = this.baseData.maxLayers;
@@ -21,7 +21,7 @@ class LayeredTask extends Task {
     }
 
     adjustLayerColorsByLevel() {
-        if (this._done || this.level >= this.maxLayers) {
+        if (this.#done || this.level >= this.maxLayers) {
             this.onDone();
             return;
         }
@@ -41,11 +41,11 @@ class LayeredTask extends Task {
         this.taskProgressBar.style.backgroundColor = lastLayerData.color;
         this.taskProgressBarFill.style.width = '0%';
         this.taskProgressBar.getElementsByClassName('name')[0].textContent = 'Defeated';
-        this._done = true;
+        this.#done = true;
     }
 
     isDone(){
-        return this._done;
+        return this.#done;
     }
 }
 
@@ -53,7 +53,7 @@ class Battle extends LayeredTask {
     onDone() {
         super.onDone();
         Events.GameOver.trigger({
-            bossDefeated: this._done,
+            bossDefeated: this.isDone(),
         });
     }
 }

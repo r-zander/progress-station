@@ -793,6 +793,7 @@ function assignMethods() {
     gameData.currentJob = gameData.taskData[gameData.currentJob.name];
     gameData.currentSkill = gameData.taskData[gameData.currentSkill.name];
     gameData.currentProperty = gameData.itemData[gameData.currentProperty.name];
+    gameData.currentBattle = gameData.battleData[gameData.currentBattle.name];
     const newArray = [];
     for (let misc of gameData.currentMisc) {
         newArray.push(gameData.itemData[misc.name]);
@@ -903,8 +904,8 @@ function initCurrentValues() {
     gameData.currentJob = gameData.taskData['Beggar'];
     gameData.currentSkill = gameData.taskData['Concentration'];
     gameData.currentProperty = gameData.itemData['Homeless'];
-    gameData.currentMisc = [];
     gameData.currentBattle = gameData.battleData['Destroyer'];
+    gameData.currentMisc = [];
 }
 
 function initGameOverState(){
@@ -949,6 +950,7 @@ function init() {
     createData(gameData.battleData, battleBaseData);
     createData(gameData.itemData, itemBaseData);
 
+    initCurrentValues();
     initGameOverState();
 
     gameData.requirements = createRequirements(getElementsByClass, getTaskElement, getItemElement);
@@ -959,7 +961,6 @@ function init() {
     }
 
     loadGameData();
-    initCurrentValues();
 
     setCustomEffects();
     addMultipliers();
