@@ -22,6 +22,10 @@ const coinColors = {
     'c': '#a15c2f'
 };
 
+const battleBaseData = {
+    'Destroyer': {name: 'Destroyer', maxXp: 50, maxLayers: 5, progressBarId: 'battleProgressBar'},
+};
+
 const jobBaseData = {
     'Beggar': {name: 'Beggar', maxXp: 50, income: 5},
     'Farmer': {name: 'Farmer', maxXp: 100, income: 9},
@@ -187,6 +191,16 @@ const tooltips = {
     'Library': 'Stores a collection of books, each containing vast amounts of information from basic life skills to complex magic spells.',
 };
 
+const layerData = [
+    new LayerData('#ffe119'),
+    new LayerData('#f58231'),
+    new LayerData('#e6194B'),
+    new LayerData('#911eb4'),
+    new LayerData('#4363d8'),
+    new LayerData('#47ff00'),
+]
+const lastLayerData= new LayerData('#000000');
+
 function createRequirements(getElementsByClass, getTaskElement, getItemElement) {
     return {
         //Other
@@ -197,6 +211,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Rebirth note 1': new AgeRequirement([Dom.get.byId('rebirthNote1')], [{requirement: 45}]),
         'Rebirth note 2': new AgeRequirement([Dom.get.byId('rebirthNote2')], [{requirement: 65}]),
         'Rebirth note 3': new AgeRequirement([Dom.get.byId('rebirthNote3')], [{requirement: 200}]),
+        'Battle tab': new AgeRequirement([Dom.get.byId('battleTabButton')], [{requirement: 0}]),
         'Evil info': new EvilRequirement([Dom.get.byId('evilInfo')], [{requirement: 1}]),
         'Time warping info': new TaskRequirement([Dom.get.byId('timeWarping')], [{task: 'Mage', requirement: 10}]),
         'Automation': new AgeRequirement([Dom.get.byId('automation')], [{requirement: 20}]),

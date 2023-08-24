@@ -4,6 +4,7 @@
 let gameData = {
     taskData: {},
     itemData: {},
+    battleData: {},
 
     coins: 0,
     days: 365 * 14,
@@ -20,6 +21,7 @@ let gameData = {
     currentSkill: null,
     currentProperty: null,
     currentMisc: null,
+    currentBattle: null,
 
     stationName: defaultStationName,
     selectedTab: 'jobs',
@@ -44,6 +46,8 @@ const tabButtons = {
     'rebirth': document.getElementById('rebirthTabButton'),
     'settings': document.getElementById('settingsTabButton'),
 }
+const gameOverMessageWinElement = document.getElementById('gameOverMessageWin');
+const gameOverMessageLoseElement = document.getElementById('gameOverMessageLose');
 
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
@@ -162,6 +166,12 @@ function setMisc(miscName) {
     }
 }
 
+function setBattle(name) {
+    gameData.currentBattle = gameData.battleData[name];
+    const nameTitle = document.getElementById('battleName');
+    nameTitle.textContent = gameData.currentBattle.name;
+}
+
 function createData(data, baseData) {
     for (let key in baseData) {
         const entity = baseData[key];
@@ -170,7 +180,12 @@ function createData(data, baseData) {
 }
 
 function createEntity(data, entity) {
-    if ('income' in entity) {
+    if ('maxLayers' in entity) {
+        const battle = new Battle(entity);
+        battle.init();
+        data[entity.name] = battle;
+    }
+    else if ('income' in entity) {
         data[entity.name] = new Job(entity);
     } else if ('maxXp' in entity) {
         data[entity.name] = new Skill(entity);
@@ -263,6 +278,18 @@ function updateQuickTaskDisplay(taskType) {
     const progressBar = quickTaskDisplayElement.getElementsByClassName(taskType)[0];
     progressBar.getElementsByClassName('name')[0].textContent = currentTask.name + ' lvl ' + currentTask.level;
     progressBar.getElementsByClassName('progressFill')[0].style.width = currentTask.xp / currentTask.getMaxXp() * 100 + '%';
+}
+
+function updateBattleTaskDisplay() {
+    const currentTask = gameData.currentBattle;
+    if (currentTask === null || currentTask.isDone()) {
+        return;
+    }
+    const progressBar = document.getElementById('battleProgressBar');
+    const battleNameElement = document.getElementById('battleName');
+    battleNameElement.textContent = currentTask.name;
+    progressBar.getElementsByClassName('name')[0].textContent = currentTask.name + ' layer ' + (currentTask.maxLayers - currentTask.level);
+    progressBar.getElementsByClassName('progressFill')[0].style.width = (1 - (currentTask.xp / currentTask.getMaxXp())) * 100 + '%';
 }
 
 function updateRequiredRows(data, categoryType) {
@@ -456,6 +483,8 @@ function updateBodyClasses() {
 }
 
 function doTask(task) {
+    if (task == null) return;
+    if (task instanceof LayeredTask && task.isDone()) return;
     task.increaseXp();
     if (task instanceof Job) {
         increaseCoins();
@@ -611,6 +640,11 @@ function getTaskElement(taskName) {
     return document.getElementById(task.id);
 }
 
+function getBattleElement(taskName) {
+    const task = gameData.battleData[taskName];
+    return document.getElementById(task.baseData.progressBarId);
+}
+
 function getItemElement(itemName) {
     const item = gameData.itemData[itemName];
     return document.getElementById(item.id);
@@ -731,6 +765,14 @@ function assignMethods() {
         gameData.itemData[key] = item;
     }
 
+    for (let key in gameData.battleData) {
+        let battle = gameData.battleData[key];
+        battle.baseData = battleBaseData[battle.name];
+        battle = Object.assign(new Battle(battleBaseData[battle.name]), battle);
+        battle.init();
+        gameData.battleData[key] = battle;
+    }
+
     for (let key in gameData.requirements) {
         let requirement = gameData.requirements[key];
         switch (requirement.type) {
@@ -757,6 +799,11 @@ function assignMethods() {
     gameData.currentJob = gameData.taskData[gameData.currentJob.name];
     gameData.currentSkill = gameData.taskData[gameData.currentSkill.name];
     gameData.currentProperty = gameData.itemData[gameData.currentProperty.name];
+    if (gameData.currentBattle !== null){
+        preparedBattle = gameData.currentBattle.name;
+        startBossBattle();
+    }
+
     const newArray = [];
     for (let misc of gameData.currentMisc) {
         newArray.push(gameData.itemData[misc.name]);
@@ -794,6 +841,7 @@ function loadGameData() {
         replaceSaveDict(gameData.requirements, gameDataSave.requirements);
         replaceSaveDict(gameData.taskData, gameDataSave.taskData);
         replaceSaveDict(gameData.itemData, gameDataSave.itemData);
+        replaceSaveDict(gameData.battleData, gameDataSave.battleData);
 
         gameData = gameDataSave;
     }
@@ -811,6 +859,7 @@ function updateUI() {
     updateHeaderRows(skillCategories);
     updateQuickTaskDisplay('job');
     updateQuickTaskDisplay('skill');
+    updateBattleTaskDisplay();
     hideEntities();
     updateText();
     updateBodyClasses();
@@ -822,6 +871,7 @@ function update() {
     autoLearn();
     doTask(gameData.currentJob);
     doTask(gameData.currentSkill);
+    doTask(gameData.currentBattle);
     applyExpenses();
     updateUI();
 }
@@ -860,6 +910,48 @@ function initStationName() {
     });
 }
 
+function initCurrentValues() {
+    gameData.currentJob = gameData.taskData['Beggar'];
+    gameData.currentSkill = gameData.taskData['Concentration'];
+    gameData.currentProperty = gameData.itemData['Homeless'];
+    gameData.currentMisc = []
+}
+
+let preparedBattle;
+
+function initBattle(name){
+    const gameOverMessageWinElement = document.getElementById('gameOverMessageWin');
+    const gameOverMessageLoseElement = document.getElementById('gameOverMessageLose');
+    const battleFlavorMessageElement = document.getElementById('battleFlavorMessage');
+    gameOverMessageWinElement.hidden = true;
+    gameOverMessageLoseElement.hidden = true;
+    battleFlavorMessageElement.hidden = false;
+
+    preparedBattle = name;
+    document.getElementById('battleStartButton').onclick = startBossBattle;
+
+    Events.GameOver.subscribe(function (data) {
+        if (data.bossDefeated) {
+            gameOverMessageWinElement.hidden = false;
+        } else {
+            gameOverMessageLoseElement.hidden = false;
+        }
+        battleFlavorMessageElement.hidden = true;
+
+        const battleStartButton = document.getElementById('battleStartButton');
+        battleStartButton.hidden = true;
+    });
+}
+
+function startBossBattle(){
+    setBattle(preparedBattle);
+    const progressBar = document.getElementById('battleProgressBar');
+    progressBar.hidden = false;
+
+    const battleStartButton = document.getElementById('battleStartButton');
+    battleStartButton.hidden = true;
+}
+
 function initSettings() {
     const background = gameData.settings.background;
     if (isString(background)) {
@@ -886,12 +978,11 @@ function init() {
 
     createData(gameData.taskData, jobBaseData);
     createData(gameData.taskData, skillBaseData);
+    createData(gameData.battleData, battleBaseData);
     createData(gameData.itemData, itemBaseData);
 
-    gameData.currentJob = gameData.taskData['Beggar'];
-    gameData.currentSkill = gameData.taskData['Concentration'];
-    gameData.currentProperty = gameData.itemData['Homeless'];
-    gameData.currentMisc = [];
+    initCurrentValues();
+    initBattle('Destroyer');
 
     gameData.requirements = createRequirements(getElementsByClass, getTaskElement, getItemElement);
 

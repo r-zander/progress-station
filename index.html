@@ -129,6 +129,7 @@
                 <div class="w3-button w3-bar-item tabButton" id="skillsTabButton" onClick="setTab(this, 'skills')">Research</div>
                 <div class="w3-button w3-bar-item tabButton" id="shopTabButton" onClick="setTab(this, 'shop')">Sectors</div>
                 <div class="w3-button w3-bar-item tabButton" id="rebirthTabButton" onClick="setTab(this, 'rebirth')">Captain's Log</div>
+                <div class="w3-button w3-bar-item tabButton" id="battleTabButton" onClick="setTab(this, 'battleTab')">Boss Battle</div>
                 <div class="w3-button w3-bar-item tabButton" id="settingsTabButton" onClick="setTab(this, 'settings')" style="float: right">Settings</div>
             </div>
 
@@ -284,6 +285,32 @@
                     </ul>
                 </div>
 
+                <div class="tab" id="battleTab">
+                    <div class="text-strap">Encounter</div>
+                    <h2 id="battleName" class="small-margin">Destroyer</h2>
+                    <div class="battle-flavor-text medium-margin" id="battleFlavorMessage">The entity known only as the 'Destroyer' has caught up with you.
+                        <br>You are facing a dark mass of writhing tentacles, teeth and eyes that are fixated on the station.
+                        <br>Slowly, it moves towards you. Brace for impact!</div>
+                    <div class="gameOverMessage battle-flavor-text-win" id="gameOverMessageWin" hidden>Congratulations! <br>You managed to blast through the Destroyer's near endless defenses. Your world is safe.</div>
+                    <div class="gameOverMessage battle-flavor-text-lose" id="gameOverMessageLose" hidden>The Destroyer's power is overwhelming. Your only hope is to engage the Temporus artifact and attempt a time jump. You will lose all of your Modules and Exploration progress, but will progress much faster the next time around.</div>
+                    <button id="battleStartButton" class="button medium-margin">
+                        <span class="name">Start Battle</span>
+                    </button>
+                    <div id="battleProgressBar" class="medium-margin battle battle-bar progressBar" hidden>
+                        <div class="progress-fill progressFill battle current"></div>
+                        <div class="progress-text name">Task</div>
+                    </div>
+                    <div id="gameOverMessageWin" class="gameOverMessage">
+                        Congratulations!<br />
+                        You managed to blast through the Destroyer's near endless defenses. Your universe is safe.
+                    </div>
+                    <div id="gameOverMessageLose" class="gameOverMessage">
+                        The Destroyer's power is overwhelming. Your only hope is to engage the Temporus artifact
+                        and attempt a time jump. You will lose all of your Modules and Exploration progress, but
+                        will progress much faster the next time around.
+                    </div>
+                </div>
+
                 <div class="tab" id="settings">
                     <ul>
                         <li>
@@ -353,6 +380,7 @@
     <script type="text/javascript" src="js/utils.js"></script>
     <script type="text/javascript" src="js/events.js"></script>
     <script type="text/javascript" src="js/classes.js"></script>
+    <script type="text/javascript" src="js/battle.js"></script>
     <script type="text/javascript" src="js/gameConfig.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/vfx.js"></script>
