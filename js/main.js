@@ -22,6 +22,12 @@ let gameData = {
     currentMisc: null,
 
     stationName: defaultStationName,
+    selectedTab: 'jobs',
+    settings: {
+        darkMode: true,
+        sciFiMode: true,
+        background: 'space',
+    }
 };
 
 const tempData = {};
@@ -31,7 +37,13 @@ let skillWithLowestMaxXp = null;
 const autoPromoteElement = document.getElementById('autoPromote');
 const autoLearnElement = document.getElementById('autoLearn');
 
-const jobTabButton = document.getElementById('jobTabButton');
+const tabButtons = {
+    'jobs': document.getElementById('jobsTabButton'),
+    'skills': document.getElementById('skillsTabButton'),
+    'shop': document.getElementById('shopTabButton'),
+    'rebirth': document.getElementById('rebirthTabButton'),
+    'settings': document.getElementById('settingsTabButton'),
+}
 
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
@@ -111,6 +123,7 @@ function setTab(element, selectedTab) {
         tabButton.classList.remove('w3-blue-gray');
     }
     element.classList.add('w3-blue-gray');
+    gameData.selectedTab = selectedTab;
 }
 
 // noinspection JSUnusedGlobalSymbols used in HTML
@@ -607,14 +620,26 @@ function getElementsByClass(className) {
     return document.getElementsByClassName(removeSpaces(className));
 }
 
-function setLightDarkMode() {
+function toggleLightDarkMode(force = undefined) {
     const body = document.getElementById('body');
-    body.classList.toggle('dark');
+    gameData.settings.darkMode = body.classList.toggle('dark', force);
 }
 
-function setSciFiMode() {
+function toggleSciFiMode(force = undefined) {
     const body = document.getElementById('body');
-    body.classList.toggle('sci-fi');
+    gameData.settings.sciFiMode = body.classList.toggle('sci-fi', force);
+}
+
+function setBackground(background) {
+    const body = document.getElementById('body');
+    body.classList.forEach(function (cssClass, index, classList) {
+        if (cssClass.startsWith('background-')) {
+            classList.remove(cssClass);
+        }
+    });
+
+    body.classList.add('background-' + background);
+    gameData.settings.background = background;
 }
 
 // TODO remove this function, it's an anti-pattern
@@ -641,7 +666,7 @@ function rebirthTwo() {
 }
 
 function rebirthReset() {
-    setTab(jobTabButton, 'jobs');
+    setTab(tabButtons.jobs, 'jobs');
 
     // TODO encapsulate with start data
     gameData.coins = 0;
@@ -835,6 +860,25 @@ function initStationName() {
     });
 }
 
+function initSettings() {
+    const background = gameData.settings.background;
+    if (isString(background)) {
+        document.querySelector(`.background-${background} > input[type="radio"]`).checked = true;
+        setBackground(background);
+    }
+
+    if (isBoolean(gameData.settings.darkMode)) {
+        toggleLightDarkMode(gameData.settings.darkMode);
+    }
+    if (isBoolean(gameData.settings.sciFiMode)) {
+        toggleSciFiMode(gameData.settings.sciFiMode);
+    }
+}
+
+function displayLoaded() {
+    document.getElementById('main').style.opacity = '1.0';
+}
+
 function init() {
     createAllRows(jobCategories, 'jobTable');
     createAllRows(skillCategories, 'skillTable');
@@ -861,10 +905,17 @@ function init() {
     setCustomEffects();
     addMultipliers();
 
-    setTab(jobTabButton, 'jobs');
+    if (tabButtons.hasOwnProperty(gameData.selectedTab)) {
+        setTab(tabButtons[gameData.selectedTab], gameData.selectedTab);
+    } else {
+        setTab(tabButtons.jobs, 'jobs');
+    }
     autoLearnElement.checked = gameData.autoLearnEnabled;
     autoPromoteElement.checked = gameData.autoPromoteEnabled;
     initStationName();
+    initSettings();
+
+    displayLoaded();
 
     update();
     setInterval(update, 1000 / updateSpeed);

@@ -5,16 +5,30 @@
     <link rel="stylesheet" type="text/css" href="css/styles.css">
     <link rel="stylesheet" type="text/css" href="css/dark.css">
     <!-- TODO replace lol -->
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="vendor/w3.css">
     <link rel="stylesheet" type="text/css" href="css/adjustments.css">
     <link rel="stylesheet" type="text/css" href="css/vfx.css">
     <link rel="stylesheet" type="text/css" href="css/sci-fi.css">
     <title>Progress Station</title>
 </head>
-<body id="body" class="dark sci-fi">
-    <div class="w3-margin"> 
+<body id="body" class="dark sci-fi background-space">
+    <section id="starBackground" class="stars-active">
+        <div class="stars" id="stars"></div>
+        <div class="stars" id="stars2"></div>
+        <div class="stars" id="stars3"></div>
+        <div class="stars" id="stars4"></div>
+        <div id="stars-overlay"></div>
+        <div id="blue-planet-wrapper">
+            <img id="blue-planet" alt="Blue Planet Illustration" src="img/planets/blue-planet.svg">
+        </div>
+        <img id="moon" alt="Moon Illustration" src="img/planets/moon.svg">
+        <img id="gas-planet" alt="Gas Planet Illustration" src="img/planets/gas-planet.svg">
+        <div id="blue-planet-overlay"></div>
+    </section>
+
+    <main id="main" class="w3-margin" style="opacity: 0">
         <h1>Progress Station</h1>
-        <div style="width: 1220px; height: 600px"> 
+        <div style="width: 1220px; height: 600px">
             <div class="panel w3-padding" style="width: 300px; height: auto; float: left">
                 <span id="deathText">
                     <div style="font-size: large; color: red">Age has caught up to you</div>
@@ -25,7 +39,7 @@
                 <div class="" style="font-size: large">Intergalactic cycles: <span id="ageDisplay">14</span> <span id="dayDisplay">0</span></div>
                 <div class="" style="font-size: large">Danger <span id="danger" style="color: orange">54.2%</span></div>
                 <div class="sidebar-element" style="color: gray">Station age: <span id="lifespanDisplay">70</span> years</div>
-                
+
                 <button id="pauseButton" class="w3-button button sidebar-element" onClick="setPause()">Pause</button>
 
                 <span id="automation" class="inline" style="margin-left: 8px">
@@ -78,7 +92,7 @@
 
                     <div style="width: 230px" class="small-margin skill progress-bar progressBar">
                         <div class="progress-fill progressFill current"></div>
-                        <div class="progress-text name">Task</div>              
+                        <div class="progress-text name">Task</div>
                     </div>
                     <div class="sidebar-element" style="color: gray">Current research</div>
                 </span>
@@ -95,7 +109,7 @@
                 <span id="scheduling">
                     <div style="font-size: large">Scheduling</div>
                     <div style="color: gray" class="sidebar-element">Schedule time to jobs/skills</div>
-                    <span style="height: 30px"> 
+                    <span style="height: 30px">
                         <p style="width: 5px">Jobs</br>(32%)</p>
                         <input id="schedulingSlider" class="slider" type="range" min="0" max="100" value="0">
                         <p style="width: 5px">Skills</br>(68%)</p>
@@ -111,11 +125,11 @@
             </div>
 
             <div class="panel w3-margin-left" style="width: 900px; height: 40px; float: left">
-                <div class="w3-button w3-bar-item tabButton" id="jobTabButton" onClick="setTab(this, 'jobs')">Modules</div>
-                <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'skills')">Research</div>
+                <div class="w3-button w3-bar-item tabButton" id="jobsTabButton" onClick="setTab(this, 'jobs')">Modules</div>
+                <div class="w3-button w3-bar-item tabButton" id="skillsTabButton" onClick="setTab(this, 'skills')">Research</div>
                 <div class="w3-button w3-bar-item tabButton" id="shopTabButton" onClick="setTab(this, 'shop')">Sectors</div>
                 <div class="w3-button w3-bar-item tabButton" id="rebirthTabButton" onClick="setTab(this, 'rebirth')">Captain's Log</div>
-                <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'settings')" style="float: right">Settings</div>
+                <div class="w3-button w3-bar-item tabButton" id="settingsTabButton" onClick="setTab(this, 'settings')" style="float: right">Settings</div>
             </div>
 
             <div class="panel w3-margin-left w3-margin-top w3-padding" style="width: 900px; height: auto; float: left">
@@ -171,12 +185,12 @@
                 <template class="rowItemTemplate">
                     <tr>
                         <td>
-                            
+
                             <button class="button item-button tooltip">
                                 <span class="name"></span>
                                 <span class="tooltipText">tooltip</span>
                             </button>
-                            
+
                         </td>
                         <td>
                             <div class="radio w3-border w3-circle">
@@ -195,7 +209,7 @@
 
                 <template class="requiredRowTemplate">
                     <td class="w3-text-gray" style="padding-left: 16px" colspan=5>
-                        Required: 
+                        Required:
                         <span class="value" colspan=5>
                             <span class="levels"></span>
                             <span class="coins">
@@ -206,7 +220,7 @@
                             </span>
                             <span style="color: rgb(200, 0, 0)" class="evil"></span>
                         </span>
-                    </td> 
+                    </td>
                 </template>
 
                 <div class="tab" id="jobs">
@@ -288,11 +302,34 @@
                         </li>
                         <li>
                             <h2>Light/dark mode</h2>
-                            <button class="w3-button button" onClick="setLightDarkMode()">Toggle</button>
+                            <button class="w3-button button" onClick="toggleLightDarkMode()">Toggle</button>
                         </li>
                         <li>
-                            <h2>Sci-fi mode</h2>
-                            <button class="w3-button button" onClick="setSciFiMode()">Toggle</button>
+                            <h2 class="unstable">Sci-fi mode</h2>
+                            <button class="w3-button button" onClick="toggleSciFiMode()">Toggle</button>
+                        </li>
+                        <li>
+                            <h2 class="unstable">Background</h2>
+                            <label class="background background-simple">
+                                <input type="radio" name="background" onClick="setBackground('simple')"/>
+                                Simple Color
+                            </label>
+                            <label class="background background-triangles1">
+                                <input type="radio" name="background" onClick="setBackground('triangles1')"/>
+                                Trianglify
+                            </label>
+                            <!--<label class="background background-triangles2">
+                                <input type="radio" name="background" onClick="setBackground('triangles2')"/>
+                                Trianglify + Stars
+                            </label>-->
+                            <label class="background background-space">
+                                <input type="radio" name="background" onClick="setBackground('space')"/>
+                                Space
+                            </label>
+                            <label class="background background-hexagons">
+                                <input type="radio" name="background" onClick="setBackground('hexagons')"/>
+                                Bestagons
+                            </label>
                         </li>
                         <li>
                             <h2>Join the discord community!</h2>
@@ -309,7 +346,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- Do not include background timer during local development -> it makes debugging a pain -->
     <!--<script type="text/javascript" src="js/HackTimer.js"></script>-->

@@ -1,10 +1,10 @@
 .dark {
-    background-color: rgb(32, 32, 32);
+    background-color: var(--dark-bg-color);
     color: white
 }
 
 .dark .panel {
-    background-color: rgba(46, 46, 46, 0.8);
+    background-color: rgb(46, 46, 46);
 }
 
 .dark .button {

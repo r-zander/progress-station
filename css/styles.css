@@ -1,9 +1,5 @@
 body {
-    background-color: rgb(243, 243, 243);
-    background-image: url("../img/background.svg");
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
+    background-color: var(--light-bg-color);
 }
 
 .w3-bar-item {
@@ -77,7 +73,7 @@ button:focus {
     position: relative;
     display: inline-block;
 }
-  
+
 .tooltip .tooltipText {
     visibility: hidden;
     width: 240px;
@@ -96,7 +92,7 @@ button:focus {
     opacity: 0;
     transition: opacity 0.5s;
 }
-  
+
 .tooltip:hover .tooltipText {
     visibility: visible;
     opacity: 0.8;
@@ -149,7 +145,7 @@ button:focus {
 }
 
 .panel {
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: white;
 }
 
 .small-margin  {

@@ -16,6 +16,14 @@ function isNumber(variable) {
     return typeof variable === 'number';
 }
 
+function isString(variable) {
+    return typeof variable === 'string';
+}
+
+function isBoolean(variable) {
+    return typeof variable === 'boolean';
+}
+
 /**
  * @return whether or not the element was found and removed.
  */
