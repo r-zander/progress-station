@@ -286,6 +286,8 @@ function updateBattleTaskDisplay() {
         return;
     }
     const progressBar = document.getElementById('battleProgressBar');
+    const battleNameElement = document.getElementById('battleName');
+    battleNameElement.textContent = currentTask.name;
     progressBar.getElementsByClassName('name')[0].textContent = currentTask.name + ' layer ' + (currentTask.maxLayers - currentTask.level);
     progressBar.getElementsByClassName('progressFill')[0].style.width = (1 - (currentTask.xp / currentTask.getMaxXp())) * 100 + '%';
 }
