@@ -32,14 +32,14 @@
         <div style="width: 1220px; height: 600px">
             <div class="panel w3-padding" style="width: 300px; height: auto; float: left">
                 <span id="deathText">
-                    <div style="font-size: large; color: red">Age has caught up to you</div>
-                    <div class="sidebar-element" style="color: gray">Your age has met your lifespan, use the amulet to rebirth before you pass away</div>
+                    <div style="font-size: large; color: red; text-shadow: 1px 1px 2px black;"><b>The Destroyer</b> found you</div>
+                    <div class="sidebar-element" style="color: gray">The danger was too high and now you have to fight for your life.</div>
                 </span>
 
-                <div id="name-display" style="font-size: large">USS Progress</div>
+                <h2 id="name-display" class="sidebar-element" style="margin-top: 0">USS Progress</h2>
                 <div class="" style="font-size: large">Intergalactic cycles: <span id="ageDisplay">14</span> <span id="dayDisplay">0</span></div>
-                <div class="" style="font-size: large">Danger <span id="danger" style="color: orange">54.2%</span></div>
-                <div class="sidebar-element" style="color: gray">Station age: <span id="lifespanDisplay">70</span> years</div>
+                <div class="" style="font-size: large">Danger <span id="dangerLevel" style="color: orange">54.2%</span></div>
+                <div class="sidebar-element" style="color: gray">Station age: <span id="stationAge">70</span> kIC</div>
 
                 <button id="pauseButton" class="w3-button button sidebar-element" onClick="setPause()">Pause</button>
 
@@ -365,6 +365,7 @@
 
     <!-- Do not include background timer during local development -> it makes debugging a pain -->
     <!--<script type="text/javascript" src="js/HackTimer.js"></script>-->
+    <script type="text/javascript" src="js/p5.Color.js"></script>
     <script type="text/javascript" src="js/utils.js"></script>
     <script type="text/javascript" src="js/events.js"></script>
     <script type="text/javascript" src="js/classes.js"></script>

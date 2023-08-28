@@ -4,6 +4,11 @@
 const updateSpeed = 20;
 
 const baseLifespan = 365 * 70;
+const dangerColors = [
+    new Color([0, 128, 0], 'RGB'),    // 0% color: dark green
+    new Color([255, 255, 0], 'RGB'),  // 50% color: yellow
+    new Color([128, 0, 0], 'RGB'),    // 100% color: dark red
+];
 
 const defaultStationName = 'USS Progressor';
 const emptyStationName = 'Unknown Station';

@@ -7,15 +7,16 @@ let gameData = {
     battleData: {},
 
     storedEnergy: 0,
-    days: 365 * 14,
     evil: 0,
     paused: false,
     timeWarpingEnabled: true,
     autoLearnEnabled: false,
     autoPromoteEnabled: false,
 
+    days: 365 * 14,
     rebirthOneCount: 0,
     rebirthTwoCount: 0,
+    totalDays: 365 * 14,
 
     currentJob: null,
     currentSkill: null,
@@ -90,6 +91,11 @@ function getGameSpeed() {
     const timeWarping = gameData.taskData['Time warping'];
     const timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1;
     return baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed;
+}
+
+function getDangerLevel() {
+    // TODO use game designed value - right now this is just the age/lifespan
+    return gameData.days / getLifespan();
 }
 
 function applyEnergyUsage() {
@@ -443,13 +449,7 @@ function updateHeaderRows(categories) {
     }
 }
 
-function updateText() {
-    //Sidebar
-    document.getElementById('ageDisplay').textContent = String(daysToYears(gameData.days));
-    document.getElementById('dayDisplay').textContent = String(getDay());
-    document.getElementById('lifespanDisplay').textContent = String(daysToYears(getLifespan()));
-    document.getElementById('pauseButton').textContent = gameData.paused ? 'Play' : 'Pause';
-
+function updateEnergyBar() {
     const energyDisplayElement = document.getElementById('energyDisplay');
     updateEnergyDisplay(getEnergyGeneration(), energyDisplayElement.querySelector('.energy-generated > data'));
     updateEnergyDisplay(getNet(), energyDisplayElement.querySelector('.energy-net > data'), {forceSign: true});
@@ -457,6 +457,38 @@ function updateText() {
     updateEnergyDisplay(getMaxEnergy(), energyDisplayElement.querySelector('.energy-max > data'), {unit: units.storedEnergy});
     updateEnergyDisplay(getEnergyUsage(), energyDisplayElement.querySelector('.energy-usage > data'));
     energyDisplayElement.querySelector('.energy-fill').style.width = Math.min(gameData.storedEnergy / getMaxEnergy(), 1.0) * 100 + '%';
+}
+
+function updateDangerDisplay() {
+    const dangerLevel = getDangerLevel();
+    const dangerLevelElement = document.getElementById('dangerLevel');
+    dangerLevelElement.textContent = (dangerLevel * 100).toFixed(1) + '%';
+    if (dangerLevel < 0.5) {
+        dangerLevelElement.style.color = lerpColor(
+            dangerColors[0],
+            dangerColors[1],
+            dangerLevel / 0.5,
+            'RGB'
+        ).toString('rgb');
+    } else {
+        dangerLevelElement.style.color = lerpColor(
+            dangerColors[1],
+            dangerColors[2],
+            (dangerLevel - 0.5) / 0.5,
+            'RGB'
+        ).toString('rgb');
+    }
+}
+
+function updateText() {
+    //Sidebar
+    document.getElementById('ageDisplay').textContent = String(daysToYears(gameData.days));
+    document.getElementById('dayDisplay').textContent = String(getDay()).padStart(3, '0');
+    document.getElementById('stationAge').textContent = String(daysToYears(gameData.totalDays));
+    document.getElementById('pauseButton').textContent = gameData.paused ? 'Play' : 'Pause';
+
+    updateDangerDisplay();
+    updateEnergyBar();
 
     document.getElementById('happinessDisplay').textContent = formatPopulation(getPopulation());
 
@@ -630,6 +662,7 @@ function getDay() {
 function increaseDays() {
     const increase = applySpeed(1);
     gameData.days += increase;
+    gameData.totalDays += increase;
 }
 
 /**
