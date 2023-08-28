@@ -2,22 +2,32 @@ body {
     background-color: var(--light-bg-color);
 }
 
-.w3-bar-item {
-    width: 100px;
-    height: 40px;
-    text-align: center;
+p {
+    margin: 0;
 }
 
 td {
     vertical-align: middle !important;
 }
 
+data {
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 110%;
+}
+
+.w3-bar-item {
+    width: 100px;
+    height: 40px;
+    text-align: center;
+}
+
 .progress-text {
     position: absolute;
-    top: 0px;
-    bottom: 0px;
+    top: 0;
+    bottom: 0;
     padding: 5px;
-    color: white
+    color: white;
 }
 
 .progress-bar {
@@ -34,6 +44,95 @@ td {
 
 .progress-fill.current {
     background-color: orange;
+}
+
+#energyDisplay {
+    cursor: pointer;
+    position: relative;
+}
+
+#energyDisplay .energy-bar {
+    position: relative;
+    background-color: rgb(12, 101, 173);
+    width: 100%;
+    color: white;
+    line-height: 23px;
+}
+
+.energy-text {
+    white-space: nowrap;
+}
+
+#energyDisplay .energy-fill {
+    position: relative; /* Contain the text elements */
+    height: 23px;
+    background-color: rgb(46, 148, 231)
+}
+
+#energyDisplay .energy-net {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    left: 0;
+    text-align: right;
+}
+
+#energyDisplay .energy-stored {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+#energyDisplay .detail {
+    display: none;
+}
+
+#energyDisplay:hover .detail,
+#energyDisplay.detailed .detail {
+    display: block;
+}
+
+#energyDisplay:hover .energy-fill,
+#energyDisplay.detailed .energy-fill {
+    position: static; /* Release the inner elements */
+}
+
+#energyDisplay:hover .energy-net,
+#energyDisplay.detailed .energy-net {
+    right: 0;
+    left: auto;
+}
+
+#energyDisplay .energy-generated {
+    text-align: center;
+}
+
+#energyDisplay .energy-max {
+    margin-left: auto;
+}
+
+.energy-generated {
+    color: #4CAF50;
+}
+
+.energy-usage {
+    color: #e63946;
+}
+
+#energyDisplay .above-energy-bar,
+#energyDisplay .below-energy-bar {
+    min-height: 1.7em;
+}
+
+#energyDisplay .below-energy-bar {
+    display: flex;
+    justify-content: space-between;
 }
 
 .hidden {
@@ -71,7 +170,6 @@ button:focus {
 
 .tooltip {
     position: relative;
-    display: inline-block;
 }
 
 .tooltip .tooltipText {
@@ -90,7 +188,7 @@ button:focus {
     left: 105%;
 
     opacity: 0;
-    transition: opacity 0.5s;
+    transition: opacity 0.25s;
 }
 
 .tooltip:hover .tooltipText {
@@ -100,44 +198,6 @@ button:focus {
 
 .sidebar-element {
     margin-bottom: 16px;
-}
-
-.slidecontainer {
-    width: 100%;
-}
-
-.slider {
-    -webkit-appearance: none;
-    width: 50%;
-    height: 15px;
-    border-radius: 5px;
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-}
-
-.slider:hover {
-    opacity: 1;
-}
-
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    background: #4CAF50;
-    cursor: pointer;
-}
-
-.slider::-moz-range-thumb {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    background: #4CAF50;
-    cursor: pointer;
 }
 
 .inline {
@@ -179,7 +239,7 @@ button:focus {
     margin-bottom: 1.5rem;
 }
 
-.gameOverMessage{
+.gameOverMessage {
     margin-top: 1rem;
     margin-bottom: 1rem;
 }

@@ -6,7 +6,7 @@ let gameData = {
     itemData: {},
     battleData: {},
 
-    coins: 0,
+    storedEnergy: 0,
     days: 365 * 14,
     evil: 0,
     paused: false,
@@ -92,25 +92,25 @@ function getGameSpeed() {
     return baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed;
 }
 
-function applyExpenses() {
-    const coins = applySpeed(getExpense());
-    gameData.coins -= coins;
-    if (gameData.coins < 0) {
-        goBankrupt();
+function applyEnergyUsage() {
+    const usage = applySpeed(getEnergyUsage());
+    gameData.storedEnergy -= usage;
+    if (gameData.storedEnergy < 0) {
+        goBlackout();
     }
 }
 
-function getExpense() {
-    let expense = 0;
-    expense += gameData.currentProperty.getExpense();
+function getEnergyUsage() {
+    let energyUsage = 0;
+    energyUsage += gameData.currentProperty.getEnergyUsage();
     for (let misc of gameData.currentMisc) {
-        expense += misc.getExpense();
+        energyUsage += misc.getEnergyUsage();
     }
-    return expense;
+    return energyUsage;
 }
 
-function goBankrupt() {
-    gameData.coins = 0;
+function goBlackout() {
+    gameData.storedEnergy = 0;
     gameData.currentProperty = gameData.itemData['Homeless'];
     gameData.currentMisc = [];
 }
@@ -185,7 +185,7 @@ function createEntity(data, entity) {
         battle.init();
         data[entity.name] = battle;
     }
-    else if ('income' in entity) {
+    else if ('energyGeneration' in entity) {
         data[entity.name] = new Job(entity);
     } else if ('maxXp' in entity) {
         data[entity.name] = new Skill(entity);
@@ -272,6 +272,13 @@ function createAllRows(categoryType, tableId) {
     }
 }
 
+function initSidebar(){
+    const energyDisplayElement = document.querySelector('#energyDisplay');
+    energyDisplayElement.addEventListener('click', function () {
+        energyDisplayElement.classList.toggle('detailed');
+    });
+}
+
 function updateQuickTaskDisplay(taskType) {
     const currentTask = taskType === 'job' ? gameData.currentJob : gameData.currentSkill;
     const quickTaskDisplayElement = document.getElementById('quickTaskDisplay');
@@ -331,20 +338,20 @@ function updateRequiredRows(data, categoryType) {
             const requirementObject = gameData.requirements[nextEntity.name];
             let requirements = requirementObject.requirements;
 
-            const coinElement = requiredRow.getElementsByClassName('coins')[0];
+            const energyStoredElement = requiredRow.getElementsByClassName('energy-stored')[0];
             const levelElement = requiredRow.getElementsByClassName('levels')[0];
             const evilElement = requiredRow.getElementsByClassName('evil')[0];
 
-            coinElement.classList.add('hiddenTask');
-            levelElement.classList.add('hiddenTask');
-            evilElement.classList.add('hiddenTask');
 
             let finalText = [];
             if (data === gameData.taskData) {
+                energyStoredElement.classList.add('hiddenTask');
                 if (requirementObject instanceof EvilRequirement) {
+                    levelElement.classList.add('hiddenTask');
                     evilElement.classList.remove('hiddenTask');
                     evilElement.textContent = format(requirements[0].requirement) + ' evil';
                 } else {
+                    evilElement.classList.add('hiddenTask');
                     levelElement.classList.remove('hiddenTask');
                     for (let requirement of requirements) {
                         const task = gameData.taskData[requirement.task];
@@ -355,8 +362,14 @@ function updateRequiredRows(data, categoryType) {
                     levelElement.textContent = finalText.join(', ');
                 }
             } else if (data === gameData.itemData) {
-                coinElement.classList.remove('hiddenTask');
-                formatCoins(requirements[0].requirement, coinElement);
+                evilElement.classList.add('hiddenTask');
+                levelElement.classList.add('hiddenTask');
+                energyStoredElement.classList.remove('hiddenTask');
+                updateEnergyDisplay(
+                    requirements[0].requirement,
+                    energyStoredElement.getElementsByTagName('data')[0],
+                    {unit: units.storedEnergy}
+                );
             }
         }
     }
@@ -383,14 +396,18 @@ function updateTaskRows() {
         }
 
         const valueElement = row.getElementsByClassName('value')[0];
-        valueElement.getElementsByClassName('income')[0].style.display = task instanceof Job ? 'block' : 'none';
+        valueElement.getElementsByClassName('energy-generated')[0].style.display = task instanceof Job ? 'block' : 'none';
         valueElement.getElementsByClassName('effect')[0].style.display = task instanceof Skill ? 'block' : 'none';
 
         const skipSkillElement = row.getElementsByClassName('skipSkill')[0];
-        skipSkillElement.style.display = task instanceof Skill && autoLearnElement.checked ? 'block' : 'none';
+        if (task instanceof Skill && autoLearnElement.checked) {
+            skipSkillElement.style.removeProperty('display');
+        } else {
+            skipSkillElement.style.display = 'none';
+        }
 
         if (task instanceof Job) {
-            formatCoins(task.getIncome(), valueElement.getElementsByClassName('income')[0]);
+            updateEnergyDisplay(task.getEnergyGeneration(), valueElement.querySelector('.energy-generated > data'));
         } else {
             valueElement.getElementsByClassName('effect')[0].textContent = task.getEffectDescription();
         }
@@ -402,12 +419,12 @@ function updateItemRows() {
         const item = gameData.itemData[key];
         const row = document.getElementById('row ' + item.name);
         const button = row.getElementsByClassName('button')[0];
-        button.disabled = gameData.coins < item.getExpense();
+        button.disabled = gameData.storedEnergy < item.getEnergyUsage();
         const active = row.getElementsByClassName('active')[0];
         const color = itemCategories['Properties'].includes(item.name) ? headerRowColors['Properties'] : headerRowColors['Misc'];
         active.style.backgroundColor = gameData.currentMisc.includes(item) || item === gameData.currentProperty ? color : 'white';
         row.getElementsByClassName('effect')[0].textContent = item.getEffectDescription();
-        formatCoins(item.getExpense(), row.getElementsByClassName('expense')[0]);
+        updateEnergyDisplay(item.getEnergyUsage(), row.querySelector('.energy-usage > data'));
     }
 }
 
@@ -418,7 +435,11 @@ function updateHeaderRows(categories) {
         const maxLevelElement = headerRow.getElementsByClassName('maxLevel')[0];
         gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove('hidden') : maxLevelElement.classList.add('hidden');
         const skipSkillElement = headerRow.getElementsByClassName('skipSkill')[0];
-        skipSkillElement.style.display = categories === skillCategories && autoLearnElement.checked ? 'block' : 'none';
+        if (categories === skillCategories && autoLearnElement.checked) {
+            skipSkillElement.style.removeProperty('display');
+        } else {
+            skipSkillElement.style.display = 'none';
+        }
     }
 }
 
@@ -429,11 +450,13 @@ function updateText() {
     document.getElementById('lifespanDisplay').textContent = String(daysToYears(getLifespan()));
     document.getElementById('pauseButton').textContent = gameData.paused ? 'Play' : 'Pause';
 
-    formatCoins(gameData.coins, document.getElementById('coinDisplay'));
-    setSignDisplay();
-    formatCoins(getNet(), document.getElementById('netDisplay'));
-    formatCoins(getIncome(), document.getElementById('incomeDisplay'));
-    formatCoins(getExpense(), document.getElementById('expenseDisplay'));
+    const energyDisplayElement = document.getElementById('energyDisplay');
+    updateEnergyDisplay(getEnergyGeneration(), energyDisplayElement.querySelector('.energy-generated > data'));
+    updateEnergyDisplay(getNet(), energyDisplayElement.querySelector('.energy-net > data'), {forceSign: true});
+    updateEnergyDisplay(gameData.storedEnergy, energyDisplayElement.querySelector('.energy-stored > data'), {unit: units.storedEnergy});
+    updateEnergyDisplay(getMaxEnergy(), energyDisplayElement.querySelector('.energy-max > data'), {unit: units.storedEnergy});
+    updateEnergyDisplay(getEnergyUsage(), energyDisplayElement.querySelector('.energy-usage > data'));
+    energyDisplayElement.querySelector('.energy-fill').style.width = Math.min(gameData.storedEnergy / getMaxEnergy(), 1.0) * 100 + '%';
 
     document.getElementById('happinessDisplay').textContent = formatPopulation(getPopulation());
 
@@ -444,12 +467,26 @@ function updateText() {
     document.getElementById('timeWarpingButton').textContent = gameData.timeWarpingEnabled ? 'Disable warp' : 'Enable warp';
 }
 
+/**
+ *
+ * @param {number} amount
+ * @param {HTMLDataElement} dataElement
+ * @param formatConfig
+ */
+function updateEnergyDisplay(amount, dataElement, formatConfig = {}) {
+    dataElement.value = String(amount);
+    dataElement.textContent = format(amount, Object.assign({
+        unit: units.energy,
+        prefixes: metricPrefixes
+    }, formatConfig));
+}
+
 function setSignDisplay() {
     const signDisplay = document.getElementById('signDisplay');
-    if (getIncome() > getExpense()) {
+    if (getEnergyGeneration() > getEnergyUsage()) {
         signDisplay.textContent = '+';
         signDisplay.style.color = 'green';
-    } else if (getExpense() > getIncome()) {
+    } else if (getEnergyUsage() > getEnergyGeneration()) {
         signDisplay.textContent = '-';
         signDisplay.style.color = 'red';
     } else {
@@ -459,7 +496,7 @@ function setSignDisplay() {
 }
 
 function getNet() {
-    return Math.abs(getIncome() - getExpense());
+    return getEnergyGeneration() - getEnergyUsage();
 }
 
 function hideEntities() {
@@ -487,19 +524,24 @@ function doTask(task) {
     if (task instanceof LayeredTask && task.isDone()) return;
     task.increaseXp();
     if (task instanceof Job) {
-        increaseCoins();
+        generateEnergy();
     }
 }
 
-function getIncome() {
-    let income = 0;
-    income += gameData.currentJob.getIncome();
-    return income;
+function getEnergyGeneration() {
+    let energy = 0;
+    energy += gameData.currentJob.getEnergyGeneration();
+    return energy;
 }
 
-function increaseCoins() {
-    const coins = applySpeed(getIncome());
-    gameData.coins += coins;
+function getMaxEnergy() {
+    // TODO
+    return 1000 + getEnergyGeneration() * 1000;
+}
+
+function generateEnergy() {
+    const generated = applySpeed(getEnergyGeneration());
+    gameData.storedEnergy += generated;
 }
 
 function daysToYears(days) {
@@ -590,42 +632,48 @@ function increaseDays() {
     gameData.days += increase;
 }
 
-function format(number) {
+/**
+ *
+ * @param {number} number
+ * @param config
+ * @return {string}
+ */
+function format(number, config = {}) {
+    const defaultConfig = {
+        prefixes: magnitudes,
+        unit: '',
+        forceSign: false,
+    };
+    config = Object.assign({}, defaultConfig, config);
 
     // what tier? (determines SI symbol)
-    const tier = Math.log10(number) / 3 | 0;
+    const tier = Math.log10(Math.abs(number)) / 3 | 0;
 
-    // if zero, we don't need a suffix
-    if (tier === 0) return number;
+    let prefix = '';
+    if (config.forceSign) {
+        if (Math.abs(number) <= 0.001) {
+            prefix = '±';
+        } else if (number > 0) {
+            prefix = '+';
+        }
+    }
 
     // get suffix and determine scale
-    const suffix = units[tier];
+    let suffix = config.prefixes[tier];
+    if (typeof config.unit === 'string' && config.unit.length > 0) {
+        suffix = ' ' + suffix + config.unit;
+    }
+
+    if (tier === 0) {
+        return prefix + number.toFixed(0) + suffix;
+    }
     const scale = Math.pow(10, tier * 3);
 
     // scale the number
     const scaled = number / scale;
 
     // format number and add suffix
-    return scaled.toFixed(1) + suffix;
-}
-
-function formatCoins(coins, element) {
-    let leftOver = coins;
-    let i = 0;
-    for (let tier of coinTiers) {
-        let x = Math.floor(leftOver / Math.pow(10, (coinTiers.length - i) * 2));
-        leftOver = Math.floor(leftOver - x * Math.pow(10, (coinTiers.length - i) * 2));
-        let text = format(String(x)) + tier + ' ';
-        element.children[i].textContent = x > 0 ? text : '';
-        element.children[i].style.color = coinColors[tier];
-        i += 1;
-    }
-    if (leftOver === 0 && coins > 0) {
-        element.children[3].textContent = '';
-        return;
-    }
-    element.children[3].textContent = String(Math.floor(leftOver)) + 'c';
-    element.children[3].style.color = coinColors['c'];
+    return prefix + scaled.toPrecision(3) + suffix;
 }
 
 function formatPopulation(population) {
@@ -703,7 +751,7 @@ function rebirthReset() {
     setTab(tabButtons.jobs, 'jobs');
 
     // TODO encapsulate with start data
-    gameData.coins = 0;
+    gameData.storedEnergy = 0;
     gameData.days = 365 * 14;
     gameData.currentJob = gameData.taskData['Beggar'];
     gameData.currentSkill = gameData.taskData['Concentration'];
@@ -747,7 +795,7 @@ function isAlive() {
 function assignMethods() {
     for (let key in gameData.taskData) {
         let task = gameData.taskData[key];
-        if (task.baseData.income) {
+        if (task.baseData.energyGeneration) {
             task.baseData = jobBaseData[task.name];
             task = Object.assign(new Job(jobBaseData[task.name]), task);
 
@@ -779,8 +827,8 @@ function assignMethods() {
             case 'task':
                 requirement = Object.assign(new TaskRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
-            case 'coins':
-                requirement = Object.assign(new CoinRequirement(requirement.elements, requirement.requirements), requirement);
+            case 'storedEnergy':
+                requirement = Object.assign(new StoredEnergyRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
             case 'age':
                 requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement);
@@ -872,7 +920,7 @@ function update() {
     doTask(gameData.currentJob);
     doTask(gameData.currentSkill);
     doTask(gameData.currentBattle);
-    applyExpenses();
+    applyEnergyUsage();
     updateUI();
 }
 
@@ -975,6 +1023,8 @@ function init() {
     createAllRows(jobCategories, 'jobTable');
     createAllRows(skillCategories, 'skillTable');
     createAllRows(itemCategories, 'itemTable');
+
+    initSidebar();
 
     createData(gameData.taskData, jobBaseData);
     createData(gameData.taskData, skillBaseData);
