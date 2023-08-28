@@ -55,13 +55,15 @@
                     </span>
                 </span>
 
-                <div id="energyDisplay">
-                    <p class="energy-generated energy-text">
-                        <span>Generated:</span>
-                        <data value="200">200 W</data>
-                    </p>
+                <div id="energyDisplay" class="sidebar-element tooltip">
+                    <div class="above-energy-bar">
+                        <p class="energy-generated energy-text detail">
+                            <span>Generated:</span>
+                            <data value="200">200 W</data>
+                        </p>
+                    </div>
                     <div class="energy-bar">
-                        <p class="energy-stored energy-text">Stored:
+                        <p class="energy-stored energy-text detail">Stored:
                             <data value="800">800 Wh</data>
                         </p>
                         <div class="energy-fill" style="width: 45%">
@@ -71,8 +73,8 @@
 
                         </div>
                     </div>
-                    <div style="display: flex; justify-content: space-between">
-                        <p class="energy-usage energy-text">
+                    <div class="below-energy-bar">
+                        <p class="energy-usage energy-text detail">
                             <span>Usage:</span>
                             <data value="180">180 W</data>
                         </p>
@@ -81,38 +83,10 @@
                             <data value="2200">2.2 kW</data>
                         </p>
                     </div>
+                    <span class="tooltipText" style="top: 16px;">Click to toggle detailed view.</span>
                 </div>
 
-                <div style="font-size: large; margin-top: 1rem;" id="coinDisplay">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-                <div style="color: gray">Balance (in watts)</div>
-
-                <ul class="sidebar-element" style="padding-left: 20px;">
-                    <li><span style="color: rgb(9, 160, 230)">Net: </span ><b id="signDisplay"></b><span id="netDisplay">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span></li>
-                    <li><span style="color: green">Generated: </span><span id="incomeDisplay">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span></li>
-                    <li><span style="color: red">Usage: </span><span id="expenseDisplay">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span></li>
-                </ul>
-
-                <span id="quickTaskDisplay">
+                <div id="quickTaskDisplay">
                     <div style="width: 230px" class="small-margin inline job progress-bar progressBar">
                         <div class="progress-fill progressFill current"></div>
                         <div class="progress-text name">Task</div>
@@ -124,15 +98,15 @@
                         <div class="progress-text name">Task</div>
                     </div>
                     <div class="sidebar-element" style="color: gray">Current research</div>
-                </span>
+                </div>
 
                 <div style="font-size: large"><span style="color: rgb(15, 105, 207)">Population: </span><span id="happinessDisplay"></span></div>
                 <div style="color: gray" class="sidebar-element">Affects all work speed</div>
 
-                <span id="evilInfo">
+                <div id="evilInfo">
                     <div style="font-size: large"><span style="color: rgb(200, 0, 0)">Evil: </span><span id="evilDisplay"></span></div>
                     <div style="color: gray" class="sidebar-element">Affects dark magic xp gain</div>
-                </span>
+                </div>
 
                 <!--
                 <span id="scheduling">
@@ -180,7 +154,7 @@
                         <th class="category" style="width: 250px">Item</th>
                         <th style="width: 100px">Active</th>
                         <th style="width: 250px">Effect</th>
-                        <th>Expense/day</th>
+                        <th>Usage/day</th>
                     </tr>
                 </template>
 
@@ -196,11 +170,8 @@
                         <td class="level">Level</td>
                         <td class="value">
                             <div class="effect"></div>
-                            <div class="income">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                                <span></span>
+                            <div class="energy-generated">
+                                <data value=""></data>
                             </div>
                         </td>
                         <td class="xpGain">Xp/day</td>
@@ -228,11 +199,8 @@
                             </div>
                         </td>
                         <td class="effect"></td>
-                        <td class="expense">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
+                        <td class="energy-usage">
+                            <data value=""></data>
                         </td>
                     </tr>
                 </template>
@@ -242,11 +210,8 @@
                         Required:
                         <span class="value" colspan=5>
                             <span class="levels"></span>
-                            <span class="coins">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                                <span></span>
+                            <span class="energy-stored">
+                                <data value=""></data> stored energy
                             </span>
                             <span style="color: rgb(200, 0, 0)" class="evil"></span>
                         </span>
@@ -288,7 +253,7 @@
                                 to see what happens.
                             </div>
                             <i style="color: grey">
-                                By touching the eyeball, you will be reborn and have to restart life again, losing all your levels and coins.
+                                By touching the eyeball, you will be reborn and have to restart life again, losing all your levels and stored energy.
                                 However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to: <b>1 + the max level of the skill or job / 10.</b>
                                 This means you will learn everything again much more quickly than you did in your previous life. <span style="color: rgb(200, 0, 0)">
                                 Something tells you that the amulet might transform even further after living for <b>2 whole centuries</b>...</span>
@@ -303,7 +268,7 @@
                                 A mouth emerges from its surface and begins to cackle, and proceeds to say: "So you've made it this far... Are you ready to embrace evil?"
                             </div>
                             <i style="color: rgb(200, 0, 0)">
-                                If you decide to embrace evil, all of your levels, coins and even max levels will be reset.
+                                If you decide to embrace evil, all of your levels, stored energy and even max levels will be reset.
                                 You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
                                 <b><span id="evilGainDisplay"></span> evil</b>, which will heavily impact your future lives.
                             </i>

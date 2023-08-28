@@ -12,6 +12,8 @@ td {
 
 data {
     font-family: monospace;
+    font-weight: bold;
+    font-size: 110%;
 }
 
 .w3-bar-item {
@@ -49,7 +51,7 @@ data {
     position: relative;
 }
 
-.energy-bar {
+#energyDisplay .energy-bar {
     position: relative;
     background-color: rgb(12, 101, 173);
     width: 100%;
@@ -61,18 +63,13 @@ data {
     white-space: nowrap;
 }
 
-.energy-fill {
+#energyDisplay .energy-fill {
     position: relative; /* Contain the text elements */
     height: 23px;
     background-color: rgb(46, 148, 231)
 }
 
-#energyDisplay:hover .energy-fill,
-#energyDisplay.detailed .energy-fill {
-    position: static; /* Release the inner elements */
-}
-
-.energy-net {
+#energyDisplay .energy-net {
     position: absolute;
     top: 0;
     bottom: 0;
@@ -83,9 +80,7 @@ data {
     text-align: right;
 }
 
-.energy-stored {
-    display: none;
-
+#energyDisplay .energy-stored {
     position: absolute;
     top: 0;
     bottom: 0;
@@ -93,6 +88,20 @@ data {
     /*transform: translateX(-50%);*/
     padding-right: 0.5rem;
     padding-left: 0.5rem;
+}
+
+#energyDisplay .detail {
+    display: none;
+}
+
+#energyDisplay:hover .detail,
+#energyDisplay.detailed .detail {
+    display: block;
+}
+
+#energyDisplay:hover .energy-fill,
+#energyDisplay.detailed .energy-fill {
+    position: static; /* Release the inner elements */
 }
 
 #energyDisplay:hover .energy-net,
@@ -105,17 +114,12 @@ data {
     left: auto;
 }
 
-#energyDisplay:hover .energy-stored,
-#energyDisplay.detailed .energy-stored {
-    display: block;
-}
-
-.energy-generated {
+#energyDisplay .energy-generated {
     text-align: center;
 }
 
-.energy-max {
-    /*float: right;*/
+#energyDisplay .energy-max {
+    margin-left: auto;
 }
 
 .energy-generated {
@@ -124,7 +128,16 @@ data {
 
 .energy-usage {
     color: #e63946;
-    /*float: left;*/
+}
+
+#energyDisplay .above-energy-bar,
+#energyDisplay .below-energy-bar {
+    min-height: 1.7em;
+}
+
+#energyDisplay .below-energy-bar {
+    display: flex;
+    justify-content: space-between;
 }
 
 .hidden {
@@ -162,7 +175,6 @@ button:focus {
 
 .tooltip {
     position: relative;
-    display: inline-block;
 }
 
 .tooltip .tooltipText {
@@ -181,7 +193,7 @@ button:focus {
     left: 105%;
 
     opacity: 0;
-    transition: opacity 0.5s;
+    transition: opacity 0.25s;
 }
 
 .tooltip:hover .tooltipText {
@@ -232,7 +244,7 @@ button:focus {
     margin-bottom: 1.5rem;
 }
 
-.gameOverMessage{
+.gameOverMessage {
     margin-top: 1rem;
     margin-bottom: 1rem;
 }

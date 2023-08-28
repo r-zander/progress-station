@@ -56,15 +56,15 @@ class Task {
 class Job extends Task {
     constructor(baseData) {
         super(baseData);
-        this.incomeMultipliers = [];
+        this.energyGenerationMultipliers = [];
     }
 
     getLevelMultiplier() {
         return 1 + Math.log10(this.level + 1);
     }
 
-    getIncome() {
-        return applyMultipliers(this.baseData.income, this.incomeMultipliers);
+    getEnergyGeneration() {
+        return applyMultipliers(this.baseData.energyGeneration, this.energyGenerationMultipliers);
     }
 }
 
@@ -103,7 +103,7 @@ class Item {
         return 'x' + this.baseData.effect.toFixed(1) + ' ' + description;
     }
 
-    getExpense() {
+    getEnergyUsage() {
         return applyMultipliers(this.baseData.expense, this.expenseMultipliers);
     }
 }
@@ -142,13 +142,13 @@ class TaskRequirement extends Requirement {
     }
 }
 
-class CoinRequirement extends Requirement {
+class StoredEnergyRequirement extends Requirement {
     constructor(elements, requirements) {
-        super('coins', elements, requirements);
+        super('storedEnergy', elements, requirements);
     }
 
     getCondition(requirement) {
-        return gameData.coins >= requirement.requirement;
+        return gameData.storedEnergy >= requirement.requirement;
     }
 }
 
