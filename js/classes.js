@@ -2,6 +2,7 @@
 
 class Task {
     constructor(baseData) {
+        this.type = this.constructor.name.toLowerCase();
         this.baseData = baseData;
         this.name = baseData.name;
         this.level = 0;
@@ -43,7 +44,7 @@ class Task {
         }
         if (this.level > previousLevel) {
             Events.TaskLevelChanged.trigger({
-                type: this.constructor.name,
+                type: this.type,
                 name: this.baseData.name,
                 previousLevel: previousLevel,
                 nextLevel: this.level,

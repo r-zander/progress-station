@@ -190,8 +190,7 @@ function createEntity(data, entity) {
         const battle = new Battle(entity);
         battle.init();
         data[entity.name] = battle;
-    }
-    else if ('energyGeneration' in entity) {
+    } else if ('energyGeneration' in entity) {
         data[entity.name] = new Job(entity);
     } else if ('maxXp' in entity) {
         data[entity.name] = new Skill(entity);
@@ -278,7 +277,7 @@ function createAllRows(categoryType, tableId) {
     }
 }
 
-function initSidebar(){
+function initSidebar() {
     const energyDisplayElement = document.querySelector('#energyDisplay');
     energyDisplayElement.addEventListener('click', function () {
         energyDisplayElement.classList.toggle('detailed');
@@ -290,7 +289,7 @@ function updateQuickTaskDisplay(taskType) {
     const quickTaskDisplayElement = document.getElementById('quickTaskDisplay');
     const progressBar = quickTaskDisplayElement.getElementsByClassName(taskType)[0];
     progressBar.getElementsByClassName('name')[0].textContent = currentTask.name + ' lvl ' + currentTask.level;
-    progressBar.getElementsByClassName('progressFill')[0].style.width = currentTask.xp / currentTask.getMaxXp() * 100 + '%';
+    setProgress(progressBar.getElementsByClassName('progressFill')[0], currentTask.xp / currentTask.getMaxXp());
 }
 
 function updateBattleTaskDisplay() {
@@ -302,7 +301,29 @@ function updateBattleTaskDisplay() {
     const battleNameElement = document.getElementById('battleName');
     battleNameElement.textContent = currentTask.name;
     progressBar.getElementsByClassName('name')[0].textContent = currentTask.name + ' layer ' + (currentTask.maxLayers - currentTask.level);
-    progressBar.getElementsByClassName('progressFill')[0].style.width = (1 - (currentTask.xp / currentTask.getMaxXp())) * 100 + '%';
+    setProgress(progressBar.getElementsByClassName('progressFill')[0], 1 - (currentTask.xp / currentTask.getMaxXp()));
+}
+
+/**
+ *
+ * @param {HTMLElement} progressFillElement
+ * @param {number} progress between 0.0 and 1.0
+ * @param {boolean} increasing set to false if its not a progress bar but a regress bar
+ */
+function setProgress(progressFillElement, progress, increasing = true) {
+    // Clamp value to [0.0, 1.0]
+    progress = Math.max(0.0, Math.min(progress, 1.0));
+    // Make sure to disable the transition if the progress is being reset
+    const previousProgress = parseFloat(progressFillElement.dataset.progress);
+    if ((increasing && (previousProgress - progress) >= 0.01) ||
+        (!increasing && (previousProgress - progress) >= 0.01)
+    ) {
+        progressFillElement.style.transitionDuration = '0s';
+    } else {
+        progressFillElement.style.removeProperty('transition-duration');
+    }
+    progressFillElement.dataset.progress = String(progress);
+    progressFillElement.style.width = (progress * 100) + '%';
 }
 
 function updateRequiredRows(data, categoryType) {
@@ -394,7 +415,7 @@ function updateTaskRows() {
         gameData.rebirthOneCount > 0 ? maxLevel.classList.remove('hidden') : maxLevel.classList.add('hidden');
 
         const progressFill = row.getElementsByClassName('progressFill')[0];
-        progressFill.style.width = task.xp / task.getMaxXp() * 100 + '%';
+        setProgress(progressFill, task.xp / task.getMaxXp());
         if (task === gameData.currentJob || task === gameData.currentSkill) {
             progressFill.classList.add('current');
         } else {
@@ -456,7 +477,7 @@ function updateEnergyBar() {
     updateEnergyDisplay(gameData.storedEnergy, energyDisplayElement.querySelector('.energy-stored > data'), {unit: units.storedEnergy});
     updateEnergyDisplay(getMaxEnergy(), energyDisplayElement.querySelector('.energy-max > data'), {unit: units.storedEnergy});
     updateEnergyDisplay(getEnergyUsage(), energyDisplayElement.querySelector('.energy-usage > data'));
-    energyDisplayElement.querySelector('.energy-fill').style.width = Math.min(gameData.storedEnergy / getMaxEnergy(), 1.0) * 100 + '%';
+    setProgress(energyDisplayElement.querySelector('.energy-fill'), gameData.storedEnergy / getMaxEnergy());
 }
 
 function updateDangerDisplay() {
@@ -880,7 +901,7 @@ function assignMethods() {
     gameData.currentJob = gameData.taskData[gameData.currentJob.name];
     gameData.currentSkill = gameData.taskData[gameData.currentSkill.name];
     gameData.currentProperty = gameData.itemData[gameData.currentProperty.name];
-    if (gameData.currentBattle !== null){
+    if (gameData.currentBattle !== null) {
         preparedBattle = gameData.currentBattle.name;
         startBossBattle();
     }
@@ -1000,7 +1021,7 @@ function initCurrentValues() {
 
 let preparedBattle;
 
-function initBattle(name){
+function initBattle(name) {
     const gameOverMessageWinElement = document.getElementById('gameOverMessageWin');
     const gameOverMessageLoseElement = document.getElementById('gameOverMessageLose');
     const battleFlavorMessageElement = document.getElementById('battleFlavorMessage');
@@ -1024,7 +1045,7 @@ function initBattle(name){
     });
 }
 
-function startBossBattle(){
+function startBossBattle() {
     setBattle(preparedBattle);
     const progressBar = document.getElementById('battleProgressBar');
     progressBar.hidden = false;
