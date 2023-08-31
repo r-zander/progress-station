@@ -757,8 +757,12 @@ function getElementsByClass(className) {
 }
 
 function toggleLightDarkMode(force = undefined) {
-    const body = document.getElementById('body');
-    gameData.settings.darkMode = body.classList.toggle('dark', force);
+    if (force === undefined) {
+        gameData.settings.darkMode = !gameData.settings.darkMode;
+    } else {
+        gameData.settings.darkMode = force;
+    }
+    document.documentElement.dataset['bsTheme'] = gameData.settings.darkMode ? 'dark' : 'light';
 }
 
 function toggleSciFiMode(force = undefined) {

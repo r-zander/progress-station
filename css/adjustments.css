@@ -7,14 +7,7 @@
     transition: opacity 500ms ease-in-out;
 }
 
-.progress-text {
-    text-shadow: 1px 1px black;
-}
 
-.progress-fill {
-    /* Smooth out progress bar filling */
-    transition: width 50ms linear; /* TODO Don't transition when resetting a bar */
-}
 
 .game-playing .progress-fill.current {
     /* TODO would be nice to softly fade this in instead of just showing it. */
@@ -61,8 +54,7 @@ label.background + label.background {
     background-color: var(--light-bg-color);
 }
 
-.dark .background-simple,
-.dark.background-simple {
+[data-bs-theme=dark] .background-simple {
     background-color: var(--dark-bg-color);
 }
 
@@ -109,7 +101,7 @@ label.background-space {
     background: none;
 }
 
-.dark.background-triangles1 .panel {
+[data-bs-theme=dark] .background-triangles1 .panel {
     background-color: rgba(46, 46, 46, 0.8);
 }
 
@@ -117,7 +109,7 @@ label.background-space {
     background-color: rgba(255, 255, 255, 0.9);
 }
 
-.dark.background-space .panel {
+[data-bs-theme=dark] .background-space .panel {
     background-color: rgba(46, 46, 46, 0.9);
 }
 
@@ -301,3 +293,7 @@ label.background-space {
         transform: translateX(-2000px);
     }
 }
+
+/*--------------------------------------------------------------------*/
+/*------------------------- BOOTSTRAP --------------------------------*/
+/*--------------------------------------------------------------------*/

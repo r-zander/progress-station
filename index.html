@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap-5.3.1/bootstrap.min.css">
+
     <link rel="stylesheet" type="text/css" href="css/styles.css">
     <link rel="stylesheet" type="text/css" href="css/dark.css">
-    <!-- TODO replace lol -->
-    <link rel="stylesheet" href="vendor/w3.css">
     <link rel="stylesheet" type="text/css" href="css/adjustments.css">
     <link rel="stylesheet" type="text/css" href="css/vfx.css">
     <link rel="stylesheet" type="text/css" href="css/sci-fi.css">
     <title>Progress Station</title>
 </head>
-<body id="body" class="dark sci-fi background-space">
+<body id="body" class="sci-fi background-space">
     <section id="star-background" class="stars-active">
 <!--        TODO max-width: 2000 & centered -->
         <div class="stars" id="stars1"></div>
@@ -55,7 +56,7 @@
                     </span>
                 </span>
 
-                <div id="energyDisplay" class="sidebar-element tooltip">
+                <div id="energyDisplay" class="sidebar-element pk-tooltip">
                     <div class="above-energy-bar">
                         <p class="energy-generated energy-text detail">
                             <span>Generated:</span>
@@ -87,15 +88,15 @@
                 </div>
 
                 <div id="quickTaskDisplay">
-                    <div style="width: 230px" class="small-margin inline job progress-bar progressBar">
-                        <div class="progress-fill progressFill current"></div>
-                        <div class="progress-text name">Task</div>
+                    <div class="progress job progressBar" role="progressbar" aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
+                        <div class="progress-text name px-2">Task</div>
                     </div>
                     <div class="sidebar-element" style="color: gray">Current module</div>
 
-                    <div style="width: 230px" class="small-margin skill progress-bar progressBar">
-                        <div class="progress-fill progressFill current"></div>
-                        <div class="progress-text name">Task</div>
+                    <div class="progress skill progressBar" role="progressbar" aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
+                        <div class="progress-text name px-2">Task</div>
                     </div>
                     <div class="sidebar-element" style="color: gray">Current research</div>
                 </div>
@@ -161,9 +162,9 @@
                 <template class="rowTaskTemplate">
                     <tr>
                         <td>
-                            <div class="progress-bar progressBar tooltip">
-                                <div class="progress-fill progressFill"></div>
-                                <div class="progress-text name">Task</div>
+                            <div class="progress progressBar pk-tooltip" role="progressbar" aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
+                                <div class="progress-text name px-2">Task</div>
                                 <span class="tooltipText"></span>
                             </div>
                         </td>
@@ -187,7 +188,7 @@
                     <tr>
                         <td>
 
-                            <button class="button item-button tooltip">
+                            <button class="button item-button pk-tooltip">
                                 <span class="name"></span>
                                 <span class="tooltipText">tooltip</span>
                             </button>
@@ -297,9 +298,10 @@
                     <button id="battleStartButton" class="button medium-margin">
                         <span class="name">Start Battle</span>
                     </button>
-                    <div id="battleProgressBar" class="medium-margin battle battle-bar progressBar" hidden>
-                        <div class="progress-fill progressFill battle current"></div>
-                        <div class="progress-text name">Task</div>
+                    <div id="battleProgressBar" class="progress battle progressBar" role="progressbar" hidden
+                         aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
+                        <div class="progress-text name px-2">Battle</div>
                     </div>
                 </div>
 
