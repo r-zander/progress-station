@@ -39,11 +39,11 @@
         }
 
         .level1-header + .level2 {
-            margin-top: 0.5rem;
+            /*margin-top: 0.5rem;*/
         }
 
         .level2 + .level2 {
-            margin-top: 0.5rem;
+            margin-top: 1rem;
         }
 
         .level2.inactive {
@@ -52,11 +52,11 @@
 
         .level2-header {
             position: sticky;
-            top: 37px;
-            background: inherit;
+            top: 45px;
+            /*background: inherit;*/
             z-index: 2;
-            margin-left: -0.5rem;
-            margin-right: -0.5rem;
+            /*margin-left: -0.5rem;*/
+            /*margin-right: -0.5rem;*/
         }
 
         .level2-header > div {
@@ -75,7 +75,7 @@
         }
 
         .level2-header + .table {
-            margin-top: 0.25rem;
+            /*margin-top: 0.25rem;*/
         }
 
         /*  .level2-header .pk-progress-fill.current {
@@ -88,7 +88,7 @@
 
         .level3 {
             position: sticky;
-            top: 82px;
+            top: 98px;
             z-index: 1;
         }
 
@@ -196,8 +196,10 @@
 </head>
 <body data-bs-theme="dark">
 <main>
-    <div class="level1 p-2" style="background-color: rgb(199, 21, 133);">
-        <div class="level1-header h4 d-flex justify-content-start py-1 px-2 mb-0">
+<!--    TODO find a nice solution to decrease spacing for headers when stuck -->
+    <div class="level1">
+        <div class="level1-header h4 d-flex justify-content-start py-2 px-2 mb-0"
+             style="background-color: rgb(199, 21, 133);">
             <div>
                 Industry
             </div>
@@ -205,8 +207,8 @@
                 (4.29)
             </div>
         </div>
-        <div class="level2 p-2 pt-1 bg-light text-dark">
-            <div class="level2-header lead d-flex justify-content-start py-1 px-2">
+        <div class="level2 ps-3">
+            <div class="level2-header bg-light text-dark lead d-flex justify-content-start py-2 px-2">
                 <div>
                     <div class="pk-progress-bar progressBar pk-tooltip">
                         <div class="pk-progress-fill progressFill current" style="width: 63%;"></div>
@@ -224,84 +226,86 @@
                     </div>
                 </div>
             </div>
-            <table class="table mb-0">
-                <thead class="level3">
-                <tr>
-                    <th>Drills</th>
-                    <th>Level</th>
-                    <th>Energy Cost</th>
-                    <th>Effect</th>
-                    <th>Xp/Cycle</th>
-                    <th>Xp left</th>
-                    <th>Max level</th>
-                </tr>
-                </thead>
-                <tbody class="level4">
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 54.0719%;"></div>
-                            <div class="pk-progress-text name">Basic Bitch Co. Drills</div>
-                            <span class="pk-tooltipText"></span>
-                        </div>
-                    </td>
-                    <td>53</td>
-                    <td>259W</td>
-                    <td>x1.13 Industry</td>
-                    <td>1.6k</td>
-                    <td>45.5k</td>
-                    <td>124</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 14.0719%;"></div>
-                            <div class="pk-progress-text name">Shark Teeth Drills</div>
-                            <span class="pk-tooltipText"></span>
-                        </div>
-                    </td>
-                    <td>21</td>
-                    <td>1.45kW</td>
-                    <td>x3.25 Industry</td>
-                    <td>1.6k</td>
-                    <td>84.1k</td>
-                    <td>35</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill current" style="width: 84.0719%;"></div>
-                            <div class="pk-progress-text name">TenDrills</div>
-                            <span class="pk-tooltipText"></span>
-                        </div>
-                    </td>
-                    <td>4</td>
-                    <td>4.22kW</td>
-                    <td>x5.00 Industry</td>
-                    <td>624</td>
-                    <td>54.3k</td>
-                    <td>0</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 0.0719%;"></div>
-                            <div class="pk-progress-text name">Super Orbital Disintegration Ray</div>
-                            <span class="pk-tooltipText"></span>
-                        </div>
-                    </td>
-                    <td>0</td>
-                    <td>1.45kW</td>
-                    <td>x3.25 Industry</td>
-                    <td>4.0 k</td>
-                    <td>1.6M</td>
-                    <td>0</td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="table-container ps-3">
+                <table class="table mb-0">
+                    <thead class="level3">
+                    <tr>
+                        <th>Drills</th>
+                        <th>Level</th>
+                        <th>Energy Cost</th>
+                        <th>Effect</th>
+                        <th>Xp/Cycle</th>
+                        <th>Xp left</th>
+                        <th>Max level</th>
+                    </tr>
+                    </thead>
+                    <tbody class="level4">
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 54.0719%;"></div>
+                                <div class="pk-progress-text name">Basic Bitch Co. Drills</div>
+                                <span class="pk-tooltipText"></span>
+                            </div>
+                        </td>
+                        <td>53</td>
+                        <td>259W</td>
+                        <td>x1.13 Industry</td>
+                        <td>1.6k</td>
+                        <td>45.5k</td>
+                        <td>124</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 14.0719%;"></div>
+                                <div class="pk-progress-text name">Shark Teeth Drills</div>
+                                <span class="pk-tooltipText"></span>
+                            </div>
+                        </td>
+                        <td>21</td>
+                        <td>1.45kW</td>
+                        <td>x3.25 Industry</td>
+                        <td>1.6k</td>
+                        <td>84.1k</td>
+                        <td>35</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill current" style="width: 84.0719%;"></div>
+                                <div class="pk-progress-text name">TenDrills</div>
+                                <span class="pk-tooltipText"></span>
+                            </div>
+                        </td>
+                        <td>4</td>
+                        <td>4.22kW</td>
+                        <td>x5.00 Industry</td>
+                        <td>624</td>
+                        <td>54.3k</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 0.0719%;"></div>
+                                <div class="pk-progress-text name">Super Orbital Disintegration Ray</div>
+                                <span class="pk-tooltipText"></span>
+                            </div>
+                        </td>
+                        <td>0</td>
+                        <td>1.45kW</td>
+                        <td>x3.25 Industry</td>
+                        <td>4.0 k</td>
+                        <td>1.6M</td>
+                        <td>0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="level2 p-2 pt-1 bg-light text-dark">
-            <div class="level2-header lead d-flex justify-content-start py-1 px-2">
+        <div class="level2 ps-3">
+            <div class="level2-header bg-light text-dark lead d-flex justify-content-start py-2 px-2">
                 <div>
                     <div class="pk-progress-bar progressBar pk-tooltip">
                         <div class="pk-progress-fill progressFill current" style="width: 25%;"></div>
@@ -319,130 +323,134 @@
                     </div>
                 </div>
             </div>
-            <table class="table mb-0">
-                <thead class="level3">
-                <tr>
-                    <th>Ore Extraction</th>
-                    <th>Level</th>
-                    <th>Energy Cost</th>
-                    <th>Effect</th>
-                    <th>Xp/Cycle</th>
-                    <th>Xp left</th>
-                    <th>Max level</th>
-                </tr>
-                </thead>
-                <tbody class="level4">
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 74.0719%;"></div>
-                            <div class="pk-progress-text name">Plasma Extractors</div>
-                            <span class="pk-tooltipText">Utilizes advanced plasma technology to extract valuable minerals from asteroids, yielding higher resource quantities.</span>
-                        </div>
-                    </td>
-                    <td>53</td>
-                    <td>259W</td>
-                    <td>x1.13 Industry</td>
-                    <td>1.6k</td>
-                    <td>45.5k</td>
-                    <td>124</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 24.0719%;"></div>
-                            <div class="pk-progress-text name">Quantum Synthesizers</div>
-                            <span class="pk-tooltipText">Manipulates quantum fluctuations to refine ores, resulting in increased resource purity and quality.</span>
-                        </div>
-                    </td>
-                    <td>21</td>
-                    <td>1.45kW</td>
-                    <td>x3.25 Industry</td>
-                    <td>1.6k</td>
-                    <td>84.1k</td>
-                    <td>35</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill current" style="width: 44.0719%;"></div>
-                            <div class="pk-progress-text name">Cosmic Alchemy Chamber</div>
-                            <span class="pk-tooltipText">Applies ancient alchemical principles to transmute basic elements into rare and exotic materials.</span>
-                        </div>
-                    </td>
-                    <td>4</td>
-                    <td>4.22kW</td>
-                    <td>x5.00 Industry</td>
-                    <td>624</td>
-                    <td>54.3k</td>
-                    <td>0</td>
-                </tr>
-                </tbody>
-            </table>
-            <table class="table mb-0">
-                <thead class="level3">
-                <tr>
-                    <th>Resource Processing</th>
-                    <th>Level</th>
-                    <th>Energy Cost</th>
-                    <th>Effect</th>
-                    <th>Xp/Cycle</th>
-                    <th>Xp left</th>
-                    <th>Max level</th>
-                </tr>
-                </thead>
-                <tbody class="level4">
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 24.0719%;"></div>
-                            <div class="pk-progress-text name">Molecular Forge</div>
-                            <span class="pk-tooltipText">Breaks down raw materials at the molecular level, enabling precise resource customization and alloy creation.</span>
-                        </div>
-                    </td>
-                    <td>53</td>
-                    <td>259W</td>
-                    <td>x1.13 Industry</td>
-                    <td>1.6k</td>
-                    <td>45.5k</td>
-                    <td>124</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill current" style="width: 34.0719%;"></div>
-                            <div class="pk-progress-text name">Chrono-Smelter</div>
-                            <span class="pk-tooltipText">Temporally accelerates the smelting process, leading to faster resource production with minimal energy expenditure.</span>
-                        </div>
-                    </td>
-                    <td>21</td>
-                    <td>1.45kW</td>
-                    <td>x3.25 Industry</td>
-                    <td>1.6k</td>
-                    <td>84.1k</td>
-                    <td>35</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 16.0719%;"></div>
-                            <div class="pk-progress-text name">Nebula Infusion Array</div>
-                            <span class="pk-tooltipText">Channels energy from cosmic nebulae to infuse resources with mystical properties, enhancing their usability in unique ways.</span>
-                        </div>
-                    </td>
-                    <td>4</td>
-                    <td>4.22kW</td>
-                    <td>x5.00 Industry</td>
-                    <td>624</td>
-                    <td>54.3k</td>
-                    <td>0</td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="table-container ps-3">
+                <table class="table mb-0">
+                    <thead class="level3">
+                    <tr>
+                        <th>Ore Extraction</th>
+                        <th>Level</th>
+                        <th>Energy Cost</th>
+                        <th>Effect</th>
+                        <th>Xp/Cycle</th>
+                        <th>Xp left</th>
+                        <th>Max level</th>
+                    </tr>
+                    </thead>
+                    <tbody class="level4">
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 74.0719%;"></div>
+                                <div class="pk-progress-text name">Plasma Extractors</div>
+                                <span class="pk-tooltipText">Utilizes advanced plasma technology to extract valuable minerals from asteroids, yielding higher resource quantities.</span>
+                            </div>
+                        </td>
+                        <td>53</td>
+                        <td>259W</td>
+                        <td>x1.13 Industry</td>
+                        <td>1.6k</td>
+                        <td>45.5k</td>
+                        <td>124</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 24.0719%;"></div>
+                                <div class="pk-progress-text name">Quantum Synthesizers</div>
+                                <span class="pk-tooltipText">Manipulates quantum fluctuations to refine ores, resulting in increased resource purity and quality.</span>
+                            </div>
+                        </td>
+                        <td>21</td>
+                        <td>1.45kW</td>
+                        <td>x3.25 Industry</td>
+                        <td>1.6k</td>
+                        <td>84.1k</td>
+                        <td>35</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill current" style="width: 44.0719%;"></div>
+                                <div class="pk-progress-text name">Cosmic Alchemy Chamber</div>
+                                <span class="pk-tooltipText">Applies ancient alchemical principles to transmute basic elements into rare and exotic materials.</span>
+                            </div>
+                        </td>
+                        <td>4</td>
+                        <td>4.22kW</td>
+                        <td>x5.00 Industry</td>
+                        <td>624</td>
+                        <td>54.3k</td>
+                        <td>0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-container ps-3">
+                <table class="table mb-0">
+                    <thead class="level3">
+                    <tr>
+                        <th>Resource Processing</th>
+                        <th>Level</th>
+                        <th>Energy Cost</th>
+                        <th>Effect</th>
+                        <th>Xp/Cycle</th>
+                        <th>Xp left</th>
+                        <th>Max level</th>
+                    </tr>
+                    </thead>
+                    <tbody class="level4">
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 24.0719%;"></div>
+                                <div class="pk-progress-text name">Molecular Forge</div>
+                                <span class="pk-tooltipText">Breaks down raw materials at the molecular level, enabling precise resource customization and alloy creation.</span>
+                            </div>
+                        </td>
+                        <td>53</td>
+                        <td>259W</td>
+                        <td>x1.13 Industry</td>
+                        <td>1.6k</td>
+                        <td>45.5k</td>
+                        <td>124</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill current" style="width: 34.0719%;"></div>
+                                <div class="pk-progress-text name">Chrono-Smelter</div>
+                                <span class="pk-tooltipText">Temporally accelerates the smelting process, leading to faster resource production with minimal energy expenditure.</span>
+                            </div>
+                        </td>
+                        <td>21</td>
+                        <td>1.45kW</td>
+                        <td>x3.25 Industry</td>
+                        <td>1.6k</td>
+                        <td>84.1k</td>
+                        <td>35</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 16.0719%;"></div>
+                                <div class="pk-progress-text name">Nebula Infusion Array</div>
+                                <span class="pk-tooltipText">Channels energy from cosmic nebulae to infuse resources with mystical properties, enhancing their usability in unique ways.</span>
+                            </div>
+                        </td>
+                        <td>4</td>
+                        <td>4.22kW</td>
+                        <td>x5.00 Industry</td>
+                        <td>624</td>
+                        <td>54.3k</td>
+                        <td>0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-    <div class="level1 p-2" style="background-color: rgb(85, 166, 48);">
-        <div class="level1-header h4 d-flex justify-content-start py-1 px-2 mb-0">
+    <div class="level1">
+        <div class="level1-header h4 d-flex justify-content-start py-2 px-2 mb-0" style="background-color: rgb(85, 166, 48);">
             <div>
                 Engineering
             </div>
@@ -450,8 +458,8 @@
                 (4.29)
             </div>
         </div>
-        <div class="level2 p-2 pt-1 bg-light text-dark inactive">
-            <div class="level2-header lead d-flex justify-content-start py-1 px-2">
+        <div class="level2 ps-3 inactive">
+            <div class="level2-header bg-light text-dark lead d-flex justify-content-start py-2 px-2">
                 <div>
                     <div class="pk-progress-bar progressBar pk-tooltip">
                         <div class="pk-progress-fill progressFill current" style="width: 95%;"></div>
@@ -469,144 +477,148 @@
                     </div>
                 </div>
             </div>
-            <table class="table mb-0">
-                <thead class="level3">
-                <tr>
-                    <th>Thrusters</th>
-                    <th>Level</th>
-                    <th>Energy Cost</th>
-                    <th>Effect</th>
-                    <th>Xp/Cycle</th>
-                    <th>Xp left</th>
-                    <th>Max level</th>
-                </tr>
-                </thead>
-                <tbody class="level4">
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill current" style="width: 4.0719%;"></div>
-                            <div class="pk-progress-text name">Photon Engine</div>
-                            <span class="pk-tooltipText"></span>
-                        </div>
-                    </td>
-                    <td>53</td>
-                    <td>259W</td>
-                    <td>x1.13 Speed</td>
-                    <td>1.6k</td>
-                    <td>45.5k</td>
-                    <td>124</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 47.0719%;"></div>
-                            <div class="pk-progress-text name">Unreal Engine</div>
-                            <span class="pk-tooltipText"></span>
-                        </div>
-                    </td>
-                    <td>21</td>
-                    <td>1.45kW</td>
-                    <td>x3.25 Speed</td>
-                    <td>1.6k</td>
-                    <td>84.1k</td>
-                    <td>35</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 83.0719%;"></div>
-                            <div class="pk-progress-text name">Haskell Engine</div>
-                            <span class="pk-tooltipText"></span>
-                        </div>
-                    </td>
-                    <td>4</td>
-                    <td>4.22kW</td>
-                    <td>x5.00 Speed</td>
-                    <td>624</td>
-                    <td>54.3k</td>
-                    <td>0</td>
-                </tr>
-                </tbody>
-            </table>
-            <table class="table mb-0">
-                <thead class="level3">
-                <tr>
-                    <th>Fuel</th>
-                    <th>Level</th>
-                    <th>Energy Cost</th>
-                    <th>Effect</th>
-                    <th>Xp/Cycle</th>
-                    <th>Xp left</th>
-                    <th>Max level</th>
-                </tr>
-                </thead>
-                <tbody class="level4">
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 95.0719%;"></div>
-                            <div class="pk-progress-text name">Good ol' Whiskey</div>
-                            <span class="pk-tooltipText"></span>
-                        </div>
-                    </td>
-                    <td>53</td>
-                    <td>259W</td>
-                    <td>x1.13 Speed</td>
-                    <td>1.6k</td>
-                    <td>45.5k</td>
-                    <td>124</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 09.0719%;"></div>
-                            <div class="pk-progress-text name">Godot Juice</div>
-                            <span class="pk-tooltipText"></span>
-                        </div>
-                    </td>
-                    <td>21</td>
-                    <td>1.45kW</td>
-                    <td>x3.25 Speed</td>
-                    <td>1.6k</td>
-                    <td>84.1k</td>
-                    <td>35</td>
-                </tr>
-                <tr title="Can melt steel beams">
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 75.0719%;"></div>
-                            <div class="pk-progress-text name">Jet Fuel</div>
-                            <span class="pk-tooltipText"></span>
-                        </div>
-                    </td>
-                    <td>4</td>
-                    <td>4.22kW</td>
-                    <td>x5.00 Speed</td>
-                    <td>624</td>
-                    <td>54.3k</td>
-                    <td>0</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill current" style="width: 48.0719%;"></div>
-                            <div class="pk-progress-text name">Alien Blood</div>
-                            <span class="pk-tooltipText"></span>
-                        </div>
-                    </td>
-                    <td>0</td>
-                    <td>1.45kW</td>
-                    <td>x3.25 Speed</td>
-                    <td>4.0 k</td>
-                    <td>1.6M</td>
-                    <td>0</td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="table-container ps-3">
+                <table class="table mb-0">
+                    <thead class="level3">
+                    <tr>
+                        <th>Thrusters</th>
+                        <th>Level</th>
+                        <th>Energy Cost</th>
+                        <th>Effect</th>
+                        <th>Xp/Cycle</th>
+                        <th>Xp left</th>
+                        <th>Max level</th>
+                    </tr>
+                    </thead>
+                    <tbody class="level4">
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill current" style="width: 4.0719%;"></div>
+                                <div class="pk-progress-text name">Photon Engine</div>
+                                <span class="pk-tooltipText"></span>
+                            </div>
+                        </td>
+                        <td>53</td>
+                        <td>259W</td>
+                        <td>x1.13 Speed</td>
+                        <td>1.6k</td>
+                        <td>45.5k</td>
+                        <td>124</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 47.0719%;"></div>
+                                <div class="pk-progress-text name">Unreal Engine</div>
+                                <span class="pk-tooltipText"></span>
+                            </div>
+                        </td>
+                        <td>21</td>
+                        <td>1.45kW</td>
+                        <td>x3.25 Speed</td>
+                        <td>1.6k</td>
+                        <td>84.1k</td>
+                        <td>35</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 83.0719%;"></div>
+                                <div class="pk-progress-text name">Haskell Engine</div>
+                                <span class="pk-tooltipText"></span>
+                            </div>
+                        </td>
+                        <td>4</td>
+                        <td>4.22kW</td>
+                        <td>x5.00 Speed</td>
+                        <td>624</td>
+                        <td>54.3k</td>
+                        <td>0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-container ps-3">
+                <table class="table mb-0">
+                    <thead class="level3">
+                    <tr>
+                        <th>Fuel</th>
+                        <th>Level</th>
+                        <th>Energy Cost</th>
+                        <th>Effect</th>
+                        <th>Xp/Cycle</th>
+                        <th>Xp left</th>
+                        <th>Max level</th>
+                    </tr>
+                    </thead>
+                    <tbody class="level4">
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 95.0719%;"></div>
+                                <div class="pk-progress-text name">Good ol' Whiskey</div>
+                                <span class="pk-tooltipText"></span>
+                            </div>
+                        </td>
+                        <td>53</td>
+                        <td>259W</td>
+                        <td>x1.13 Speed</td>
+                        <td>1.6k</td>
+                        <td>45.5k</td>
+                        <td>124</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 09.0719%;"></div>
+                                <div class="pk-progress-text name">Godot Juice</div>
+                                <span class="pk-tooltipText"></span>
+                            </div>
+                        </td>
+                        <td>21</td>
+                        <td>1.45kW</td>
+                        <td>x3.25 Speed</td>
+                        <td>1.6k</td>
+                        <td>84.1k</td>
+                        <td>35</td>
+                    </tr>
+                    <tr title="Can melt steel beams">
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 75.0719%;"></div>
+                                <div class="pk-progress-text name">Jet Fuel</div>
+                                <span class="pk-tooltipText"></span>
+                            </div>
+                        </td>
+                        <td>4</td>
+                        <td>4.22kW</td>
+                        <td>x5.00 Speed</td>
+                        <td>624</td>
+                        <td>54.3k</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill current" style="width: 48.0719%;"></div>
+                                <div class="pk-progress-text name">Alien Blood</div>
+                                <span class="pk-tooltipText"></span>
+                            </div>
+                        </td>
+                        <td>0</td>
+                        <td>1.45kW</td>
+                        <td>x3.25 Speed</td>
+                        <td>4.0 k</td>
+                        <td>1.6M</td>
+                        <td>0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="level2 p-2 pt-1 bg-light text-dark">
-            <div class="level2-header lead d-flex justify-content-start py-1 px-2">
+        <div class="level2 ps-3">
+            <div class="level2-header bg-light text-dark lead d-flex justify-content-start py-2 px-2">
                 <div>
                     <div class="pk-progress-bar progressBar pk-tooltip">
                         <div class="pk-progress-fill progressFill current" style="width: 47%;"></div>
@@ -624,126 +636,130 @@
                     </div>
                 </div>
             </div>
-            <table class="table mb-0">
-                <thead class="level3">
-                <tr>
-                    <th>Technomancy Hub</th>
-                    <th>Level</th>
-                    <th>Energy Cost</th>
-                    <th>Effect</th>
-                    <th>Xp/Cycle</th>
-                    <th>Xp left</th>
-                    <th>Max level</th>
-                </tr>
-                </thead>
-                <tbody class="level4">
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill current" style="width: 52.0719%;"></div>
-                            <div class="pk-progress-text name">Arcane Data Array</div>
-                            <span class="pk-tooltipText">Harnesses magical energies to enhance data processing speed, significantly reducing research time.</span>
-                        </div>
-                    </td>
-                    <td>53</td>
-                    <td>259W</td>
-                    <td>x1.13 Research Xp</td>
-                    <td>1.6k</td>
-                    <td>45.5k</td>
-                    <td>124</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 37.0719%;"></div>
-                            <div class="pk-progress-text name">Quantum Neural Network</div>
-                            <span class="pk-tooltipText">Links researchers' minds in a shared neural network, fostering collaborative research efforts for breakthrough discoveries.</span>
-                        </div>
-                    </td>
-                    <td>21</td>
-                    <td>1.45kW</td>
-                    <td>x3.25 Research Xp</td>
-                    <td>1.6k</td>
-                    <td>84.1k</td>
-                    <td>35</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 46.0719%;"></div>
-                            <div class="pk-progress-text name">Singularity Rift Analysis</div>
-                            <span class="pk-tooltipText">Opens micro wormholes to alternate dimensions, allowing access to alternate technological insights.</span>
-                        </div>
-                    </td>
-                    <td>4</td>
-                    <td>4.22kW</td>
-                    <td>x5.00 Research Xp</td>
-                    <td>624</td>
-                    <td>54.3k</td>
-                    <td>0</td>
-                </tr>
-                </tbody>
-            </table>
-            <table class="table mb-0">
-                <thead class="level3">
-                <tr>
-                    <th>Bio-Genetic Lab</th>
-                    <th>Level</th>
-                    <th>Energy Cost</th>
-                    <th>Effect</th>
-                    <th>Xp/Cycle</th>
-                    <th>Xp left</th>
-                    <th>Max level</th>
-                </tr>
-                </thead>
-                <tbody class="level4">
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 82.0719%;"></div>
-                            <div class="pk-progress-text name">Bioluminescent Growth Chambers</div>
-                            <span class="pk-tooltipText">Uses bio-luminescence to accelerate plant growth, yielding enhanced organic resources.</span>
-                        </div>
-                    </td>
-                    <td>53</td>
-                    <td>259W</td>
-                    <td>x1.13 Research Xp</td>
-                    <td>1.6k</td>
-                    <td>45.5k</td>
-                    <td>124</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill" style="width: 16.0719%;"></div>
-                            <div class="pk-progress-text name">Nano-Genome Sequencers</div>
-                            <span class="pk-tooltipText">Manipulates nano-scale DNA sequencing for accelerated genetic modification, unlocking new species and traits.</span>
-                        </div>
-                    </td>
-                    <td>21</td>
-                    <td>1.45kW</td>
-                    <td>x3.25 Research Xp</td>
-                    <td>1.6k</td>
-                    <td>84.1k</td>
-                    <td>35</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="pk-progress-bar progressBar pk-tooltip">
-                            <div class="pk-progress-fill progressFill current" style="width: 62.0719%;"></div>
-                            <div class="pk-progress-text name">Etherial Transmutation Conduit</div>
-                            <span class="pk-tooltipText">Taps into the ethereal plane to facilitate rapid and unconventional cross-species hybridization.</span>
-                        </div>
-                    </td>
-                    <td>4</td>
-                    <td>4.22kW</td>
-                    <td>x5.00 Research Xp</td>
-                    <td>624</td>
-                    <td>54.3k</td>
-                    <td>0</td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="table-container ps-3">
+                <table class="table mb-0">
+                    <thead class="level3">
+                    <tr>
+                        <th>Technomancy Hub</th>
+                        <th>Level</th>
+                        <th>Energy Cost</th>
+                        <th>Effect</th>
+                        <th>Xp/Cycle</th>
+                        <th>Xp left</th>
+                        <th>Max level</th>
+                    </tr>
+                    </thead>
+                    <tbody class="level4">
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill current" style="width: 52.0719%;"></div>
+                                <div class="pk-progress-text name">Arcane Data Array</div>
+                                <span class="pk-tooltipText">Harnesses magical energies to enhance data processing speed, significantly reducing research time.</span>
+                            </div>
+                        </td>
+                        <td>53</td>
+                        <td>259W</td>
+                        <td>x1.13 Research Xp</td>
+                        <td>1.6k</td>
+                        <td>45.5k</td>
+                        <td>124</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 37.0719%;"></div>
+                                <div class="pk-progress-text name">Quantum Neural Network</div>
+                                <span class="pk-tooltipText">Links researchers' minds in a shared neural network, fostering collaborative research efforts for breakthrough discoveries.</span>
+                            </div>
+                        </td>
+                        <td>21</td>
+                        <td>1.45kW</td>
+                        <td>x3.25 Research Xp</td>
+                        <td>1.6k</td>
+                        <td>84.1k</td>
+                        <td>35</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 46.0719%;"></div>
+                                <div class="pk-progress-text name">Singularity Rift Analysis</div>
+                                <span class="pk-tooltipText">Opens micro wormholes to alternate dimensions, allowing access to alternate technological insights.</span>
+                            </div>
+                        </td>
+                        <td>4</td>
+                        <td>4.22kW</td>
+                        <td>x5.00 Research Xp</td>
+                        <td>624</td>
+                        <td>54.3k</td>
+                        <td>0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-container ps-3">
+                <table class="table mb-0">
+                    <thead class="level3">
+                    <tr>
+                        <th>Bio-Genetic Lab</th>
+                        <th>Level</th>
+                        <th>Energy Cost</th>
+                        <th>Effect</th>
+                        <th>Xp/Cycle</th>
+                        <th>Xp left</th>
+                        <th>Max level</th>
+                    </tr>
+                    </thead>
+                    <tbody class="level4">
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 82.0719%;"></div>
+                                <div class="pk-progress-text name">Bioluminescent Growth Chambers</div>
+                                <span class="pk-tooltipText">Uses bio-luminescence to accelerate plant growth, yielding enhanced organic resources.</span>
+                            </div>
+                        </td>
+                        <td>53</td>
+                        <td>259W</td>
+                        <td>x1.13 Research Xp</td>
+                        <td>1.6k</td>
+                        <td>45.5k</td>
+                        <td>124</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill" style="width: 16.0719%;"></div>
+                                <div class="pk-progress-text name">Nano-Genome Sequencers</div>
+                                <span class="pk-tooltipText">Manipulates nano-scale DNA sequencing for accelerated genetic modification, unlocking new species and traits.</span>
+                            </div>
+                        </td>
+                        <td>21</td>
+                        <td>1.45kW</td>
+                        <td>x3.25 Research Xp</td>
+                        <td>1.6k</td>
+                        <td>84.1k</td>
+                        <td>35</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="pk-progress-bar progressBar pk-tooltip">
+                                <div class="pk-progress-fill progressFill current" style="width: 62.0719%;"></div>
+                                <div class="pk-progress-text name">Etherial Transmutation Conduit</div>
+                                <span class="pk-tooltipText">Taps into the ethereal plane to facilitate rapid and unconventional cross-species hybridization.</span>
+                            </div>
+                        </td>
+                        <td>4</td>
+                        <td>4.22kW</td>
+                        <td>x5.00 Research Xp</td>
+                        <td>624</td>
+                        <td>54.3k</td>
+                        <td>0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </main>
