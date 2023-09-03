@@ -1115,7 +1115,11 @@ function init() {
     update();
     setInterval(update, 1000 / updateSpeed);
     setInterval(saveGameData, 3000);
-    setInterval(setSkillWithLowestMaxXp, 1000);
+    Events.TaskLevelChanged.subscribe(function (taskInfo) {
+        if (taskInfo.type === 'skill') {
+            setSkillWithLowestMaxXp();
+        }
+    });
 }
 
 init();
