@@ -16,12 +16,6 @@ data {
     font-size: 110%;
 }
 
-.w3-bar-item {
-    width: 100px;
-    height: 40px;
-    text-align: center;
-}
-
 .progress {
     position: relative;
     height: 30px;
@@ -195,6 +189,12 @@ button:focus {
 
     opacity: 0;
     transition: opacity 0.25s;
+}
+
+.pk-tooltip .tooltipText-bottom {
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .pk-tooltip:hover .tooltipText {

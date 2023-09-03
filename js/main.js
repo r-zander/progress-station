@@ -130,9 +130,9 @@ function setTab(element, selectedTab) {
 
     const tabButtons = document.getElementsByClassName('tabButton');
     for (let tabButton of tabButtons) {
-        tabButton.classList.remove('w3-blue-gray');
+        tabButton.classList.remove('active');
     }
-    element.classList.add('w3-blue-gray');
+    element.classList.add('active');
     gameData.selectedTab = selectedTab;
 }
 
@@ -261,20 +261,28 @@ function createAllRows(categoryType, tableId) {
     };
 
     const table = document.getElementById(tableId);
+    const tableBody = document.createElement('tbody');
+    table.appendChild(tableBody);
 
     for (let categoryName in categoryType) {
         const headerRow = createHeaderRow(templates, categoryType, categoryName);
-        table.appendChild(headerRow);
+        tableBody.appendChild(headerRow);
 
         const category = categoryType[categoryName];
         category.forEach(function (name) {
             const row = createRow(templates, name, categoryName, categoryType);
-            table.appendChild(row);
+            tableBody.appendChild(row);
         });
 
         const requiredRow = createRequiredRow(categoryName);
-        table.append(requiredRow);
+        tableBody.append(requiredRow);
     }
+}
+
+function cleanUpDom() {
+    document.querySelectorAll('template').forEach(function (template) {
+        template.remove();
+    });
 }
 
 function initSidebar() {
@@ -286,8 +294,7 @@ function initSidebar() {
 
 function updateQuickTaskDisplay(taskType) {
     const currentTask = taskType === 'job' ? gameData.currentJob : gameData.currentSkill;
-    const quickTaskDisplayElement = document.getElementById('quickTaskDisplay');
-    const progressBar = quickTaskDisplayElement.getElementsByClassName(taskType)[0];
+    const progressBar = document.querySelector(`.quickTaskDisplay .${taskType}`);
     progressBar.getElementsByClassName('name')[0].textContent = currentTask.name + ' lvl ' + currentTask.level;
     setProgress(progressBar.getElementsByClassName('progressFill')[0], currentTask.xp / currentTask.getMaxXp());
 }
@@ -1081,6 +1088,8 @@ function init() {
     createAllRows(jobCategories, 'jobTable');
     createAllRows(skillCategories, 'skillTable');
     createAllRows(itemCategories, 'itemTable');
+
+    cleanUpDom();
 
     initSidebar();
 

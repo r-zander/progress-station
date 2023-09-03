@@ -14,366 +14,411 @@
     <title>Progress Station</title>
 </head>
 <body id="body" class="sci-fi background-space">
-    <section id="star-background" class="stars-active">
-<!--        TODO max-width: 2000 & centered -->
-        <div class="stars" id="stars1"></div>
-        <div class="stars" id="stars2"></div>
-        <div class="stars" id="stars3"></div>
-        <div class="stars" id="stars4"></div>
-        <div id="main-planet-wrapper">
-            <img id="main-planet" alt="Blue Planet Illustration" src="img/planets/blue-planet.svg">
+<section id="star-background" class="stars-active">
+    <!--        TODO max-width: 2000 & centered -->
+    <div class="stars" id="stars1"></div>
+    <div class="stars" id="stars2"></div>
+    <div class="stars" id="stars3"></div>
+    <div class="stars" id="stars4"></div>
+    <div id="main-planet-wrapper">
+        <img id="main-planet" alt="Blue Planet Illustration" src="img/planets/blue-planet.svg">
+    </div>
+    <img id="moon" alt="Moon Illustration" src="img/planets/moon.svg">
+    <img id="gas-planet" alt="Gas Planet Illustration" src="img/planets/gas-planet.svg">
+    <div id="main-planet-overlay"></div>
+</section>
+
+<h1 class="panel p-2">Progress Station</h1>
+<main id="main" class="" style="opacity: 0;">
+    <aside id="sidebar" class="mx-auto">
+        <div id="overview" class="panel p-3 pb-0">
+            <div id="deathText">
+                <p style="font-size: large; color: red; text-shadow: 1px 1px 2px black;">
+                    <b>The Destroyer</b> found you
+                </p>
+                <p class="sidebar-element" style="color: gray">
+                    The danger was too high, and now you have to fight for your life.
+                </p>
+            </div>
+
+            <h2 id="name-display" class="sidebar-element mt-0 position-sticky top-0" style="z-index: 1">USS
+                Progress</h2>
+            <div class="" style="font-size: large">
+                <span>Intergalactic cycles:</span> <span id="ageDisplay">14</span> <span id="dayDisplay">0</span>
+            </div>
+            <div class="" style="font-size: large">
+                <span>Danger:</span> <span id="dangerLevel" style="color: orange">54.2%</span>
+            </div>
+            <div class="sidebar-element" style="color: gray">Station age: <span id="stationAge">70</span> kIC</div>
+
+            <button id="pauseButton" class="w3-button button sidebar-element" onClick="setPause()">Pause</button>
+
+            <div id="automation" class="inline" style="margin-left: 8px">
+                <div>
+                    <label for="autoPromote" class="inline">Auto-promote</label>
+                    <input type="checkbox" class="inline" id="autoPromote">
+                </div>
+                <div>
+                    <label for="autoLearn" class="inline">Auto-learn</label>
+                    <input type="checkbox" class="inline sidebar-element" id="autoLearn">
+                </div>
+            </div>
+
+            <div id="energyDisplay" class="sidebar-element pk-tooltip">
+                <div class="above-energy-bar">
+                    <p class="energy-generated energy-text detail">
+                        <span>Generated:</span>
+                        <data value="200">200 W</data>
+                    </p>
+                </div>
+                <div class="energy-bar">
+                    <p class="energy-stored energy-text detail">
+                        <span>Stored:</span>
+                        <data value="800">800 Wh</data>
+                    </p>
+                    <div class="energy-fill" style="width: 45%">
+                        <p class="energy-net energy-text">
+                            <span>Net:</span>
+                            <data value="20">+20 W</data>
+                        </p>
+                    </div>
+                </div>
+                <div class="below-energy-bar">
+                    <p class="energy-usage energy-text detail">
+                        <span>Usage:</span>
+                        <data value="180">180 W</data>
+                    </p>
+                    <p class="energy-max energy-text">
+                        <span>Max:</span>
+                        <data value="2200">2.2 kW</data>
+                    </p>
+                </div>
+                <div class="tooltipText mt-1 tooltipText-bottom">Click to toggle detailed view.</div>
+            </div>
+
+            <div class="sidebar-element">
+                <div style="font-size: large">
+                    <span style="color: rgb(15, 105, 207)">Population:</span>
+                    <span id="happinessDisplay"></span>
+                </div>
+                <div style="color: gray">Affects all work speed</div>
+            </div>
+
+            <div id="evilInfo" class="sidebar-element">
+                <div style="font-size: large">
+                    <span style="color: rgb(200, 0, 0)">Evil:</span>
+                    <span id="evilDisplay"></span>
+                </div>
+                <div style="color: gray">
+                    Affects dark magic xp gain
+                </div>
+            </div>
+
+            <div id="timeWarping">
+                <div style="font-size: large">
+                    <span style="color: rgb(204, 34, 219)">Time warping: </span>
+                    <span id="timeWarpingDisplay"></span>
+                </div>
+                <div style="color: gray">Affects game speed</div>
+                <button id="timeWarpingButton" class="w3-button button sidebar-element"
+                        style="margin-top: 5px; width:150px" onClick="setTimeWarping()">
+                    Enable warp
+                </button>
+            </div>
         </div>
-        <img id="moon" alt="Moon Illustration" src="img/planets/moon.svg">
-        <img id="gas-planet" alt="Gas Planet Illustration" src="img/planets/gas-planet.svg">
-        <div id="main-planet-overlay"></div>
-    </section>
+        <nav class="mt-3 d-flex flex-column gap-3">
+            <button id="jobsTabButton" class="tabButton p-3" onClick="setTab(this, 'jobs')">
+                <h3 style="font: inherit">Modules</h3>
 
-    <main id="main" class="w3-margin" style="opacity: 0">
-        <h1>Progress Station</h1>
-        <div style="width: 1220px; height: 600px">
-            <div class="panel w3-padding" style="width: 300px; height: auto; float: left">
-                <span id="deathText">
-                    <div style="font-size: large; color: red; text-shadow: 1px 1px 2px black;"><b>The Destroyer</b> found you</div>
-                    <div class="sidebar-element" style="color: gray">The danger was too high and now you have to fight for your life.</div>
-                </span>
-
-                <h2 id="name-display" class="sidebar-element" style="margin-top: 0">USS Progress</h2>
-                <div class="" style="font-size: large">Intergalactic cycles: <span id="ageDisplay">14</span> <span id="dayDisplay">0</span></div>
-                <div class="" style="font-size: large">Danger <span id="dangerLevel" style="color: orange">54.2%</span></div>
-                <div class="sidebar-element" style="color: gray">Station age: <span id="stationAge">70</span> kIC</div>
-
-                <button id="pauseButton" class="w3-button button sidebar-element" onClick="setPause()">Pause</button>
-
-                <span id="automation" class="inline" style="margin-left: 8px">
-                    <span>
-                        <div class="inline">Auto-promote</div>
-                        <input type="checkbox" class="inline" id="autoPromote">
-                    </span>
-                    </br>
-                    <span>
-                        <div class="inline">Auto-learn</div>
-                        <input type="checkbox" class="inline sidebar-element" id="autoLearn">
-                    </span>
-                </span>
-
-                <div id="energyDisplay" class="sidebar-element pk-tooltip">
-                    <div class="above-energy-bar">
-                        <p class="energy-generated energy-text detail">
-                            <span>Generated:</span>
-                            <data value="200">200 W</data>
-                        </p>
-                    </div>
-                    <div class="energy-bar">
-                        <p class="energy-stored energy-text detail">Stored:
-                            <data value="800">800 Wh</data>
-                        </p>
-                        <div class="energy-fill" style="width: 45%">
-                            <p class="energy-net energy-text">Net:
-                                <data value="20">+20 W</data>
-                            </p>
-
-                        </div>
-                    </div>
-                    <div class="below-energy-bar">
-                        <p class="energy-usage energy-text detail">
-                            <span>Usage:</span>
-                            <data value="180">180 W</data>
-                        </p>
-                        <p class="energy-max energy-text">
-                            <span>Max:</span>
-                            <data value="2200">2.2 kW</data>
-                        </p>
-                    </div>
-                    <span class="tooltipText" style="top: 16px;">Click to toggle detailed view.</span>
-                </div>
-
-                <div id="quickTaskDisplay">
-                    <div class="progress job progressBar" role="progressbar" aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div class="quickTaskDisplay">
+                    <div class="progress job progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
+                         aria-valuemin="0" aria-valuemax="100">
                         <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
                         <div class="progress-text name px-2">Task</div>
                     </div>
-                    <div class="sidebar-element" style="color: gray">Current module</div>
-
-                    <div class="progress skill progressBar" role="progressbar" aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <!--                    <div class="sidebar-element" style="color: gray">Current module</div>-->
+                </div>
+            </button>
+            <button id="skillsTabButton" class="tabButton p-3" onClick="setTab(this, 'skills')">
+                <h3 style="font: inherit">Research</h3>
+                <div class="quickTaskDisplay">
+                    <div class="progress skill progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
+                         aria-valuemin="0" aria-valuemax="100">
                         <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
                         <div class="progress-text name px-2">Task</div>
                     </div>
-                    <div class="sidebar-element" style="color: gray">Current research</div>
+                    <!--                    <div class="sidebar-element" style="color: gray">Current research</div>-->
                 </div>
+            </button>
+            <button id="shopTabButton" class="tabButton p-3" onClick="setTab(this, 'shop')">
+                <h3 style="font: inherit">Sectors</h3>
+            </button>
+            <button id="rebirthTabButton" class="tabButton p-3" onClick="setTab(this, 'rebirth')">
+                <h3 style="font: inherit">Captain's Log</h3>
+            </button>
+            <button id="battleTabButton" class="tabButton p-3" onClick="setTab(this, 'battleTab')">
+                <h3 style="font: inherit">Boss Battle</h3>
+            </button>
+            <button id="settingsTabButton" class="tabButton p-3" onClick="setTab(this, 'settings')">
+                <h3 style="font: inherit">Settings</h3>
+            </button>
+        </nav>
+    </aside>
 
-                <div style="font-size: large"><span style="color: rgb(15, 105, 207)">Population: </span><span id="happinessDisplay"></span></div>
-                <div style="color: gray" class="sidebar-element">Affects all work speed</div>
+    <div id="content" class="panel flex-fill p-3">
+        <template class="headerRowTaskTemplate">
+            <tr>
+                <th class="category" style="width: 250px">Job</th>
+                <th>Level</th>
+                <th class="valueType">Value type</th>
+                <th>Xp/day</th>
+                <th>Xp left</th>
+                <th class="maxLevel">Max level</th>
+                <th class="skipSkill">Skip</th>
+            </tr>
+        </template>
 
-                <div id="evilInfo">
-                    <div style="font-size: large"><span style="color: rgb(200, 0, 0)">Evil: </span><span id="evilDisplay"></span></div>
-                    <div style="color: gray" class="sidebar-element">Affects dark magic xp gain</div>
-                </div>
+        <template class="headerRowItemTemplate">
+            <tr>
+                <th class="category" style="width: 250px">Item</th>
+                <th style="width: 100px">Active</th>
+                <th style="width: 250px">Effect</th>
+                <th>Usage/day</th>
+            </tr>
+        </template>
 
-                <!--
-                <span id="scheduling">
-                    <div style="font-size: large">Scheduling</div>
-                    <div style="color: gray" class="sidebar-element">Schedule time to jobs/skills</div>
-                    <span style="height: 30px">
-                        <p style="width: 5px">Jobs</br>(32%)</p>
-                        <input id="schedulingSlider" class="slider" type="range" min="0" max="100" value="0">
-                        <p style="width: 5px">Skills</br>(68%)</p>
-                    </span>
-                </span>
-                -->
-
-                <span id="timeWarping">
-                    <div style="font-size: large"><span style="color: rgb(204, 34, 219)">Time warping: </span><span id="timeWarpingDisplay"></span></div>
-                    <div style="color: gray">Affects game speed</div>
-                    <button id="timeWarpingButton" class="w3-button button sidebar-element" style="margin-top: 5px; width:150px" onClick="setTimeWarping()">Enable warp</button>
-                </span>
-            </div>
-
-            <div class="panel w3-margin-left" style="width: 900px; height: 40px; float: left">
-                <div class="w3-button w3-bar-item tabButton" id="jobsTabButton" onClick="setTab(this, 'jobs')">Modules</div>
-                <div class="w3-button w3-bar-item tabButton" id="skillsTabButton" onClick="setTab(this, 'skills')">Research</div>
-                <div class="w3-button w3-bar-item tabButton" id="shopTabButton" onClick="setTab(this, 'shop')">Sectors</div>
-                <div class="w3-button w3-bar-item tabButton" id="rebirthTabButton" onClick="setTab(this, 'rebirth')">Captain's Log</div>
-                <div class="w3-button w3-bar-item tabButton" id="battleTabButton" onClick="setTab(this, 'battleTab')">Boss Battle</div>
-                <div class="w3-button w3-bar-item tabButton" id="settingsTabButton" onClick="setTab(this, 'settings')" style="float: right">Settings</div>
-            </div>
-
-            <div class="panel w3-margin-left w3-margin-top w3-padding" style="width: 900px; height: auto; float: left">
-                <template class="headerRowTaskTemplate">
-                    <tr>
-                        <th class="category" style="width: 250px">Job</th>
-                        <th>Level</th>
-                        <th class="valueType">Value type</th>
-                        <th>Xp/day</th>
-                        <th>Xp left</th>
-                        <th class="maxLevel">Max level</th>
-                        <th class="skipSkill">Skip</th>
-                    </tr>
-                </template>
-
-                <template class="headerRowItemTemplate">
-                    <tr>
-                        <th class="category" style="width: 250px">Item</th>
-                        <th style="width: 100px">Active</th>
-                        <th style="width: 250px">Effect</th>
-                        <th>Usage/day</th>
-                    </tr>
-                </template>
-
-                <template class="rowTaskTemplate">
-                    <tr>
-                        <td>
-                            <div class="progress progressBar pk-tooltip" role="progressbar" aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
-                                <div class="progress-text name px-2">Task</div>
-                                <span class="tooltipText"></span>
-                            </div>
-                        </td>
-                        <td class="level">Level</td>
-                        <td class="value">
-                            <div class="effect"></div>
-                            <div class="energy-generated">
-                                <data value=""></data>
-                            </div>
-                        </td>
-                        <td class="xpGain">Xp/day</td>
-                        <td class="xpLeft">Xp left</td>
-                        <td class="maxLevel">Max level</td>
-                        <td class="skipSkill">
-                            <input class="checkbox" type="checkbox"/>
-                        </td>
-                    </tr>
-                </template>
-
-                <template class="rowItemTemplate">
-                    <tr>
-                        <td>
-
-                            <button class="button item-button pk-tooltip">
-                                <span class="name"></span>
-                                <span class="tooltipText">tooltip</span>
-                            </button>
-
-                        </td>
-                        <td>
-                            <div class="radio w3-border w3-circle">
-                                <div class="active w3-circle"></div>
-                            </div>
-                        </td>
-                        <td class="effect"></td>
-                        <td class="energy-usage">
-                            <data value=""></data>
-                        </td>
-                    </tr>
-                </template>
-
-                <template class="requiredRowTemplate">
-                    <td class="w3-text-gray" style="padding-left: 16px" colspan=5>
-                        Required:
-                        <span class="value" colspan=5>
-                            <span class="levels"></span>
-                            <span class="energy-stored">
-                                <data value=""></data> stored energy
-                            </span>
-                            <span style="color: rgb(200, 0, 0)" class="evil"></span>
-                        </span>
-                    </td>
-                </template>
-
-                <div class="tab" id="jobs">
-                    <table id="jobTable" class="w3-table w3-bordered">
-                    </table>
-                </div>
-
-                <div class="tab" id="skills">
-                    <table id="skillTable" class="w3-table w3-bordered">
-                    </table>
-                </div>
-
-                <div class="tab" id="shop">
-                    <table id="itemTable" class="w3-table w3-bordered">
-                    </table>
-                </div>
-
-                <div class="tab" id="rebirth">
-                    <ul>
-                        <li style="margin: 8px;">
-                            You stumble across a strange looking amulet on your 25th birthday. It does not look like
-                            it has any worth on the market given that it's made from cheap-looking copper. However, you
-                            feel a weird urge to keep the amulet, so you slip it into your pocket for safekeeping.
-                        </li>
-                        <li style="margin: 8px;" id="rebirthNote1">
-                            On your 45th birthday, you feel the amulet shiver uncontrollably in your pocket. You take it
-                            out and the constant shivering suddenly stops. More to your bizarre surprise, you notice
-                            a strange etching on the centre of the amulet.
-                        </li>
-                        <li style="margin: 8px;" id="rebirthNote2">
-                            <div style="margin-bottom: 8px">
-                                On your 65th birthday, you once again encounter the strange, unexplained shivering from your
-                                amulet. But this time, a living eyeball emerges from the centre. Although terribly frightened,
-                                you realise you do not have many years to live left anyway so you consider touching the eye
-                                to see what happens.
-                            </div>
-                            <i style="color: grey">
-                                By touching the eyeball, you will be reborn and have to restart life again, losing all your levels and stored energy.
-                                However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to: <b>1 + the max level of the skill or job / 10.</b>
-                                This means you will learn everything again much more quickly than you did in your previous life. <span style="color: rgb(200, 0, 0)">
-                                Something tells you that the amulet might transform even further after living for <b>2 whole centuries</b>...</span>
-                            </i>
-                            </br>
-                            <button class="w3-button button" style="margin-bottom: 8px; margin-top: 8px" onClick="rebirthOne()">Touch the eye</button>
-                            </br>
-                        </li>
-                        <li style="margin: 8px;" id="rebirthNote3">
-                            <div style="margin-bottom: 8px;">
-                                Your gut instinct was right. The moment you hit the grand age of 200, you hear an ominous hum coming from the amulet.
-                                A mouth emerges from its surface and begins to cackle, and proceeds to say: "So you've made it this far... Are you ready to embrace evil?"
-                            </div>
-                            <i style="color: rgb(200, 0, 0)">
-                                If you decide to embrace evil, all of your levels, stored energy and even max levels will be reset.
-                                You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
-                                <b><span id="evilGainDisplay"></span> evil</b>, which will heavily impact your future lives.
-                            </i>
-                            </br>
-                                <button class="w3-button button" style="margin-bottom: 8px; margin-top: 8px" onClick="rebirthTwo()">Embrace evil</button>
-                            </br>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="tab" id="battleTab">
-                    <div class="text-strap">Encounter</div>
-                    <h2 id="battleName" class="small-margin">Destroyer</h2>
-                    <div class="battle-flavor-text medium-margin" id="battleFlavorMessage">The entity known only as the 'Destroyer' has caught up with you.
-                        <br>You are facing a dark mass of writhing tentacles, teeth and eyes that are fixated on the station.
-                        <br>Slowly, it moves towards you. Brace for impact!</div>
-                    <div id="gameOverMessageWin" class="gameOverMessage battle-flavor-text-win" hidden>
-                        Congratulations!<br />
-                        You managed to blast through the Destroyer's near endless defenses. The universe is safe.
-                    </div>
-                    <div id="gameOverMessageLose" class="gameOverMessage battle-flavor-text-lose" hidden>
-                        The Destroyer's power is overwhelming. Your only hope is to engage the Temporus artifact
-                        and attempt a time jump. You will lose all of your Modules and Exploration progress, but
-                        will progress much faster the next time around.
-                    </div>
-                    <button id="battleStartButton" class="button medium-margin">
-                        <span class="name">Start Battle</span>
-                    </button>
-                    <div id="battleProgressBar" class="progress battle progressBar" role="progressbar" hidden
-                         aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        <template class="rowTaskTemplate">
+            <tr>
+                <td>
+                    <div class="progress progressBar pk-tooltip" role="progressbar" aria-label="Task"
+                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                         <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
-                        <div class="progress-text name px-2">Battle</div>
+                        <div class="progress-text name px-2">Task</div>
+                        <span class="tooltipText"></span>
                     </div>
-                </div>
+                </td>
+                <td class="level">Level</td>
+                <td class="value">
+                    <div class="effect"></div>
+                    <div class="energy-generated">
+                        <data value=""></data>
+                    </div>
+                </td>
+                <td class="xpGain">Xp/day</td>
+                <td class="xpLeft">Xp left</td>
+                <td class="maxLevel">Max level</td>
+                <td class="skipSkill">
+                    <input class="checkbox" type="checkbox"/>
+                </td>
+            </tr>
+        </template>
 
-                <div class="tab" id="settings">
-                    <ul>
-                        <li>
-                            <h2><label for="stationNameInput">Station Name</label></h2>
-                            <form style="margin-top: 16px">
-                                <input type="text" id="stationNameInput" style="width:100%" maxlength="20" placeholder=""/>
-                            </form>
-                        </li>
-                        <li>
-                            <h2>Import/export save</h2>
-                            <button class="w3-button button" onClick="importGameData()">Import</button>
-                            <button class="w3-button button" onClick="exportGameData()">Export</button>
-                            <form style="margin-top: 16px">
-                                <textarea id="importExportBox" style="width:100%; resize: vertical; min-height: 73px" rows="3"></textarea>
-                            </form>
-                        </li>
-                        <li>
-                            <h2>Light/dark mode</h2>
-                            <button class="w3-button button" onClick="toggleLightDarkMode()">Toggle</button>
-                        </li>
-                        <li>
-                            <h2 class="unstable">Sci-fi mode</h2>
-                            <button class="w3-button button" onClick="toggleSciFiMode()">Toggle</button>
-                        </li>
-                        <li>
-                            <h2 class="unstable">Background</h2>
-                            <label class="background background-simple">
-                                <input type="radio" name="background" onClick="setBackground('simple')"/>
-                                Simple Color
-                            </label>
-                            <label class="background background-triangles1">
-                                <input type="radio" name="background" onClick="setBackground('triangles1')"/>
-                                Trianglify
-                            </label>
-                            <label class="background background-space">
-                                <input type="radio" name="background" onClick="setBackground('space')"/>
-                                Space
-                            </label>
-                            <label class="background background-hexagons">
-                                <input type="radio" name="background" onClick="setBackground('hexagons')"/>
-                                Bestagons
-                            </label>
-                        </li>
-                        <li>
-                            <h2>Join the discord community!</h2>
-                            <a href="https://discord.gg/fTRS4pHGka" target="_blank">
-                                <img src="https://cdn.icon-icons.com/icons2/2108/PNG/512/discord_icon_130958.png"
-                                     width="100" height="100"/>
-                            </a>
-                        </li>
-                        <li>
-                            <h2>Hard reset game</h2>
-                            <button class="w3-button button w3-red" onClick="resetGameData()">Reset</button>
-                        </li>
-                    </ul>
-                </div>
+        <template class="rowItemTemplate">
+            <tr>
+                <td>
+                    <button class="button item-button pk-tooltip">
+                        <span class="name"></span>
+                        <span class="tooltipText">tooltip</span>
+                    </button>
+                </td>
+                <td>
+                    <div class="radio w3-border w3-circle">
+                        <div class="active w3-circle"></div>
+                    </div>
+                </td>
+                <td class="effect"></td>
+                <td class="energy-usage">
+                    <data value=""></data>
+                </td>
+            </tr>
+        </template>
+
+        <template class="requiredRowTemplate">
+            <tr>
+            <td class="w3-text-gray" style="padding-left: 16px" colspan="7">
+                Required:
+                <span class="value">
+                    <span class="levels"></span>
+                    <span class="energy-stored">
+                        <data value=""></data> <span>stored energy</span>
+                    </span>
+                    <span style="color: rgb(200, 0, 0)" class="evil"></span>
+                </span>
+            </td>
+            </tr>
+        </template>
+
+        <!-- TODO use appropriate thead, tbody, tfoot for tables -->
+        <div class="tab" id="jobs">
+            <table id="jobTable" class="table">
+            </table>
+        </div>
+
+        <div class="tab" id="skills">
+            <table id="skillTable" class="table">
+            </table>
+        </div>
+
+        <div class="tab" id="shop">
+            <table id="itemTable" class="table">
+            </table>
+        </div>
+
+        <div class="tab" id="rebirth">
+            <ul>
+                <li style="margin: 8px;">
+                    You stumble across a strange looking amulet on your 25th birthday. It does not look like
+                    it has any worth on the market given that it's made from cheap-looking copper. However, you
+                    feel a weird urge to keep the amulet, so you slip it into your pocket for safekeeping.
+                </li>
+                <li style="margin: 8px;" id="rebirthNote1">
+                    On your 45th birthday, you feel the amulet shiver uncontrollably in your pocket. You take it
+                    out and the constant shivering suddenly stops. More to your bizarre surprise, you notice
+                    a strange etching on the centre of the amulet.
+                </li>
+                <li style="margin: 8px;" id="rebirthNote2">
+                    <div style="margin-bottom: 8px">
+                        On your 65th birthday, you once again encounter the strange, unexplained shivering from your
+                        amulet. But this time, a living eyeball emerges from the centre. Although terribly frightened,
+                        you realise you do not have many years to live left anyway so you consider touching the eye
+                        to see what happens.
+                    </div>
+                    <i style="color: grey">
+                        By touching the eyeball, you will be reborn and have to restart life again, losing all your
+                        levels and stored energy.
+                        However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to: <b>1 + the
+                        max level of the skill or job / 10.</b>
+                        This means you will learn everything again much more quickly than you did in your previous life.
+                        <span style="color: rgb(200, 0, 0)">
+                                Something tells you that the amulet might transform even further after living for <b>2 whole centuries</b>...
+                        </span>
+                    </i>
+                    </br>
+                    <button class="w3-button button" style="margin-bottom: 8px; margin-top: 8px" onClick="rebirthOne()">
+                        Touch the eye
+                    </button>
+                    </br>
+                </li>
+                <li style="margin: 8px;" id="rebirthNote3">
+                    <div style="margin-bottom: 8px;">
+                        Your gut instinct was right. The moment you hit the grand age of 200, you hear an ominous hum
+                        coming from the amulet.
+                        A mouth emerges from its surface and begins to cackle, and proceeds to say: "So you've made it
+                        this far... Are you ready to embrace evil?"
+                    </div>
+                    <i style="color: rgb(200, 0, 0)">
+                        If you decide to embrace evil, all of your levels, stored energy and even max levels will be
+                        reset.
+                        You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
+                        <b><span id="evilGainDisplay"></span> evil</b>, which will heavily impact your future lives.
+                    </i>
+                    </br>
+                    <button class="w3-button button" style="margin-bottom: 8px; margin-top: 8px" onClick="rebirthTwo()">
+                        Embrace evil
+                    </button>
+                    </br>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab" id="battleTab">
+            <div class="text-strap">Encounter</div>
+            <h2 id="battleName" class="small-margin">Destroyer</h2>
+            <div class="battle-flavor-text medium-margin" id="battleFlavorMessage">The entity known only as the
+                'Destroyer' has caught up with you.
+                <br>You are facing a dark mass of writhing tentacles, teeth and eyes that are fixated on the station.
+                <br>Slowly, it moves towards you. Brace for impact!
+            </div>
+            <div id="gameOverMessageWin" class="gameOverMessage battle-flavor-text-win" hidden>
+                Congratulations!<br/>
+                You managed to blast through the Destroyer's near endless defenses. The universe is safe.
+            </div>
+            <div id="gameOverMessageLose" class="gameOverMessage battle-flavor-text-lose" hidden>
+                The Destroyer's power is overwhelming. Your only hope is to engage the Temporus artifact
+                and attempt a time jump. You will lose all of your Modules and Exploration progress, but
+                will progress much faster the next time around.
+            </div>
+            <button id="battleStartButton" class="button medium-margin">
+                <span class="name">Start Battle</span>
+            </button>
+            <div id="battleProgressBar" class="progress battle progressBar" role="progressbar" hidden
+                 aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
+                <div class="progress-text name px-2">Battle</div>
             </div>
         </div>
-    </main>
 
-    <!-- Do not include background timer during local development -> it makes debugging a pain -->
-    <!--<script type="text/javascript" src="js/HackTimer.js"></script>-->
-    <script type="text/javascript" src="js/p5.Color.js"></script>
-    <script type="text/javascript" src="js/utils.js"></script>
-    <script type="text/javascript" src="js/events.js"></script>
-    <script type="text/javascript" src="js/classes.js"></script>
-    <script type="text/javascript" src="js/battle.js"></script>
-    <script type="text/javascript" src="js/gameConfig.js"></script>
-    <script type="text/javascript" src="js/main.js"></script>
-    <script type="text/javascript" src="js/vfx.js"></script>
+        <div class="tab" id="settings">
+            <ul>
+                <li>
+                    <h2><label for="stationNameInput">Station Name</label></h2>
+                    <form style="margin-top: 16px">
+                        <input type="text" id="stationNameInput" style="width:100%" maxlength="20" placeholder=""/>
+                    </form>
+                </li>
+                <li>
+                    <h2>Import/export save</h2>
+                    <button class="w3-button button" onClick="importGameData()">Import</button>
+                    <button class="w3-button button" onClick="exportGameData()">Export</button>
+                    <form style="margin-top: 16px">
+                        <textarea id="importExportBox"
+                                  style="width:100%; resize: vertical; min-height: 73px"
+                                  rows="3">
+                        </textarea>
+                    </form>
+                </li>
+                <li>
+                    <h2>Light/dark mode</h2>
+                    <button class="w3-button button" onClick="toggleLightDarkMode()">Toggle</button>
+                </li>
+                <li>
+                    <h2 class="unstable">Sci-fi mode</h2>
+                    <button class="w3-button button" onClick="toggleSciFiMode()">Toggle</button>
+                </li>
+                <li>
+                    <h2 class="unstable">Background</h2>
+                    <label class="background background-simple">
+                        <input type="radio" name="background" onClick="setBackground('simple')"/>
+                        Simple Color
+                    </label>
+                    <label class="background background-triangles1">
+                        <input type="radio" name="background" onClick="setBackground('triangles1')"/>
+                        Trianglify
+                    </label>
+                    <label class="background background-space">
+                        <input type="radio" name="background" onClick="setBackground('space')"/>
+                        Space
+                    </label>
+                    <label class="background background-hexagons">
+                        <input type="radio" name="background" onClick="setBackground('hexagons')"/>
+                        Bestagons
+                    </label>
+                </li>
+                <li>
+                    <h2>Join the discord community!</h2>
+                    <a href="https://discord.gg/fTRS4pHGka" target="_blank">
+                        <img src="https://cdn.icon-icons.com/icons2/2108/PNG/512/discord_icon_130958.png"
+                             width="100" height="100"/>
+                    </a>
+                </li>
+                <li>
+                    <h2>Hard reset game</h2>
+                    <button class="w3-button button w3-red" onClick="resetGameData()">Reset</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+
+<!-- Do not include background timer during local development -> it makes debugging a pain -->
+<!--<script type="text/javascript" src="js/HackTimer.js"></script>-->
+<script type="text/javascript" src="js/p5.Color.js"></script>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/events.js"></script>
+<script type="text/javascript" src="js/classes.js"></script>
+<script type="text/javascript" src="js/battle.js"></script>
+<script type="text/javascript" src="js/gameConfig.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript" src="js/vfx.js"></script>
 </body>
 </html>

@@ -193,7 +193,7 @@ Events.TaskLevelChanged.subscribe(function (taskInfo) {
         ParticleSystem.onetimeSplash(taskProgressBar, numberOfParticles);
         VFX.flash(taskProgressBar);
     }
-    let quickTaskProgressBar = document.querySelector(`#quickTaskDisplay .${taskInfo.type}.progressBar`);
+    let quickTaskProgressBar = document.querySelector(`.quickTaskDisplay .${taskInfo.type}.progressBar`);
     if (quickTaskProgressBar === null) return;
     ParticleSystem.onetimeSplash(quickTaskProgressBar, numberOfParticles);
     VFX.flash(quickTaskProgressBar);
