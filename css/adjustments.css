@@ -1,6 +1,5 @@
 :root {
     --light-bg-color: rgb(243, 243, 243);
-    --dark-bg-color: rgb(32, 32, 32);
 }
 
 h1 {
@@ -13,10 +12,7 @@ h1 {
 }
 
 #main {
-    display: flex;
     max-width: 1400px;
-
-    align-items: flex-start;
 
     transition: opacity 500ms ease-in-out;
 }
@@ -26,6 +22,14 @@ h1 {
     /*overflow: auto;*/
     display: flex;
     flex-direction: column;
+    margin-right: 1rem; /* me-3 */
+}
+
+@media (min-width: 1296px) {
+    #sidebar {
+        margin-right: auto;
+        margin-left: auto;
+    }
 }
 
 .tabButton {
@@ -39,10 +43,10 @@ h1 {
     top: calc(50% - 2px);
     left: 100%;
     width: 70px;
-    height: 4px;
+    height: 2px;
     background-color: orange;
 
-    box-shadow: 0 0 5px 0 orange;
+    box-shadow: 0 0 5px 2px orange;
 
     display: none;
 }
@@ -55,8 +59,29 @@ h1 {
     display: block;
 }
 
+.tabButton > h3 {
+    margin: 0;
+}
+
 #content {
+    position: relative;
     max-width: 900px;
+}
+
+/* One-side pseudo shadow */
+#content::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 9px;
+    background-image: linear-gradient(to right, orange, rgba(255, 165, 0, 0));
+}
+
+#content .progress {
+    cursor: pointer;
 }
 
 .game-playing .progress-fill.current {
@@ -64,9 +89,12 @@ h1 {
     background-image: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.25));
 }
 
-.w3-bar-item {
-    width: auto;
-    min-width: 100px;
+#dangerLevel {
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+#nameDisplay {
+    cursor: pointer;
 }
 
 .radio {
@@ -91,7 +119,7 @@ h1 {
 
 label.background {
     display: block;
-    text-shadow: 1px 1px black;
+    text-shadow: 1px 1px black, 1px 1px 3px black;
     padding: 1rem;
     border: 1px solid white;
 }
@@ -102,10 +130,6 @@ label.background + label.background {
 
 .background-simple {
     background-color: var(--light-bg-color);
-}
-
-[data-bs-theme=dark] .background-simple {
-    background-color: var(--dark-bg-color);
 }
 
 .background-triangles1 {
@@ -148,26 +172,9 @@ label.background-space {
     background-color: rgba(255, 255, 255, 0.8);
 }
 
-.background-triangles1 .w3-button {
-    background: none;
-}
-
-[data-bs-theme=dark] .background-triangles1 .panel,
-[data-bs-theme=dark] .background-triangles1 .tabButton {
-    background-color: rgba(46, 46, 46, 0.8);
-}
 
 .background-space .panel {
     background-color: rgba(255, 255, 255, 0.9);
-}
-
-[data-bs-theme=dark] .background-space .panel,
-[data-bs-theme=dark] .background-space .tabButton {
-    background-color: rgba(46, 46, 46, 0.9);
-}
-
-.background-space .w3-button {
-    background: none;
 }
 
 #star-background {
@@ -357,4 +364,12 @@ label.background-space {
 .table td,
 .table th {
     background: none;
+}
+
+.btn {
+    border-radius: 0;
+}
+
+.progress {
+    border-radius: 0;
 }

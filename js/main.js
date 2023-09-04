@@ -513,7 +513,14 @@ function updateText() {
     document.getElementById('ageDisplay').textContent = String(daysToYears(gameData.days));
     document.getElementById('dayDisplay').textContent = String(getDay()).padStart(3, '0');
     document.getElementById('stationAge').textContent = String(daysToYears(gameData.totalDays));
-    document.getElementById('pauseButton').textContent = gameData.paused ? 'Play' : 'Pause';
+    const pauseButton = document.getElementById('pauseButton');
+    if (gameData.paused) {
+        pauseButton.textContent = 'Play';
+        pauseButton.classList.replace('btn-secondary', 'btn-primary');
+    } else {
+        pauseButton.textContent = 'Pause';
+        pauseButton.classList.replace('btn-primary', 'btn-secondary');
+    }
 
     updateDangerDisplay();
     updateEnergyBar();
@@ -1007,8 +1014,13 @@ function exportGameData() {
 }
 
 function initStationName() {
-    let stationNameDisplayElement = document.getElementById('name-display');
+    let stationNameDisplayElement = document.getElementById('nameDisplay');
     stationNameDisplayElement.textContent = gameData.stationName;
+    stationNameDisplayElement.addEventListener('click', function (event) {
+        event.preventDefault();
+
+        setTab(tabButtons.settings, 'settings');
+    });
     let stationNameInput = document.getElementById('stationNameInput');
     stationNameInput.value = gameData.stationName;
     stationNameInput.placeholder = emptyStationName;
