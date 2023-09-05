@@ -37,6 +37,7 @@ h1 {
     position: relative;
 }
 
+/* FIXME hidden right now due to scrolling */
 .tabButton::after {
     content: "";
     position: absolute;
@@ -66,18 +67,7 @@ h1 {
 #content {
     position: relative;
     max-width: 900px;
-}
-
-/* One-side pseudo shadow */
-#content::after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 9px;
-    background-image: linear-gradient(to right, orange, rgba(255, 165, 0, 0));
+    box-shadow: inset 9px 0 5px -4px orange;
 }
 
 #content .progress {
@@ -371,5 +361,6 @@ label.background-space {
 }
 
 .progress {
+    overflow: visible;
     border-radius: 0;
 }

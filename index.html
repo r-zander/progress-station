@@ -129,8 +129,8 @@
         </div>
     </header>
 
-    <div class="d-flex align-content-start">
-        <aside id="sidebar">
+    <div class="d-flex align-content-start" style="max-height: calc(100vh - 175px)">
+        <aside id="sidebar" class="mh-100 overflow-x-hidden overflow-y-auto">
             <div id="actions" class="panel d-flex flex-column p-3 gap-3">
                 <div id="deathText">
                     <!-- TODO is deathText part of actions? -->
@@ -181,7 +181,7 @@
                 <button id="jobsTabButton" class="tabButton p-3" onClick="setTab(this, 'jobs')">
                     <h3 style="font: inherit">Modules</h3>
 
-                    <div class="quickTaskDisplay">
+                    <div class="quickTaskDisplay mt-2">
                         <div class="progress job progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
                              aria-valuemin="0" aria-valuemax="100">
                             <div class="progressFill current progress-bar progress-bar-striped"
@@ -192,7 +192,7 @@
                 </button>
                 <button id="skillsTabButton" class="tabButton p-3" onClick="setTab(this, 'skills')">
                     <h3 style="font: inherit">Research</h3>
-                    <div class="quickTaskDisplay">
+                    <div class="quickTaskDisplay mt-2">
                         <div class="progress skill progressBar" role="progressbar" aria-label="Task"
                              aria-valuenow="0"
                              aria-valuemin="0" aria-valuemax="100">
@@ -217,7 +217,7 @@
             </nav>
         </aside>
 
-        <div id="content" class="panel flex-fill p-3 position-relative">
+        <div id="content" class="panel flex-fill p-3 position-relative mh-100 overflow-auto">
             <template class="headerRowTaskTemplate">
                 <tr>
                     <th class="category" style="width: 250px">Job</th>
