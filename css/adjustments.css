@@ -74,9 +74,15 @@ h1 {
     cursor: pointer;
 }
 
-.game-playing .progress-fill.current {
+.game-playing .progress-bar-striped.current,
+.game-playing .progress:hover > .progress-bar-striped {
+    animation: 1s linear infinite progress-bar-stripes reverse;
+}
+
+.game-playing .progress-bar-striped.current {
     /* TODO would be nice to softly fade this in instead of just showing it. */
-    background-image: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.25));
+    /* FIXME doesn't work with striped */
+    /*background-image: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.25));*/
 }
 
 #dangerLevel {

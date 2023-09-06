@@ -121,6 +121,12 @@ function goBlackout() {
     gameData.currentMisc = [];
 }
 
+function hideAllTooltips() {
+    visibleTooltips.forEach(function (tooltipTriggerElement) {
+        bootstrap.Tooltip.getInstance(tooltipTriggerElement).hide();
+    });
+}
+
 function setTab(element, selectedTab) {
     const tabs = Array.prototype.slice.call(document.getElementsByClassName('tab'));
     tabs.forEach(function (tab) {
@@ -134,6 +140,8 @@ function setTab(element, selectedTab) {
     }
     element.classList.add('active');
     gameData.selectedTab = selectedTab;
+
+    hideAllTooltips();
 }
 
 // noinspection JSUnusedGlobalSymbols used in HTML
@@ -227,7 +235,9 @@ function createHeaderRow(templates, categoryType, categoryName) {
 function createRow(templates, name, categoryName, categoryType) {
     const row = templates.row.content.firstElementChild.cloneNode(true);
     row.getElementsByClassName('name')[0].textContent = name;
-    row.getElementsByClassName('tooltipText')[0].textContent = tooltips[name];
+    let descriptionElement = row.getElementsByClassName('descriptionTooltip')[0];
+    descriptionElement.ariaLabel = name;
+    descriptionElement.title = tooltips[name];
     row.id = 'row ' + name;
     if (categoryType !== itemCategories) {
         row.getElementsByClassName('progressBar')[0].onclick = function () {
@@ -331,6 +341,10 @@ function setProgress(progressFillElement, progress, increasing = true) {
     }
     progressFillElement.dataset.progress = String(progress);
     progressFillElement.style.width = (progress * 100) + '%';
+    let parentElement = progressFillElement.closest('.progress');
+    if (parentElement !== null) {
+        parentElement.ariaValueNow = (progress * 100).toFixed(1);
+    }
 }
 
 function updateRequiredRows(data, categoryType) {
@@ -1013,6 +1027,25 @@ function exportGameData() {
     importExportBox.value = window.btoa(JSON.stringify(gameData));
 }
 
+const visibleTooltips = [];
+
+function initTooltips(){
+    const tooltipTriggerElements = document.querySelectorAll('[title]');
+    const tooltipConfig = {container: 'body', trigger: 'hover click'};
+    tooltipTriggerElements.forEach(function (tooltipTriggerElement) {
+        new bootstrap.Tooltip(tooltipTriggerElement, tooltipConfig);
+        tooltipTriggerElement.addEventListener('show.bs.tooltip', function (){
+            visibleTooltips.push(tooltipTriggerElement);
+        });
+        tooltipTriggerElement.addEventListener('hide.bs.tooltip', function () {
+            let indexOf = visibleTooltips.indexOf(tooltipTriggerElement);
+            if (indexOf !== -1) {
+                visibleTooltips.splice(indexOf);
+            }
+        });
+    });
+}
+
 function initStationName() {
     let stationNameDisplayElement = document.getElementById('nameDisplay');
     stationNameDisplayElement.textContent = gameData.stationName;
@@ -1055,7 +1088,7 @@ function initBattle(name) {
     preparedBattle = name;
     document.getElementById('battleStartButton').onclick = startBossBattle;
 
-    Events.GameOver.subscribe(function (data) {
+    GameEvents.GameOver.subscribe(function (data) {
         if (data.bossDefeated) {
             gameOverMessageWinElement.hidden = false;
         } else {
@@ -1132,6 +1165,7 @@ function init() {
     }
     autoLearnElement.checked = gameData.autoLearnEnabled;
     autoPromoteElement.checked = gameData.autoPromoteEnabled;
+    initTooltips();
     initStationName();
     initSettings();
 
@@ -1140,7 +1174,7 @@ function init() {
     update();
     setInterval(update, 1000 / updateSpeed);
     setInterval(saveGameData, 3000);
-    Events.TaskLevelChanged.subscribe(function (taskInfo) {
+    GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
         if (taskInfo.type === 'skill') {
             setSkillWithLowestMaxXp();
         }

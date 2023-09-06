@@ -176,7 +176,7 @@ ParticleSystem.onetimeSplash = function (element, numberOfParticles) {
 // ParticleSystem.followMouse(true);
 ParticleSystem.followProgressBars(true);
 
-Events.TaskLevelChanged.subscribe(function (taskInfo) {
+GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
     // Only show animations if the level went up
     if (taskInfo.previousLevel >= taskInfo.nextLevel) return;
 

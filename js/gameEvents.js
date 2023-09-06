@@ -1,13 +1,13 @@
 'use strict';
 
-class Event {
+class GameEvent {
     static _warnedEvents = [];
 
     /**
      * @param {undefined | Object} payloadDefinition
      * @param {boolean} requiresListeners Will print a warning to the console when
      * an event is triggered where no _listeners have been registered.
-     * @param {boolean} onetime A onetime Event is only triggered once. If you subscribe to it and
+     * @param {boolean} onetime A onetime GameEvent is only triggered once. If you subscribe to it and
      * it was already triggered, your callback will be executed immediately.
      */
     constructor(payloadDefinition, requiresListeners = false, onetime = false) {
@@ -113,28 +113,28 @@ class Event {
         }
 
         if (!valid) {
-            console.log('Event, Payload, PayloadDefintion', this, payload, this._payloadDefinition);
+            console.log('GameEvent, Payload, PayloadDefintion', this, payload, this._payloadDefinition);
             throw new TypeError('Provided payload does not match the payload definition of event.');
         }
     }
 
     _warnEmptyListeners(event) {
         // make sure there's only 1 warning per event
-        if (!Event._warnedEvents.includes(event)) {
+        if (!GameEvent._warnedEvents.includes(event)) {
             console.warn('No listeners for event "' + event + '"!');
-            Event._warnedEvents.push(event);
+            GameEvent._warnedEvents.push(event);
         }
     }
 }
 
-const Events = {
-    TaskLevelChanged: new Event({
+const GameEvents = {
+    TaskLevelChanged: new GameEvent({
         type: 'string',
         name: 'string',
         previousLevel: 'number',
         nextLevel: 'number'
     }),
-    GameOver: new Event({
+    GameOver: new GameEvent({
         bossDefeated: 'boolean',
     }),
 };

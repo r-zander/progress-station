@@ -75,7 +75,8 @@
                 <data value="">kIC</data>
             </div>
         </div>
-        <div id="energyDisplay" class="pk-tooltip detailed">
+        <div id="energyDisplay" class="detailed" tabindex="0"
+             title="Click to toggle detailed view" data-bs-placement="bottom">
             <div class="above-energy-bar">
                 <p class="energy-generated energy-text detail">
                     <span>Generated:</span>
@@ -104,7 +105,6 @@
                     <data value="2200">2.2 kW</data>
                 </p>
             </div>
-            <div class="tooltipText mt-1 tooltipText-bottom">Click to toggle detailed view.</div>
         </div>
         <div class="d-flex flex-row gap-3 justify-content-around">
             <div class="" style="font-size: large">
@@ -242,11 +242,11 @@
             <template class="rowTaskTemplate">
                 <tr>
                     <td>
-                        <div class="progress progressBar pk-tooltip" role="progressbar" aria-label="Task"
-                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
+                             data-bs-placement="right">
                             <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
                             <div class="progress-text name px-2">Task</div>
-                            <span class="tooltipText"></span>
                         </div>
                     </td>
                     <td class="level">Level</td>
@@ -268,9 +268,9 @@
             <template class="rowItemTemplate">
                 <tr>
                     <td>
-                        <button class="button item-button pk-tooltip">
+                        <button class="button item-button descriptionTooltip" aria-label="Item"
+                                title="Item Description" data-bs-placement="right">
                             <span class="name"></span>
-                            <span class="tooltipText">tooltip</span>
                         </button>
                     </td>
                     <td>
@@ -469,11 +469,12 @@
     </div>
 </main>
 
+<script type="text/javascript" src="vendor/bootstrap-5.3.1/bootstrap.bundle.min.js"></script>
 <!-- Do not include background timer during local development -> it makes debugging a pain -->
 <!--<script type="text/javascript" src="js/HackTimer.js"></script>-->
 <script type="text/javascript" src="js/p5.Color.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
-<script type="text/javascript" src="js/events.js"></script>
+<script type="text/javascript" src="js/gameEvents.js"></script>
 <script type="text/javascript" src="js/classes.js"></script>
 <script type="text/javascript" src="js/battle.js"></script>
 <script type="text/javascript" src="js/gameConfig.js"></script>
