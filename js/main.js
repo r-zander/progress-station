@@ -90,7 +90,7 @@ function getEvilGain() {
 function getGameSpeed() {
     const timeWarping = gameData.taskData['Time warping'];
     const timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1;
-    return baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed;
+    return baseGameSpeed * +isPlaying() * timeWarpingSpeed;
 }
 
 function getDangerLevel() {
@@ -155,6 +155,8 @@ function setTimeWarping() {
 }
 
 function setTask(taskName) {
+    if (!isPlaying()) return;
+
     const task = gameData.taskData[taskName];
     if (task instanceof Job) {
         gameData.currentJob = task;
@@ -164,10 +166,14 @@ function setTask(taskName) {
 }
 
 function setProperty(propertyName) {
+    if (!isPlaying()) return;
+
     gameData.currentProperty = gameData.itemData[propertyName];
 }
 
 function setMisc(miscName) {
+    if (!isPlaying()) return;
+
     const misc = gameData.itemData[miscName];
     if (gameData.currentMisc.includes(misc)) {
         for (let i = 0; i < gameData.currentMisc.length; i++) {
@@ -528,6 +534,7 @@ function updateText() {
     document.getElementById('dayDisplay').textContent = String(getDay()).padStart(3, '0');
     document.getElementById('stationAge').textContent = String(daysToYears(gameData.totalDays));
     const pauseButton = document.getElementById('pauseButton');
+    // TODO could also show "Touch the eye" as third state when dead
     if (gameData.paused) {
         pauseButton.textContent = 'Play';
         pauseButton.classList.replace('btn-secondary', 'btn-primary');
@@ -595,9 +602,8 @@ function hideEntities() {
 }
 
 function updateBodyClasses() {
-    const displayAsPaused = gameData.paused || !isAlive();
-    document.getElementById('body').classList.toggle('game-paused', displayAsPaused);
-    document.getElementById('body').classList.toggle('game-playing', !displayAsPaused);
+    document.getElementById('body').classList.toggle('game-paused', !isPlaying());
+    document.getElementById('body').classList.toggle('game-playing', isPlaying());
 }
 
 function doTask(task) {
@@ -878,6 +884,13 @@ function isAlive() {
     return condition;
 }
 
+/**
+ * Player is alive and game is not paused aka the game is actually running.
+ */
+function isPlaying() {
+    return !gameData.paused && isAlive();
+}
+
 function assignMethods() {
     for (let key in gameData.taskData) {
         let task = gameData.taskData[key];
@@ -1031,7 +1044,7 @@ const visibleTooltips = [];
 
 function initTooltips(){
     const tooltipTriggerElements = document.querySelectorAll('[title]');
-    const tooltipConfig = {container: 'body', trigger: 'hover click'};
+    const tooltipConfig = {container: 'body', trigger: 'hover'};
     tooltipTriggerElements.forEach(function (tooltipTriggerElement) {
         new bootstrap.Tooltip(tooltipTriggerElement, tooltipConfig);
         tooltipTriggerElement.addEventListener('show.bs.tooltip', function (){
