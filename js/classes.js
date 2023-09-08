@@ -43,7 +43,7 @@ class Task {
             excess -= this.getMaxXp();
         }
         if (this.level > previousLevel) {
-            Events.TaskLevelChanged.trigger({
+            GameEvents.TaskLevelChanged.trigger({
                 type: this.type,
                 name: this.baseData.name,
                 previousLevel: previousLevel,

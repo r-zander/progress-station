@@ -217,7 +217,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Evil info': new EvilRequirement([Dom.get.byId('evilInfo')], [{requirement: 1}]),
         'Time warping info': new TaskRequirement([Dom.get.byId('timeWarping')], [{task: 'Mage', requirement: 10}]),
         'Automation': new AgeRequirement([Dom.get.byId('automation')], [{requirement: 20}]),
-        'Quick task display': new AgeRequirement([Dom.get.byId('quickTaskDisplay')], [{requirement: 20}]),
+        'Quick task display': new AgeRequirement(getElementsByClass('quickTaskDisplay'), [{requirement: 20}]),
 
         //Common generators
         'Beggar': new TaskRequirement([getTaskElement('Beggar')], []),

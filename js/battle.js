@@ -49,7 +49,7 @@ class LayeredTask extends Task {
 class Battle extends LayeredTask {
     onDone() {
         super.onDone();
-        Events.GameOver.trigger({
+        GameEvents.GameOver.trigger({
             bossDefeated: this.isDone(),
         });
     }

@@ -16,33 +16,32 @@ data {
     font-size: 110%;
 }
 
-.w3-bar-item {
-    width: 100px;
-    height: 40px;
-    text-align: center;
+.progress {
+    position: relative;
+    height: 30px;
+    background-color: rgb(12, 101, 173);
 }
 
 .progress-text {
     position: absolute;
     top: 0;
     bottom: 0;
-    padding: 5px;
+
+    font-size: var(--bs-body-font-size);
+    line-height: 30px;
+
     color: white;
+    text-shadow: 1px 1px black, 1px 1px 3px black;
+    /* TODO truncate */
 }
 
 .progress-bar {
-    position: relative;
-    background-color: rgb(12, 101, 173);
-    cursor: pointer;
-    width: 200px;
+    /* Smooth out progress bar filling */
+    transition: width 50ms linear;
+    background-color: rgb(46, 148, 231);
 }
 
-.progress-fill {
-    height: 30px;
-    background-color: rgb(46, 148, 231)
-}
-
-.progress-fill.current {
+.progress-bar.current {
     background-color: orange;
 }
 
@@ -168,11 +167,12 @@ button:focus {
     overflow-y: auto;
 }
 
-.tooltip {
+.pk-tooltip {
     position: relative;
+    overflow: visible;
 }
 
-.tooltip .tooltipText {
+.pk-tooltip .tooltipText {
     visibility: hidden;
     width: 240px;
     background-color: black;
@@ -191,7 +191,13 @@ button:focus {
     transition: opacity 0.25s;
 }
 
-.tooltip:hover .tooltipText {
+.pk-tooltip .tooltipText-bottom {
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.pk-tooltip:hover .tooltipText {
     visibility: visible;
     opacity: 0.8;
 }
@@ -244,9 +250,7 @@ button:focus {
     margin-bottom: 1rem;
 }
 
-.battle-bar {
-    position: relative;
-    background-color: rgb(12, 101, 173);
+.progress.battle {
     margin: auto auto 1.5rem;
     width: 50%;
 }

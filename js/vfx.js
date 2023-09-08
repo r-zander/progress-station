@@ -129,7 +129,7 @@ ParticleSystem.followProgressBars = function (enabled = true) {
     }
 
     ParticleSystem.followProgressBarsInterval = setInterval(() => {
-        if (gameData.paused || !isAlive()) {
+        if (!isPlaying()) {
             return;
         }
 
@@ -176,7 +176,7 @@ ParticleSystem.onetimeSplash = function (element, numberOfParticles) {
 // ParticleSystem.followMouse(true);
 ParticleSystem.followProgressBars(true);
 
-Events.TaskLevelChanged.subscribe(function (taskInfo) {
+GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
     // Only show animations if the level went up
     if (taskInfo.previousLevel >= taskInfo.nextLevel) return;
 
@@ -193,7 +193,7 @@ Events.TaskLevelChanged.subscribe(function (taskInfo) {
         ParticleSystem.onetimeSplash(taskProgressBar, numberOfParticles);
         VFX.flash(taskProgressBar);
     }
-    let quickTaskProgressBar = document.querySelector(`#quickTaskDisplay .${taskInfo.type}.progressBar`);
+    let quickTaskProgressBar = document.querySelector(`.quickTaskDisplay .${taskInfo.type}.progressBar`);
     if (quickTaskProgressBar === null) return;
     ParticleSystem.onetimeSplash(quickTaskProgressBar, numberOfParticles);
     VFX.flash(quickTaskProgressBar);

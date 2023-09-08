@@ -90,7 +90,7 @@ function getEvilGain() {
 function getGameSpeed() {
     const timeWarping = gameData.taskData['Time warping'];
     const timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1;
-    return baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed;
+    return baseGameSpeed * +isPlaying() * timeWarpingSpeed;
 }
 
 function getDangerLevel() {
@@ -121,6 +121,12 @@ function goBlackout() {
     gameData.currentMisc = [];
 }
 
+function hideAllTooltips() {
+    visibleTooltips.forEach(function (tooltipTriggerElement) {
+        bootstrap.Tooltip.getInstance(tooltipTriggerElement).hide();
+    });
+}
+
 function setTab(element, selectedTab) {
     const tabs = Array.prototype.slice.call(document.getElementsByClassName('tab'));
     tabs.forEach(function (tab) {
@@ -130,10 +136,12 @@ function setTab(element, selectedTab) {
 
     const tabButtons = document.getElementsByClassName('tabButton');
     for (let tabButton of tabButtons) {
-        tabButton.classList.remove('w3-blue-gray');
+        tabButton.classList.remove('active');
     }
-    element.classList.add('w3-blue-gray');
+    element.classList.add('active');
     gameData.selectedTab = selectedTab;
+
+    hideAllTooltips();
 }
 
 // noinspection JSUnusedGlobalSymbols used in HTML
@@ -147,6 +155,8 @@ function setTimeWarping() {
 }
 
 function setTask(taskName) {
+    if (!isPlaying()) return;
+
     const task = gameData.taskData[taskName];
     if (task instanceof Job) {
         gameData.currentJob = task;
@@ -156,10 +166,14 @@ function setTask(taskName) {
 }
 
 function setProperty(propertyName) {
+    if (!isPlaying()) return;
+
     gameData.currentProperty = gameData.itemData[propertyName];
 }
 
 function setMisc(miscName) {
+    if (!isPlaying()) return;
+
     const misc = gameData.itemData[miscName];
     if (gameData.currentMisc.includes(misc)) {
         for (let i = 0; i < gameData.currentMisc.length; i++) {
@@ -227,7 +241,9 @@ function createHeaderRow(templates, categoryType, categoryName) {
 function createRow(templates, name, categoryName, categoryType) {
     const row = templates.row.content.firstElementChild.cloneNode(true);
     row.getElementsByClassName('name')[0].textContent = name;
-    row.getElementsByClassName('tooltipText')[0].textContent = tooltips[name];
+    let descriptionElement = row.getElementsByClassName('descriptionTooltip')[0];
+    descriptionElement.ariaLabel = name;
+    descriptionElement.title = tooltips[name];
     row.id = 'row ' + name;
     if (categoryType !== itemCategories) {
         row.getElementsByClassName('progressBar')[0].onclick = function () {
@@ -261,20 +277,28 @@ function createAllRows(categoryType, tableId) {
     };
 
     const table = document.getElementById(tableId);
+    const tableBody = document.createElement('tbody');
+    table.appendChild(tableBody);
 
     for (let categoryName in categoryType) {
         const headerRow = createHeaderRow(templates, categoryType, categoryName);
-        table.appendChild(headerRow);
+        tableBody.appendChild(headerRow);
 
         const category = categoryType[categoryName];
         category.forEach(function (name) {
             const row = createRow(templates, name, categoryName, categoryType);
-            table.appendChild(row);
+            tableBody.appendChild(row);
         });
 
         const requiredRow = createRequiredRow(categoryName);
-        table.append(requiredRow);
+        tableBody.append(requiredRow);
     }
+}
+
+function cleanUpDom() {
+    document.querySelectorAll('template').forEach(function (template) {
+        template.remove();
+    });
 }
 
 function initSidebar() {
@@ -286,8 +310,7 @@ function initSidebar() {
 
 function updateQuickTaskDisplay(taskType) {
     const currentTask = taskType === 'job' ? gameData.currentJob : gameData.currentSkill;
-    const quickTaskDisplayElement = document.getElementById('quickTaskDisplay');
-    const progressBar = quickTaskDisplayElement.getElementsByClassName(taskType)[0];
+    const progressBar = document.querySelector(`.quickTaskDisplay .${taskType}`);
     progressBar.getElementsByClassName('name')[0].textContent = currentTask.name + ' lvl ' + currentTask.level;
     setProgress(progressBar.getElementsByClassName('progressFill')[0], currentTask.xp / currentTask.getMaxXp());
 }
@@ -324,6 +347,10 @@ function setProgress(progressFillElement, progress, increasing = true) {
     }
     progressFillElement.dataset.progress = String(progress);
     progressFillElement.style.width = (progress * 100) + '%';
+    let parentElement = progressFillElement.closest('.progress');
+    if (parentElement !== null) {
+        parentElement.ariaValueNow = (progress * 100).toFixed(1);
+    }
 }
 
 function updateRequiredRows(data, categoryType) {
@@ -506,7 +533,15 @@ function updateText() {
     document.getElementById('ageDisplay').textContent = String(daysToYears(gameData.days));
     document.getElementById('dayDisplay').textContent = String(getDay()).padStart(3, '0');
     document.getElementById('stationAge').textContent = String(daysToYears(gameData.totalDays));
-    document.getElementById('pauseButton').textContent = gameData.paused ? 'Play' : 'Pause';
+    const pauseButton = document.getElementById('pauseButton');
+    // TODO could also show "Touch the eye" as third state when dead
+    if (gameData.paused) {
+        pauseButton.textContent = 'Play';
+        pauseButton.classList.replace('btn-secondary', 'btn-primary');
+    } else {
+        pauseButton.textContent = 'Pause';
+        pauseButton.classList.replace('btn-primary', 'btn-secondary');
+    }
 
     updateDangerDisplay();
     updateEnergyBar();
@@ -567,9 +602,8 @@ function hideEntities() {
 }
 
 function updateBodyClasses() {
-    const displayAsPaused = gameData.paused || !isAlive();
-    document.getElementById('body').classList.toggle('game-paused', displayAsPaused);
-    document.getElementById('body').classList.toggle('game-playing', !displayAsPaused);
+    document.getElementById('body').classList.toggle('game-paused', !isPlaying());
+    document.getElementById('body').classList.toggle('game-playing', isPlaying());
 }
 
 function doTask(task) {
@@ -757,8 +791,12 @@ function getElementsByClass(className) {
 }
 
 function toggleLightDarkMode(force = undefined) {
-    const body = document.getElementById('body');
-    gameData.settings.darkMode = body.classList.toggle('dark', force);
+    if (force === undefined) {
+        gameData.settings.darkMode = !gameData.settings.darkMode;
+    } else {
+        gameData.settings.darkMode = force;
+    }
+    document.documentElement.dataset['bsTheme'] = gameData.settings.darkMode ? 'dark' : 'light';
 }
 
 function toggleSciFiMode(force = undefined) {
@@ -844,6 +882,13 @@ function isAlive() {
         deathText.classList.add('hidden');
     }
     return condition;
+}
+
+/**
+ * Player is alive and game is not paused aka the game is actually running.
+ */
+function isPlaying() {
+    return !gameData.paused && isAlive();
 }
 
 function assignMethods() {
@@ -995,9 +1040,33 @@ function exportGameData() {
     importExportBox.value = window.btoa(JSON.stringify(gameData));
 }
 
+const visibleTooltips = [];
+
+function initTooltips(){
+    const tooltipTriggerElements = document.querySelectorAll('[title]');
+    const tooltipConfig = {container: 'body', trigger: 'hover'};
+    tooltipTriggerElements.forEach(function (tooltipTriggerElement) {
+        new bootstrap.Tooltip(tooltipTriggerElement, tooltipConfig);
+        tooltipTriggerElement.addEventListener('show.bs.tooltip', function (){
+            visibleTooltips.push(tooltipTriggerElement);
+        });
+        tooltipTriggerElement.addEventListener('hide.bs.tooltip', function () {
+            let indexOf = visibleTooltips.indexOf(tooltipTriggerElement);
+            if (indexOf !== -1) {
+                visibleTooltips.splice(indexOf);
+            }
+        });
+    });
+}
+
 function initStationName() {
-    let stationNameDisplayElement = document.getElementById('name-display');
+    let stationNameDisplayElement = document.getElementById('nameDisplay');
     stationNameDisplayElement.textContent = gameData.stationName;
+    stationNameDisplayElement.addEventListener('click', function (event) {
+        event.preventDefault();
+
+        setTab(tabButtons.settings, 'settings');
+    });
     let stationNameInput = document.getElementById('stationNameInput');
     stationNameInput.value = gameData.stationName;
     stationNameInput.placeholder = emptyStationName;
@@ -1032,7 +1101,7 @@ function initBattle(name) {
     preparedBattle = name;
     document.getElementById('battleStartButton').onclick = startBossBattle;
 
-    Events.GameOver.subscribe(function (data) {
+    GameEvents.GameOver.subscribe(function (data) {
         if (data.bossDefeated) {
             gameOverMessageWinElement.hidden = false;
         } else {
@@ -1078,6 +1147,8 @@ function init() {
     createAllRows(skillCategories, 'skillTable');
     createAllRows(itemCategories, 'itemTable');
 
+    cleanUpDom();
+
     initSidebar();
 
     createData(gameData.taskData, jobBaseData);
@@ -1107,6 +1178,7 @@ function init() {
     }
     autoLearnElement.checked = gameData.autoLearnEnabled;
     autoPromoteElement.checked = gameData.autoPromoteEnabled;
+    initTooltips();
     initStationName();
     initSettings();
 
@@ -1115,7 +1187,7 @@ function init() {
     update();
     setInterval(update, 1000 / updateSpeed);
     setInterval(saveGameData, 3000);
-    Events.TaskLevelChanged.subscribe(function (taskInfo) {
+    GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
         if (taskInfo.type === 'skill') {
             setSkillWithLowestMaxXp();
         }
