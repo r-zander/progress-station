@@ -130,7 +130,7 @@
     </header>
 
     <div class="d-flex align-content-start" style="max-height: calc(100vh - 175px)">
-        <aside id="sidebar" class="mh-100 overflow-x-hidden overflow-y-auto">
+        <aside id="sidebar" class="mh-100 overflow-x-hidden overflow-y-auto mb-3">
             <div id="actions" class="panel d-flex flex-column p-3 gap-3">
                 <div id="deathText">
                     <!-- TODO is deathText part of actions? -->
@@ -217,55 +217,117 @@
             </nav>
         </aside>
 
-        <div id="content" class="panel flex-fill p-3 position-relative mh-100 overflow-auto">
-            <template class="headerRowTaskTemplate">
-                <tr>
-                    <th class="category" style="width: 250px">Job</th>
-                    <th>Level</th>
-                    <th class="valueType">Value type</th>
-                    <th>Xp/day</th>
-                    <th>Xp left</th>
-                    <th class="maxLevel">Max level</th>
-                    <th class="skipSkill">Skip</th>
-                </tr>
+        <div id="content" class="panel flex-fill position-relative mh-100 overflow-auto mb-3">
+            <template id="level1Template">
+                <div class="level1">
+                    <div class="level1-header d-flex justify-content-start py-2 px-2 mb-0"
+                         style="background-color: rgb(199, 21, 133);">
+                        <div class="category">
+                            Industry
+                        </div>
+                        <div class="value">
+                            (4.29)
+                        </div>
+                    </div>
+
+                    <slot id="level2"></slot>
+                </div>
             </template>
 
-            <template class="headerRowItemTemplate">
-                <tr>
-                    <th class="category" style="width: 250px">Item</th>
-                    <th style="width: 100px">Active</th>
-                    <th style="width: 250px">Effect</th>
-                    <th>Usage/day</th>
-                </tr>
+            <template id="level2Template">
+                <div class="level2 ps-3 mt-2">
+                    <div class="level2-header bg-light text-dark d-flex justify-content-start align-items-center px-2"
+                         style="padding-top: 5px; padding-bottom: 5px;">
+                        <div style="width: 19.5rem">
+                            <div class="progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
+                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
+                                 data-bs-placement="right">
+                                <div class="progressFill progress-bar progress-bar-striped" style="width: 63%;"></div>
+                                <div class="progress-text name px-2">Mining Bay</div>
+                            </div>
+                        </div>
+                        <div>
+                            Level: <span class="level">32</span>
+                        </div>
+                        <div>
+                            <div class="form-check form-switch form-check-reverse">
+                                <input class="form-check-input" type="checkbox" role="switch" id="switch1" checked>
+                                <label class="form-check-label" for="switch1">Active</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <slot id="level3"></slot>
+                </div>
             </template>
 
-            <template class="rowTaskTemplate">
+            <template id="level3TaskTemplate">
+                <div class="table-container ps-3 mt-2">
+                    <table class="table mb-0">
+                        <thead class="level3">
+                        <tr>
+                            <th class="name">Drills</th>
+                            <th>Level</th>
+                            <th class="valueType">Energy Cost</th>
+                            <th>Xp/Cycle</th>
+                            <th>Xp left</th>
+                            <th class="maxLevel">Max level</th>
+                            <th class="skipSkill">Skip</th>
+                        </tr>
+                        </thead>
+                        <tbody class="level4">
+                        <!-- repeat level 4 row -->
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <template id="level3ItemTemplate">
+                <div class="table-container ps-3">
+                    <table class="table mb-0">
+                        <thead class="level3">
+                        <tr>
+                            <th class="name">Item</th>
+                            <th>Active</th>
+                            <th>Effect</th>
+                            <th>Usage/cycle</th>
+                        </tr>
+                        </thead>
+                        <tbody class="level4">
+                        <slot id="level4"></slot>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <template id="level4TaskTemplate">
                 <tr>
                     <td>
                         <div class="progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
                              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
                              data-bs-placement="right">
-                            <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
-                            <div class="progress-text name px-2">Task</div>
+                            <div class="progressFill progress-bar progress-bar-striped" style="width: 54%"></div>
+                            <div class="progress-text name px-2">Basic Bitch Co. Drills</div>
                         </div>
                     </td>
-                    <td class="level">Level</td>
+                    <td class="level">53</td>
                     <td class="value">
-                        <div class="effect"></div>
+                        <div class="effect">x1.13 Industry</div>
                         <div class="energy-generated">
-                            <data value=""></data>
+                            <data value="259">259W</data>
                         </div>
                     </td>
-                    <td class="xpGain">Xp/day</td>
-                    <td class="xpLeft">Xp left</td>
-                    <td class="maxLevel">Max level</td>
+                    <td class="xpGain">1.6k</td>
+                    <td class="xpLeft">45.5k</td>
+                    <td class="maxLevel">124</td>
                     <td class="skipSkill">
-                        <input class="checkbox" type="checkbox"/>
+                        <!--suppress HtmlFormInputWithoutLabel -->
+                        <input class="checkbox" type="checkbox" />
                     </td>
                 </tr>
             </template>
 
-            <template class="rowItemTemplate">
+            <template id="level4ItemTemplate">
                 <tr>
                     <td>
                         <button class="button item-button descriptionTooltip" aria-label="Item"
@@ -285,9 +347,9 @@
                 </tr>
             </template>
 
-            <template class="requiredRowTemplate">
+            <template id="level4RequiredTemplate">
                 <tr>
-                    <td style="padding-left: 16px; color: gray" colspan="7">
+                    <td class="fu" style="padding-left: 16px; color: gray" colspan="100%">
                         Required:
                         <span class="value">
                             <span class="levels"></span>
@@ -300,23 +362,19 @@
                 </tr>
             </template>
 
-            <!-- TODO use appropriate thead, tbody, tfoot for tables -->
-            <div class="tab" id="jobs">
-                <table id="jobTable" class="table">
-                </table>
+            <div id="jobs" class="tab m-3">
+                <slot id="jobTable"></slot>
             </div>
 
-            <div class="tab" id="skills">
-                <table id="skillTable" class="table">
-                </table>
+            <div id="skills" class="tab m-3">
+                <slot id="skillTable"></slot>
             </div>
 
-            <div class="tab" id="shop">
-                <table id="itemTable" class="table">
-                </table>
+            <div id="shop" class="tab m-3">
+                <slot id="itemTable"></slot>
             </div>
 
-            <div class="tab" id="rebirth">
+            <div id="rebirth" class="tab m-3">
                 <ul>
                     <li style="margin: 8px;">
                         You stumble across a strange looking amulet on your 25th birthday. It does not look like
@@ -378,7 +436,7 @@
                 </ul>
             </div>
 
-            <div class="tab" id="battleTab">
+            <div id="battleTab" class="tab m-3">
                 <div class="text-strap">Encounter</div>
                 <h2 id="battleName" class="small-margin">Destroyer</h2>
                 <div class="battle-flavor-text medium-margin" id="battleFlavorMessage">The entity known only as the
@@ -406,7 +464,7 @@
                 </div>
             </div>
 
-            <div class="tab" id="settings">
+            <div id="settings" class="tab m-3">
                 <ul>
                     <li>
                         <h2><label for="stationNameInput">Station Name</label></h2>

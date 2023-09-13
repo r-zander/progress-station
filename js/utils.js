@@ -206,14 +206,14 @@ class DomGetter {
      *
      * @private {Document|Node}
      */
-    _parent;
+    #parent;
 
     constructor(parent) {
-        this._parent = parent;
+        this.#parent = parent;
     }
 
     byId(id) {
-        return this._parent.getElementById(id);
+        return this.#parent.querySelector('#' + id);
     }
 
     byClass(className) {
@@ -221,10 +221,26 @@ class DomGetter {
     }
 
     allByClass(className) {
-        return this._parent.getElementsByClassName(className);
+        return this.#parent.getElementsByClassName(className);
     }
 }
 
+const documentDomGetter = new DomGetter(document);
+documentDomGetter.byId = function (id) {
+    return document.getElementById(id);
+};
+
 const Dom = {
-    get: new DomGetter(document)
+    get: function (parent = undefined) {
+        if (parent === undefined) {
+            return documentDomGetter;
+        }
+
+        return new DomGetter(parent);
+    },
+    new: {
+        fromTemplate: function (templateId) {
+            return document.getElementById(templateId).content.firstElementChild.cloneNode(true);
+        }
+    }
 };

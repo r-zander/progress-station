@@ -1,9 +1,3 @@
-/*.sci-fi .progress-fill.current {
-    !*background-image: repeating-linear-gradient(315deg, transparent, transparent 15px, rgba(0,0,0,0.5) 15px, rgba(0,0,0,0.5) 30px);*!
-    background-image: linear-gradient(315deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
-    background-size: 1rem 1rem;
-    background-position: left;
-}*/
 
 .sci-fi .headerRow {
     clip-path: polygon(
@@ -17,16 +11,30 @@
     )
 }
 
-/* TODO adjust?*/
-.sci-fi .progress-fill.current {
-    --corner-length: 5px;
+.sci-fi .progress {
+    background: none;
+}
+
+.sci-fi .progress::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    background-color: rgb(12, 101, 173);
+}
+
+.sci-fi .progress::before,
+.sci-fi .progress-bar {
+    --corner-length: 30px;
     clip-path: polygon(
             0 0,
             calc(100% - var(--corner-length)) 0,
-            100% 15px, /* half height of progress bar */
-            calc(100% - var(--corner-length)) 100%,
-            0 100%,
-            0 0
+            100% 100%,
+            0 100%
     )
 }
 

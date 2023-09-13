@@ -216,40 +216,48 @@ function createEntity(data, entity) {
 }
 
 function createRequiredRow(categoryName) {
-    const requiredRow = document.getElementsByClassName('requiredRowTemplate')[0].content.firstElementChild.cloneNode(true);
-    requiredRow.classList.add('requiredRow');
-    requiredRow.classList.add(removeSpaces(categoryName));
+    const requiredRow = Dom.new.fromTemplate('level4RequiredTemplate');
+    requiredRow.classList.add('requiredRow', removeSpaces(categoryName));
     requiredRow.id = categoryName;
     return requiredRow;
 }
 
-function createHeaderRow(templates, categoryType, categoryName) {
-    const headerRow = templates.headerRow.content.firstElementChild.cloneNode(true);
+/**
+ * @param {HTMLTemplateElement} template
+ * @param {string} domId
+ * @param {string} categoryName
+ * @return {Node} newly created row
+ */
+function createHeaderRow(template, domId, categoryName) {
+    const headerRow = template.content.firstElementChild.cloneNode(true);
     headerRow.getElementsByClassName('category')[0].textContent = categoryName;
-    if (categoryType !== itemCategories) {
-        headerRow.getElementsByClassName('valueType')[0].textContent = categoryType === jobCategories ? 'Generated/cycle' : 'Effect';
+    if (domId === 'jobTable') {
+        headerRow.getElementsByClassName('valueType')[0].textContent = 'Generated/cycle';
+    } else if (domId === 'skillTable') {
+        headerRow.getElementsByClassName('valueType')[0].textContent = 'Effect';
     }
 
     headerRow.style.backgroundColor = headerRowColors[categoryName];
-    headerRow.style.color = '#FFFFFF';
-    headerRow.classList.add(removeSpaces(categoryName));
-    headerRow.classList.add('headerRow');
+    headerRow.classList.add('headerRow', removeSpaces(categoryName));
 
     return headerRow;
 }
 
-function createRow(templates, name, categoryName, categoryType) {
-    const row = templates.row.content.firstElementChild.cloneNode(true);
+/**
+ * @param {HTMLTemplateElement} template
+ * @param {string} name
+ * @param {string} categoryName
+ * @param {string} tableId
+ * @return {Node} the newly created row
+ */
+function createRow(template, name, categoryName, tableId) {
+    const row = template.content.firstElementChild.cloneNode(true);
     row.getElementsByClassName('name')[0].textContent = name;
     let descriptionElement = row.getElementsByClassName('descriptionTooltip')[0];
     descriptionElement.ariaLabel = name;
     descriptionElement.title = tooltips[name];
     row.id = 'row ' + name;
-    if (categoryType !== itemCategories) {
-        row.getElementsByClassName('progressBar')[0].onclick = function () {
-            setTask(name);
-        };
-    } else {
+    if (tableId === 'itemTable') {
         if (categoryName === 'Properties') {
             row.getElementsByClassName('button')[0].onclick = function () {
                 setProperty(name);
@@ -265,34 +273,106 @@ function createRow(templates, name, categoryName, categoryType) {
                 setMisc(name);
             };
         }
+    } else {
+        row.getElementsByClassName('progressBar')[0].onclick = function () {
+            setTask(name);
+        };
     }
 
     return row;
 }
 
-function createAllRows(categoryType, tableId) {
-    const templates = {
-        headerRow: document.getElementsByClassName(categoryType === itemCategories ? 'headerRowItemTemplate' : 'headerRowTaskTemplate')[0],
-        row: document.getElementsByClassName(categoryType === itemCategories ? 'rowItemTemplate' : 'rowTaskTemplate')[0],
-    };
+/**
+ *
+ * @param categoryDefinition
+ * @param {string} domId
+ */
+function createAllRows(categoryDefinition, domId) {
+    const slot = Dom.get().byId(domId);
 
-    const table = document.getElementById(tableId);
-    const tableBody = document.createElement('tbody');
-    table.appendChild(tableBody);
+    const level1Elements = [];
+    for (let categoryName in categoryDefinition) {
+        const level1Element = Dom.new.fromTemplate('level1Template');
+        level1Elements.push(level1Element);
 
-    for (let categoryName in categoryType) {
-        const headerRow = createHeaderRow(templates, categoryType, categoryName);
-        tableBody.appendChild(headerRow);
+        level1Element.classList.add(/*'headerRow',*/ removeSpaces(categoryName));
+        const level1DomGetter = Dom.get(level1Element);
+        level1DomGetter.byClass('category').textContent = categoryName;
+        level1DomGetter.byClass('value').textContent = '';
+        level1DomGetter.byClass('level1-header')
+            .style.backgroundColor = headerRowColors[categoryName];
 
-        const category = categoryType[categoryName];
+        const level2Slot = level1DomGetter.byId('level2');
+        const level2Element = Dom.new.fromTemplate('level2Template');
+        const level2DomGetter = Dom.get(level2Element);
+        level2DomGetter.byClass('name').textContent = 'Module name';
+        level2DomGetter.byClass('level').textContent = '0';
+        level2Slot.replaceWith(level2Element);
+
+        const level3Slot = level2DomGetter.byId('level3');
+        let level3Element;
+        if (domId === 'itemTable') {
+            level3Element = Dom.new.fromTemplate('level3ItemTemplate');
+        } else {
+            level3Element = Dom.new.fromTemplate('level3TaskTemplate');
+        }
+        const level3DomGetter = Dom.get(level3Element);
+        level3DomGetter.byClass('name').textContent = 'Component name';
+        if (domId === 'jobTable') {
+            level3DomGetter.byClass('valueType').textContent = 'Generated/cycle';
+        } else if (domId === 'skillTable') {
+            level3DomGetter.byClass('valueType').textContent = 'Effect';
+        }
+        level3Slot.replaceWith(level3Element);
+
+        /** @type {HTMLElement} */
+        const level4Slot = level3DomGetter.byClass('level4');
+        const level4Elements = [];
+        const category = categoryDefinition[categoryName];
         category.forEach(function (name) {
-            const row = createRow(templates, name, categoryName, categoryType);
-            tableBody.appendChild(row);
+            let level4Element;
+            if (domId === 'itemTable') {
+                level4Element = Dom.new.fromTemplate('level4ItemTemplate');
+            } else {
+                level4Element = Dom.new.fromTemplate('level4TaskTemplate');
+            }
+            const level4DomGetter = Dom.get(level4Element);
+            level4DomGetter.byClass('name').textContent = name;
+            let descriptionElement = level4DomGetter.byClass('descriptionTooltip');
+            descriptionElement.ariaLabel = name;
+            descriptionElement.title = tooltips[name];
+            level4Element.id = 'row ' + name;
+            if (domId === 'itemTable') {
+                if (categoryName === 'Properties') {
+                    level4DomGetter.byClass('button').onclick = function () {
+                        setProperty(name);
+                    };
+                    level4DomGetter.byClass('radio').onclick = function () {
+                        setProperty(name);
+                    };
+                } else {
+                    level4DomGetter.byClass('button').onclick = function () {
+                        setMisc(name);
+                    };
+                    level4DomGetter.byClass('radio').onclick = function () {
+                        setMisc(name);
+                    };
+                }
+            } else {
+                level4DomGetter.byClass('progressBar').onclick = function () {
+                    setTask(name);
+                };
+            }
+
+            level4Elements.push(level4Element);
         });
 
-        const requiredRow = createRequiredRow(categoryName);
-        tableBody.append(requiredRow);
+        level4Elements.push(createRequiredRow(categoryName));
+
+        level4Slot.append(...level4Elements);
     }
+
+    slot.replaceWith(...level1Elements);
 }
 
 function cleanUpDom() {
@@ -543,6 +623,13 @@ function updateText() {
         pauseButton.classList.replace('btn-primary', 'btn-secondary');
     }
 
+    const deathText = document.getElementById('deathText');
+    if (isAlive()) {
+        deathText.classList.add('hidden');
+    } else {
+        deathText.classList.remove('hidden');
+    }
+
     updateDangerDisplay();
     updateEnergyBar();
 
@@ -716,6 +803,8 @@ function getDay() {
 
 function increaseDays() {
     const increase = applySpeed(1);
+    if (gameData.days >= getLifespan()) return;
+
     gameData.days += increase;
     gameData.totalDays += increase;
 }
@@ -873,15 +962,7 @@ function getLifespan() {
 }
 
 function isAlive() {
-    const condition = gameData.days < getLifespan();
-    const deathText = document.getElementById('deathText');
-    if (!condition) {
-        gameData.days = getLifespan();
-        deathText.classList.remove('hidden');
-    } else {
-        deathText.classList.add('hidden');
-    }
-    return condition;
+    return gameData.days < getLifespan();
 }
 
 /**

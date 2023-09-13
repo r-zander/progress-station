@@ -93,6 +93,79 @@ h1 {
     cursor: pointer;
 }
 
+.level1 + .level1 {
+    margin-top: 1.5rem; /* mt-4 */
+}
+
+.level1-header {
+    position: sticky;
+    top: 0;
+    background: inherit;
+    z-index: 3;
+}
+
+.level1-header > div:nth-child(2) {
+    font-weight: normal;
+}
+
+.level1-header > div:first-child {
+    width: 45rem;
+}
+
+.level2 + .level2 {
+    margin-top: 1rem;
+}
+
+.level2.inactive {
+    filter: grayscale(1);
+}
+
+.level2-header {
+    position: sticky;
+    top: 40px;
+    z-index: 2;
+}
+
+.level2-header > div {
+    margin-right: 1rem;
+}
+
+.level2-header > div:first-child {
+    width: 19.5rem;
+}
+
+.level2-header > div:nth-child(3) {
+    width: 7em;
+}
+
+.level2 > .table + .table {
+    margin-top: 0.5rem;
+}
+
+.level3 {
+    position: sticky;
+    top: 80px;
+    z-index: 1;
+    background-color: white;
+}
+
+.table td:first-of-type,
+.table th:first-of-type {
+    width: 20rem;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table th {
+    font-weight: normal;
+}
+
+td.value {
+    max-width: 10rem;
+}
+
 .radio {
     cursor: pointer;
     width: 40px;

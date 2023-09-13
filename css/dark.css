@@ -30,3 +30,7 @@
 [data-bs-theme=dark] .background-space .tabButton {
     background-color: rgba(46, 46, 46, 0.9);
 }
+
+[data-bs-theme=dark] .level3 {
+    background-color: rgb(46, 46, 46);
+}
