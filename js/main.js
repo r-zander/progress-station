@@ -223,66 +223,6 @@ function createRequiredRow(categoryName) {
 }
 
 /**
- * @param {HTMLTemplateElement} template
- * @param {string} domId
- * @param {string} categoryName
- * @return {Node} newly created row
- */
-function createHeaderRow(template, domId, categoryName) {
-    const headerRow = template.content.firstElementChild.cloneNode(true);
-    headerRow.getElementsByClassName('category')[0].textContent = categoryName;
-    if (domId === 'jobTable') {
-        headerRow.getElementsByClassName('valueType')[0].textContent = 'Generated/cycle';
-    } else if (domId === 'skillTable') {
-        headerRow.getElementsByClassName('valueType')[0].textContent = 'Effect';
-    }
-
-    headerRow.style.backgroundColor = headerRowColors[categoryName];
-    headerRow.classList.add('headerRow', removeSpaces(categoryName));
-
-    return headerRow;
-}
-
-/**
- * @param {HTMLTemplateElement} template
- * @param {string} name
- * @param {string} categoryName
- * @param {string} tableId
- * @return {Node} the newly created row
- */
-function createRow(template, name, categoryName, tableId) {
-    const row = template.content.firstElementChild.cloneNode(true);
-    row.getElementsByClassName('name')[0].textContent = name;
-    let descriptionElement = row.getElementsByClassName('descriptionTooltip')[0];
-    descriptionElement.ariaLabel = name;
-    descriptionElement.title = tooltips[name];
-    row.id = 'row ' + name;
-    if (tableId === 'itemTable') {
-        if (categoryName === 'Properties') {
-            row.getElementsByClassName('button')[0].onclick = function () {
-                setProperty(name);
-            };
-            row.getElementsByClassName('radio')[0].onclick = function () {
-                setProperty(name);
-            };
-        } else {
-            row.getElementsByClassName('button')[0].onclick = function () {
-                setMisc(name);
-            };
-            row.getElementsByClassName('radio')[0].onclick = function () {
-                setMisc(name);
-            };
-        }
-    } else {
-        row.getElementsByClassName('progressBar')[0].onclick = function () {
-            setTask(name);
-        };
-    }
-
-    return row;
-}
-
-/**
  *
  * @param categoryDefinition
  * @param {string} domId
@@ -295,7 +235,7 @@ function createAllRows(categoryDefinition, domId) {
         const level1Element = Dom.new.fromTemplate('level1Template');
         level1Elements.push(level1Element);
 
-        level1Element.classList.add(/*'headerRow',*/ removeSpaces(categoryName));
+        level1Element.classList.add(removeSpaces(categoryName));
         const level1DomGetter = Dom.get(level1Element);
         level1DomGetter.byClass('category').textContent = categoryName;
         level1DomGetter.byClass('value').textContent = '';
