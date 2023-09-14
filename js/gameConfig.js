@@ -200,7 +200,8 @@ const layerData = [
     new LayerData('#911eb4'),
     new LayerData('#4363d8'),
     new LayerData('#47ff00'),
-]
+];
+
 const lastLayerData= new LayerData('#000000');
 
 function createRequirements(getElementsByClass, getTaskElement, getItemElement) {
