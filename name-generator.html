@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Name Generator :: Progress Station</title>
+</head>
+<body>
+<ul id="list">
+</ul>
+
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/nameGenerator.js"></script>
+<script type="text/javascript">
+    const listElement = document.getElementById('list');
+    const names = {};
+    for (let i = 0; i < 100; i++) {
+        const name = superNameGenerator.generate();
+        //     if (names.hasOwnProperty(name)){
+        //         names[name]++;
+        //     } else {
+        //         names[name] = 1;
+        //     }
+        // }
+        // Object.entries(names).forEach(([name, count]) => {
+        // listElement.insertAdjacentHTML('beforeend', `<li>${name} (${count})</li>`);
+        listElement.insertAdjacentHTML('beforeend', `<li>${name}</li>`);
+        // });
+    }
+</script>
+</body>
+</html>
