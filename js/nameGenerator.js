@@ -1,126 +1,192 @@
+'use strict';
+
+function mergeWordLists(...lists) {
+    return _.union(_.flatten(lists));
+}
+
 const prefixes = [
     'Ancestral',
     'Arcane',
+    'Ascended',
     'Astral',
     'Celestial',
+    'Chosen',
     'Cosmic',
     'Crystal',
     'Dark',
     'Doomed',
+    'Eldritch',
+    'Eternal',
     'Ethereal',
+    'First',
+    'Galactic',
     'Haunted',
     'Immortal',
+    'Impenetrable',
+    'Interplanetary',
+    'Last',
     'Lunar',
     'Mystic',
     'Orbital',
-    'Interplanetary'
+    'Unescapable',
 ];
-const core_words = ['Arcane', 'Tempest', 'Fate', 'Chaos', 'Terror', 'Doom', 'Twilight', 'Death'];
-const more_suffices = ['of Chaos'];
+const shortAbstractWords = [
+    'Doom',
+    'Fate',
+    'Light',
+    'Null',
+    'Shadow',
+    'Storm',
+    'Void',
+    'War',
+];
+const abstractWords = mergeWordLists(shortAbstractWords, [
+    'Chaos',
+    'Death',
+    'Destruction',
+    'Force',
+    'Immortality',
+    'Inferno',
+    'Tempest',
+    'Terror',
+    'Twilight',
+    'Vengeance',
+]);
 
-const abstractStation = ['Throne', 'Plate', 'Phalanx', 'Dome'];
-const relevantObject = ['Rock'];
+const shortSpaceReferences = [
+    'Cloud',
+    'Moon',
+    'Sky',
+    'Space',
+    'Star',
+    'Thunder',
+    'Warp',
+];
+const longSpaceReferences = [
+    'Asteroid',
+    'Deep Space',
+    'Galaxy',
+    'Nebula',
+    'Orbit',
+    'Outer Space',
+    'Planet',
+    'Supernova',
+];
 
-const shortStationType = ['Base', 'Forge', 'Spire', 'Port'];
-const shortSpaceRef = ['Star', 'Space', 'Moon', 'Cloud', 'Sky'];
-const longSpaceRef = ['Nebula', 'Planet', 'Orbit', 'Asteroid', 'Supernova', 'Deep Space'];
-const spaceRef = [...shortSpaceRef, ...longSpaceRef];
+const spaceReferences = mergeWordLists(shortSpaceReferences, longSpaceReferences);
 
-const place = ['Town', 'City', 'Metropolis', 'Megalopolis', 'Fortress', 'Outpost', 'Haven', 'Port', 'Citadel', 'Sanctum'];
-const longStationType = ['Citadel', 'Sanctum', 'Nexus', 'Fortress', 'Station', 'Outpost', 'Spire', 'Haven', 'Port', 'Keep', 'Pharos', 'Lighthouse'];
-const stationType = [...shortStationType, ...longStationType];
-const color = ['Black', 'Red', 'Dark', 'Blue'];
-const longColor = ['Purple', 'Violett'];
-const commonObjects = ['Stone', 'Stream', 'Steel', 'Laser'];
-const uncommonObjects = ['Rock', 'Orb', 'Portal'];
+const places = [
+    'Bastion',
+    'Castle',
+    'Citadel',
+    'City',
+    'Colony',
+    'Fortress',
+    'Haven',
+    'Home',
+    'Megalopolis',
+    'Metropolis',
+    'Outpost',
+    'Palace',
+    'Port',
+    'Sanctum',
+    'Stronghold',
+    'Town',
+    'Watch',
+];
+const shortStationTypes = [
+    'Base',
+    'Forge',
+    'Gate',
+    'Keep',
+    'Port',
+    'Spire',
+];
+const longStationTypes = [
+    'Asylum',
+    'Citadel',
+    'Commando Base',
+    'Crucible',
+    'Fortress',
+    'Haven',
+    'Lighthouse',
+    'Nexus',
+    'Observatory',
+    'Outpost',
+    'Pharos',
+    'Pinnacle',
+    'Sanctum',
+    'Spire',
+    'Station',
+];
+/**
+ * Actually space references that could also indicate a giant space station.
+ */
+const oversizedStationTypes = [
+    'Asteroid',
+    'Earth',
+    'Moon',
+    'Orb',
+    'Portal',
+    'Rock',
+    'Star',
+];
 
-// https://dundaxiancodex.fandom.com/wiki/Notable_Locations
+const abstractStations = [
+    'Conflux',
+    'Defense',
+    'Destroyer',
+    'Dome',
+    'Machine',
+    'Phalanx',
+    'Plate',
+    'Prism',
+    'Prison',
+    'Throne',
+    'War Machine',
+];
+const stationTypes = mergeWordLists(shortStationTypes, longStationTypes);
+const colorWords = [
+    'Black',
+    'Blue',
+    'Dark',
+    'Neon',
+    'Red',
+];
 
+const elementWords = [
+    'Fire',
+    'Laser',
+    'Light',
+    'Steel',
+    'Stone',
+    'Storm',
+    'Stream',
+];
 
-mythicalReferences = ['Fenris', 'Elysium', 'Tartarus', 'Empyrean'];
-// dark galactic skies
-// dark wings of steel
-// Home of Laser and Steel
-// Darkstorm Galaxy --> andere Worte können zusammengesetzt werden um "eigenname" zu bilden
-// Galaxy Destruction Force
-// The Last Defense
-// The First Strike
-// Unescapable Prison
+// TODO unused words, could be integrated later on
+// const uncategorized = [
+//     'neutreon power',
+// ];
+// const longColor = [
+//     'Purple',
+//     'Violett',
+// ];
+// const mythicalReferences = [
+//     'Fenris',
+//     'Elysium',
+//     'Tartarus',
+//     'Empyrean'
+// ];
+// const moreSuffices = [
+//     'Reborn',
+//     'United',
+//     'in the sky',
+//     'of Chaos',
+// ];
+// end of unused words
 
-// PREFIX?
-// Astral Storm
-// Warpfire
-// Thunderblade
-// Galactic Prism
-// Necrovoid
-// Aetherian
-// Eldritch
-// Infernoth
-
-// CORE WORDS?
-// Observatory
-// Warforge
-// Warpkeep
-// Arcanium
-// Vortexarium
-// Shadowgate
-
-// SUFFIX?
-// Haven
-// Watch
-// Conflux
-// Bastion
-// Resonance
-// Crucible
-// Nexus
-// Sanctum
-// Pinnacle
-// Asylum
-
-/*
-* Patterns
-*
-* ✅ |Station Type|
-*   Examples
-*       Starbase
-*       Phalanx
-*
-* ✅ |1 syllable Space Reference||1 syllable Station Type|
-*   Examples
-*       Starbase
-*       Mooncitadel --> nope
-*       Spacesanctum --> nope
-*       Starstation --> maybe
-*       Starforge
-*       Spaceport
-*
-* ✅ |Space Reference| |Settlement| --> questionable quality
-*   Examples
-*       Cloud City
-*       Space Town
-*       Space Colony
-*
-* |Station Type| |Point of Interest|
-*   Examples
-*       Port Maw
-*       Port Wander
-*       Port Sanctus
-*   TODO: needs sector names
-*
-* [Prefix] |Point of Interest| |Station Type|
-*   Examples
-*       Death Star
-* ✅       Blackstone Fortress
-*
-* ✅ [Prefix] |Core| |Number|
-*   |Number| = (Zero...One...Twelve) | (roman number) | (A...Z)(-_|)(0 < 2n+1 < 12) | (Latin Ordinal Numbers: Primus, secundus, Tertius, quartus,quintus, sextus, septimus, octavus, nonus,decimus) | (2+)0(Primzahl oder 11n)
-*   Examples
-*       Deep Space Nine
-*       Starbase 1
-*       Space Station K-7
-* */
-
-const numberWord = [
+const numberWords = [
     'Zero',
     'One',
     'Two',
@@ -136,48 +202,22 @@ const numberWord = [
     'Twelve'
 ];
 
-const unevenNumber = [1, 3, 5, 7, 9, 11].map(number => String(number));
+const unevenNumbers = [1, 3, 5, 7, 9, 11, 13].map(number => String(number));
+const thousands = [3, 5, 7, 9].map(number => String(1000 * number));
 
 /**
  * Prime numbers and 11*n
- * @type {number[]}
  */
-const interestingNumber = [
-    11,
-    13,
-    17,
-    19,
-    23,
-    29,
-    31,
-    37,
-    41,
-    43,
-    47,
-    53,
-    59,
-    61,
-    67,
-    71,
-    73,
-    79,
-    83,
-    89,
-    97,
-
-    22,
-    33,
-    44,
-    55,
-    66,
-    77,
-    88,
-    99
+const interestingNumbers = [
+    11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
+    22, 33, 44, 55, 66, 77, 88, 99
 ];
 
-const yearNumber = interestingNumber.map(number => String((2 + randomInt(7)) * 1000 + number));
+const yearNumbers = interestingNumbers
+    .map(number => _.random(2, 9) * 1000 + number)
+    .map(number => String(number));
 
-const latinOrdinalNumber = [
+const latinOrdinalNumbers = [
     'Primus',
     'Secundus',
     'Tertius',
@@ -190,45 +230,26 @@ const latinOrdinalNumber = [
     'Decimus'
 ];
 
-const romanMatrix = [
-    [1000, 'M'],
-    [900, 'CM'],
-    [500, 'D'],
-    [400, 'CD'],
-    [100, 'C'],
-    [90, 'XC'],
-    [50, 'L'],
-    [40, 'XL'],
-    [10, 'X'],
-    [9, 'IX'],
-    [5, 'V'],
-    [4, 'IV'],
-    [1, 'I']
-];
-const thousands = [3, 5, 7, 9].map(number => String(1000 * number));
-
-function convertToRoman(num) {
-    if (num === 0) {
-        return '';
-    }
-    for (let i = 0; i < romanMatrix.length; i++) {
-        if (num >= romanMatrix[i][0]) {
-            return romanMatrix[i][1] + convertToRoman(num - romanMatrix[i][0]);
-        }
-    }
-}
-
-const romanNumber = [
+const romanNumbers = [ // Excluded numbers are too long/unaesthetic
     1, 2, 3, 4, 5, 6, 7,/* 8, */ 9, 10,
     11, 12/*,13*/, 14, 15, 16/*,17,18*/, 19
 ].map(convertToRoman);
 
 class NameGenerator {
+    #name = '';
     #maxLength = 20;
     #separator = ' ';
     #parts = [];
     #skipNextSeparator = false;
     #lowercasePartIndex = [];
+
+    constructor(name = '') {
+        this.#name = name;
+    }
+
+    getName() {
+        return this.#name;
+    }
 
     /**
      * @param {number} maxLength
@@ -263,6 +284,15 @@ class NameGenerator {
         }
         this.#parts.push(namePart);
         return this;
+    }
+
+    /**
+     *
+     * @param {string|any[]|function(): any} namePart
+     * @return {NameGenerator} this
+     */
+    addOptional(namePart) {
+        return this.add(['', namePart]);
     }
 
     /**
@@ -330,78 +360,181 @@ class NameGenerator {
 
 const hairSpace = '\u200A';
 
-const numberGenerator = new NameGenerator()
+const numbering = [
+    new NameGenerator('Any Number Display')
+        .add([
+            numberWords,
+            romanNumbers,
+            unevenNumbers,
+            thousands,
+            yearNumbers,
+            latinOrdinalNumbers
+        ])
+        .bound(),
+    new NameGenerator('Letter Separator Number')
+        .add('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''))
+        .skipSeparator()
+        .add(['-', '_', hairSpace + '|' + hairSpace, '/', ':'])
+        .skipSeparator()
+        .add([
+            unevenNumbers,
+            thousands,
+        ])
+        .bound(),
+    new NameGenerator('Letter Separator Roman number')
+        .add('ABCDEGHJKLMNOPQRSTUW'.split(''))
+        .skipSeparator()
+        .add(['-', hairSpace + '|' + hairSpace, ':'])
+        .skipSeparator()
+        .add(romanNumbers)
+        .bound()
+];
+const spaceStationNameGenerator = new NameGenerator()
     .add([
-        numberWord,
-        romanNumber,
-        unevenNumber,
-        thousands,
-        yearNumber,
-        latinOrdinalNumber
-    ])
-    .bound();
-const letterPlusNumberGenerator = new NameGenerator()
-    .add('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''))
-    .skipSeparator()
-    .add(['-', '_', hairSpace + '|' + hairSpace, '/', ':'])
-    .skipSeparator()
-    .add([
-        unevenNumber,
-        thousands,
-    ])
-    .bound();
-
-const romanNumberGenerator = new NameGenerator()
-    .add('ABCDEGHJKLMNOPQRSTUW'.split(''))
-    .skipSeparator()
-    .add(['-', ':', hairSpace + '|' + hairSpace, '|'])
-    .skipSeparator()
-    .add(romanNumber)
-    .bound();
-
-const optionalNumbering = ['', numberGenerator, letterPlusNumberGenerator, romanNumberGenerator];
-const superNameGenerator = new NameGenerator()
-    .add([
-        new NameGenerator()
-            .add(shortSpaceRef)
-            .skipSeparator()
-            .lowercaseNextLetter()
-            .add(shortStationType)
-            .add(optionalNumbering)
-            .bound(),
-        new NameGenerator()
+        /**
+         * Examples:
+         *  Astral Starbase
+         *  Eternal Spaceport K-7
+         *  Ancestral Shadowbase G-IV
+         *  Eldrith Thunderforge
+         *  Last Stormport
+         */
+        new NameGenerator('[Prefix] (Abstract|Space)Station [Number]')
             .add(prefixes)
-            .add(shortSpaceRef)
+            .add([shortAbstractWords, shortSpaceReferences])
             .skipSeparator()
             .lowercaseNextLetter()
-            .add(shortStationType)
-            .add(optionalNumbering)
+            .add(shortStationTypes)
+            .addOptional(numbering)
             .bound(),
-        new NameGenerator()
-            .add([shortSpaceRef, longSpaceRef])
-            .add(place)
-            .add(optionalNumbering)
+
+        /**
+         * Examples:
+         *  Cloud City
+         *  Space Town II
+         *  Space Colony 2088
+         */
+        new NameGenerator('Space Place [Number]')
+            .add(spaceReferences)
+            .add(places)
+            .addOptional(numbering)
             .bound(),
-        new NameGenerator()
-            .add(color)
+
+        /**
+         * Examples
+         *  The Galaxy Spire
+         *  The Deep Space Outpost
+         *  The Star Crucible
+         */
+        new NameGenerator('The Space Station')
+            .add('The')
+            .add(spaceReferences)
+            .add(longStationTypes)
+            .bound(),
+        /**
+         * Examples
+         *  Space Station K-7
+         *  Moon Spire 9044
+         *  Sky Citadel V:1
+         *  Asteroid Nexus 7000
+         */
+        new NameGenerator('Space Station Number')
+            .add(spaceReferences)
+            .add(longStationTypes)
+            .add(numbering)
+            .bound(),
+
+        /**
+         * Examples
+         *  Blacksteel Haven T:3000
+         *  Blackstone Fortress
+         *  Neonstorm Outpost U/7000
+         *  Darkfire Observatory
+         */
+        new NameGenerator('ColorElement Station [Number]')
+            .add(colorWords)
             .skipSeparator()
             .lowercaseNextLetter()
-            .add(commonObjects)
-            .add(stationType)
-            .add(optionalNumbering)
+            .add(elementWords)
+            .add(stationTypes)
+            .addOptional(numbering)
             .bound(),
-        new NameGenerator()
+
+        /**
+         * Examples:
+         *  Immortal Citadel
+         *  Unescapable Nexus
+         *  Astral Outpost D:IX
+         *  Arcane Sanctum XV
+         */
+        new NameGenerator('Prefix Station [Number]')
             .add(prefixes)
-            .add(longStationType)
-            .add(optionalNumbering)
+            .add(longStationTypes)
+            .addOptional(numbering)
             .bound(),
-        new NameGenerator()
-            .add(core_words)
-            .add([spaceRef, stationType])
-            .add(optionalNumbering)
+
+        /**
+         * Examples:
+         *  Death Star
+         *  Neon Moon
+         *  Void Asylum 13
+         *  Shadow Earth S|7000
+         */
+        new NameGenerator('(Abstract|Color)(Star|Station) [Number]')
+            .add([abstractWords, colorWords])
+            .add([oversizedStationTypes, stationTypes])
+            .addOptional(numbering)
+            .bound(),
+
+        /**
+         * Examples:
+         *  The Moon Defense
+         *  The Chaos Phalanx
+         *  The Death Throne
+         *  The Supernova Prison
+         */
+        new NameGenerator('The (Abstract|Color)(Star|Station)')
+            .add('The')
+            .add([abstractWords, spaceReferences])
+            .add(abstractStations)
+            .bound(),
+        /**
+         * Examples:
+         *  Outer Space Defense Primus
+         *  Warp Destroyer D:X
+         *  Tempest Prison 2055
+         *  Star Machine V-9000
+         */
+        new NameGenerator('(Abstract|Color)(Star|Station) [Number]')
+            .add([abstractWords, spaceReferences])
+            .add(abstractStations)
+            .add(numbering)
+            .bound(),
+
+        /**
+         * Examples
+         *  Starfire Base V
+         *  Warpstorm Observatory
+         *  Thunderstorm Keep XII
+         *  Spacelight Asylum H-11
+         */
+        new NameGenerator('SpaceElement Station [Number]')
+            .add(shortSpaceReferences)
+            .skipSeparator()
+            .lowercaseNextLetter()
+            .add(elementWords)
+            .add(stationTypes)
+            .addOptional(numbering)
             .bound()
+
+        /**
+         * TODO Sector based names
+         * Examples
+         *  Port Maw
+         *  Port Wander
+         *  Neptune Haven
+         */
     ]);
 
-// TODO allow for "optionalAdd"?
 // TODO Have "prefix" OR "suffix" but at least one of those
 // TODO allow for tracing of name generation --> which "decisions" have been made by the generator

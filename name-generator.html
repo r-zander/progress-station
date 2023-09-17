@@ -6,26 +6,34 @@
 </head>
 <body>
 <ul id="list">
+    <li><b>Generated Name <small>(generated X times)</small></b></li>
 </ul>
 
+<script type="text/javascript" src="vendor/lodash-4.17.15/lodash.min.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/nameGenerator.js"></script>
 <script type="text/javascript">
     const listElement = document.getElementById('list');
     const names = {};
-    for (let i = 0; i < 100; i++) {
-        const name = superNameGenerator.generate();
-        //     if (names.hasOwnProperty(name)){
-        //         names[name]++;
-        //     } else {
-        //         names[name] = 1;
-        //     }
-        // }
-        // Object.entries(names).forEach(([name, count]) => {
-        // listElement.insertAdjacentHTML('beforeend', `<li>${name} (${count})</li>`);
-        listElement.insertAdjacentHTML('beforeend', `<li>${name}</li>`);
-        // });
+    for (let i = 0; i < 1000; i++) {
+        const name = spaceStationNameGenerator.generate(true);
+
+        if (names.hasOwnProperty(name)) {
+            names[name]++;
+        } else {
+            names[name] = 1;
+        }
     }
+    let longestName = '';
+    Object.entries(names).forEach(([name, count]) => {
+        if (name.length > longestName.length) {
+            longestName = name;
+        }
+        listElement.insertAdjacentHTML('beforeend', `<li>${name} <small>(${count})</small></li>`);
+    });
+
+    document.body.insertAdjacentHTML('afterbegin',
+        `<p>Longest Name: ${longestName} (${longestName.length} characters)</p>`);
 </script>
 </body>
 </html>
