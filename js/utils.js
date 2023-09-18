@@ -238,14 +238,27 @@ class DomGetter {
         this.#parent = parent;
     }
 
+    /**
+     * @param {string} id dom id of the searched element
+     * @return {Element|null}
+     */
     byId(id) {
         return this.#parent.querySelector('#' + id);
     }
 
+    /**
+     * @param {string} className css class of the searched element
+     * @return {Element|null}
+     */
     byClass(className) {
         return this.allByClass(className).item(0);
     }
 
+    /**
+     *
+     * @param className css class of the searched elements
+     * @return {HTMLCollectionOf<Element>}
+     */
     allByClass(className) {
         return this.#parent.getElementsByClassName(className);
     }

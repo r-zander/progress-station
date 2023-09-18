@@ -254,3 +254,25 @@ button:focus {
     margin: auto auto 1.5rem;
     width: 50%;
 }
+
+.modal-body > p {
+    margin-bottom: 0.5rem;
+}
+
+.modal-body > .stationNameInput {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    text-align: center;
+    font-family: monospace;
+    animation: flash-background 1000ms ease-in-out infinite alternate;
+}
+
+@keyframes flash-background {
+    from {
+        background-color: rgba(255,255,255,0.0);
+    }
+    to {
+        background-color: rgba(255,255,255,0.1);
+    }
+}

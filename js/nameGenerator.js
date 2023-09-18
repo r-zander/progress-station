@@ -315,7 +315,7 @@ class NameGenerator {
      * @return {string} a built name
      */
     generate() {
-        return this.#parts.map(this.#generatePart.bind(this)).join('');
+        return this.#parts.map(this.#generatePart.bind(this)).join('').trim();
     }
 
     /**
@@ -389,7 +389,7 @@ const numbering = [
         .add(romanNumbers)
         .bound()
 ];
-const spaceStationNameGenerator = new NameGenerator()
+const stationNameGenerator = new NameGenerator()
     .add([
         /**
          * Examples:

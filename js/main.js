@@ -8,7 +8,7 @@ let gameData = {
 
     storedEnergy: 0,
     evil: 0,
-    paused: false,
+    paused: true,
     timeWarpingEnabled: true,
     autoLearnEnabled: false,
     autoPromoteEnabled: false,
@@ -24,7 +24,7 @@ let gameData = {
     currentMisc: null,
     currentBattle: null,
 
-    stationName: defaultStationName,
+    stationName: stationNameGenerator.generate(),
     selectedTab: 'jobs',
     settings: {
         darkMode: true,
@@ -147,6 +147,10 @@ function setTab(element, selectedTab) {
 // noinspection JSUnusedGlobalSymbols used in HTML
 function setPause() {
     gameData.paused = !gameData.paused;
+}
+
+function unpause(){
+    gameData.paused = false;
 }
 
 // noinspection JSUnusedGlobalSymbols used in HTML
@@ -1012,6 +1016,8 @@ function loadGameData() {
         replaceSaveDict(gameData.battleData, gameDataSave.battleData);
 
         gameData = gameDataSave;
+    } else {
+        GameEvents.NewGameStarted.trigger(undefined);
     }
 
     assignMethods();
@@ -1049,6 +1055,10 @@ function resetGameData() {
     location.reload();
 }
 
+function rerollStationName() {
+    setStationName(stationNameGenerator.generate());
+}
+
 function importGameData() {
     const importExportBox = document.getElementById('importExportBox');
     gameData = JSON.parse(window.atob(importExportBox.value));
@@ -1080,26 +1090,35 @@ function initTooltips(){
     });
 }
 
+/**
+ * @param {string} newStationName
+ */
+function setStationName(newStationName) {
+    if (newStationName) {
+        gameData.stationName = newStationName;
+    } else {
+        gameData.stationName = emptyStationName;
+    }
+    Dom.get().byId('nameDisplay').textContent = gameData.stationName;
+    for (let stationNameInput of Dom.get().allByClass('stationNameInput')) {
+        stationNameInput.value = newStationName;
+    }
+}
+
 function initStationName() {
-    let stationNameDisplayElement = document.getElementById('nameDisplay');
-    stationNameDisplayElement.textContent = gameData.stationName;
+    setStationName(gameData.stationName);
+    const stationNameDisplayElement = document.getElementById('nameDisplay');
     stationNameDisplayElement.addEventListener('click', function (event) {
         event.preventDefault();
 
         setTab(tabButtons.settings, 'settings');
     });
-    let stationNameInput = document.getElementById('stationNameInput');
-    stationNameInput.value = gameData.stationName;
-    stationNameInput.placeholder = emptyStationName;
-
-    stationNameInput.addEventListener('input', function () {
-        if (stationNameInput.value) {
-            gameData.stationName = stationNameInput.value;
-        } else {
-            gameData.stationName = stationNameInput.placeholder;
-        }
-        stationNameDisplayElement.textContent = gameData.stationName;
-    });
+    for (let stationNameInput of Dom.get().allByClass('stationNameInput')) {
+        stationNameInput.placeholder = emptyStationName;
+        stationNameInput.addEventListener('input', function (event) {
+            setStationName(event.target.value);
+        });
+    }
 }
 
 function initCurrentValues() {
