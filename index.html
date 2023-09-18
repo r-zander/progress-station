@@ -322,7 +322,7 @@
                     <td class="maxLevel">124</td>
                     <td class="skipSkill">
                         <!--suppress HtmlFormInputWithoutLabel -->
-                        <input class="checkbox" type="checkbox" />
+                        <input class="checkbox" type="checkbox"/>
                     </td>
                 </tr>
             </template>
@@ -467,20 +467,25 @@
             <div id="settings" class="tab m-3">
                 <ul>
                     <li>
-                        <h2><label for="stationNameInput">Station Name</label></h2>
-                        <form style="margin-top: 16px">
-                            <input type="text" id="stationNameInput" style="width:100%" maxlength="20" placeholder=""/>
+                        <h2><label for="settingsStationNameInput">Station Name</label></h2>
+                        <button class="btn btn-light" onClick="rerollStationName()">Re-roll</button>
+                        <form class="mt-3">
+                            <input type="text"
+                                   id="settingsStationNameInput"
+                                   class="stationNameInput w-100"
+                                   style="width:100%"
+                                   maxlength="30"
+                                   placeholder=""/>
                         </form>
                     </li>
                     <li>
                         <h2>Import/export save</h2>
                         <button class="btn btn-light" onClick="importGameData()">Import</button>
                         <button class="btn btn-light" onClick="exportGameData()">Export</button>
-                        <form style="margin-top: 16px">
+                        <form class="mt-3">
                         <textarea id="importExportBox"
                                   style="width:100%; resize: vertical; min-height: 73px"
-                                  rows="3">
-                        </textarea>
+                                  rows="3"></textarea>
                         </form>
                     </li>
                     <li>
@@ -527,7 +532,41 @@
     </div>
 </main>
 
+<div id="storyIntro" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-4 fw-light">Welcome to Progress Station</h2>
+            </div>
+            <div class="modal-body">
+                <p>You awake on a dimly lit, emergency-powered bridge of what appears
+                    to be a heavily damaged space station.
+                <p>
+                <p>
+                    Through the glazed front you see not only large parts of the station
+                    as they drift away destroyed through space, but also a many-limbed,
+                    dark mass that disappears silently into the vastness of space.
+                    At least for now.
+                <p>
+                <p>
+                    <label for="introStationNameInput">A name flashes on the main console:</label>
+                </p>
+                <input type="text"
+                       id="introStationNameInput"
+                       class="stationNameInput w-100"
+                       maxlength="30"
+                       placeholder=""/>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <button type="button" id="rerollName" class="btn btn-secondary">Re-roll name</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Take control</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript" src="vendor/bootstrap-5.3.1/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="vendor/lodash-4.17.15/lodash.min.js"></script>
 <!-- Do not include background timer during local development -> it makes debugging a pain -->
 <!--<script type="text/javascript" src="js/HackTimer.js"></script>-->
 <script type="text/javascript" src="js/p5.Color.js"></script>
@@ -536,6 +575,8 @@
 <script type="text/javascript" src="js/classes.js"></script>
 <script type="text/javascript" src="js/battle.js"></script>
 <script type="text/javascript" src="js/gameConfig.js"></script>
+<script type="text/javascript" src="js/nameGenerator.js"></script>
+<script type="text/javascript" src="js/story.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/vfx.js"></script>
 </body>

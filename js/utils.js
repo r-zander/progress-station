@@ -44,6 +44,32 @@ function warnWithStacktrace(msg) {
     console.trace();
 }
 
+const romanMatrix = [
+    [1000, 'M'],
+    [900, 'CM'],
+    [500, 'D'],
+    [400, 'CD'],
+    [100, 'C'],
+    [90, 'XC'],
+    [50, 'L'],
+    [40, 'XL'],
+    [10, 'X'],
+    [9, 'IX'],
+    [5, 'V'],
+    [4, 'IV'],
+    [1, 'I']
+];
+
+function convertToRoman(num) {
+    if (num === 0) {
+        return '';
+    }
+    for (let i = 0; i < romanMatrix.length; i++) {
+        if (num >= romanMatrix[i][0]) {
+            return romanMatrix[i][1] + convertToRoman(num - romanMatrix[i][0]);
+        }
+    }
+}
 
 function randomInt(max) {
     return Math.floor(Math.random() * max);
@@ -212,14 +238,27 @@ class DomGetter {
         this.#parent = parent;
     }
 
+    /**
+     * @param {string} id dom id of the searched element
+     * @return {Element|null}
+     */
     byId(id) {
         return this.#parent.querySelector('#' + id);
     }
 
+    /**
+     * @param {string} className css class of the searched element
+     * @return {Element|null}
+     */
     byClass(className) {
         return this.allByClass(className).item(0);
     }
 
+    /**
+     *
+     * @param className css class of the searched elements
+     * @return {HTMLCollectionOf<Element>}
+     */
     allByClass(className) {
         return this.#parent.getElementsByClassName(className);
     }

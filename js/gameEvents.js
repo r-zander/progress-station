@@ -128,6 +128,7 @@ class GameEvent {
 }
 
 const GameEvents = {
+    NewGameStarted: new GameEvent(undefined),
     TaskLevelChanged: new GameEvent({
         type: 'string',
         name: 'string',
