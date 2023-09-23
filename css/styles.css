@@ -1,5 +1,70 @@
+@font-face {
+    font-family: 'Syndra';
+    src: local('Syndra Extra Light'), local('SyndraExtraLight'),
+    url('../fonts/SyndraExtraLight.woff2') format('woff2'),
+    url('../fonts/SyndraExtraLight.woff') format('woff');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Syndra';
+    src: local('Syndra Light'), local('SyndraLight'),
+    url('../fonts/SyndraLight.woff2') format('woff2'),
+    url('../fonts/SyndraLight.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+@font-face {
+    font-family: 'Syndra';
+    src: local('Syndra Regular'), local('SyndraRegular'),
+    url('../fonts/SyndraRegular.woff2') format('woff2'),
+    url('../fonts/SyndraRegular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Syndra';
+    src: local('Syndra Bold'), local('SyndraBold'),
+    url('../fonts/SyndraBold.woff2') format('woff2'),
+    url('../fonts/SyndraBold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Mechsuit';
+    src: local('Mechsuit'),
+    url('../fonts/Mechsuit.woff2') format('woff2'),
+    url('../fonts/Mechsuit.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --body-font-family: 'Exo 2', var(--bs-font-sans-serif);
+    --title-font-family: 'Syndra', var(--bs-font-sans-serif);
+    --number-font-family: 'Mechsuit', monospace;
+    --number-font-size: 80%;
+}
+
 body {
     background-color: var(--light-bg-color);
+
+    font-family: var(--body-font-family);
+}
+
+h1, h2, h3, h4, h5, h6,
+thead {
+    font-family: var(--title-font-family) !important;
 }
 
 p {
@@ -10,10 +75,14 @@ td {
     vertical-align: middle !important;
 }
 
+.label {
+    font-family: var(--title-font-family);
+    font-weight: 300;
+}
+
 data {
-    font-family: monospace;
-    font-weight: bold;
-    font-size: 110%;
+    font-family: var(--number-font-family);
+    font-size: var(--number-font-size);
 }
 
 .progress {
@@ -264,7 +333,8 @@ button:focus {
     border-left: none;
     border-right: none;
     text-align: center;
-    font-family: monospace;
+    font-family: var(--title-font-family);
+    font-weight: 200;
     animation: flash-background 1000ms ease-in-out infinite alternate;
 }
 

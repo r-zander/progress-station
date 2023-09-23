@@ -104,6 +104,10 @@ h1 {
     z-index: 3;
 }
 
+.level1-header > .category {
+    font-family: var(--title-font-family);
+}
+
 .level1-header > div:nth-child(2) {
     font-weight: normal;
 }
@@ -164,6 +168,23 @@ h1 {
 
 td.value {
     max-width: 10rem;
+}
+
+td.level,
+td.value,
+td.xpGain,
+td.xpLeft,
+td.maxLevel {
+    font-family: var(--number-font-family);
+    font-size: var(--number-font-size);
+}
+
+td.level data,
+td.value data,
+td.xpGain data,
+td.xpLeft data,
+td.maxLevel data {
+    font-size: 100%;
 }
 
 .radio {
@@ -436,6 +457,8 @@ label.background-space {
 }
 
 .btn {
+    font-family: var(--title-font-family);
+    font-weight: 300;
     border-radius: 0;
 }
 

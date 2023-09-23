@@ -20,7 +20,7 @@ let baseGameSpeed = 4;
 const magnitudes = ['', 'k', 'M', 'B', 'T', 'q', 'Q', 'Sx', 'Sp', 'Oc'];
 const metricPrefixes = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R'];
 const units = {
-    energy: 'W',
+    energy: 'w',
     storedEnergy: 'Wh'
 };
 
