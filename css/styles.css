@@ -40,10 +40,10 @@
 }
 
 @font-face {
-    font-family: 'Mechsuit';
-    src: local('Mechsuit'),
-    url('../fonts/Mechsuit.woff2') format('woff2'),
-    url('../fonts/Mechsuit.woff') format('woff');
+    font-family: 'Typori';
+    src: local('Typori Regular'), local('Typori-Regular'),
+    url('../fonts/Typori-Regular.woff2') format('woff2'),
+    url('../fonts/Typori-Regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -52,13 +52,13 @@
 :root {
     --body-font-family: 'Exo 2', var(--bs-font-sans-serif);
     --title-font-family: 'Syndra', var(--bs-font-sans-serif);
-    --number-font-family: 'Mechsuit', monospace;
-    --number-font-size: 80%;
+    --number-font-family: 'Typori', monospace;
+    --number-font-size: 1.125rem;
+    --number-font-weight: 400;
 }
 
 body {
     background-color: var(--light-bg-color);
-
     font-family: var(--body-font-family);
 }
 
@@ -83,6 +83,7 @@ td {
 data {
     font-family: var(--number-font-family);
     font-size: var(--number-font-size);
+    font-weight: var(--number-font-weight);
 }
 
 .progress {

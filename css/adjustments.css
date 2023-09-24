@@ -177,6 +177,7 @@ td.xpLeft,
 td.maxLevel {
     font-family: var(--number-font-family);
     font-size: var(--number-font-size);
+    font-weight: var(--number-font-weight);
 }
 
 td.level data,
