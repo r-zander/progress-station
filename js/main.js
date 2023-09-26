@@ -427,17 +427,19 @@ function updateRequiredRows(data, categoryType) {
                 if (requirementObject instanceof EvilRequirement) {
                     levelElement.classList.add('hiddenTask');
                     evilElement.classList.remove('hiddenTask');
-                    evilElement.textContent = format(requirements[0].requirement) + ' evil';
+                    formatValue(evilElement, requirements[0].requirement, {unit: 'evil'});
                 } else {
                     evilElement.classList.add('hiddenTask');
                     levelElement.classList.remove('hiddenTask');
                     for (let requirement of requirements) {
                         const task = gameData.taskData[requirement.task];
                         if (task.level >= requirement.requirement) continue;
-                        const text = requirement.task + ' level ' + format(task.level) + '/' + format(requirement.requirement);
+                        const text = requirement.task + ' level ' +
+                            '<data value="' + task.level + '">' + task.level + '</data>' + '/' +
+                            '<data value="' + requirement.requirement + '">' + requirement.requirement + '</data>';
                         finalText.push(text);
                     }
-                    levelElement.textContent = finalText.join(', ');
+                    levelElement.innerHTML = finalText.join(', ');
                 }
             } else if (data === gameData.itemData) {
                 evilElement.classList.add('hiddenTask');
@@ -457,12 +459,13 @@ function updateTaskRows() {
     for (let key in gameData.taskData) {
         const task = gameData.taskData[key];
         const row = document.getElementById('row ' + task.name);
-        row.getElementsByClassName('level')[0].textContent = task.level;
-        row.getElementsByClassName('xpGain')[0].textContent = format(task.getXpGain());
-        row.getElementsByClassName('xpLeft')[0].textContent = format(task.getXpLeft());
+        formatValue(row.querySelector('.level > data'), task.level, {keepNumber: true});
+        formatValue(row.querySelector('.xpGain > data'), task.getXpGain());
+        formatValue(row.querySelector('.xpLeft > data'), task.getXpLeft());
 
-        const maxLevel = row.getElementsByClassName('maxLevel')[0];
-        maxLevel.textContent = task.maxLevel;
+        let maxLevel = row.querySelector('.maxLevel > data');
+        formatValue(maxLevel, task.maxLevel, {keepNumber: true});
+        maxLevel = maxLevel.parentElement;
         gameData.rebirthOneCount > 0 ? maxLevel.classList.remove('hidden') : maxLevel.classList.add('hidden');
 
         const progressFill = row.getElementsByClassName('progressFill')[0];
@@ -590,11 +593,10 @@ function updateText() {
  *
  * @param {number} amount
  * @param {HTMLDataElement} dataElement
- * @param formatConfig
+ * @param {{prefixes?: string[], unit?: string, forceSign?: boolean}} formatConfig
  */
 function updateEnergyDisplay(amount, dataElement, formatConfig = {}) {
-    dataElement.value = String(amount);
-    dataElement.textContent = format(amount, Object.assign({
+    formatValue(dataElement, amount, Object.assign({
         unit: units.energy,
         prefixes: metricPrefixes
     }, formatConfig));
@@ -755,11 +757,70 @@ function increaseDays() {
 
 /**
  *
- * @param {number} number
- * @param config
+ * @param {HTMLDataElement} dataElement
+ * @param {number} value
+ * @param {{prefixes?: string[], unit?: string, forceSign?: boolean, keepNumber?: boolean}} config
+ */
+function formatValue(dataElement, value, config = {}) {
+    dataElement.value = String(value);
+
+    const defaultConfig = {
+        prefixes: magnitudes,
+        unit: '',
+        forceSign: false,
+        keepNumber: false,
+    };
+    config = Object.assign({}, defaultConfig, config);
+
+    // what tier? (determines SI symbol)
+    const tier = Math.log10(Math.abs(value)) / 3 | 0;
+
+    let prefix = '';
+    if (config.forceSign) {
+        if (Math.abs(value) <= 0.001) {
+            prefix = '±';
+        } else if (value > 0) {
+            prefix = '+';
+        }
+    }
+
+    // get suffix and determine scale
+    let suffix = config.prefixes[tier];
+    if (typeof config.unit === 'string' && config.unit.length > 0) {
+        dataElement.dataset.unit = suffix + config.unit;
+    } else if (suffix.length > 0) {
+        dataElement.dataset.unit = suffix;
+    }
+
+    if (config.keepNumber) {
+        dataElement.textContent = prefix + value;
+        return;
+    }
+
+    if (tier === 0) {
+        if (Number.isInteger(value)) {
+            dataElement.textContent = prefix + value.toFixed(0);
+        } else {
+            dataElement.textContent = prefix + value.toPrecision(3);
+        }
+        return;
+    }
+    const scale = Math.pow(10, tier * 3);
+
+    // scale the number
+    const scaled = value / scale;
+
+    // format number and add suffix
+    dataElement.textContent = prefix + scaled.toPrecision(3);
+}
+
+/**
+ *
+ * @param {number} value
+ * @param {{prefixes?: string[], unit?: string, forceSign?: boolean}} config
  * @return {string}
  */
-function format(number, config = {}) {
+function format(value, config = {}) {
     const defaultConfig = {
         prefixes: magnitudes,
         unit: '',
@@ -768,13 +829,13 @@ function format(number, config = {}) {
     config = Object.assign({}, defaultConfig, config);
 
     // what tier? (determines SI symbol)
-    const tier = Math.log10(Math.abs(number)) / 3 | 0;
+    const tier = Math.log10(Math.abs(value)) / 3 | 0;
 
     let prefix = '';
     if (config.forceSign) {
-        if (Math.abs(number) <= 0.001) {
+        if (Math.abs(value) <= 0.001) {
             prefix = '±';
-        } else if (number > 0) {
+        } else if (value > 0) {
             prefix = '+';
         }
     }
@@ -786,12 +847,12 @@ function format(number, config = {}) {
     }
 
     if (tier === 0) {
-        return prefix + number.toFixed(0) + suffix;
+        return prefix + value.toFixed(0) + suffix;
     }
     const scale = Math.pow(10, tier * 3);
 
     // scale the number
-    const scaled = number / scale;
+    const scaled = value / scale;
 
     // format number and add suffix
     return prefix + scaled.toPrecision(3) + suffix;

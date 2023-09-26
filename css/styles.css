@@ -1,8 +1,8 @@
 @font-face {
     font-family: 'Syndra';
-    src: local('Syndra Extra Light'), local('SyndraExtraLight'),
-    url('../fonts/SyndraExtraLight.woff2') format('woff2'),
-    url('../fonts/SyndraExtraLight.woff') format('woff');
+    src: local('Syndra Extra Light'), local('Syndra-ExtraLight'),
+    url('../fonts/Syndra-ExtraLight.woff2') format('woff2'),
+    url('../fonts/Syndra-ExtraLight.woff') format('woff');
     font-weight: 200;
     font-style: normal;
     font-display: swap;
@@ -10,20 +10,19 @@
 
 @font-face {
     font-family: 'Syndra';
-    src: local('Syndra Light'), local('SyndraLight'),
-    url('../fonts/SyndraLight.woff2') format('woff2'),
-    url('../fonts/SyndraLight.woff') format('woff');
+    src: local('Syndra Light'), local('Syndra-Light'),
+    url('../fonts/Syndra-Light.woff2') format('woff2'),
+    url('../fonts/Syndra-Light.woff') format('woff');
     font-weight: 300;
     font-style: normal;
     font-display: swap;
 }
 
-
 @font-face {
     font-family: 'Syndra';
-    src: local('Syndra Regular'), local('SyndraRegular'),
-    url('../fonts/SyndraRegular.woff2') format('woff2'),
-    url('../fonts/SyndraRegular.woff') format('woff');
+    src: local('Syndra Regular'), local('Syndra-Regular'),
+    url('../fonts/Syndra-Regular.woff2') format('woff2'),
+    url('../fonts/Syndra-Regular.woff') format('woff');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -31,9 +30,9 @@
 
 @font-face {
     font-family: 'Syndra';
-    src: local('Syndra Bold'), local('SyndraBold'),
-    url('../fonts/SyndraBold.woff2') format('woff2'),
-    url('../fonts/SyndraBold.woff') format('woff');
+    src: local('Syndra Bold'), local('Syndra-Bold'),
+    url('../fonts/Syndra-Bold.woff2') format('woff2'),
+    url('../fonts/Syndra-Bold.woff') format('woff');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -65,6 +64,7 @@ body {
 h1, h2, h3, h4, h5, h6,
 thead {
     font-family: var(--title-font-family) !important;
+    font-weight: 400;
 }
 
 p {
@@ -84,6 +84,14 @@ data {
     font-family: var(--number-font-family);
     font-size: var(--number-font-size);
     font-weight: var(--number-font-weight);
+    white-space: nowrap;
+}
+
+data[data-unit]::after {
+    content: attr(data-unit);
+    font-family: var(--body-font-family);
+    font-size: var(--bs-body-font-size);
+    font-weight: var(--bs-body-font-weight);
 }
 
 .progress {

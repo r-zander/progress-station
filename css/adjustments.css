@@ -106,6 +106,7 @@ h1 {
 
 .level1-header > .category {
     font-family: var(--title-font-family);
+    font-weight: 400;
 }
 
 .level1-header > div:nth-child(2) {
@@ -170,22 +171,13 @@ td.value {
     max-width: 10rem;
 }
 
-td.level,
-td.value,
-td.xpGain,
-td.xpLeft,
-td.maxLevel {
-    font-family: var(--number-font-family);
-    font-size: var(--number-font-size);
-    font-weight: var(--number-font-weight);
+td data {
+    display: block;
+    text-align: right;
 }
 
-td.level data,
-td.value data,
-td.xpGain data,
-td.xpLeft data,
-td.maxLevel data {
-    font-size: 100%;
+td.requirements data {
+    display: inline;
 }
 
 .radio {
