@@ -4,11 +4,12 @@ class Task {
     constructor(baseData) {
         this.type = this.constructor.name.toLowerCase();
         this.baseData = baseData;
-        this.name = baseData.name;
+        if (baseData.name !== undefined)
+            this.name = baseData.name;
+        this.title = baseData.title;
         this.level = 0;
         this.maxLevel = 0;
         this.xp = 0;
-
         this.xpMultipliers = [];
     }
 
@@ -37,6 +38,35 @@ class Task {
 
     getXpGain() {
         return applyMultipliers(10, this.xpMultipliers);
+    }
+
+    calculateEffectValue(effect) {
+        return (effect.effectType.operator === 'x' ? 1 : 0) + effect.baseValue * this.level;
+    }
+
+    getEffect(effectType) {
+        for (const id in this.baseData.effects){
+            const effect = this.baseData.effects[id];
+            if (effectType === effect.effectType){
+                return this.calculateEffectValue(effect);
+            }
+        }
+        return effectType.operator === 'x' ? 1 : 0;
+    }
+
+    getEffectDescription() {
+        let output = "";
+        for (let i = 0; i < this.baseData.effects.length; i++){
+            let effect = this.baseData.effects[i];
+            output += `${effect.effectType.operator}${this.calculateEffectValue(effect).toFixed(2)}`;
+            output += ` ${effect.effectType.description}`;
+            if (i < this.baseData.effects.length -1)
+            {
+                output += ', '
+            }
+        }
+
+        return output;
     }
 
     increaseXp() {
@@ -71,10 +101,6 @@ class Job extends Task {
         this.energyGenerationMultipliers = [];
     }
 
-    static createEntity(entityData) {
-        return new Job(entityData);
-    }
-
     pushDefaultMultipliers(){
         super.pushDefaultMultipliers();
         this.energyGenerationMultipliers.push(this.getLevelMultiplier.bind(this));
@@ -92,20 +118,11 @@ class Job extends Task {
     }
 
     getEnergyGeneration() {
-        return applyMultipliers(this.baseData.energyGeneration, this.energyGenerationMultipliers);
+        return applyMultipliers(this.getEffect(EffectType.Energy), this.energyGenerationMultipliers);
     }
 
     getEnergyUsage() {
         return this.baseData.energyConsumption;
-    }
-
-    getEffect(effectType) {
-        const effects = this.baseData.effects.filter((effect) => effect.effectType === effectType);
-        let effect = 1;
-        for (let ef of effects){
-            effect *= ef.baseValue;
-        }
-        return effect;
     }
 }
 
@@ -120,24 +137,6 @@ class Skill extends Task {
         //this.xpMultipliers.push(getBoundItemEffect('Book'));
         //this.xpMultipliers.push(getBoundItemEffect('Study desk'));
         //this.xpMultipliers.push(getBoundItemEffect('Library'));
-    }
-
-    getEffect() {
-        return 1 + this.baseData.effects * this.level;
-    }
-
-    getEffects(val) {
-        return 1 + val * this.level;
-    }
-
-    getEffectDescription() {
-        let output = "";
-        for (let effect of this.baseData.effects){
-            output += 'x' + this.getEffects(effect.baseValue).toFixed(2);
-            output += ' ' + effect.description;
-        }
-
-        return output;
     }
 }
 
@@ -160,11 +159,11 @@ class Item {
 
     getEffectDescription() {
         return "not implemented";
-        let description = this.baseData.description;
-        if (itemCategories['Properties'].includes(this.name)) {
-            description = 'Population';
-        }
-        return 'x' + this.baseData.effects.toFixed(1) + ' ' + description;
+        //let description = this.baseData.description;
+        //if (itemCategories['Properties'].includes(this.name)) {
+        //    description = 'Population';
+        //}
+        //return 'x' + this.baseData.effects.toFixed(1) + ' ' + description;
     }
 
     getEnergyUsage() {
@@ -177,7 +176,7 @@ class Module{
 
     constructor(baseData) {
         this.data = baseData;
-        this.name = baseData.name;
+        this.title = baseData.title;
         this.components = baseData.components;
     }
 
@@ -206,10 +205,10 @@ class Module{
 class ModuleComponent{
     /**
      *
-     * @param {{name: string, operations: object[]}} baseData
+     * @param {{title: string, operations: object[]}} baseData
      */
     constructor(baseData){
-        this.name = baseData.name;
+        this.title = baseData.title;
         this.operations = baseData.operations;
         this.currentMode = null;
     }

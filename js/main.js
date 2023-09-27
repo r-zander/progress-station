@@ -220,10 +220,10 @@ function createLevel4Elements(categoryName, module, level4Slot, domId) {
         }
 
         const level4DomGetter = Dom.get(level4Element);
-        level4DomGetter.byClass('name').textContent = mode.name;
+        level4DomGetter.byClass('name').textContent = mode.title;
         let descriptionElement = level4DomGetter.byClass('descriptionTooltip');
-        descriptionElement.ariaLabel = mode.name;
-        descriptionElement.title = tooltips[mode.name];
+        descriptionElement.ariaLabel = mode.title;
+        descriptionElement.title = tooltips[mode.title];
         level4Element.id = 'row ' + mode.name;
 
         if (domId === 'itemTable') {
@@ -260,13 +260,9 @@ function createLevel3Elements(categoryName, module, level3Slot, domId) {
         }
 
         const level3DomGetter = Dom.get(level3Element);
-        level3DomGetter.byClass('name').textContent = comp.name;
+        level3DomGetter.byClass('name').textContent = comp.title;
 
-        if (domId === 'jobTable') {
-            level3DomGetter.byClass('valueType').textContent = 'Generated/cycle';
-        } else if (domId === 'skillTable') {
-            level3DomGetter.byClass('valueType').textContent = 'Effect';
-        }
+        level3DomGetter.byClass('valueType').textContent = 'Effect';
 
         const level4Slot = level3DomGetter.byClass('level4');
         createLevel4Elements(categoryName, comp, level4Slot, domId);
@@ -283,7 +279,7 @@ function createLevel2Elements(categoryName, category, level2Slot, domId) {
     for (let module of category) {
         const level2Element = Dom.new.fromTemplate('level2Template');
         const level2DomGetter = Dom.get(level2Element);
-        level2DomGetter.byClass('name').textContent = module.name;
+        level2DomGetter.byClass('name').textContent = module.title;
         level2DomGetter.byClass('level').textContent = '0';
 
         const level3Slot = level2DomGetter.byId('level3');
@@ -374,9 +370,9 @@ function createAllRows(categoryDefinition, domId) {
                 level4Element = Dom.new.fromTemplate('level4TaskTemplate');
             }
             const level4DomGetter = Dom.get(level4Element);
-            level4DomGetter.byClass('name').textContent = entry.name;
+            level4DomGetter.byClass('name').textContent = entry.title;
             let descriptionElement = level4DomGetter.byClass('descriptionTooltip');
-            descriptionElement.ariaLabel = entry.name;
+            descriptionElement.ariaLabel = entry.title;
             descriptionElement.title = tooltips[entry.name];
             level4Element.id = 'row ' + entry.name;
             if (domId === 'itemTable') {
@@ -428,7 +424,7 @@ function initSidebar() {
 function updateSkillQuickTaskDisplay() {
     const currentTask = gameData.currentSkill;
     const progressBar = document.querySelector(`.quickTaskDisplay .${'skill'}`);
-    progressBar.getElementsByClassName('name')[0].textContent = currentTask.name + ' lvl ' + currentTask.level;
+    progressBar.getElementsByClassName('name')[0].textContent = currentTask.title + ' lvl ' + currentTask.level;
     setProgress(progressBar.getElementsByClassName('progressFill')[0], currentTask.xp / currentTask.getMaxXp());
 }
 
@@ -439,8 +435,8 @@ function updateBattleTaskDisplay() {
     }
     const progressBar = document.getElementById('battleProgressBar');
     const battleNameElement = document.getElementById('battleName');
-    battleNameElement.textContent = currentTask.name;
-    progressBar.getElementsByClassName('name')[0].textContent = currentTask.name + ' layer ' + (currentTask.maxLayers - currentTask.level);
+    battleNameElement.textContent = currentTask.title;
+    progressBar.getElementsByClassName('name')[0].textContent = currentTask.title + ' layer ' + (currentTask.maxLayers - currentTask.level);
     setProgress(progressBar.getElementsByClassName('progressFill')[0], 1 - (currentTask.xp / currentTask.getMaxXp()));
 }
 
@@ -583,7 +579,7 @@ function updateTaskRows() {
         }
 
         if (task instanceof Job) {
-            updateEnergyDisplay(task.getEnergyGeneration(), valueElement.querySelector('.energy-generated > data'));
+            valueElement.getElementsByClassName('energy-generated')[0].textContent = task.getEffectDescription();
         } else {
             valueElement.getElementsByClassName('effect')[0].textContent = task.getEffectDescription();
         }
@@ -1148,7 +1144,7 @@ function isPlaying() {
 function assignMethods() {
     for (let key in gameData.taskData) {
         let task = gameData.taskData[key];
-        if (task.baseData.energyGeneration) {
+        if (task instanceof Job) {
             //task.baseData = moduleBaseData[task.name];
             //task = Object.assign(new ModuleOperation(moduleBaseData[task.name]), task);
 
@@ -1197,10 +1193,6 @@ function assignMethods() {
         gameData.requirements[key] = requirement;
     }
 
-    //TODO save & load of modules
-    gameData.currentOperations = {};
-    gameData.currentModules = {};
-
     gameData.currentSkill = gameData.taskData[gameData.currentSkill.name];
     gameData.currentProperty = gameData.itemData[gameData.currentProperty.name];
     if (gameData.currentBattle !== null) {
@@ -1217,12 +1209,16 @@ function assignMethods() {
 
 function replaceSaveDict(dict, saveDict) {
     for (let key in dict) {
-        if (dict === gameData.taskData && dict[key] instanceof ModuleOperation) {
-            saveDict[key] = Object.assign(dict[key], saveDict[key]);
-        }
         if (!(key in saveDict)) {
             saveDict[key] = dict[key];
-        } else if (dict === gameData.requirements) {
+        }
+        if (dict === gameData.taskData && dict[key] instanceof Job) {
+            dict[key].level = saveDict[key].level;
+            dict[key].maxLevel = saveDict[key].maxLevel;
+            dict[key].xp = saveDict[key].xp;
+            saveDict[key] = dict[key];
+        }
+        else if (dict === gameData.requirements) {
             if (saveDict[key].type !== tempData['requirements'][key].type) {
                 saveDict[key] = tempData['requirements'][key];
             }
@@ -1249,6 +1245,13 @@ function loadGameData() {
         replaceSaveDict(gameData.taskData, gameDataSave.taskData);
         replaceSaveDict(gameData.itemData, gameDataSave.itemData);
         replaceSaveDict(gameData.battleData, gameDataSave.battleData);
+
+        for (let id in gameDataSave.currentOperations){
+            gameDataSave.currentOperations[id] = moduleOperations[id];
+        }
+        for (let id in gameDataSave.currentModules){
+            gameDataSave.currentModules[id] = modules[id];
+        }
 
         gameData = gameDataSave;
     } else {

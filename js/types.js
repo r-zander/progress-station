@@ -1,8 +1,9 @@
 class EffectType {
-  constructor(description) {
+  constructor(application, description) {
+    this.operator = application
     this.description = description
   }
 
-  static Population = new EffectType("Boosts population description")
-  static Energy = new EffectType("Boosts energy")
+  static Population = new EffectType('x','Population')
+  static Energy = new EffectType('+', 'Energy')
 }
