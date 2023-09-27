@@ -25,94 +25,59 @@ const units = {
 };
 
 const battleBaseData = {
-    'Destroyer': {name: 'Destroyer', maxXp: 50, maxLayers: 5, progressBarId: 'battleProgressBar'},
+    Destroyer: {name: 'Destroyer', maxXp: 50, maxLayers: 5, progressBarId: 'battleProgressBar'},
 };
 
-const jobBaseData = {
-    'Beggar': {name: 'Beggar', maxXp: 50, energyGeneration: 5},
-    'Farmer': {name: 'Farmer', maxXp: 100, energyGeneration: 9},
-    'Fisherman': {name: 'Fisherman', maxXp: 200, energyGeneration: 15},
-    'Miner': {name: 'Miner', maxXp: 400, energyGeneration: 40},
-    'Blacksmith': {name: 'Blacksmith', maxXp: 800, energyGeneration: 80},
-    'Merchant': {name: 'Merchant', maxXp: 1600, energyGeneration: 150},
-
-    'Squire': {name: 'Squire', maxXp: 100, energyGeneration: 5},
-    'Footman': {name: 'Footman', maxXp: 1000, energyGeneration: 50},
-    'Veteran footman': {name: 'Veteran footman', maxXp: 10000, energyGeneration: 120},
-    'Knight': {name: 'Knight', maxXp: 100000, energyGeneration: 300},
-    'Veteran knight': {name: 'Veteran knight', maxXp: 1000000, energyGeneration: 1000},
-    'Elite knight': {name: 'Elite knight', maxXp: 7500000, energyGeneration: 3000},
-    'Holy knight': {name: 'Holy knight', maxXp: 40000000, energyGeneration: 15000},
-    'Legendary knight': {name: 'Legendary knight', maxXp: 150000000, energyGeneration: 50000},
-
-    'Student': {name: 'Student', maxXp: 100000, energyGeneration: 100},
-    'Apprentice mage': {name: 'Apprentice mage', maxXp: 1000000, energyGeneration: 1000},
-    'Mage': {name: 'Mage', maxXp: 10000000, energyGeneration: 7500},
-    'Wizard': {name: 'Wizard', maxXp: 100000000, energyGeneration: 50000},
-    'Master wizard': {name: 'Master wizard', maxXp: 10000000000, energyGeneration: 250000},
-    'Chairman': {name: 'Chairman', maxXp: 1000000000000, energyGeneration: 1000000},
+const moduleBaseData = {
+    Diesel: {name: 'Diesel', effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], maxXp: 50, energyConsumption: 3, energyGeneration: 5},
+    Plastics: {name: 'Plastics', effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], maxXp: 100, energyConsumption: 3, energyGeneration: 5},
+    Steel: {name: 'Steel', effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], maxXp: 200, energyConsumption: 3, energyGeneration: 5},
+    Garbage: {name: 'Garbage', effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], maxXp: 400, energyConsumption: 3, energyGeneration: 5},
 };
 
 const skillBaseData = {
-    'Concentration': {name: 'Concentration', maxXp: 100, effect: 0.01, description: 'Research xp'},
-    'Productivity': {name: 'Productivity', maxXp: 100, effect: 0.01, description: 'Module xp'},
-    'Bargaining': {name: 'Bargaining', maxXp: 100, effect: -0.01, description: 'Energy usage'},
-    'Meditation': {name: 'Meditation', maxXp: 100, effect: 0.01, description: 'Population'},
-
-    'Strength': {name: 'Strength', maxXp: 100, effect: 0.01, description: 'Military energy generation'},
-    'Battle tactics': {name: 'Battle tactics', maxXp: 100, effect: 0.01, description: 'Military xp'},
-    'Muscle memory': {name: 'Muscle memory', maxXp: 100, effect: 0.01, description: 'Strength xp'},
-
-    'Mana control': {name: 'Mana control', maxXp: 100, effect: 0.01, description: 'T.A.A. xp'},
-    'Immortality': {name: 'Immortality', maxXp: 100, effect: 0.01, description: 'Longer lifespan'},
-    'Time warping': {name: 'Time warping', maxXp: 100, effect: 0.01, description: 'Gamespeed'},
-    'Super immortality': {name: 'Super immortality', maxXp: 100, effect: 0.01, description: 'Longer lifespan'},
-
-    'Dark influence': {name: 'Dark influence', maxXp: 100, effect: 0.01, description: 'All xp'},
-    'Evil control': {name: 'Evil control', maxXp: 100, effect: 0.01, description: 'Evil gain'},
-    'Intimidation': {name: 'Intimidation', maxXp: 100, effect: -0.01, description: 'Energy usage'},
-    'Demon training': {name: 'Demon training', maxXp: 100, effect: 0.01, description: 'All xp'},
-    'Blood meditation': {name: 'Blood meditation', maxXp: 100, effect: 0.01, description: 'Evil gain'},
-    'Demon\'s wealth': {name: 'Demon\'s wealth', maxXp: 100, effect: 0.002, description: 'Energy generation'},
-
+    Concentration: {name: 'Concentration', maxXp: 100, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], description: 'Research xp'},
+    Productivity: {name: 'Productivity', maxXp: 100, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], description: 'Module xp'},
 };
 
 const itemBaseData = {
-    'Homeless': {name: 'Homeless', expense: 0, effect: 1},
-    'Tent': {name: 'Tent', expense: 15, effect: 1.4},
-    'Wooden hut': {name: 'Wooden hut', expense: 100, effect: 2},
-    'Cottage': {name: 'Cottage', expense: 750, effect: 3.5},
-    'House': {name: 'House', expense: 3000, effect: 6},
-    'Large house': {name: 'Large house', expense: 25000, effect: 12},
-    'Small palace': {name: 'Small palace', expense: 300000, effect: 25},
-    'Grand palace': {name: 'Grand palace', expense: 5000000, effect: 60},
-
-    'Book': {name: 'Book', expense: 10, effect: 1.5, description: 'Research xp'},
-    'Dumbbells': {name: 'Dumbbells', expense: 50, effect: 1.5, description: 'Strength xp'},
-    'Personal squire': {name: 'Personal squire', expense: 200, effect: 2, description: 'Module xp'},
-    'Steel longsword': {name: 'Steel longsword', expense: 1000, effect: 2, description: 'Military xp'},
-    'Butler': {name: 'Butler', expense: 7500, effect: 1.5, description: 'Population'},
-    'Sapphire charm': {name: 'Sapphire charm', expense: 50000, effect: 3, description: 'Magic xp'},
-    'Study desk': {name: 'Study desk', expense: 1000000, effect: 2, description: 'Research xp'},
-    'Library': {name: 'Library', expense: 10000000, effect: 1.5, description: 'Research xp'},
+    Homeless: {name: 'Homeless', expense: 0, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }]},
+    Book: {name: 'Book', expense: 10, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], description: 'Research xp'},
 };
 
-const jobCategories = {
-    'Common generators': ['Beggar', 'Farmer', 'Fisherman', 'Miner', 'Blacksmith', 'Merchant'],
-    'Military grade': ['Squire', 'Footman', 'Veteran footman', 'Knight', 'Veteran knight', 'Elite knight', 'Holy knight', 'Legendary knight'],
-    'Arcane energy': ['Student', 'Apprentice mage', 'Mage', 'Wizard', 'Master wizard', 'Chairman']
+//TODO: split all in baseData
+const moduleOperations = {
+    Garbage: new ModuleOperation(moduleBaseData.Garbage),
+    Diesel: new ModuleOperation(moduleBaseData.Diesel),
+    Plastics: new ModuleOperation(moduleBaseData.Plastics),
+    Steel: new ModuleOperation(moduleBaseData.Steel),
+}
+
+const moduleComponents = {
+    Fuel: new ModuleComponent({name: 'Fuel', operations: [moduleOperations.Garbage, moduleOperations.Diesel]}),
+    Products: new ModuleComponent({name: 'Products', operations: [moduleOperations.Plastics, moduleOperations.Steel]})
+}
+
+const modules = {
+    Furnace: new Module({name:'Furnace', components: [moduleComponents.Fuel, moduleComponents.Products]}),
+}
+
+/*
+const moduleCategories = {
+    Fundamentals: new ModuleCategory ({name: 'Fundamentals', headerRowColor: '#55A630', modules: [modules.Furnace]})
+}*/
+
+const moduleCategories = {
+    Fundamentals: [modules.Furnace],
 };
 
 const skillCategories = {
-    'Fundamentals': ['Concentration', 'Productivity', 'Bargaining', 'Meditation'],
-    'Combat': ['Strength', 'Battle tactics', 'Muscle memory'],
-    'Magic': ['Mana control', 'Immortality', 'Time warping', 'Super immortality'],
-    'Dark magic': ['Dark influence', 'Evil control', 'Intimidation', 'Demon training', 'Blood meditation', 'Demon\'s wealth']
+    Fundamentals: [skillBaseData.Concentration, skillBaseData.Productivity],
 };
 
 const itemCategories = {
-    'Properties': ['Homeless', 'Tent', 'Wooden hut', 'Cottage', 'House', 'Large house', 'Small palace', 'Grand palace'],
-    'Misc': ['Book', 'Dumbbells', 'Personal squire', 'Steel longsword', 'Butler', 'Sapphire charm', 'Study desk', 'Library']
+    Properties: [itemBaseData.Homeless],
+    Misc: [itemBaseData.Book]
 };
 
 const permanentUnlocks = ['Scheduling', 'Shop', 'Automation', 'Quick task display'];
@@ -206,6 +171,7 @@ const lastLayerData= new LayerData('#000000');
 
 function createRequirements(getElementsByClass, getTaskElement, getItemElement) {
     return {
+        /*
         //Other
         'Arcane energy': new TaskRequirement(getElementsByClass('Arcane energy'), [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),
         'Dark magic': new EvilRequirement(getElementsByClass('Dark magic'), [{requirement: 1}]),
@@ -219,16 +185,19 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Time warping info': new TaskRequirement([Dom.get().byId('timeWarping')], [{task: 'Mage', requirement: 10}]),
         'Automation': new AgeRequirement([Dom.get().byId('automation')], [{requirement: 20}]),
         'Quick task display': new AgeRequirement(getElementsByClass('quickTaskDisplay'), [{requirement: 20}]),
+        */
 
         //Common generators
-        'Beggar': new TaskRequirement([getTaskElement('Beggar')], []),
-        'Farmer': new TaskRequirement([getTaskElement('Farmer')], [{task: 'Beggar', requirement: 10}]),
+        //'Beggar': new TaskRequirement([getTaskElement('Beggar')], []),
+        //'Farmer': new TaskRequirement([getTaskElement('Farmer')], [{task: 'Beggar', requirement: 10}]),
+        /*
         'Fisherman': new TaskRequirement([getTaskElement('Fisherman')], [{task: 'Farmer', requirement: 10}]),
         'Miner': new TaskRequirement([getTaskElement('Miner')], [{task: 'Strength', requirement: 10}, {task: 'Fisherman', requirement: 10}]),
         'Blacksmith': new TaskRequirement([getTaskElement('Blacksmith')], [{task: 'Strength', requirement: 30}, {task: 'Miner', requirement: 10}]),
         'Merchant': new TaskRequirement([getTaskElement('Merchant')], [{task: 'Bargaining', requirement: 50}, {task: 'Blacksmith', requirement: 10}]),
-
+*/
         //Military
+        /*
         'Squire': new TaskRequirement([getTaskElement('Squire')], [{task: 'Strength', requirement: 5}]),
         'Footman': new TaskRequirement([getTaskElement('Footman')], [{task: 'Strength', requirement: 20}, {task: 'Squire', requirement: 10}]),
         'Veteran footman': new TaskRequirement([getTaskElement('Veteran footman')], [{task: 'Battle tactics', requirement: 40}, {task: 'Footman', requirement: 10}]),
@@ -237,7 +206,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Elite knight': new TaskRequirement([getTaskElement('Elite knight')], [{task: 'Strength', requirement: 300}, {task: 'Veteran knight', requirement: 10}]),
         'Holy knight': new TaskRequirement([getTaskElement('Holy knight')], [{task: 'Mana control', requirement: 500}, {task: 'Elite knight', requirement: 10}]),
         'Legendary knight': new TaskRequirement([getTaskElement('Legendary knight')], [{task: 'Mana control', requirement: 1000}, {task: 'Battle tactics', requirement: 1000}, {task: 'Holy knight', requirement: 10}]),
-
+/*
         //The Arcane Association
         'Student': new TaskRequirement([getTaskElement('Student')], [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),
         'Apprentice mage': new TaskRequirement([getTaskElement('Apprentice mage')], [{task: 'Mana control', requirement: 400}, {task: 'Student', requirement: 10}]),
@@ -245,11 +214,12 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Wizard': new TaskRequirement([getTaskElement('Wizard')], [{task: 'Mana control', requirement: 1000}, {task: 'Mage', requirement: 10}]),
         'Master wizard': new TaskRequirement([getTaskElement('Master wizard')], [{task: 'Mana control', requirement: 1500}, {task: 'Wizard', requirement: 10}]),
         'Chairman': new TaskRequirement([getTaskElement('Chairman')], [{task: 'Mana control', requirement: 2000}, {task: 'Master wizard', requirement: 10}]),
-
+*/
         //Fundamentals
-        'Concentration': new TaskRequirement([getTaskElement('Concentration')], []),
-        'Productivity': new TaskRequirement([getTaskElement('Productivity')], [{task: 'Concentration', requirement: 5}]),
-        'Bargaining': new TaskRequirement([getTaskElement('Bargaining')], [{task: 'Concentration', requirement: 20}]),
+        Concentration : new TaskRequirement([getTaskElement('Concentration')], []),
+        Productivity: new TaskRequirement([getTaskElement('Productivity')], [{task: 'Concentration', requirement: 5}]),
+        //'Bargaining': new TaskRequirement([getTaskElement('Bargaining')], [{task: 'Concentration', requirement: 20}]),
+        /*
         'Meditation': new TaskRequirement([getTaskElement('Meditation')], [{task: 'Concentration', requirement: 30}, {task: 'Productivity', requirement: 20}]),
 
         //Combat
@@ -270,9 +240,10 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Demon training': new EvilRequirement([getTaskElement('Demon training')], [{requirement: 25}]),
         'Blood meditation': new EvilRequirement([getTaskElement('Blood meditation')], [{requirement: 75}]),
         'Demon\'s wealth': new EvilRequirement([getTaskElement('Demon\'s wealth')], [{requirement: 500}]),
-
+*/
         //Properties
-        'Homeless': new StoredEnergyRequirement([getItemElement('Homeless')], [{requirement: 0}]),
+        Homeless: new StoredEnergyRequirement([getItemElement('Homeless')], [{requirement: 0}]),
+        /*
         'Tent': new StoredEnergyRequirement([getItemElement('Tent')], [{requirement: 0}]),
         'Wooden hut': new StoredEnergyRequirement([getItemElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getEnergyUsage() * 100}]),
         'Cottage': new StoredEnergyRequirement([getItemElement('Cottage')], [{requirement: gameData.itemData['Cottage'].getEnergyUsage() * 100}]),
@@ -280,9 +251,10 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Large house': new StoredEnergyRequirement([getItemElement('Large house')], [{requirement: gameData.itemData['Large house'].getEnergyUsage() * 100}]),
         'Small palace': new StoredEnergyRequirement([getItemElement('Small palace')], [{requirement: gameData.itemData['Small palace'].getEnergyUsage() * 100}]),
         'Grand palace': new StoredEnergyRequirement([getItemElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getEnergyUsage() * 100}]),
-
+*/
         //Misc
-        'Book': new StoredEnergyRequirement([getItemElement('Book')], [{requirement: 0}]),
+        Book: new StoredEnergyRequirement([getItemElement('Book')], [{requirement: 0}]),
+        /*
         'Dumbbells': new StoredEnergyRequirement([getItemElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getEnergyUsage() * 100}]),
         'Personal squire': new StoredEnergyRequirement([getItemElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getEnergyUsage() * 100}]),
         'Steel longsword': new StoredEnergyRequirement([getItemElement('Steel longsword')], [{requirement: gameData.itemData['Steel longsword'].getEnergyUsage() * 100}]),
@@ -290,6 +262,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Sapphire charm': new StoredEnergyRequirement([getItemElement('Sapphire charm')], [{requirement: gameData.itemData['Sapphire charm'].getEnergyUsage() * 100}]),
         'Study desk': new StoredEnergyRequirement([getItemElement('Study desk')], [{requirement: gameData.itemData['Study desk'].getEnergyUsage() * 100}]),
         'Library': new StoredEnergyRequirement([getItemElement('Library')], [{requirement: gameData.itemData['Library'].getEnergyUsage() * 100}]),
+   */
     };
 }
 
@@ -298,46 +271,17 @@ function addMultipliers() {
         const task = gameData.taskData[taskName];
 
         task.xpMultipliers = [];
-        if (task instanceof Job) task.energyGenerationMultipliers = [];
-
-        task.xpMultipliers.push(task.getMaxLevelMultiplier.bind(task));
-        task.xpMultipliers.push(getPopulation);
-        task.xpMultipliers.push(getBoundTaskEffect('Dark influence'));
-        task.xpMultipliers.push(getBoundTaskEffect('Demon training'));
-
         if (task instanceof Job) {
-            task.energyGenerationMultipliers.push(task.getLevelMultiplier.bind(task));
-            task.energyGenerationMultipliers.push(getBoundTaskEffect('Demon\'s wealth'));
-            task.xpMultipliers.push(getBoundTaskEffect('Productivity'));
-            task.xpMultipliers.push(getBoundItemEffect('Personal squire'));
-        } else if (task instanceof Skill) {
-            task.xpMultipliers.push(getBoundTaskEffect('Concentration'));
-            task.xpMultipliers.push(getBoundItemEffect('Book'));
-            task.xpMultipliers.push(getBoundItemEffect('Study desk'));
-            task.xpMultipliers.push(getBoundItemEffect('Library'));
+            task.energyGenerationMultipliers = [];
         }
 
-        if (jobCategories['Military grade'].includes(task.name)) {
-            task.energyGenerationMultipliers.push(getBoundTaskEffect('Strength'));
-            task.xpMultipliers.push(getBoundTaskEffect('Battle tactics'));
-            task.xpMultipliers.push(getBoundItemEffect('Steel longsword'));
-        } else if (task.name === 'Strength') {
-            task.xpMultipliers.push(getBoundTaskEffect('Muscle memory'));
-            task.xpMultipliers.push(getBoundItemEffect('Dumbbells'));
-        } else if (skillCategories['Magic'].includes(task.name)) {
-            task.xpMultipliers.push(getBoundItemEffect('Sapphire charm'));
-        } else if (jobCategories['Arcane energy'].includes(task.name)) {
-            task.xpMultipliers.push(getBoundTaskEffect('Mana control'));
-        } else if (skillCategories['Dark magic'].includes(task.name)) {
-            task.xpMultipliers.push(getEvil);
-        }
+        task.pushDefaultMultipliers();
     }
 
     for (let itemName in gameData.itemData) {
         const item = gameData.itemData[itemName];
         item.expenseMultipliers = [];
-        item.expenseMultipliers.push(getBoundTaskEffect('Bargaining'));
-        item.expenseMultipliers.push(getBoundTaskEffect('Intimidation'));
+        item.pushDefaultMultipliers();
     }
 }
 
@@ -369,10 +313,4 @@ function setCustomEffects() {
     immortality.getEffect = function () {
         return 1 + getBaseLog(33, immortality.level + 1);
     };
-}
-
-function getPopulation() {
-    const meditationEffect = getBoundTaskEffect('Meditation');
-    const butlerEffect = getBoundItemEffect('Butler');
-    return meditationEffect() * butlerEffect() * gameData.currentProperty.getEffect();
 }
