@@ -122,7 +122,7 @@ class Job extends Task {
     }
 
     getEnergyUsage() {
-        return this.baseData.energyConsumption;
+        return this.baseData.energyConsumption === undefined ? 0 : this.baseData.energyConsumption;
     }
 }
 
@@ -184,11 +184,9 @@ class Module{
         //Do whatever a module does
     }
 
-    toggleEnabled(){
-        this.#enabled = !this.#enabled;
-        for (let component in this.components){
-            component.setEnabled(this.#enabled)
-        }
+    setEnabled(value) {
+        if (this.#enabled === value) return;
+        this.#enabled = value;
         if (this.#enabled){
             if (!gameData.currentModules.hasOwnProperty(this.name)){
                 gameData.currentModules[this.name] = this;
@@ -199,6 +197,19 @@ class Module{
                 delete gameData.currentModules [this.name];
             }
         }
+
+        for (let component in this.components){
+            component.setEnabled(this.#enabled)
+        }
+    }
+
+    toggleEnabled(){
+        this.setEnabled(!this.#enabled);
+    }
+
+    getNextOperationForAutoPromote(){
+        //TODO
+        return null;
     }
 }
 
@@ -235,10 +246,6 @@ class ModuleComponent{
 
 class ModuleOperation extends Job{
     enabled = false;
-
-    do(){
-        super.do();
-    }
 
     setEnabled(value) {
         if (this.enabled === value) return;

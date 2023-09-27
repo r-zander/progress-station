@@ -43,11 +43,11 @@ const moduleOperations = {
     Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], maxXp: 50}),
     Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], maxXp: 100}),
     Steel: new ModuleOperation({title: 'Steel', effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], maxXp: 200}),
-    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 3}),
-    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 3}),
-    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 3}),
-    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 3}),
-    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 3}),
+    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 30}),
+    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 40}),
+    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 50}),
+    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 60}),
+    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 80}),
 }
 
 const moduleComponents = {
