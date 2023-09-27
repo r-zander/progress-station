@@ -17,7 +17,7 @@ function htmlToElement(html) {
  *
  * @param {HTMLElement} element
  * @return {boolean}
- * @
+ *
  */
 function isVisible(element) {
     // Glorious stolen jQuery logic
@@ -187,9 +187,6 @@ GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
     }
     else{
         const taskElement = getTaskElement(taskInfo.name);
-        if (taskElement === null) {
-            return;
-        }
         taskProgressBar = taskElement.querySelector('.progressBar');
     }
     if (isVisible(taskProgressBar)) {
