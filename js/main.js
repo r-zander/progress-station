@@ -782,7 +782,6 @@ function getMaxEnergy() {
 
 function getEnergyUsage() {
     let energyUsage = 0;
-    energyUsage += gameData.currentProperty.getEnergyUsage();
 
     const tasks = gameData.currentOperations;
     if (tasks !== null){
@@ -837,14 +836,36 @@ function getNextEntity(data, categoryType, entityName) {
 }
 
 function autoPromote() {
-    return;
-    //TODO does not work with several jobsers
     gameData.autoPromoteEnabled = autoPromoteElement.checked;
     if (!autoPromoteElement.checked) return;
+    autoPromoteModules();
+    return;
+    autoPromoteOther();
+}
+
+function autoPromoteModules() {
+    //TODO modules
+    return;
+    for (const id in modules){
+        const module = modules[id];
+        let requirement = gameData.requirements[id];
+        if (requirement.isCompleted()) {
+            const operationForAutoPromote = module.getNextOperationForAutoPromote();
+            if (operationForAutoPromote === null) continue;
+            requirement = gameData.requirements[operationForAutoPromote.name];
+            if (requirement.isCompleted()) {
+                operationForAutoPromote.setEnabled(true);
+            }
+        }
+    }
+}
+
+function autoPromoteOther() {
+    //TODO
     const nextEntity = getNextEntity(gameData.taskData, moduleCategories, null);
     if (nextEntity == null) return;
     const requirement = gameData.requirements[nextEntity.name];
-    //if (requirement.isCompleted()) gameData.currentJob = nextEntity;
+    if (requirement.isCompleted()) gameData.currentJob = nextEntity;
 }
 
 function checkSkillSkipped(skill) {
