@@ -25,7 +25,7 @@ const units = {
 };
 
 const battleBaseData = {
-    Destroyer: {title: 'The Destroyer', maxXp: 50, maxLayers: 5, progressBarId: 'battleProgressBar'},
+    Destroyer: {title: 'The Destroyer', maxXp: 500, maxLayers: 5, progressBarId: 'battleProgressBar', layerLabel: 'Tentacles layer'},
 };
 
 const skillBaseData = {
@@ -169,7 +169,6 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Rebirth note 1': new AgeRequirement([Dom.get().byId('rebirthNote1')], [{requirement: 45}]),
         'Rebirth note 2': new AgeRequirement([Dom.get().byId('rebirthNote2')], [{requirement: 65}]),
         'Rebirth note 3': new AgeRequirement([Dom.get().byId('rebirthNote3')], [{requirement: 200}]),
-        'Battle tab': new AgeRequirement([Dom.get().byId('battleTabButton')], [{requirement: 0}]),
         'Evil info': new EvilRequirement([Dom.get().byId('evilInfo')], [{requirement: 1}]),
         'Time warping info': new TaskRequirement([Dom.get().byId('timeWarping')], [{task: 'Mage', requirement: 10}]),
         'Automation': new AgeRequirement([Dom.get().byId('automation')], [{requirement: 20}]),

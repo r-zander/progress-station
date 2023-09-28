@@ -292,45 +292,19 @@ button:focus {
     background-color: white;
 }
 
-.small-margin {
-    margin-bottom: 2px;
-}
-
-.text-strap {
-    color: gray;
-    margin-bottom: -1rem;
-}
-
 .battle-flavor-text {
     color: antiquewhite;
-    padding: 10px;
-    border: 2px solid darkorange;
+    border: 2px solid;
 }
 
-.battle-flavor-text-win {
+.battle-flavor-text.win {
     color: lightcyan;
-    padding: 10px;
-    border: 2px solid cyan;
+    border-color: cyan;
 }
 
-.battle-flavor-text-lose {
+.battle-flavor-text.lose {
     color: lightcoral;
-    padding: 10px;
-    border: 2px solid darkred;
-}
-
-.medium-margin {
-    margin-bottom: 1.5rem;
-}
-
-.gameOverMessage {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-}
-
-.progress.battle {
-    margin: auto auto 1.5rem;
-    width: 50%;
+    border-color: darkred;
 }
 
 .modal-body > p {

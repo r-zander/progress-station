@@ -5,45 +5,14 @@ class LayerData {
 }
 
 class LayeredTask extends Task {
-    init(){
+    constructor(baseData) {
+        super(baseData);
         this.maxLayers = this.baseData.maxLayers;
-        this.taskProgressBar = document.getElementById(this.baseData.progressBarId);
-        this.taskProgressBarFill = this.taskProgressBar.getElementsByClassName('progressFill')[0];
-
-        this.adjustLayerColorsByLevel();
     }
 
     do(){
         if (this.isDone()) return;
         super.do();
-    }
-
-    levelUp() {
-        super.levelUp();
-        this.adjustLayerColorsByLevel();
-    }
-
-    adjustLayerColorsByLevel() {
-        if (this.isDone()) {
-            this.onDone();
-            return;
-        }
-
-        this.taskProgressBarFill.style.backgroundColor = layerData[this.level].color;
-
-        let newBackgroundColor;
-        if (this.level < this.maxLayers - 1 && this.level < layerData.length - 1) {
-            newBackgroundColor = layerData[this.level + 1].color;
-        } else {
-            newBackgroundColor = lastLayerData.color;
-        }
-        this.taskProgressBar.style.backgroundColor = newBackgroundColor;
-    }
-
-    onDone() {
-        this.taskProgressBar.style.backgroundColor = lastLayerData.color;
-        this.taskProgressBarFill.style.width = '0%';
-        this.taskProgressBar.getElementsByClassName('name')[0].textContent = 'Defeated';
     }
 
     isDone(){
@@ -52,6 +21,11 @@ class LayeredTask extends Task {
 }
 
 class Battle extends LayeredTask {
+    getXpGain() {
+        return applySpeed(applyMultipliers(10, this.xpMultipliers), true);
+    }
+
+    // TODO never triggered
     onDone() {
         super.onDone();
         GameEvents.GameOver.trigger({

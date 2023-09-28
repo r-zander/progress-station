@@ -15,7 +15,8 @@
     background: none;
 }
 
-.sci-fi .progress::before {
+.sci-fi .progress::before,
+.sci-fi .progress-background {
     content: "";
     display: block;
     position: absolute;
@@ -28,7 +29,8 @@
 }
 
 .sci-fi .progress::before,
-.sci-fi .progress-bar {
+.sci-fi .progress-bar,
+.sci-fi .progress-background {
     --corner-length: 30px;
     clip-path: polygon(
             0 0,

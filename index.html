@@ -32,36 +32,6 @@
     <div id="main-planet-overlay"></div>
 </section>
 
-<!-- Elements to preview various resolutions -->
-<!--
-<style>
-    .resolution-helper {
-        position: absolute;
-        display: inline-block;
-        top: 0;
-        left: 0;
-        max-width: 100%;
-        max-height: 100%;;
-        border: 2px dashed;
-        pointer-events: none;
-    }
-
-    .resolution-helper > span {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        padding: 0.5rem;
-    }
-</style>
-<div class="resolution-helper" style="width: 1280px; height: 720px; color: lightcoral;">
-    <span>1280 x 720</span>
-</div>
-
-<div class="resolution-helper" style=" width: 1440px;height: 900px; color: lime;">
-    <span>1440 × 900</span>
-</div>-->
-
-
 <h1 class="panel p-2">Progress Station</h1>
 <main id="main" class="d-flex flex-column" style="opacity: 0;">
     <header class="panel mb-3 px-3 py-2 d-flex flex-column"
@@ -70,12 +40,12 @@
             <h2 id="nameDisplay" class="m-0 flex-fill">USS Progress</h2>
             <div class="" style="font-size: large">
                 <span class="label">Intergalactic cycles:</span>
-                <data id="ageDisplay">14</data>
-                <data id="dayDisplay">0</data>
+                <data id="ageDisplay" value="14">14</data>
+                <data id="dayDisplay" value="0">0</data>
             </div>
             <div style="color: gray">
                 <span class="label">Station age:</span>
-                <data id="stationAge">70</data>
+                <data id="stationAge" value="70">70</data>
                 <data value="">kIC</data>
             </div>
         </div>
@@ -112,19 +82,20 @@
         </div>
         <div class="d-flex flex-row gap-3 justify-content-around">
             <div class="" style="font-size: large">
-                <span class="label">Danger:</span> <data id="dangerLevel" style="color: orange">54.2%</data>
+                <span class="label">Danger:</span>
+                <data id="dangerLevel" style="color: orange" value="0.542">54.2%</data>
             </div>
             <div class="d-flex flex-row gap-3 align-items-center">
                 <div style="font-size: large">
                     <span class="label" style="color: rgb(15, 105, 207)">Population:</span>
-                    <data id="happinessDisplay"></data>
+                    <data id="happinessDisplay" value="1">1</data>
                 </div>
                 <div style="color: gray">Affects all work speed</div>
             </div>
             <div id="evilInfo" class="d-flex flex-row gap-3 align-items-center">
                 <div style="font-size: large">
                     <span class="label" style="color: rgb(200, 0, 0)">Evil:</span>
-                    <data id="evilDisplay"></data>
+                    <data id="evilDisplay" value="1">1</data>
                 </div>
                 <div style="color: gray">
                     Affects dark magic xp gain
@@ -136,16 +107,6 @@
     <div class="d-flex align-content-start" style="max-height: calc(100vh - 176px)">
         <aside id="sidebar" class="mh-100 overflow-x-hidden overflow-y-auto mb-3">
             <div id="actions" class="panel d-flex flex-column p-3">
-                <div id="deathText" class="mb-3">
-                    <!-- TODO is deathText part of actions? -->
-                    <p style="font-size: large; color: red; text-shadow: 1px 1px 2px black;">
-                        <b>The Destroyer</b> found you
-                    </p>
-                    <p style="color: gray">
-                        The danger was too high, and now you have to fight for your life.
-                    </p>
-                </div>
-
                 <div class="d-flex flex-row gap-3">
                     <div class="flex-fill">
                         <button class="btn btn-secondary btn-lg w-100" id="pauseButton" onClick="setPause()">
@@ -176,17 +137,16 @@
                 <div class="mt-2">
                     <div style="font-size: large">
                         <span class="label" style="color: rgb(204, 34, 219)">Time warping: </span>
-                        <data id="timeWarpingDisplay"></data>
+                        <data id="timeWarpingDisplay" value="1">1.00</data>
                     </div>
                     <div style="color: gray">Affects game speed</div>
                 </div>
-
-
             </div>
             <nav class="mt-3 d-flex flex-column gap-3">
                 <button id="jobsTabButton" class="tabButton p-3" onClick="setTab(this, 'jobs')">
-                    <h3 style="font: inherit">Modules</h3>
-
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Modules</h3>
+                    <!--suppress HtmlUnknownTag -->
                     <div class="quickTaskDisplay mt-2">
                         <div class="progress job progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
                              aria-valuemin="0" aria-valuemax="100">
@@ -197,7 +157,9 @@
                     </div>
                 </button>
                 <button id="skillsTabButton" class="tabButton p-3" onClick="setTab(this, 'skills')">
-                    <h3 style="font: inherit">Research</h3>
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Research</h3>
+                    <!--suppress HtmlUnknownTag -->
                     <div class="quickTaskDisplay mt-2">
                         <div class="progress skill progressBar" role="progressbar" aria-label="Task"
                              aria-valuenow="0"
@@ -209,16 +171,32 @@
                     </div>
                 </button>
                 <button id="shopTabButton" class="tabButton p-3" onClick="setTab(this, 'shop')">
-                    <h3 style="font: inherit">Sectors</h3>
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Sectors</h3>
                 </button>
                 <button id="rebirthTabButton" class="tabButton p-3" onClick="setTab(this, 'rebirth')">
-                    <h3 style="font: inherit">Captain's Log</h3>
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Captain's Log</h3>
                 </button>
-                <button id="battleTabButton" class="tabButton p-3" onClick="setTab(this, 'battleTab')">
-                    <h3 style="font: inherit">Boss Battle</h3>
+                <button id="battleTabButton" class="tabButton p-3 hidden" onClick="setTab(this, 'battleTab')">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Boss Battle</h3>
+                    <!--suppress HtmlUnknownTag -->
+                    <!-- TODO -->
+                    <div class="quickTaskDisplay mt-2">
+                        <div class="progress battle progressBar" role="progressbar" aria-label="Task"
+                             aria-valuenow="0"
+                             aria-valuemin="0" aria-valuemax="100">
+                            <div class="progressBackground progress-background"></div>
+                            <div class="progressFill current progress-bar progress-bar-striped"
+                                 style="width: 0"></div>
+                            <div class="progress-text name px-2">Task</div>
+                        </div>
+                    </div>
                 </button>
                 <button id="settingsTabButton" class="tabButton p-3" onClick="setTab(this, 'settings')">
-                    <h3 style="font: inherit">Settings</h3>
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Settings</h3>
                 </button>
             </nav>
         </aside>
@@ -253,7 +231,8 @@
                             </div>
                         </div>
                         <div>
-                            Level: <data class="level">32</data>
+                            Level:
+                            <data class="level" value="32">32</data>
                         </div>
                         <div>
                             <div class="form-check form-switch form-check-reverse">
@@ -316,16 +295,24 @@
                             <div class="progress-text name px-2">Basic Bitch Co. Drills</div>
                         </div>
                     </td>
-                    <td class="level"><data value="53">53</data></td>
+                    <td class="level">
+                        <data value="53">53</data>
+                    </td>
                     <td class="value">
                         <div class="effect">x1.13 Industry</div>
                         <div class="energy-generated">
                             <data value="259">259W</data>
                         </div>
                     </td>
-                    <td class="xpGain"><data value="1600" data-unit="k">1.6</data></td>
-                    <td class="xpLeft"><data value="4550" data-unit="k">45.5</data></td>
-                    <td class="maxLevel"><data value="124">124</data></td>
+                    <td class="xpGain">
+                        <data value="1600" data-unit="k">1.6</data>
+                    </td>
+                    <td class="xpLeft">
+                        <data value="4550" data-unit="k">45.5</data>
+                    </td>
+                    <td class="maxLevel">
+                        <data value="124">124</data>
+                    </td>
                     <td class="skipSkill">
                         <!--suppress HtmlFormInputWithoutLabel -->
                         <input class="checkbox" type="checkbox"/>
@@ -362,7 +349,7 @@
                             <span class="energy-stored">
                                 <data value=""></data> <span>stored energy</span>
                             </span>
-                            <data style="color: rgb(200, 0, 0)" class="evil"></data>
+                            <data style="color: rgb(200, 0, 0)" class="evil" value=""></data>
                         </span>
                     </td>
                 </tr>
@@ -410,13 +397,13 @@
                             life.
                             <span style="color: rgb(200, 0, 0)">
                                 Something tells you that the amulet might transform even further after living for <b>2 whole centuries</b>...
-                        </span>
+                            </span>
                         </i>
-                        </br>
+                        <br/>
                         <button class="btn btn-light my-2" onClick="rebirthOne()">
                             Touch the eye
                         </button>
-                        </br>
+                        <br/>
                     </li>
                     <li style="margin: 8px;" id="rebirthNote3">
                         <div style="margin-bottom: 8px;">
@@ -431,40 +418,32 @@
                             If you decide to embrace evil, all of your levels, stored energy and even max levels will be
                             reset.
                             You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
-                            <b><span id="evilGainDisplay"></span> evil</b>, which will heavily impact your future lives.
+                            <b><data id="evilGainDisplay" value=""></data> evil</b>, which will heavily impact your future lives.
                         </i>
-                        </br>
+                        <br/>
                         <button class="btn btn-light my-2" onClick="rebirthTwo()">
                             Embrace evil
                         </button>
-                        </br>
+                        <br/>
                     </li>
                 </ul>
             </div>
 
-            <div id="battleTab" class="tab m-3">
-                <div class="text-strap">Encounter</div>
-                <h2 id="battleName" class="small-margin">Destroyer</h2>
-                <div class="battle-flavor-text medium-margin" id="battleFlavorMessage">The entity known only as the
-                    'Destroyer' has caught up with you.
-                    <br>You are facing a dark mass of writhing tentacles, teeth and eyes that are fixated on the
-                    station.
-                    <br>Slowly, it moves towards you. Brace for impact!
-                </div>
-                <div id="gameOverMessageWin" class="gameOverMessage battle-flavor-text-win" hidden>
+            <div id="battleTab" class="tab m-3 overflow-hidden">
+                <div style="color: gray;">Encounter</div>
+                <h2 id="battleName" class="mb-1">Destroyer</h2>
+                <div id="gameOverMessageWin" class="my-3 p-2 battle-flavor-text win" hidden>
                     Congratulations!<br/>
                     You managed to blast through the Destroyer's near endless defenses. The universe is safe.
                 </div>
-                <div id="gameOverMessageLose" class="gameOverMessage battle-flavor-text-lose" hidden>
+                <div id="gameOverMessageLose" class="my-3 p-2 battle-flavor-text lose" hidden>
                     The Destroyer's power is overwhelming. Your only hope is to engage the Temporus artifact
                     and attempt a time jump. You will lose all of your Modules and Exploration progress, but
                     will progress much faster the next time around.
                 </div>
-                <button id="battleStartButton" class="button medium-margin">
-                    <span class="name">Start Battle</span>
-                </button>
-                <div id="battleProgressBar" class="progress battle progressBar" role="progressbar" hidden
+                <div id="battleProgressBar" class="progress battle progressBar w-100 mt-3" role="progressbar" hidden
                      aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progressBackground progress-background"></div>
                     <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
                     <div class="progress-text name px-2">Battle</div>
                 </div>
@@ -485,13 +464,13 @@
                         </form>
                     </li>
                     <li>
-                        <h2>Import/export save</h2>
+                        <h2><label for="importExportBox">Import/export save</label></h2>
                         <button class="btn btn-light" onClick="importGameData()">Import</button>
                         <button class="btn btn-light" onClick="exportGameData()">Export</button>
                         <form class="mt-3">
-                        <textarea id="importExportBox"
-                                  style="width:100%; resize: vertical; min-height: 73px"
-                                  rows="3"></textarea>
+                            <textarea id="importExportBox"
+                                      style="width:100%; resize: vertical; min-height: 73px"
+                                      rows="3"></textarea>
                         </form>
                     </li>
                     <li>
@@ -566,6 +545,30 @@
             <div class="modal-footer d-flex justify-content-between">
                 <button type="button" id="rerollName" class="btn btn-secondary">Re-roll name</button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Take control</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="deathModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-4 fw-light"><b>The Destroyer</b> found you</h2>
+            </div>
+            <div class="modal-body">
+                <p>
+                    The danger was too high, and now the entity known only as the 'Destroyer' has caught up with you.
+                </p>
+                <p>
+                    You are facing a dark mass of writhing tentacles, teeth and eyes that are fixated on the station.
+                </p>
+                <p>
+                    Slowly, it moves towards you - brace for impact!
+                </p>
+            </div>
+            <div class="modal-footer d-flex justify-content-end">
+                <button type="button" class="btn btn-primary" onclick="startBossBattle();">Fight!</button>
             </div>
         </div>
     </div>

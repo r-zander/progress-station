@@ -46,10 +46,9 @@ const tabButtons = {
     'skills': document.getElementById('skillsTabButton'),
     'shop': document.getElementById('shopTabButton'),
     'rebirth': document.getElementById('rebirthTabButton'),
+    'battle': document.getElementById('battleTabButton'),
     'settings': document.getElementById('settingsTabButton'),
-}
-const gameOverMessageWinElement = document.getElementById('gameOverMessageWin');
-const gameOverMessageLoseElement = document.getElementById('gameOverMessageLose');
+};
 
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
@@ -68,8 +67,8 @@ function applyMultipliers(value, multipliers) {
     return Math.round(value * finalMultiplier);
 }
 
-function applySpeed(value) {
-    return value * getGameSpeed() / updateSpeed;
+function applySpeed(value, ignoreDeath = false) {
+    return value * getGameSpeed(ignoreDeath) / updateSpeed;
 }
 function getPopulation() {
     let population = 0;
@@ -91,10 +90,14 @@ function getEvilGain() {
     return 1;
 }
 
-function getGameSpeed() {
+function getGameSpeed(ignoreDeath = false) {
     //const timeWarping = gameData.taskData['Time warping'];
     //const timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1;
-    return baseGameSpeed * +isPlaying();
+    if (ignoreDeath) {
+        return baseGameSpeed * +!gameData.paused * timeWarpingSpeed;
+    } else {
+        return baseGameSpeed * +isPlaying();
+    }
 }
 
 function getDangerLevel() {
@@ -173,8 +176,8 @@ function setMisc(miscName) {
 
 function setBattle(name) {
     gameData.currentBattle = gameData.battleData[name];
-    const nameTitle = document.getElementById('battleName');
-    nameTitle.textContent = gameData.currentBattle.name;
+    const nameElement = document.getElementById('battleName');
+    nameElement.textContent = gameData.currentBattle.name;
 }
 
 function createData(data, baseData) {
@@ -186,9 +189,7 @@ function createData(data, baseData) {
 
 function createEntity(data, entity) {
     if ('maxLayers' in entity) {
-        const battle = new Battle(entity);
-        battle.init();
-        data[entity.name] = battle;
+        data[entity.name] = new Battle(entity);
     } else if ('energyGeneration' in entity) {
         data[entity.name] = new ModuleOperation(entity);
     } else if ('maxXp' in entity) {
@@ -421,15 +422,32 @@ function updateSkillQuickTaskDisplay() {
 }
 
 function updateBattleTaskDisplay() {
+    /** @type {LayeredTask} */
     const currentTask = gameData.currentBattle;
-    if (currentTask === null || currentTask.isDone()) {
+    if (currentTask === null) return;
+
+    const progressBar = Dom.get().byId(currentTask.baseData.progressBarId);
+    if (currentTask.isDone()) {
+        Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = lastLayerData.color;
+        Dom.get(progressBar).byClass('progressFill').style.width = '0%';
+        Dom.get(progressBar).byClass('name').textContent = currentTask.title + ' defeated!';
         return;
     }
-    const progressBar = document.getElementById('battleProgressBar');
-    const battleNameElement = document.getElementById('battleName');
-    battleNameElement.textContent = currentTask.title;
-    progressBar.getElementsByClassName('name')[0].textContent = currentTask.title + ' layer ' + (currentTask.maxLayers - currentTask.level);
-    setProgress(progressBar.getElementsByClassName('progressFill')[0], 1 - (currentTask.xp / currentTask.getMaxXp()));
+
+    Dom.get().byId('battleName').textContent = currentTask.title;
+    Dom.get(progressBar).byClass('name').textContent = currentTask.baseData.layerLabel + ' ' + (currentTask.maxLayers - currentTask.level);
+
+    const progressBarFill = Dom.get(progressBar).byClass('progressFill');
+    setProgress(progressBarFill, 1 - (currentTask.xp / currentTask.getMaxXp()), false);
+    progressBarFill.style.backgroundColor = layerData[currentTask.level].color;
+
+    if (currentTask.level < currentTask.maxLayers - 1 &&
+        currentTask.level < layerData.length - 1
+    ) {
+        Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = layerData[currentTask.level + 1].color;
+    } else {
+        Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = lastLayerData.color;
+    }
 }
 
 /**
@@ -444,7 +462,7 @@ function setProgress(progressFillElement, progress, increasing = true) {
     // Make sure to disable the transition if the progress is being reset
     const previousProgress = parseFloat(progressFillElement.dataset.progress);
     if ((increasing && (previousProgress - progress) >= 0.01) ||
-        (!increasing && (previousProgress - progress) >= 0.01)
+        (!increasing && (progress - previousProgress) >= 0.01)
     ) {
         progressFillElement.style.transitionDuration = '0s';
     } else {
@@ -651,13 +669,6 @@ function updateText() {
     } else {
         pauseButton.textContent = 'Pause';
         pauseButton.classList.replace('btn-primary', 'btn-secondary');
-    }
-
-    const deathText = document.getElementById('deathText');
-    if (isAlive()) {
-        deathText.classList.add('hidden');
-    } else {
-        deathText.classList.remove('hidden');
     }
 
     updateDangerDisplay();
@@ -921,6 +932,10 @@ function increaseDays() {
 
     gameData.days += increase;
     gameData.totalDays += increase;
+
+    if (gameData.days >= getLifespan()) {
+        GameEvents.Death.trigger();
+    }
 }
 
 /**
@@ -1095,6 +1110,12 @@ function removeSpaces(string) {
     return string.replace(/ /g, '');
 }
 
+function resetBattle(name){
+    const battle = gameData.battleData[name];
+    battle.level = 0;
+    battle.xp = 0;
+}
+
 function rebirthOne() {
     gameData.rebirthOneCount += 1;
 
@@ -1128,6 +1149,13 @@ function rebirthReset() {
         if (task.level > task.maxLevel) task.maxLevel = task.level;
         task.level = 0;
         task.xp = 0;
+    }
+
+    for (let battleName in gameData.battleData) {
+        const battle = gameData.battleData[battleName];
+        if (battle.level > battle.maxLevel) battle.maxLevel = battle.level;
+        battle.level = 0;
+        battle.xp = 0;
     }
 
     for (let key in gameData.requirements) {
@@ -1181,7 +1209,6 @@ function assignMethods() {
         let battle = gameData.battleData[key];
         battle.baseData = battleBaseData[battle.name];
         battle = Object.assign(new Battle(battleBaseData[battle.name]), battle);
-        battle.init();
         gameData.battleData[key] = battle;
     }
 
@@ -1211,8 +1238,7 @@ function assignMethods() {
     gameData.currentSkill = gameData.taskData[gameData.currentSkill.name];
     gameData.currentProperty = gameData.itemData[gameData.currentProperty.name];
     if (gameData.currentBattle !== null) {
-        preparedBattle = gameData.currentBattle.name;
-        startBossBattle();
+        startBattle(gameData.currentBattle.name);
     }
 
     const newArray = [];
@@ -1392,21 +1418,14 @@ function initStationName() {
 function setDefaultCurrentValues() {
     gameData.currentSkill = gameData.taskData['Concentration'];
     gameData.currentProperty = gameData.itemData['Homeless'];
-    gameData.currentMisc = []
+    gameData.currentMisc = [];
 }
 
-let preparedBattle;
-
-function initBattle(name) {
+function initBattle() {
     const gameOverMessageWinElement = document.getElementById('gameOverMessageWin');
     const gameOverMessageLoseElement = document.getElementById('gameOverMessageLose');
-    const battleFlavorMessageElement = document.getElementById('battleFlavorMessage');
     gameOverMessageWinElement.hidden = true;
     gameOverMessageLoseElement.hidden = true;
-    battleFlavorMessageElement.hidden = false;
-
-    preparedBattle = name;
-    document.getElementById('battleStartButton').onclick = startBossBattle;
 
     GameEvents.GameOver.subscribe(function (data) {
         if (data.bossDefeated) {
@@ -1414,20 +1433,13 @@ function initBattle(name) {
         } else {
             gameOverMessageLoseElement.hidden = false;
         }
-        battleFlavorMessageElement.hidden = true;
-
-        const battleStartButton = document.getElementById('battleStartButton');
-        battleStartButton.hidden = true;
     });
 }
 
-function startBossBattle() {
-    setBattle(preparedBattle);
+function startBattle(name) {
+    setBattle(name);
     const progressBar = document.getElementById('battleProgressBar');
     progressBar.hidden = false;
-
-    const battleStartButton = document.getElementById('battleStartButton');
-    battleStartButton.hidden = true;
 }
 
 function initSettings() {

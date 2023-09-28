@@ -135,6 +135,7 @@ const GameEvents = {
         previousLevel: 'number',
         nextLevel: 'number'
     }),
+    Death: new GameEvent(undefined),
     GameOver: new GameEvent({
         bossDefeated: 'boolean',
     }),
