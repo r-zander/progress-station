@@ -12,6 +12,20 @@ function htmlToElement(html) {
     return template.content.firstChild;
 }
 
+
+/**
+ *
+ * @param {{[cssProperty]: function(): string }} styleObject
+ * @return {string}
+ */
+function renderStyle(styleObject){
+    let result = '';
+    for (const [property, valueFn] of Object.entries(styleObject)) {
+        result += property + ': ' + valueFn() + ';';
+    }
+    return result;
+}
+
 /**
  * Note: `visibility: hidden` is considered visible for this function as its still part of the dom & layout.
  *
@@ -148,28 +162,37 @@ ParticleSystem.followProgressBars = function (enabled = true) {
     }, 30);
 };
 
-function onetimeSplash(element, numberOfParticles, fnX, fnY) {
+function onetimeSplash(element, numberOfParticles, styleObject) {
     for (let i = 0; i < numberOfParticles; i++) {
         let particleElement = htmlToElement(`
-<div style="position: absolute; transform: rotate(${-60 + randomInt(120)}deg); top: ${fnY()}px; right: ${fnX()}px; animation: fade-out 600ms ease-in-out;">
-<div class="particle size${randomSize(3)}" style="animation-duration: 600ms, 600ms; opacity: 0.6; scale: 0.5"></div>
+<div style="position: absolute; transform: rotate(${-60 + randomInt(120)}deg); animation: fade-out 600ms ease-in-out; ${renderStyle(styleObject)}">
+    <div class="particle size${randomSize(3)}" style="animation-duration: 600ms, 600ms; opacity: 0.6; scale: 0.5"></div>
 </div>`);
         killAfterAnimation(particleElement);
         element.append(particleElement);
     }
 }
 
-ParticleSystem.onetimeSplash = function (element, numberOfParticles) {
+/**
+ *
+ * @param {HTMLElement} element
+ * @param {number} numberOfParticles
+ * @param {'left'|'right'} direction
+ */
+ParticleSystem.onetimeSplash = function (element, numberOfParticles, direction) {
     let height = element.clientHeight;
     onetimeSplash(
         element,
         numberOfParticles,
-        function () {
-            return 0;
-        },
-        function () {
-            return gaussianRandomInt(0, height);
-        });
+        {
+            top: function () {
+                return gaussianRandomInt(0, height) + 'px';
+            },
+            [direction]: function () {
+                return 0;
+            }
+        }
+    );
 };
 
 
@@ -180,23 +203,23 @@ GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
     // Only show animations if the level went up
     if (taskInfo.previousLevel >= taskInfo.nextLevel) return;
 
-    let numberOfParticles = 10;
+    const numberOfParticles = 100;
+    const direction = taskInfo.type === 'Battle' ? 'left' : 'right';
     let taskProgressBar;
-    if (taskInfo.type === 'Battle'){
+    if (taskInfo.type === 'Battle') {
         taskProgressBar = getBattleElement(taskInfo.name);
-    }
-    else{
+    } else {
         const taskElement = getTaskElement(taskInfo.name);
         taskProgressBar = taskElement.querySelector('.progressBar');
     }
     if (isVisible(taskProgressBar)) {
         // Don't spawn particles on elements that are invisible
-        ParticleSystem.onetimeSplash(taskProgressBar, numberOfParticles);
+        ParticleSystem.onetimeSplash(taskProgressBar, numberOfParticles, direction);
         VFX.flash(taskProgressBar);
     }
     let quickTaskProgressBar = document.querySelector(`.quickTaskDisplay .${taskInfo.type}.progressBar`);
     if (quickTaskProgressBar === null) return;
-    ParticleSystem.onetimeSplash(quickTaskProgressBar, numberOfParticles);
+    ParticleSystem.onetimeSplash(quickTaskProgressBar, numberOfParticles, direction);
     VFX.flash(quickTaskProgressBar);
 });
 

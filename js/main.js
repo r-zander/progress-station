@@ -421,12 +421,12 @@ function updateSkillQuickTaskDisplay() {
     setProgress(progressBar.getElementsByClassName('progressFill')[0], currentTask.xp / currentTask.getMaxXp());
 }
 
-function updateBattleTaskDisplay() {
-    /** @type {LayeredTask} */
-    const currentTask = gameData.currentBattle;
-    if (currentTask === null) return;
-
-    const progressBar = Dom.get().byId(currentTask.baseData.progressBarId);
+/**
+ *
+ * @param {LayeredTask} currentTask
+ * @param {HTMLElement} progressBar
+ */
+function setBattleProgress(currentTask, progressBar) {
     if (currentTask.isDone()) {
         Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = lastLayerData.color;
         Dom.get(progressBar).byClass('progressFill').style.width = '0%';
@@ -448,6 +448,23 @@ function updateBattleTaskDisplay() {
     } else {
         Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = lastLayerData.color;
     }
+}
+
+function updateBattleQuickTaskDisplay() {
+    const currentTask = gameData.currentBattle;
+    if (currentTask === null) return;
+
+    const progressBar = document.querySelector(`.quickTaskDisplay .battle`);
+    setBattleProgress(currentTask, progressBar);
+}
+
+function updateBattleTaskDisplay() {
+    /** @type {LayeredTask} */
+    const currentTask = gameData.currentBattle;
+    if (currentTask === null) return;
+
+    const progressBar = Dom.get().byId(currentTask.baseData.progressBarId);
+    setBattleProgress(currentTask, progressBar);
 }
 
 /**
@@ -1329,6 +1346,7 @@ function updateUI() {
     //TODO: does not work for several jobs
     //updateQuickTaskDisplay('job');
     updateSkillQuickTaskDisplay();
+    updateBattleQuickTaskDisplay();
     updateBattleTaskDisplay();
     hideEntities();
     updateText();
