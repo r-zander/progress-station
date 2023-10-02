@@ -34,7 +34,7 @@ class Task {
         return Math.round(this.getMaxXp() - this.xp);
     }
 
-    pushDefaultMultipliers(){
+    collectEffects(){
         this.xpMultipliers.push(this.getMaxLevelMultiplier.bind(this));
 
         //this.populationEffectMethods.push(getBoundTaskEffect('Dark influence'));
@@ -110,8 +110,8 @@ class Job extends Task {
         this.energyGenerationMultipliers = [];
     }
 
-    pushDefaultMultipliers(){
-        super.pushDefaultMultipliers();
+    collectEffects(){
+        super.collectEffects();
         this.energyGenerationMultipliers.push(this.getLevelMultiplier.bind(this));
         //this.energyGenerationMultipliers.push(getBoundTaskEffect('Demon\'s wealth'));
         //this.xpMultipliers.push(getBoundTaskEffect('Productivity'));
@@ -140,8 +140,8 @@ class Skill extends Task {
         super(baseData);
     }
 
-    pushDefaultMultipliers() {
-        super.pushDefaultMultipliers();
+    collectEffects() {
+        super.collectEffects();
         //this.xpMultipliers.push(getBoundTaskEffect('Concentration'));
         //this.xpMultipliers.push(getBoundItemEffect('Book'));
         //this.xpMultipliers.push(getBoundItemEffect('Study desk'));
@@ -156,7 +156,7 @@ class Item {
         this.expenseMultipliers = [];
     }
 
-    pushDefaultMultipliers(){
+    collectEffects(){
         //this.expenseMultipliers.push(getBoundTaskEffect('Bargaining'));
         //this.expenseMultipliers.push(getBoundTaskEffect('Intimidation'));
     }

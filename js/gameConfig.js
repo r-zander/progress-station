@@ -264,13 +264,13 @@ function addMultipliers() {
             task.energyGenerationMultipliers = [];
         }
 
-        task.pushDefaultMultipliers();
+        task.collectEffects();
     }
 
     for (let itemName in gameData.itemData) {
         const item = gameData.itemData[itemName];
         item.expenseMultipliers = [];
-        item.pushDefaultMultipliers();
+        item.collectEffects();
     }
 }
 
