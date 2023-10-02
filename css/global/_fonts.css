@@ -62,11 +62,3 @@
     font-style: normal;
     font-display: swap;
 }
-
-:root {
-    --body-font-family: 'Exo 2', var(--bs-font-sans-serif);
-    --title-font-family: 'Syndra', var(--bs-font-sans-serif);
-    --number-font-family: 'Typori', monospace;
-    --number-font-size: 1.125rem;
-    --number-font-weight: 400;
-}

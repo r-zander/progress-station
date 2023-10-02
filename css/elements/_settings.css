@@ -16,3 +16,8 @@ label.background {
 label.background + label.background {
     margin-top: 1rem;
 }
+
+#importExportBox {
+    resize: vertical;
+    min-height: 78px;
+}

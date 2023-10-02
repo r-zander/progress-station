@@ -9,13 +9,18 @@
 
 #main {
     max-width: 1400px;
+    opacity: 0;
 
     transition: opacity 500ms ease-in-out;
+
+    &.ready {
+        opacity: 1;
+    }
 }
 
 #content {
     position: relative;
-    max-width: 900px;
+    max-width: var(--content-width);
     box-shadow: inset 9px 0 5px -4px orange;
 }
 
@@ -31,9 +36,25 @@
     min-height: 100%;
 }
 
+.primary-stat {
+    font-size: large;
+}
+
+.secondary-stat {
+    font-size: 100%;
+}
+
+:is(.primary-stat, .secondary-stat) > data {
+    font-size: 1em;
+}
+
 .label {
     font-family: var(--title-font-family);
     font-weight: 300;
+}
+
+.help-text {
+    color: rgb(128, 128, 128);
 }
 
 data[data-unit]::after {

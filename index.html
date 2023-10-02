@@ -23,17 +23,16 @@
 </section>
 
 <h1 id="gameTitle" class="panel p-2">Progress Station</h1>
-<main id="main" class="d-flex flex-column" style="opacity: 0;">
-    <header class="panel mb-3 px-3 py-2 d-flex flex-column"
-            style="margin-left: max(0px, (100% - 900px - 360px) / 2)">
+<main id="main" class="d-flex flex-column">
+    <header id="stationOverview" class="panel my-3 px-3 py-2 d-flex flex-column">
         <div class="d-flex flex-row gap-3 align-items-start">
             <h2 id="nameDisplay" class="m-0 flex-fill">USS Progress</h2>
-            <div class="" style="font-size: large">
+            <div class="primary-stat">
                 <span class="label">Intergalactic cycles:</span>
                 <data id="ageDisplay" value="14">14</data>
                 <data id="dayDisplay" value="0">0</data>
             </div>
-            <div style="color: gray">
+            <div class="secondary-stat help-text">
                 <span class="label">Station age:</span>
                 <data id="stationAge" value="70">70</data>
                 <data value="">kIC</data>
@@ -71,30 +70,30 @@
             </div>
         </div>
         <div class="d-flex flex-row gap-3 justify-content-around">
-            <div class="" style="font-size: large">
+            <div class="primary-stat">
                 <span class="label">Danger:</span>
                 <data id="dangerLevel" style="color: orange" value="0.542">54.2%</data>
             </div>
             <div class="d-flex flex-row gap-3 align-items-center">
-                <div style="font-size: large">
+                <div class="primary-stat">
                     <span class="label" style="color: rgb(15, 105, 207)">Population:</span>
                     <data id="happinessDisplay" value="1">1</data>
                 </div>
-                <div style="color: gray">Affects all work speed</div>
+                <div class="help-text">Affects all work speed</div>
             </div>
             <div id="evilInfo" class="d-flex flex-row gap-3 align-items-center">
-                <div style="font-size: large">
+                <div class="primary-stat">
                     <span class="label" style="color: rgb(200, 0, 0)">Evil:</span>
                     <data id="evilDisplay" value="1">1</data>
                 </div>
-                <div style="color: gray">
+                <div class="help-text">
                     Affects dark magic xp gain
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="d-flex align-content-start" style="max-height: calc(100vh - 176px)">
+    <div class="d-flex align-content-start" style="max-height: calc(100vh - 192px)">
         <aside id="sidebar" class="mh-100 overflow-x-hidden overflow-y-auto mb-3">
             <div id="actions" class="panel d-flex flex-column p-3">
                 <div class="d-flex flex-row gap-3">
@@ -126,11 +125,11 @@
                     </div>
                 </div>
                 <div class="mt-2">
-                    <div style="font-size: large">
+                    <div class="primary-stat">
                         <span class="label" style="color: rgb(204, 34, 219)">Time warping: </span>
                         <data id="timeWarpingDisplay" value="1">1.00</data>
                     </div>
-                    <div style="color: gray">Affects game speed</div>
+                    <div class="help-text">Affects game speed</div>
                 </div>
             </div>
             <nav class="mt-3 d-flex flex-column gap-3">
@@ -141,8 +140,7 @@
                     <div class="quickTaskDisplay mt-2">
                         <div class="progress job progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
                              aria-valuemin="0" aria-valuemax="100">
-                            <div class="progressFill current progress-bar progress-bar-striped"
-                                 style="width: 0"></div>
+                            <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
                             <div class="progress-text name px-2">Task</div>
                         </div>
                     </div>
@@ -155,8 +153,7 @@
                         <div class="progress skill progressBar" role="progressbar" aria-label="Task"
                              aria-valuenow="0"
                              aria-valuemin="0" aria-valuemax="100">
-                            <div class="progressFill current progress-bar progress-bar-striped"
-                                 style="width: 0"></div>
+                            <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
                             <div class="progress-text name px-2">Task</div>
                         </div>
                     </div>
@@ -178,8 +175,7 @@
                              aria-valuenow="0"
                              aria-valuemin="0" aria-valuemax="100">
                             <div class="progressBackground progress-background"></div>
-                            <div class="progressFill current progress-bar progress-bar-striped"
-                                 style="width: 0"></div>
+                            <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
                             <div class="progress-text name px-2">Task</div>
                         </div>
                     </div>
@@ -212,7 +208,7 @@
                 <div class="level2 ps-3 mt-2">
                     <div class="level2-header bg-light text-dark d-flex justify-content-start align-items-center px-2"
                          style="padding-top: 5px; padding-bottom: 5px;">
-                        <div style="width: 19.5rem">
+                        <div>
                             <div class="progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
                                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
                                  data-bs-placement="right">
@@ -332,7 +328,7 @@
 
             <template id="level4RequiredTemplate">
                 <tr>
-                    <td class="requirements" style="padding-left: 16px; color: gray" colspan="100%">
+                    <td class="requirements help-text ps-3" colspan="100%">
                         Required:
                         <span class="value">
                             <span class="levels"></span>
@@ -359,68 +355,64 @@
 
             <div id="rebirth" class="tab p-3">
                 <ul>
-                    <li style="margin: 8px;">
+                    <li>
                         You stumble across a strange looking amulet on your 25th birthday. It does not look like
                         it has any worth on the market given that it's made from cheap-looking copper. However, you
                         feel a weird urge to keep the amulet, so you slip it into your pocket for safekeeping.
                     </li>
-                    <li style="margin: 8px;" id="rebirthNote1">
+                    <li class="mt-2" id="rebirthNote1">
                         On your 45th birthday, you feel the amulet shiver uncontrollably in your pocket. You take it
                         out and the constant shivering suddenly stops. More to your bizarre surprise, you notice
                         a strange etching on the centre of the amulet.
                     </li>
-                    <li style="margin: 8px;" id="rebirthNote2">
-                        <div style="margin-bottom: 8px">
+                    <li class="mt-2" id="rebirthNote2">
+                        <p>
                             On your 65th birthday, you once again encounter the strange, unexplained shivering from your
                             amulet. But this time, a living eyeball emerges from the centre. Although terribly
                             frightened,
                             you realise you do not have many years to live left anyway, so you consider touching the eye
                             to see what happens.
-                        </div>
-                        <i style="color: grey">
+                        </p>
+                        <p class="mt-2 help-text">
                             By touching the eyeball, you will be reborn and have to restart life again, losing all your
                             levels and stored energy.
-                            However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to: <b>1 +
-                            the
-                            max level of the skill or job / 10.</b>
+                            However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to:
+                            <b>1 + the max level of the skill or job / 10.</b>
                             This means you will learn everything again much more quickly than you did in your previous
                             life.
-                            <span style="color: rgb(200, 0, 0)">
-                                Something tells you that the amulet might transform even further after living for <b>2 whole centuries</b>...
-                            </span>
-                        </i>
-                        <br/>
-                        <button class="btn btn-light my-2" onClick="rebirthOne();">
+                        </p>
+                        <p style="color: rgb(200, 0, 0)">
+                            Something tells you that the amulet might transform even
+                            further after living for <b>2 whole centuries</b>&hellip;
+                        </p>
+                        <button class="btn btn-light mt-3" onClick="rebirthOne();">
                             Touch the eye
                         </button>
-                        <br/>
                     </li>
-                    <li style="margin: 8px;" id="rebirthNote3">
-                        <div style="margin-bottom: 8px;">
+                    <li class="mt-2" id="rebirthNote3">
+                        <p>
                             Your gut instinct was right. The moment you hit the grand age of 200, you hear an ominous
                             hum
                             coming from the amulet.
                             A mouth emerges from its surface and begins to cackle, and proceeds to say: "So you've made
                             it
                             this far... Are you ready to embrace evil?"
-                        </div>
-                        <i style="color: rgb(200, 0, 0)">
-                            If you decide to embrace evil, all of your levels, stored energy and even max levels will be
-                            reset.
-                            You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
-                            <b><data id="evilGainDisplay" value=""></data> evil</b>, which will heavily impact your future lives.
-                        </i>
-                        <br/>
-                        <button class="btn btn-light my-2" onClick="rebirthTwo();">
+                        </p>
+                        <p class="mt-2" style="color: rgb(200, 0, 0)">
+                                If you decide to embrace evil, all of your levels, stored energy and even max levels will be
+                                reset.
+                                You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
+                                <b><data id="evilGainDisplay" value=""></data> evil</b>, which will heavily impact your future lives.
+                        </p>
+                        <button class="btn btn-light mt-3" onClick="rebirthTwo();">
                             Embrace evil
                         </button>
-                        <br/>
                     </li>
                 </ul>
             </div>
 
             <div id="battleTab" class="tab p-3 overflow-hidden">
-                <div style="color: gray;">Encounter</div>
+                <p class="help-text">Encounter</p>
                 <h2 id="battleName" class="mb-1">Destroyer</h2>
                 <div id="gameOverMessageWin" class="my-3 p-2 battle-flavor-text win" hidden>
                     Congratulations!<br/>
@@ -448,7 +440,6 @@
                             <input type="text"
                                    id="settingsStationNameInput"
                                    class="stationNameInput w-100"
-                                   style="width:100%"
                                    maxlength="30"
                                    placeholder=""/>
                         </form>
@@ -458,9 +449,7 @@
                         <button class="btn btn-light" onClick="importGameData();">Import</button>
                         <button class="btn btn-light" onClick="exportGameData();">Export</button>
                         <form class="mt-3">
-                            <textarea id="importExportBox"
-                                      style="width:100%; resize: vertical; min-height: 73px"
-                                      rows="3"></textarea>
+                            <textarea id="importExportBox" class="w-100" rows="3"></textarea>
                         </form>
                     </li>
                     <li>

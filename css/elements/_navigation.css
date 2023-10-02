@@ -1,5 +1,5 @@
 #sidebar {
-    width: 360px;
+    width: var(--sidebar-width);
     /*overflow: auto;*/
     display: flex;
     flex-direction: column;

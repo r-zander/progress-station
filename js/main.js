@@ -1476,7 +1476,7 @@ function initSettings() {
 }
 
 function displayLoaded() {
-    document.getElementById('main').style.opacity = '1.0';
+    document.getElementById('main').classList.add('ready');
 }
 
 function init() {
