@@ -1,0 +1,38 @@
+.modal-backdrop {
+    backdrop-filter: blur(0px);
+    background-color: transparent;
+}
+
+.modal-backdrop.fade {
+    transition: all 150ms linear;
+    transition-property: backdrop-filter, background-color;
+}
+
+.modal-backdrop.show {
+    opacity: 1;
+    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-body > p {
+    margin-bottom: 0.5rem;
+}
+
+.modal-body > .stationNameInput {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    text-align: center;
+    font-family: var(--title-font-family);
+    font-weight: 200;
+    animation: flash-background 1000ms ease-in-out infinite alternate;
+}
+
+@keyframes flash-background {
+    from {
+        background-color: rgba(255,255,255,0.0);
+    }
+    to {
+        background-color: rgba(255,255,255,0.1);
+    }
+}

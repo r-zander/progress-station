@@ -1,0 +1,57 @@
+#sidebar {
+    width: 360px;
+    /*overflow: auto;*/
+    display: flex;
+    flex-direction: column;
+    margin-right: 1rem; /* me-3 */
+}
+
+@media (min-width: 1296px) {
+    #sidebar {
+        margin-right: auto;
+        margin-left: auto;
+    }
+}
+
+.tabButton {
+    border: none;
+    position: relative;
+}
+
+.tabButton:hover,
+.tabButton:focus {
+    box-shadow: inset 0 0 5px 4px grey;
+}
+
+.tabButton:active {
+    box-shadow: inset 0 0 10px 4px grey;
+}
+
+.tabButton.active {
+    box-shadow: inset 0 0 5px 4px orange;
+}
+
+/* FIXME hidden right now due to scrolling */
+.tabButton::after {
+    content: "";
+    position: absolute;
+    top: calc(50% - 2px);
+    left: 100%;
+    width: 70px;
+    height: 2px;
+    background-color: orange;
+
+    box-shadow: 0 0 5px 2px orange;
+
+    display: none;
+}
+
+.tabButton.active::after {
+    display: block;
+}
+
+.tabButton > h3 {
+    font-size: var(--bs-body-font-size);
+    font-weight: 400;
+    margin: 0;
+}

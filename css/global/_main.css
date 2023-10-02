@@ -1,0 +1,87 @@
+#gameTitle {
+    position: fixed;
+    right: 0;
+    top: 25%;
+    rotate: 270deg;
+    transform-origin: right bottom;
+    transform: translateX(50%);
+}
+
+#main {
+    max-width: 1400px;
+
+    transition: opacity 500ms ease-in-out;
+}
+
+#content {
+    position: relative;
+    max-width: 900px;
+    box-shadow: inset 9px 0 5px -4px orange;
+}
+
+#content .progress {
+    cursor: pointer;
+}
+
+.panel {
+    background-color: var(--panel-bg-color);
+}
+
+.tab {
+    min-height: 100%;
+}
+
+.label {
+    font-family: var(--title-font-family);
+    font-weight: 300;
+}
+
+data[data-unit]::after {
+    content: attr(data-unit);
+    font-family: var(--body-font-family);
+    font-size: var(--bs-body-font-size);
+    font-weight: var(--bs-body-font-weight);
+}
+
+.hidden {
+    display: none !important;
+}
+
+.hiddenTask {
+    display: none !important;
+}
+
+.btn {
+    font-family: var(--title-font-family);
+    font-weight: 300;
+    border-radius: 0;
+}
+
+.item-button {
+    background-color: white;
+    text-align: center;
+    width: 200px;
+    height: 40px;
+    padding: 8px;
+}
+
+.item-button:hover {
+    cursor: pointer;
+    background-color: rgb(192, 192, 192);
+}
+
+.radio {
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    padding: 7px;
+}
+
+.radio > div {
+    width: 24px;
+    height: 24px;
+}
+
+.position-sticky {
+    background: inherit;
+}

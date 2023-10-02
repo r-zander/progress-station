@@ -10,16 +10,11 @@
 
     <link rel="stylesheet" type="text/css" href="vendor/bootstrap-5.3.1/bootstrap.min.css">
 
-    <link rel="stylesheet" type="text/css" href="css/styles.css">
-    <link rel="stylesheet" type="text/css" href="css/dark.css">
-    <link rel="stylesheet" type="text/css" href="css/adjustments.css">
-    <link rel="stylesheet" type="text/css" href="css/vfx.css">
-    <link rel="stylesheet" type="text/css" href="css/sci-fi.css">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
     <title>Progress Station</title>
 </head>
 <body id="body" class="sci-fi background-space">
 <section id="star-background" class="stars-active">
-    <!--        TODO max-width: 2000 & centered -->
     <div class="stars" id="stars1"></div>
     <div class="stars" id="stars2"></div>
     <div class="stars" id="stars3"></div>
@@ -32,7 +27,7 @@
     <div id="main-planet-overlay"></div>
 </section>
 
-<h1 class="panel p-2">Progress Station</h1>
+<h1 id="gameTitle" class="panel p-2">Progress Station</h1>
 <main id="main" class="d-flex flex-column" style="opacity: 0;">
     <header class="panel mb-3 px-3 py-2 d-flex flex-column"
             style="margin-left: max(0px, (100% - 900px - 360px) / 2)">
@@ -109,14 +104,15 @@
             <div id="actions" class="panel d-flex flex-column p-3">
                 <div class="d-flex flex-row gap-3">
                     <div class="flex-fill">
-                        <button class="btn btn-secondary btn-lg w-100" id="pauseButton" onClick="setPause()">
+                        <button class="btn btn-secondary btn-lg w-100" id="pauseButton" onClick="setPause();">
                             Pause
                         </button>
 
                         <div id="timeWarping" class="mt-3">
                             <div>
-                                <button id="timeWarpingButton" class="btn btn-light w-100"
-                                        onClick="setTimeWarping()">
+                                <button id="timeWarpingButton"
+                                        class="btn btn-light w-100"
+                                        onClick="setTimeWarping();">
                                     Enable warp
                                 </button>
                             </div>
@@ -143,7 +139,7 @@
                 </div>
             </div>
             <nav class="mt-3 d-flex flex-column gap-3">
-                <button id="jobsTabButton" class="tabButton p-3" onClick="setTab(this, 'jobs')">
+                <button id="jobsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'jobs');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Modules</h3>
                     <!--suppress HtmlUnknownTag -->
@@ -156,7 +152,7 @@
                         </div>
                     </div>
                 </button>
-                <button id="skillsTabButton" class="tabButton p-3" onClick="setTab(this, 'skills')">
+                <button id="skillsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'skills');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Research</h3>
                     <!--suppress HtmlUnknownTag -->
@@ -170,19 +166,18 @@
                         </div>
                     </div>
                 </button>
-                <button id="shopTabButton" class="tabButton p-3" onClick="setTab(this, 'shop')">
+                <button id="shopTabButton" class="tabButton panel p-3" onClick="setTab(this, 'shop');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Sectors</h3>
                 </button>
-                <button id="rebirthTabButton" class="tabButton p-3" onClick="setTab(this, 'rebirth')">
+                <button id="rebirthTabButton" class="tabButton panel p-3" onClick="setTab(this, 'rebirth');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Captain's Log</h3>
                 </button>
-                <button id="battleTabButton" class="tabButton p-3 hidden" onClick="setTab(this, 'battleTab')">
+                <button id="battleTabButton" class="tabButton panel p-3 hidden" onClick="setTab(this, 'battleTab');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Boss Battle</h3>
                     <!--suppress HtmlUnknownTag -->
-                    <!-- TODO -->
                     <div class="quickTaskDisplay mt-2">
                         <div class="progress battle progressBar" role="progressbar" aria-label="Task"
                              aria-valuenow="0"
@@ -194,7 +189,7 @@
                         </div>
                     </div>
                 </button>
-                <button id="settingsTabButton" class="tabButton p-3" onClick="setTab(this, 'settings')">
+                <button id="settingsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'settings');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Settings</h3>
                 </button>
@@ -384,7 +379,7 @@
                             On your 65th birthday, you once again encounter the strange, unexplained shivering from your
                             amulet. But this time, a living eyeball emerges from the centre. Although terribly
                             frightened,
-                            you realise you do not have many years to live left anyway so you consider touching the eye
+                            you realise you do not have many years to live left anyway, so you consider touching the eye
                             to see what happens.
                         </div>
                         <i style="color: grey">
@@ -400,7 +395,7 @@
                             </span>
                         </i>
                         <br/>
-                        <button class="btn btn-light my-2" onClick="rebirthOne()">
+                        <button class="btn btn-light my-2" onClick="rebirthOne();">
                             Touch the eye
                         </button>
                         <br/>
@@ -421,7 +416,7 @@
                             <b><data id="evilGainDisplay" value=""></data> evil</b>, which will heavily impact your future lives.
                         </i>
                         <br/>
-                        <button class="btn btn-light my-2" onClick="rebirthTwo()">
+                        <button class="btn btn-light my-2" onClick="rebirthTwo();">
                             Embrace evil
                         </button>
                         <br/>
@@ -453,7 +448,7 @@
                 <ul>
                     <li>
                         <h2><label for="settingsStationNameInput">Station Name</label></h2>
-                        <button class="btn btn-light" onClick="rerollStationName()">Re-roll</button>
+                        <button class="btn btn-light" onClick="rerollStationName();">Re-roll</button>
                         <form class="mt-3">
                             <input type="text"
                                    id="settingsStationNameInput"
@@ -465,8 +460,8 @@
                     </li>
                     <li>
                         <h2><label for="importExportBox">Import/export save</label></h2>
-                        <button class="btn btn-light" onClick="importGameData()">Import</button>
-                        <button class="btn btn-light" onClick="exportGameData()">Export</button>
+                        <button class="btn btn-light" onClick="importGameData();">Import</button>
+                        <button class="btn btn-light" onClick="exportGameData();">Export</button>
                         <form class="mt-3">
                             <textarea id="importExportBox"
                                       style="width:100%; resize: vertical; min-height: 73px"
@@ -475,28 +470,28 @@
                     </li>
                     <li>
                         <h2>Light/dark mode</h2>
-                        <button class="btn btn-light" onClick="toggleLightDarkMode()">Toggle</button>
+                        <button class="btn btn-light" onClick="toggleLightDarkMode();">Toggle</button>
                     </li>
                     <li>
                         <h2 class="unstable">Sci-fi mode</h2>
-                        <button class="btn btn-light" onClick="toggleSciFiMode()">Toggle</button>
+                        <button class="btn btn-light" onClick="toggleSciFiMode();">Toggle</button>
                     </li>
                     <li>
                         <h2 class="unstable">Background</h2>
                         <label class="background background-simple">
-                            <input type="radio" name="background" onClick="setBackground('simple')"/>
+                            <input type="radio" name="background" onClick="setBackground('simple');"/>
                             Simple Color
                         </label>
                         <label class="background background-triangles1">
-                            <input type="radio" name="background" onClick="setBackground('triangles1')"/>
+                            <input type="radio" name="background" onClick="setBackground('triangles1');"/>
                             Trianglify
                         </label>
                         <label class="background background-space">
-                            <input type="radio" name="background" onClick="setBackground('space')"/>
+                            <input type="radio" name="background" onClick="setBackground('space');"/>
                             Space
                         </label>
                         <label class="background background-hexagons">
-                            <input type="radio" name="background" onClick="setBackground('hexagons')"/>
+                            <input type="radio" name="background" onClick="setBackground('hexagons');"/>
                             Bestagons
                         </label>
                     </li>
@@ -509,7 +504,7 @@
                     </li>
                     <li>
                         <h2>Hard reset game</h2>
-                        <button class="btn btn-danger" onClick="resetGameData()">Reset</button>
+                        <button class="btn btn-danger" onClick="resetGameData();">Reset</button>
                     </li>
                 </ul>
             </div>

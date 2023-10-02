@@ -1,0 +1,15 @@
+.battle-flavor-text {
+    color: antiquewhite;
+    border: 2px solid;
+
+    &.win {
+        color: lightcyan;
+        border-color: cyan;
+    }
+
+    &.lose {
+        color: lightcoral;
+        border-color: darkred;
+    }
+}
+

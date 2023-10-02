@@ -203,7 +203,7 @@ GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
     // Only show animations if the level went up
     if (taskInfo.previousLevel >= taskInfo.nextLevel) return;
 
-    const numberOfParticles = 100;
+    const numberOfParticles = 10;
     const direction = taskInfo.type === 'Battle' ? 'left' : 'right';
     let taskProgressBar;
     if (taskInfo.type === 'Battle') {

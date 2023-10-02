@@ -1,0 +1,57 @@
+@font-face {
+    font-family: 'Syndra';
+    src: local('Syndra Extra Light'), local('Syndra-ExtraLight'),
+    url('../../fonts/Syndra-ExtraLight.woff2') format('woff2'),
+    url('../../fonts/Syndra-ExtraLight.woff') format('woff');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Syndra';
+    src: local('Syndra Light'), local('Syndra-Light'),
+    url('../../fonts/Syndra-Light.woff2') format('woff2'),
+    url('../../fonts/Syndra-Light.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Syndra';
+    src: local('Syndra Regular'), local('Syndra-Regular'),
+    url('../../fonts/Syndra-Regular.woff2') format('woff2'),
+    url('../../fonts/Syndra-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Syndra';
+    src: local('Syndra Bold'), local('Syndra-Bold'),
+    url('../../fonts/Syndra-Bold.woff2') format('woff2'),
+    url('../../fonts/Syndra-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Typori';
+    src: local('Typori Regular'), local('Typori-Regular'),
+    url('../../fonts/Typori-Regular.woff2') format('woff2'),
+    url('../../fonts/Typori-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --body-font-family: 'Exo 2', var(--bs-font-sans-serif);
+    --title-font-family: 'Syndra', var(--bs-font-sans-serif);
+    --number-font-family: 'Typori', monospace;
+    --number-font-size: 1.125rem;
+    --number-font-weight: 400;
+}
