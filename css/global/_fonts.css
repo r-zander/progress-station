@@ -39,6 +39,21 @@
 }
 
 @font-face {
+    font-display: swap;
+    font-family: 'Exo 2';
+    font-style: normal;
+    font-weight: 200;
+    src: url('../../fonts/exo-2-v21-latin-200.woff2') format('woff2');
+}
+@font-face {
+    font-display: swap;
+    font-family: 'Exo 2';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../../fonts/exo-2-v21-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
     font-family: 'Typori';
     src: local('Typori Regular'), local('Typori-Regular'),
     url('../../fonts/Typori-Regular.woff2') format('woff2'),

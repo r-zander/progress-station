@@ -1,3 +1,5 @@
+@import url(../vendor/bootstrap-5.3.1/bootstrap.css);
+
 @import url(global/_variables.css);
 @import url(global/_fonts.css);
 @import url(global/_html-tags.css);
