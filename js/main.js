@@ -207,7 +207,7 @@ function createRequiredRow(categoryName) {
     return requiredRow;
 }
 
-function createLevel4Elements(categoryName, module, level4Slot, domId) {
+function createModuleLevel4Elements(categoryName, module, level4Slot, domId) {
     const level4Elements = [];
     const operations = module.operations;
 
@@ -235,7 +235,6 @@ function createLevel4Elements(categoryName, module, level4Slot, domId) {
                 setFunction(mode.name);
             };
         } else {
-            //level4DomGetter.byClass('progressBar').onclick = mode.toggleEnabled.bind(mode);
             level4DomGetter.byClass('progressBar').onclick = function () {
                 module.setActiveMode(mode);
             }
@@ -248,7 +247,7 @@ function createLevel4Elements(categoryName, module, level4Slot, domId) {
     level4Slot.append(...level4Elements);
 }
 
-function createLevel3Elements(categoryName, module, level3Slot, domId) {
+function createModuleLevel3Elements(categoryName, module, level3Slot, domId) {
     const level3Elements = [];
 
     for (let comp of module.components) {
@@ -265,7 +264,7 @@ function createLevel3Elements(categoryName, module, level3Slot, domId) {
         level3DomGetter.byClass('valueType').textContent = 'Effect';
 
         const level4Slot = level3DomGetter.byClass('level4');
-        createLevel4Elements(categoryName, comp, level4Slot, domId);
+        createModuleLevel4Elements(categoryName, comp, level4Slot, domId);
 
         level3Elements.push(level3Element);
     }
@@ -273,7 +272,7 @@ function createLevel3Elements(categoryName, module, level3Slot, domId) {
     level3Slot.replaceWith(...level3Elements);
 }
 
-function createLevel2Elements(categoryName, category, level2Slot, domId) {
+function createModuleLevel2Elements(categoryName, category, level2Slot, domId) {
     const level2Elements = [];
 
     for (let module of category) {
@@ -287,7 +286,7 @@ function createLevel2Elements(categoryName, category, level2Slot, domId) {
         toggle.addEventListener('click', module.onToggleButton.bind(module));
 
         const level3Slot = level2DomGetter.byId('level3');
-        createLevel3Elements(categoryName, module, level3Slot, domId);
+        createModuleLevel3Elements(categoryName, module, level3Slot, domId);
 
         level2Elements.push(level2Element);
     }
@@ -312,7 +311,13 @@ function createNestedRows(categoryDefinition, domId) {
         level1DomGetter.byClass('level1-header').style.backgroundColor = headerRowColors[categoryName];
 
         const level2Slot = level1DomGetter.byId('level2');
-        createLevel2Elements(categoryName, category, level2Slot, domId);
+
+        if (categoryDefinition === moduleCategories){
+            createModuleLevel2Elements(categoryName, category, level2Slot, domId);
+        }
+        else{
+            createLevel2Rows(categoryName, category, level2Slot, domId);
+        }
     }
 
     slot.replaceWith(...level1Elements);
@@ -321,95 +326,78 @@ function createNestedRows(categoryDefinition, domId) {
 //// TODO: Remove obsolete func with 2-layered UI
 /**
  *
- * @param categoryDefinition
+ * @param categoryName
+ * @param category
+ * @param level2Slot
  * @param {string} domId
  */
-function createAllRows(categoryDefinition, domId) {
-    const slot = Dom.get().byId(domId);
+function createLevel2Rows(categoryName, category, level2Slot, domId) {
+    const level2Element = Dom.new.fromTemplate('level2Template');
+    const level2DomGetter = Dom.get(level2Element);
+    level2DomGetter.byClass('name').textContent = 'Module name';
+    level2DomGetter.byClass('level').textContent = '0';
+    level2Slot.replaceWith(level2Element);
 
-    const level1Elements = [];
-    for (let categoryName in categoryDefinition) {
-        const level1Element = Dom.new.fromTemplate('level1Template');
-        level1Elements.push(level1Element);
+    const level3Slot = level2DomGetter.byId('level3');
+    let level3Element;
+    if (domId === 'itemTable') {
+        level3Element = Dom.new.fromTemplate('level3ItemTemplate');
+    } else {
+        level3Element = Dom.new.fromTemplate('level3TaskTemplate');
+    }
+    const level3DomGetter = Dom.get(level3Element);
+    level3DomGetter.byClass('name').textContent = 'Component name';
+    if (domId === 'jobTable') {
+        level3DomGetter.byClass('valueType').textContent = 'Generated/cycle';
+    } else if (domId === 'skillTable') {
+        level3DomGetter.byClass('valueType').textContent = 'Effect';
+    }
+    level3Slot.replaceWith(level3Element);
 
-        level1Element.classList.add(removeSpaces(categoryName));
-        const level1DomGetter = Dom.get(level1Element);
-        level1DomGetter.byClass('category').textContent = categoryName;
-        level1DomGetter.byClass('value').textContent = '';
-        level1DomGetter.byClass('level1-header')
-            .style.backgroundColor = headerRowColors[categoryName];
-
-        const level2Slot = level1DomGetter.byId('level2');
-        const level2Element = Dom.new.fromTemplate('level2Template');
-        const level2DomGetter = Dom.get(level2Element);
-        level2DomGetter.byClass('name').textContent = 'Module name';
-        level2DomGetter.byClass('level').textContent = '0';
-        level2Slot.replaceWith(level2Element);
-
-        const level3Slot = level2DomGetter.byId('level3');
-        let level3Element;
+    /** @type {HTMLElement} */
+    const level4Slot = level3DomGetter.byClass('level4');
+    const level4Elements = [];
+    category.forEach(function (entry) {
+        let level4Element;
         if (domId === 'itemTable') {
-            level3Element = Dom.new.fromTemplate('level3ItemTemplate');
+            level4Element = Dom.new.fromTemplate('level4ItemTemplate');
         } else {
-            level3Element = Dom.new.fromTemplate('level3TaskTemplate');
+            level4Element = Dom.new.fromTemplate('level4TaskTemplate');
         }
-        const level3DomGetter = Dom.get(level3Element);
-        level3DomGetter.byClass('name').textContent = 'Component name';
-        if (domId === 'jobTable') {
-            level3DomGetter.byClass('valueType').textContent = 'Generated/cycle';
-        } else if (domId === 'skillTable') {
-            level3DomGetter.byClass('valueType').textContent = 'Effect';
-        }
-        level3Slot.replaceWith(level3Element);
-
-        /** @type {HTMLElement} */
-        const level4Slot = level3DomGetter.byClass('level4');
-        const level4Elements = [];
-        const category = categoryDefinition[categoryName];
-        category.forEach(function (entry) {
-            let level4Element;
-            if (domId === 'itemTable') {
-                level4Element = Dom.new.fromTemplate('level4ItemTemplate');
+        const level4DomGetter = Dom.get(level4Element);
+        level4DomGetter.byClass('name').textContent = entry.title;
+        let descriptionElement = level4DomGetter.byClass('descriptionTooltip');
+        descriptionElement.ariaLabel = entry.title;
+        descriptionElement.title = tooltips[entry.name];
+        level4Element.id = 'row ' + entry.name;
+        if (domId === 'itemTable') {
+            if (categoryName === 'Properties') {
+                level4DomGetter.byClass('button').onclick = function () {
+                    setProperty(entry.name);
+                };
+                level4DomGetter.byClass('radio').onclick = function () {
+                    setProperty(entry.name);
+                };
             } else {
-                level4Element = Dom.new.fromTemplate('level4TaskTemplate');
-            }
-            const level4DomGetter = Dom.get(level4Element);
-            level4DomGetter.byClass('name').textContent = entry.title;
-            let descriptionElement = level4DomGetter.byClass('descriptionTooltip');
-            descriptionElement.ariaLabel = entry.title;
-            descriptionElement.title = tooltips[entry.name];
-            level4Element.id = 'row ' + entry.name;
-            if (domId === 'itemTable') {
-                if (categoryName === 'Properties') {
-                    level4DomGetter.byClass('button').onclick = function () {
-                        setProperty(entry.name);
-                    };
-                    level4DomGetter.byClass('radio').onclick = function () {
-                        setProperty(entry.name);
-                    };
-                } else {
-                    level4DomGetter.byClass('button').onclick = function () {
-                        setMisc(entry.name);
-                    };
-                    level4DomGetter.byClass('radio').onclick = function () {
-                        setMisc(entry.name);
-                    };
-                }
-            } else {
-                level4DomGetter.byClass('progressBar').onclick = function () {
-                    setTask(entry.name);
+                level4DomGetter.byClass('button').onclick = function () {
+                    setMisc(entry.name);
+                };
+                level4DomGetter.byClass('radio').onclick = function () {
+                    setMisc(entry.name);
                 };
             }
+        } else {
+            level4DomGetter.byClass('progressBar').onclick = function () {
+                setTask(entry.name);
+            };
+        }
 
-            level4Elements.push(level4Element);
-        });
+        level4Elements.push(level4Element);
+    });
 
-        level4Elements.push(createRequiredRow(categoryName));
+    level4Elements.push(createRequiredRow(categoryName));
 
-        level4Slot.append(...level4Elements);
-    }
-
-    slot.replaceWith(...level1Elements);
+    level4Slot.append(...level4Elements);
 }
 
 function cleanUpDom() {
@@ -1465,8 +1453,8 @@ function init() {
     createNestedRows(moduleCategories, 'jobTable');
 
     //TODO Raoul: flat hierarchy
-    createAllRows(skillCategories, 'skillTable');
-    createAllRows(itemCategories, 'itemTable');
+    createNestedRows(skillCategories, 'skillTable');
+    createNestedRows(itemCategories, 'itemTable');
 
     cleanUpDom();
 
