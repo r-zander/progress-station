@@ -17,7 +17,7 @@ function htmlToElement(html) {
  *
  * @param {HTMLElement} element
  * @return {boolean}
- * @
+ *
  */
 function isVisible(element) {
     // Glorious stolen jQuery logic
@@ -186,7 +186,8 @@ GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
         taskProgressBar = getBattleElement(taskInfo.name);
     }
     else{
-        taskProgressBar = getTaskElement(taskInfo.name).querySelector('.progressBar');
+        const taskElement = getTaskElement(taskInfo.name);
+        taskProgressBar = taskElement.querySelector('.progressBar');
     }
     if (isVisible(taskProgressBar)) {
         // Don't spawn particles on elements that are invisible

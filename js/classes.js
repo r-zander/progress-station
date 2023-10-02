@@ -1,15 +1,29 @@
 'use strict';
 
+class EffectType {
+    constructor(application, description) {
+        this.operator = application
+        this.description = description
+    }
+
+    static Population = new EffectType('x','Population')
+    static Energy = new EffectType('+', 'Energy')
+}
+
 class Task {
     constructor(baseData) {
         this.type = this.constructor.name.toLowerCase();
-        this.baseData = baseData;
         this.name = baseData.name;
+        this.baseData = baseData;
+        this.title = baseData.title;
         this.level = 0;
         this.maxLevel = 0;
         this.xp = 0;
-
         this.xpMultipliers = [];
+    }
+
+    do(){
+        this.increaseXp();
     }
 
     getMaxXp() {
@@ -20,12 +34,48 @@ class Task {
         return Math.round(this.getMaxXp() - this.xp);
     }
 
+    collectEffects(){
+        this.xpMultipliers.push(this.getMaxLevelMultiplier.bind(this));
+
+        //this.populationEffectMethods.push(getBoundTaskEffect('Dark influence'));
+        //this.xpMultipliers.push(getBoundTaskEffect('Demon training'));
+    }
+
     getMaxLevelMultiplier() {
         return 1 + this.maxLevel / 10;
     }
 
     getXpGain() {
         return applyMultipliers(10, this.xpMultipliers);
+    }
+
+    calculateEffectValue(effect) {
+        return (effect.effectType.operator === 'x' ? 1 : 0) + effect.baseValue * this.level;
+    }
+
+    getEffect(effectType) {
+        for (const id in this.baseData.effects){
+            const effect = this.baseData.effects[id];
+            if (effectType === effect.effectType){
+                return this.calculateEffectValue(effect);
+            }
+        }
+        return effectType.operator === 'x' ? 1 : 0;
+    }
+
+    getEffectDescription() {
+        let output = "";
+        for (let i = 0; i < this.baseData.effects.length; i++){
+            let effect = this.baseData.effects[i];
+            output += `${effect.effectType.operator}${this.calculateEffectValue(effect).toFixed(2)}`;
+            output += ` ${effect.effectType.description}`;
+            if (i < this.baseData.effects.length -1)
+            {
+                output += ', '
+            }
+        }
+
+        return output;
     }
 
     increaseXp() {
@@ -60,12 +110,28 @@ class Job extends Task {
         this.energyGenerationMultipliers = [];
     }
 
+    collectEffects(){
+        super.collectEffects();
+        this.energyGenerationMultipliers.push(this.getLevelMultiplier.bind(this));
+        //this.energyGenerationMultipliers.push(getBoundTaskEffect('Demon\'s wealth'));
+        //this.xpMultipliers.push(getBoundTaskEffect('Productivity'));
+        //this.xpMultipliers.push(getBoundItemEffect('Personal squire'));
+    }
+
+    do(){
+        super.do();
+    }
+
     getLevelMultiplier() {
         return 1 + Math.log10(this.level + 1);
     }
 
     getEnergyGeneration() {
-        return applyMultipliers(this.baseData.energyGeneration, this.energyGenerationMultipliers);
+        return applyMultipliers(this.getEffect(EffectType.Energy), this.energyGenerationMultipliers);
+    }
+
+    getEnergyUsage() {
+        return this.baseData.energyConsumption === undefined ? 0 : this.baseData.energyConsumption;
     }
 }
 
@@ -74,38 +140,152 @@ class Skill extends Task {
         super(baseData);
     }
 
-    getEffect() {
-        return 1 + this.baseData.effect * this.level;
-    }
-
-    getEffectDescription() {
-        const description = this.baseData.description;
-        return 'x' + this.getEffect().toFixed(2) + ' ' + description;
+    collectEffects() {
+        super.collectEffects();
+        //this.xpMultipliers.push(getBoundTaskEffect('Concentration'));
+        //this.xpMultipliers.push(getBoundItemEffect('Book'));
+        //this.xpMultipliers.push(getBoundItemEffect('Study desk'));
+        //this.xpMultipliers.push(getBoundItemEffect('Library'));
     }
 }
 
 class Item {
     constructor(baseData) {
         this.baseData = baseData;
-        this.name = baseData.name;
+        this.name = this.baseData.name;
         this.expenseMultipliers = [];
+    }
+
+    collectEffects(){
+        //this.expenseMultipliers.push(getBoundTaskEffect('Bargaining'));
+        //this.expenseMultipliers.push(getBoundTaskEffect('Intimidation'));
     }
 
     getEffect() {
         if (gameData.currentProperty !== this && !gameData.currentMisc.includes(this)) return 1;
-        return this.baseData.effect;
+        return this.baseData.effects;
     }
 
     getEffectDescription() {
-        let description = this.baseData.description;
-        if (itemCategories['Properties'].includes(this.name)) {
-            description = 'Population';
-        }
-        return 'x' + this.baseData.effect.toFixed(1) + ' ' + description;
+        return "not implemented";
+        //let description = this.baseData.description;
+        //if (itemCategories['Properties'].includes(this.name)) {
+        //    description = 'Population';
+        //}
+        //return 'x' + this.baseData.effects.toFixed(1) + ' ' + description;
     }
 
     getEnergyUsage() {
         return applyMultipliers(this.baseData.expense, this.expenseMultipliers);
+    }
+}
+
+class Module{
+    constructor(baseData) {
+        this.data = baseData;
+        this.title = baseData.title;
+        this.components = baseData.components;
+    }
+
+    do(){
+        for (let component of this.components){
+            component.do();
+        }
+    }
+
+    onToggleButton() {
+        this.setEnabled(this.toggleButton.checked);
+    }
+
+    setEnabled(value) {
+        this.toggleButton.checked = value;
+        if (value){
+            if (!gameData.currentModules.hasOwnProperty(this.name)){
+                gameData.currentModules[this.name] = this;
+            }
+        }
+        else{
+            if (gameData.currentModules.hasOwnProperty(this.name)) {
+                delete gameData.currentModules [this.name];
+            }
+        }
+
+        for (let component of this.components){
+            component.setEnabled(value)
+        }
+    }
+
+    toggleEnabled(){
+        this.setEnabled(!this.toggleButton.checked);
+    }
+
+    getNextOperationForAutoPromote(){
+        //TODO
+        return null;
+    }
+}
+
+class ModuleComponent{
+    /**
+     *
+     * @param {{title: string, operations: object[]}} baseData
+     */
+    constructor(baseData){
+        this.title = baseData.title;
+        this.operations = baseData.operations;
+        this.currentMode = this.operations[0];
+    }
+
+    do(){
+        if (this.currentMode !== null && this.currentMode !== undefined){
+            this.currentMode.do();
+        }
+    }
+
+    setEnabled(value) {
+        if (!value){
+            for (let mode of this.operations){
+                mode.setEnabled(false);
+            }
+        }
+        else{
+            if (this.currentMode !== null){
+                this.currentMode.setEnabled(value);
+            }
+        }
+
+    }
+
+    //Support only one active mode
+    //Introduce default mode?
+    setActiveMode(modeId){
+        if (this.currentMode === modeId) return;
+
+        for (let mode of this.operations){
+            if (mode === modeId){
+                this.currentMode = mode;
+            }
+            mode.setEnabled(mode === modeId);
+        }
+    }
+}
+
+class ModuleOperation extends Job{
+    setEnabled(value) {
+        if (value){
+            if (!gameData.currentOperations.hasOwnProperty(this.name)){
+                gameData.currentOperations[this.name] = this;
+            }
+        }
+        else{
+            if (gameData.currentOperations.hasOwnProperty(this.name)) {
+                delete gameData.currentOperations[this.name];
+            }
+        }
+    }
+
+    toggleEnabled(){
+        this.setEnabled(!this.enabled);
     }
 }
 

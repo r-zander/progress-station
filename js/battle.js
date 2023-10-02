@@ -13,6 +13,11 @@ class LayeredTask extends Task {
         this.adjustLayerColorsByLevel();
     }
 
+    do(){
+        if (this.isDone()) return;
+        super.do();
+    }
+
     levelUp() {
         super.levelUp();
         this.adjustLayerColorsByLevel();
