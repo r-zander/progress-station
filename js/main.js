@@ -984,17 +984,20 @@ function formatValue(dataElement, value, config = {}) {
         }
     }
 
+    if (config.keepNumber) {
+        dataElement.textContent = prefix + value;
+        delete dataElement.dataset.unit;
+        return;
+    }
+
     // get suffix and determine scale
     let suffix = config.prefixes[tier];
     if (typeof config.unit === 'string' && config.unit.length > 0) {
         dataElement.dataset.unit = suffix + config.unit;
     } else if (suffix.length > 0) {
         dataElement.dataset.unit = suffix;
-    }
-
-    if (config.keepNumber) {
-        dataElement.textContent = prefix + value;
-        return;
+    } else {
+        delete dataElement.dataset.unit;
     }
 
     if (tier === 0) {

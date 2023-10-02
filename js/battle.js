@@ -21,8 +21,8 @@ class LayeredTask extends Task {
 }
 
 class Battle extends LayeredTask {
-    getXpGain() {
-        return applySpeed(applyMultipliers(10, this.xpMultipliers), true);
+    increaseXp(ignoreDeath = true) {
+        super.increaseXp(ignoreDeath);
     }
 
     // TODO never triggered

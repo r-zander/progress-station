@@ -80,19 +80,34 @@
     font-weight: normal;
 }
 
-td.value {
-    max-width: 10rem;
+td {
+    &.value {
+        max-width: 10rem;
+        /* Squeeze in those two liners */
+        line-height: 1.1rem;
+        padding-top: 0.3rem;
+        padding-bottom: 0.3rem;
+    }
+
+    &.help-text {
+        color: rgb(128, 128, 128);
+    }
+
+    & data {
+        display: block;
+        text-align: right;
+    }
+
+    &.requirements data {
+        display: inline;
+    }
+
+    .btn {
+        min-width: 10rem;
+
+        &.btn-sm {
+            font-size: var(--bs-body-font-size);
+        }
+    }
 }
 
-td.help-text {
-    color: rgb(128, 128, 128);
-}
-
-td data {
-    display: block;
-    text-align: right;
-}
-
-td.requirements data {
-    display: inline;
-}

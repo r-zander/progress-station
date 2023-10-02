@@ -46,7 +46,7 @@ class Task {
     }
 
     getXpGain() {
-        return applySpeed(applyMultipliers(10, this.xpMultipliers));
+        return applyMultipliers(10, this.xpMultipliers);
     }
 
     calculateEffectValue(effect) {
@@ -78,8 +78,8 @@ class Task {
         return output;
     }
 
-    increaseXp() {
-        this.xp += this.getXpGain();
+    increaseXp(ignoreDeath = false) {
+        this.xp += applySpeed(this.getXpGain());
         if (this.xp >= this.getMaxXp()) {
             this.levelUp();
         }
