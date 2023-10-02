@@ -1,11 +1,20 @@
 'use strict';
 
+class EffectType {
+    constructor(application, description) {
+        this.operator = application
+        this.description = description
+    }
+
+    static Population = new EffectType('x','Population')
+    static Energy = new EffectType('+', 'Energy')
+}
+
 class Task {
     constructor(baseData) {
         this.type = this.constructor.name.toLowerCase();
+        this.name = baseData.name;
         this.baseData = baseData;
-        if (baseData.name !== undefined)
-            this.name = baseData.name;
         this.title = baseData.title;
         this.level = 0;
         this.maxLevel = 0;
@@ -143,7 +152,7 @@ class Skill extends Task {
 class Item {
     constructor(baseData) {
         this.baseData = baseData;
-        this.name = baseData.name;
+        this.name = this.baseData.name;
         this.expenseMultipliers = [];
     }
 
@@ -172,8 +181,6 @@ class Item {
 }
 
 class Module{
-    #enabled = false;
-
     constructor(baseData) {
         this.data = baseData;
         this.title = baseData.title;
@@ -181,13 +188,18 @@ class Module{
     }
 
     do(){
-        //Do whatever a module does
+        for (let component of this.components){
+            component.do();
+        }
+    }
+
+    onToggleButton() {
+        this.setEnabled(this.toggleButton.checked);
     }
 
     setEnabled(value) {
-        if (this.#enabled === value) return;
-        this.#enabled = value;
-        if (this.#enabled){
+        this.toggleButton.checked = value;
+        if (value){
             if (!gameData.currentModules.hasOwnProperty(this.name)){
                 gameData.currentModules[this.name] = this;
             }
@@ -198,13 +210,13 @@ class Module{
             }
         }
 
-        for (let component in this.components){
-            component.setEnabled(this.#enabled)
+        for (let component of this.components){
+            component.setEnabled(value)
         }
     }
 
     toggleEnabled(){
-        this.setEnabled(!this.#enabled);
+        this.setEnabled(!this.toggleButton.checked);
     }
 
     getNextOperationForAutoPromote(){
@@ -221,13 +233,27 @@ class ModuleComponent{
     constructor(baseData){
         this.title = baseData.title;
         this.operations = baseData.operations;
-        this.currentMode = null;
+        this.currentMode = this.operations[0];
+    }
+
+    do(){
+        if (this.currentMode !== null && this.currentMode !== undefined){
+            this.currentMode.do();
+        }
     }
 
     setEnabled(value) {
-        if (this.currentMode !== null){
-            this.currentMode.setEnabled(value);
+        if (!value){
+            for (let mode of this.operations){
+                mode.setEnabled(false);
+            }
         }
+        else{
+            if (this.currentMode !== null){
+                this.currentMode.setEnabled(value);
+            }
+        }
+
     }
 
     //Support only one active mode
@@ -245,12 +271,8 @@ class ModuleComponent{
 }
 
 class ModuleOperation extends Job{
-    enabled = false;
-
     setEnabled(value) {
-        if (this.enabled === value) return;
-        this.enabled = value;
-        if (this.enabled){
+        if (value){
             if (!gameData.currentOperations.hasOwnProperty(this.name)){
                 gameData.currentOperations[this.name] = this;
             }

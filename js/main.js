@@ -282,6 +282,10 @@ function createLevel2Elements(categoryName, category, level2Slot, domId) {
         level2DomGetter.byClass('name').textContent = module.title;
         level2DomGetter.byClass('level').textContent = '0';
 
+        const toggle = level2DomGetter.byClass('form-check-input');
+        module.toggleButton = toggle;
+        toggle.addEventListener('click', module.onToggleButton.bind(module));
+
         const level3Slot = level2DomGetter.byId('level3');
         createLevel3Elements(categoryName, module, level3Slot, domId);
 
@@ -314,7 +318,7 @@ function createNestedRows(categoryDefinition, domId) {
     slot.replaceWith(...level1Elements);
 }
 
-//// TODO: Remove obsolete func
+//// TODO: Remove obsolete func with 2-layered UI
 /**
  *
  * @param categoryDefinition
@@ -734,14 +738,15 @@ function updateBodyClasses() {
 }
 
 function doTasks() {
-    /*
-    const modules = gameData.activeModules;
-    if (modules == null) return;
-    for (const moduleName in modules){
-        const module = modules[moduleName];
-        module.do();
-    }*/
+    const modules = gameData.currentModules;
+    if (modules !== null) {
+        for (const moduleName in modules) {
+            const module = modules[moduleName];
+            module.do();
+        }
+    }
 
+    /*
     const tasks = gameData.currentOperations;
     if (tasks !== null){
         for (const taskName in tasks){
@@ -749,7 +754,7 @@ function doTasks() {
             if(task != null)
                 task.do();
         }
-    }
+    }*/
 
     // Legacy
     doTask(gameData.currentSkill);
@@ -791,10 +796,11 @@ function getEnergyUsage() {
                 energyUsage += task.getEnergyUsage();
         }
     }
-    energyUsage += gameData.currentProperty.getEnergyUsage();
-    for (let misc of gameData.currentMisc) {
-        energyUsage += misc.getEnergyUsage();
-    }
+    //No 'property' or 'misc' defined atm
+    //energyUsage += gameData.currentProperty.getEnergyUsage();
+    //for (let misc of gameData.currentMisc) {
+    //    energyUsage += misc.getEnergyUsage();
+    //}
     return energyUsage;
 }
 
@@ -1271,6 +1277,16 @@ function loadGameData() {
             gameDataSave.currentOperations[id] = moduleOperations[id];
         }
         for (let id in gameDataSave.currentModules){
+            //Migrate "current" modules before replacing save data, currentModules should probably be just strings in future.
+            const override = modules[id];
+            for (let component of override.components) {
+                const saved = gameDataSave.currentModules[id].components.find((element) => element.name === component.name);
+                if (saved.currentMode === null || saved.currentMode === undefined) continue;
+                if (moduleOperations.hasOwnProperty(saved.currentMode.name)){
+                    component.currentMode = moduleOperations[saved.currentMode.name];
+                }
+            }
+            modules[id].setEnabled(true);
             gameDataSave.currentModules[id] = modules[id];
         }
 
@@ -1280,6 +1296,12 @@ function loadGameData() {
     }
 
     assignMethods();
+
+    //Enable/disable modules
+    for (let id in modules){
+        const module = modules[id];
+        modules[id].setEnabled(gameData.currentModules.hasOwnProperty(module.name));
+    }
 }
 
 function updateUI() {
@@ -1441,6 +1463,8 @@ function displayLoaded() {
 
 function init() {
     createNestedRows(moduleCategories, 'jobTable');
+
+    //TODO Raoul: flat hierarchy
     createAllRows(skillCategories, 'skillTable');
     createAllRows(itemCategories, 'itemTable');
 

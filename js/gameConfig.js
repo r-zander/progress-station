@@ -25,17 +25,17 @@ const units = {
 };
 
 const battleBaseData = {
-    Destroyer: {name: 'Destroyer', maxXp: 50, maxLayers: 5, progressBarId: 'battleProgressBar'},
+    Destroyer: {title: 'The Destroyer', maxXp: 50, maxLayers: 5, progressBarId: 'battleProgressBar'},
 };
 
 const skillBaseData = {
-    Concentration: {name: 'Concentration', maxXp: 100, effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}]},
-    Productivity: {name: 'Productivity', maxXp: 100, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }]},
+    Concentration: {title: 'Concentration', maxXp: 100, effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}]},
+    Productivity: {title: 'Productivity', maxXp: 100, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }]},
 };
 
 const itemBaseData = {
-    Homeless: {name: 'Homeless', expense: 0, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }]},
-    Book: {name: 'Book', expense: 10, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], description: 'Research xp'},
+    Homeless: {title: 'Homeless', expense: 0, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }]},
+    Book: {title: 'Book', expense: 10, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], description: 'Research xp'},
 };
 
 const moduleOperations = {
@@ -86,12 +86,19 @@ for (const [key, module] of Object.entries(moduleOperations)) {
     module.name = key;
     module.baseData.name = key;
 }
-for (const [key, module] of Object.entries(moduleComponents)) {
-    module.name = key;
+
+function assignNames(data){
+    for (const [key, val] of Object.entries(data)) {
+        val.name = key;
+    }
 }
-for (const [key, module] of Object.entries(modules)) {
-    module.name = key;
-}
+
+assignNames(moduleComponents);
+assignNames(modules);
+assignNames(moduleCategories);
+assignNames(battleBaseData);
+assignNames(itemBaseData);
+assignNames(skillBaseData);
 
 const permanentUnlocks = ['Scheduling', 'Shop', 'Automation', 'Quick task display'];
 
