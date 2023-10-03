@@ -1,0 +1,78 @@
+.sci-fi {
+    .progress {
+        background: none;
+    }
+
+    .progress::before,
+    .progress-background {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+
+        background-color: rgb(12, 101, 173);
+    }
+
+    .progress::before,
+    .progress-bar,
+    .progress-background {
+        --corner-length: 30px;
+        clip-path: polygon(
+                0 0,
+                calc(100% - var(--corner-length)) 0,
+                100% 100%,
+                0 100%
+        )
+    }
+
+    .btn {
+        --corner-length: 12px;
+        clip-path: polygon(
+                0 var(--corner-length),
+                var(--corner-length) 0,
+                calc(100% - var(--corner-length)) 0,
+                100% var(--corner-length),
+                100% calc(100% - var(--corner-length)),
+                calc(100% - var(--corner-length)) 100%,
+                var(--corner-length) 100%,
+                0 calc(100% - var(--corner-length))
+        );
+        border-left: 3px solid;
+        border-right: 3px solid;
+        padding-left: calc(2 * var(--bs-btn-padding-x));
+        padding-right: calc(2 * var(--bs-btn-padding-x));
+
+        position: relative;
+
+        &::before,
+        &::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        &::before {
+            left: 2px;
+            border-width: calc(var(--corner-length) / 2) 0 calc(var(--corner-length) / 2) calc(var(--corner-length) / 2);
+            border-color: transparent transparent transparent currentColor;
+        }
+
+        &::after {
+            right: 2px;
+            border-width: calc(var(--corner-length) / 2) calc(var(--corner-length) / 2) calc(var(--corner-length) / 2);
+            border-color: transparent currentColor transparent transparent;
+        }
+
+        &.btn-lg {
+            --corner-length: 16px;
+        }
+    }
+}

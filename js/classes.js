@@ -2,12 +2,12 @@
 
 class EffectType {
     constructor(application, description) {
-        this.operator = application
-        this.description = description
+        this.operator = application;
+        this.description = description;
     }
 
-    static Population = new EffectType('x','Population')
-    static Energy = new EffectType('+', 'Energy')
+    static Population = new EffectType('x', 'Population');
+    static Energy = new EffectType('+', 'Energy');
 }
 
 class Task {
@@ -22,7 +22,7 @@ class Task {
         this.xpMultipliers = [];
     }
 
-    do(){
+    do() {
         this.increaseXp();
     }
 
@@ -34,7 +34,7 @@ class Task {
         return Math.round(this.getMaxXp() - this.xp);
     }
 
-    collectEffects(){
+    collectEffects() {
         this.xpMultipliers.push(this.getMaxLevelMultiplier.bind(this));
 
         //this.populationEffectMethods.push(getBoundTaskEffect('Dark influence'));
@@ -54,9 +54,9 @@ class Task {
     }
 
     getEffect(effectType) {
-        for (const id in this.baseData.effects){
+        for (const id in this.baseData.effects) {
             const effect = this.baseData.effects[id];
-            if (effectType === effect.effectType){
+            if (effectType === effect.effectType) {
                 return this.calculateEffectValue(effect);
             }
         }
@@ -64,22 +64,21 @@ class Task {
     }
 
     getEffectDescription() {
-        let output = "";
-        for (let i = 0; i < this.baseData.effects.length; i++){
+        let output = '';
+        for (let i = 0; i < this.baseData.effects.length; i++) {
             let effect = this.baseData.effects[i];
             output += `${effect.effectType.operator}${this.calculateEffectValue(effect).toFixed(2)}`;
             output += ` ${effect.effectType.description}`;
-            if (i < this.baseData.effects.length -1)
-            {
-                output += ', '
+            if (i < this.baseData.effects.length - 1) {
+                output += ', ';
             }
         }
 
         return output;
     }
 
-    increaseXp() {
-        this.xp += applySpeed(this.getXpGain());
+    increaseXp(ignoreDeath = false) {
+        this.xp += applySpeed(this.getXpGain(), ignoreDeath);
         if (this.xp >= this.getMaxXp()) {
             this.levelUp();
         }
@@ -110,7 +109,7 @@ class Job extends Task {
         this.energyGenerationMultipliers = [];
     }
 
-    collectEffects(){
+    collectEffects() {
         super.collectEffects();
         this.energyGenerationMultipliers.push(this.getLevelMultiplier.bind(this));
         //this.energyGenerationMultipliers.push(getBoundTaskEffect('Demon\'s wealth'));
@@ -118,7 +117,7 @@ class Job extends Task {
         //this.xpMultipliers.push(getBoundItemEffect('Personal squire'));
     }
 
-    do(){
+    do() {
         super.do();
     }
 
@@ -156,7 +155,7 @@ class Item {
         this.expenseMultipliers = [];
     }
 
-    collectEffects(){
+    collectEffects() {
         //this.expenseMultipliers.push(getBoundTaskEffect('Bargaining'));
         //this.expenseMultipliers.push(getBoundTaskEffect('Intimidation'));
     }
@@ -167,7 +166,7 @@ class Item {
     }
 
     getEffectDescription() {
-        return "not implemented";
+        return 'not implemented';
         //let description = this.baseData.description;
         //if (itemCategories['Properties'].includes(this.name)) {
         //    description = 'Population';
@@ -180,17 +179,26 @@ class Item {
     }
 }
 
-class Module{
+class Module {
     constructor(baseData) {
         this.data = baseData;
         this.title = baseData.title;
         this.components = baseData.components;
     }
 
-    do(){
-        for (let component of this.components){
+    do() {
+        for (let component of this.components) {
             component.do();
         }
+    }
+
+    /**
+     *
+     * @param {HTMLInputElement} button
+     */
+    setToggleButton(button) {
+        this.toggleButton = button;
+        button.addEventListener('click', this.onToggleButton.bind(this));
     }
 
     onToggleButton() {
@@ -199,57 +207,55 @@ class Module{
 
     setEnabled(value) {
         this.toggleButton.checked = value;
-        if (value){
-            if (!gameData.currentModules.hasOwnProperty(this.name)){
+        if (value) {
+            if (!gameData.currentModules.hasOwnProperty(this.name)) {
                 gameData.currentModules[this.name] = this;
             }
-        }
-        else{
+        } else {
             if (gameData.currentModules.hasOwnProperty(this.name)) {
                 delete gameData.currentModules [this.name];
             }
         }
 
-        for (let component of this.components){
-            component.setEnabled(value)
+        for (let component of this.components) {
+            component.setEnabled(value);
         }
     }
 
-    toggleEnabled(){
+    toggleEnabled() {
         this.setEnabled(!this.toggleButton.checked);
     }
 
-    getNextOperationForAutoPromote(){
+    getNextOperationForAutoPromote() {
         //TODO
         return null;
     }
 }
 
-class ModuleComponent{
+class ModuleComponent {
     /**
      *
      * @param {{title: string, operations: object[]}} baseData
      */
-    constructor(baseData){
+    constructor(baseData) {
         this.title = baseData.title;
         this.operations = baseData.operations;
         this.currentMode = this.operations[0];
     }
 
-    do(){
-        if (this.currentMode !== null && this.currentMode !== undefined){
+    do() {
+        if (this.currentMode !== null && this.currentMode !== undefined) {
             this.currentMode.do();
         }
     }
 
     setEnabled(value) {
-        if (!value){
-            for (let mode of this.operations){
+        if (!value) {
+            for (let mode of this.operations) {
                 mode.setEnabled(false);
             }
-        }
-        else{
-            if (this.currentMode !== null){
+        } else {
+            if (this.currentMode !== null) {
                 this.currentMode.setEnabled(value);
             }
         }
@@ -258,11 +264,11 @@ class ModuleComponent{
 
     //Support only one active mode
     //Introduce default mode?
-    setActiveMode(modeId){
+    setActiveMode(modeId) {
         if (this.currentMode === modeId) return;
 
-        for (let mode of this.operations){
-            if (mode === modeId){
+        for (let mode of this.operations) {
+            if (mode === modeId) {
                 this.currentMode = mode;
             }
             mode.setEnabled(mode === modeId);
@@ -270,21 +276,20 @@ class ModuleComponent{
     }
 }
 
-class ModuleOperation extends Job{
+class ModuleOperation extends Job {
     setEnabled(value) {
-        if (value){
-            if (!gameData.currentOperations.hasOwnProperty(this.name)){
+        if (value) {
+            if (!gameData.currentOperations.hasOwnProperty(this.name)) {
                 gameData.currentOperations[this.name] = this;
             }
-        }
-        else{
+        } else {
             if (gameData.currentOperations.hasOwnProperty(this.name)) {
                 delete gameData.currentOperations[this.name];
             }
         }
     }
 
-    toggleEnabled(){
+    toggleEnabled() {
         this.setEnabled(!this.enabled);
     }
 }

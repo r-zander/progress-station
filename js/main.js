@@ -46,10 +46,9 @@ const tabButtons = {
     'skills': document.getElementById('skillsTabButton'),
     'shop': document.getElementById('shopTabButton'),
     'rebirth': document.getElementById('rebirthTabButton'),
+    'battle': document.getElementById('battleTabButton'),
     'settings': document.getElementById('settingsTabButton'),
-}
-const gameOverMessageWinElement = document.getElementById('gameOverMessageWin');
-const gameOverMessageLoseElement = document.getElementById('gameOverMessageLose');
+};
 
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
@@ -68,16 +67,17 @@ function applyMultipliers(value, multipliers) {
     return Math.round(value * finalMultiplier);
 }
 
-function applySpeed(value) {
-    return value * getGameSpeed() / updateSpeed;
+function applySpeed(value, ignoreDeath = false) {
+    return value * getGameSpeed(ignoreDeath) / updateSpeed;
 }
+
 function getPopulation() {
     let population = 0;
     const tasks = gameData.currentOperations;
-    if (tasks !== null){
-        for (const taskName in tasks){
+    if (tasks !== null) {
+        for (const taskName in tasks) {
             const task = tasks[taskName];
-            if(task != null)
+            if (task != null)
                 population += task.getEffect(EffectType.Population);
         }
     }
@@ -91,10 +91,14 @@ function getEvilGain() {
     return 1;
 }
 
-function getGameSpeed() {
+function getGameSpeed(ignoreDeath = false) {
     //const timeWarping = gameData.taskData['Time warping'];
     //const timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1;
-    return baseGameSpeed * +isPlaying();
+    if (ignoreDeath) {
+        return baseGameSpeed * +!gameData.paused /* * timeWarpingSpeed */;
+    } else {
+        return baseGameSpeed * +isPlaying();
+    }
 }
 
 function getDangerLevel() {
@@ -130,7 +134,7 @@ function setPause() {
     gameData.paused = !gameData.paused;
 }
 
-function unpause(){
+function unpause() {
     gameData.paused = false;
 }
 
@@ -144,7 +148,7 @@ function setTask(taskName) {
 
     const task = gameData.taskData[taskName];
     if (task instanceof Job) {
-        console.error("setTask with job no longer supported")
+        console.error('setTask with job no longer supported');
     } else {
         gameData.currentSkill = task;
     }
@@ -173,8 +177,8 @@ function setMisc(miscName) {
 
 function setBattle(name) {
     gameData.currentBattle = gameData.battleData[name];
-    const nameTitle = document.getElementById('battleName');
-    nameTitle.textContent = gameData.currentBattle.name;
+    const nameElement = document.getElementById('battleName');
+    nameElement.textContent = gameData.currentBattle.name;
 }
 
 function createData(data, baseData) {
@@ -186,9 +190,7 @@ function createData(data, baseData) {
 
 function createEntity(data, entity) {
     if ('maxLayers' in entity) {
-        const battle = new Battle(entity);
-        battle.init();
-        data[entity.name] = battle;
+        data[entity.name] = new Battle(entity);
     } else if ('energyGeneration' in entity) {
         data[entity.name] = new ModuleOperation(entity);
     } else if ('maxXp' in entity) {
@@ -237,7 +239,7 @@ function createModuleLevel4Elements(categoryName, module, level4Slot, domId) {
         } else {
             level4DomGetter.byClass('progressBar').onclick = function () {
                 module.setActiveMode(mode);
-            }
+            };
         }
 
         level4Elements.push(level4Element);
@@ -281,9 +283,7 @@ function createModuleLevel2Elements(categoryName, category, level2Slot, domId) {
         level2DomGetter.byClass('name').textContent = module.title;
         level2DomGetter.byClass('level').textContent = '0';
 
-        const toggle = level2DomGetter.byClass('form-check-input');
-        module.toggleButton = toggle;
-        toggle.addEventListener('click', module.onToggleButton.bind(module));
+        module.setToggleButton(level2DomGetter.byClass('form-check-input'));
 
         const level3Slot = level2DomGetter.byId('level3');
         createModuleLevel3Elements(categoryName, module, level3Slot, domId);
@@ -312,10 +312,9 @@ function createNestedRows(categoryDefinition, domId) {
 
         const level2Slot = level1DomGetter.byId('level2');
 
-        if (categoryDefinition === moduleCategories){
+        if (categoryDefinition === moduleCategories) {
             createModuleLevel2Elements(categoryName, category, level2Slot, domId);
-        }
-        else{
+        } else {
             createLevel2Rows(categoryName, category, level2Slot, domId);
         }
     }
@@ -420,16 +419,50 @@ function updateSkillQuickTaskDisplay() {
     setProgress(progressBar.getElementsByClassName('progressFill')[0], currentTask.xp / currentTask.getMaxXp());
 }
 
-function updateBattleTaskDisplay() {
-    const currentTask = gameData.currentBattle;
-    if (currentTask === null || currentTask.isDone()) {
+/**
+ *
+ * @param {LayeredTask} currentTask
+ * @param {HTMLElement} progressBar
+ */
+function setBattleProgress(currentTask, progressBar) {
+    if (currentTask.isDone()) {
+        Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = lastLayerData.color;
+        Dom.get(progressBar).byClass('progressFill').style.width = '0%';
+        Dom.get(progressBar).byClass('name').textContent = currentTask.title + ' defeated!';
         return;
     }
-    const progressBar = document.getElementById('battleProgressBar');
-    const battleNameElement = document.getElementById('battleName');
-    battleNameElement.textContent = currentTask.title;
-    progressBar.getElementsByClassName('name')[0].textContent = currentTask.title + ' layer ' + (currentTask.maxLayers - currentTask.level);
-    setProgress(progressBar.getElementsByClassName('progressFill')[0], 1 - (currentTask.xp / currentTask.getMaxXp()));
+
+    Dom.get().byId('battleName').textContent = currentTask.title;
+    Dom.get(progressBar).byClass('name').textContent = currentTask.baseData.layerLabel + ' ' + (currentTask.maxLayers - currentTask.level);
+
+    const progressBarFill = Dom.get(progressBar).byClass('progressFill');
+    setProgress(progressBarFill, 1 - (currentTask.xp / currentTask.getMaxXp()), false);
+    progressBarFill.style.backgroundColor = layerData[currentTask.level].color;
+
+    if (currentTask.level < currentTask.maxLayers - 1 &&
+        currentTask.level < layerData.length - 1
+    ) {
+        Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = layerData[currentTask.level + 1].color;
+    } else {
+        Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = lastLayerData.color;
+    }
+}
+
+function updateBattleQuickTaskDisplay() {
+    const currentTask = gameData.currentBattle;
+    if (currentTask === null) return;
+
+    const progressBar = document.querySelector(`.quickTaskDisplay .battle`);
+    setBattleProgress(currentTask, progressBar);
+}
+
+function updateBattleTaskDisplay() {
+    /** @type {LayeredTask} */
+    const currentTask = gameData.currentBattle;
+    if (currentTask === null) return;
+
+    const progressBar = Dom.get().byId(currentTask.baseData.progressBarId);
+    setBattleProgress(currentTask, progressBar);
 }
 
 /**
@@ -444,7 +477,7 @@ function setProgress(progressFillElement, progress, increasing = true) {
     // Make sure to disable the transition if the progress is being reset
     const previousProgress = parseFloat(progressFillElement.dataset.progress);
     if ((increasing && (previousProgress - progress) >= 0.01) ||
-        (!increasing && (previousProgress - progress) >= 0.01)
+        (!increasing && (progress - previousProgress) >= 0.01)
     ) {
         progressFillElement.style.transitionDuration = '0s';
     } else {
@@ -653,13 +686,6 @@ function updateText() {
         pauseButton.classList.replace('btn-primary', 'btn-secondary');
     }
 
-    const deathText = document.getElementById('deathText');
-    if (isAlive()) {
-        deathText.classList.add('hidden');
-    } else {
-        deathText.classList.remove('hidden');
-    }
-
     updateDangerDisplay();
     updateEnergyBar();
 
@@ -758,10 +784,10 @@ function doTask(task) {
 function getEnergyGeneration() {
     let energy = 0;
     const tasks = gameData.currentOperations;
-    if (tasks !== null){
-        for (const taskName in tasks){
+    if (tasks !== null) {
+        for (const taskName in tasks) {
             const task = tasks[taskName];
-            if(task != null)
+            if (task != null)
                 energy += task.getEnergyGeneration();
         }
     }
@@ -777,10 +803,10 @@ function getEnergyUsage() {
     let energyUsage = 0;
 
     const tasks = gameData.currentOperations;
-    if (tasks !== null){
-        for (const taskName in tasks){
+    if (tasks !== null) {
+        for (const taskName in tasks) {
             const task = tasks[taskName];
-            if(task != null)
+            if (task != null)
                 energyUsage += task.getEnergyUsage();
         }
     }
@@ -840,7 +866,7 @@ function autoPromote() {
 function autoPromoteModules() {
     //TODO modules
     return;
-    for (const id in modules){
+    for (const id in modules) {
         const module = modules[id];
         let requirement = gameData.requirements[id];
         if (requirement.isCompleted()) {
@@ -921,6 +947,10 @@ function increaseDays() {
 
     gameData.days += increase;
     gameData.totalDays += increase;
+
+    if (gameData.days >= getLifespan()) {
+        GameEvents.Death.trigger();
+    }
 }
 
 /**
@@ -952,17 +982,20 @@ function formatValue(dataElement, value, config = {}) {
         }
     }
 
+    if (config.keepNumber) {
+        dataElement.textContent = prefix + value;
+        delete dataElement.dataset.unit;
+        return;
+    }
+
     // get suffix and determine scale
     let suffix = config.prefixes[tier];
     if (typeof config.unit === 'string' && config.unit.length > 0) {
         dataElement.dataset.unit = suffix + config.unit;
     } else if (suffix.length > 0) {
         dataElement.dataset.unit = suffix;
-    }
-
-    if (config.keepNumber) {
-        dataElement.textContent = prefix + value;
-        return;
+    } else {
+        delete dataElement.dataset.unit;
     }
 
     if (tier === 0) {
@@ -1035,8 +1068,8 @@ function formatPopulation(population) {
 
 function getTaskElement(taskName) {
     const task = gameData.taskData[taskName];
-    if (task == null){
-        console.log("Task not found in data: " + taskName);
+    if (task == null) {
+        console.log('Task not found in data: ' + taskName);
         return;
     }
     return document.getElementById(task.id);
@@ -1044,8 +1077,8 @@ function getTaskElement(taskName) {
 
 function getBattleElement(taskName) {
     const task = gameData.battleData[taskName];
-    if (task == null){
-        console.log("Battle not found in data: " + taskName);
+    if (task == null) {
+        console.log('Battle not found in data: ' + taskName);
         return;
     }
     return document.getElementById(task.baseData.progressBarId);
@@ -1053,8 +1086,8 @@ function getBattleElement(taskName) {
 
 function getItemElement(itemName) {
     const item = gameData.itemData[itemName];
-    if (item == null){
-        console.log("Item not found in data: " + itemName);
+    if (item == null) {
+        console.log('Item not found in data: ' + itemName);
         return;
     }
     return document.getElementById(item.id);
@@ -1095,6 +1128,12 @@ function removeSpaces(string) {
     return string.replace(/ /g, '');
 }
 
+function resetBattle(name) {
+    const battle = gameData.battleData[name];
+    battle.level = 0;
+    battle.xp = 0;
+}
+
 function rebirthOne() {
     gameData.rebirthOneCount += 1;
 
@@ -1128,6 +1167,13 @@ function rebirthReset() {
         if (task.level > task.maxLevel) task.maxLevel = task.level;
         task.level = 0;
         task.xp = 0;
+    }
+
+    for (let battleName in gameData.battleData) {
+        const battle = gameData.battleData[battleName];
+        if (battle.level > battle.maxLevel) battle.maxLevel = battle.level;
+        battle.level = 0;
+        battle.xp = 0;
     }
 
     for (let key in gameData.requirements) {
@@ -1181,7 +1227,6 @@ function assignMethods() {
         let battle = gameData.battleData[key];
         battle.baseData = battleBaseData[battle.name];
         battle = Object.assign(new Battle(battleBaseData[battle.name]), battle);
-        battle.init();
         gameData.battleData[key] = battle;
     }
 
@@ -1211,8 +1256,7 @@ function assignMethods() {
     gameData.currentSkill = gameData.taskData[gameData.currentSkill.name];
     gameData.currentProperty = gameData.itemData[gameData.currentProperty.name];
     if (gameData.currentBattle !== null) {
-        preparedBattle = gameData.currentBattle.name;
-        startBossBattle();
+        startBattle(gameData.currentBattle.name);
     }
 
     const newArray = [];
@@ -1232,8 +1276,7 @@ function replaceSaveDict(dict, saveDict) {
             dict[key].maxLevel = saveDict[key].maxLevel;
             dict[key].xp = saveDict[key].xp;
             saveDict[key] = dict[key];
-        }
-        else if (dict === gameData.requirements) {
+        } else if (dict === gameData.requirements) {
             if (saveDict[key].type !== tempData['requirements'][key].type) {
                 saveDict[key] = tempData['requirements'][key];
             }
@@ -1261,16 +1304,16 @@ function loadGameData() {
         replaceSaveDict(gameData.itemData, gameDataSave.itemData);
         replaceSaveDict(gameData.battleData, gameDataSave.battleData);
 
-        for (let id in gameDataSave.currentOperations){
+        for (let id in gameDataSave.currentOperations) {
             gameDataSave.currentOperations[id] = moduleOperations[id];
         }
-        for (let id in gameDataSave.currentModules){
+        for (let id in gameDataSave.currentModules) {
             //Migrate "current" modules before replacing save data, currentModules should probably be just strings in future.
             const override = modules[id];
             for (let component of override.components) {
                 const saved = gameDataSave.currentModules[id].components.find((element) => element.name === component.name);
                 if (saved.currentMode === null || saved.currentMode === undefined) continue;
-                if (moduleOperations.hasOwnProperty(saved.currentMode.name)){
+                if (moduleOperations.hasOwnProperty(saved.currentMode.name)) {
                     component.currentMode = moduleOperations[saved.currentMode.name];
                 }
             }
@@ -1286,7 +1329,7 @@ function loadGameData() {
     assignMethods();
 
     //Enable/disable modules
-    for (let id in modules){
+    for (let id in modules) {
         const module = modules[id];
         modules[id].setEnabled(gameData.currentModules.hasOwnProperty(module.name));
     }
@@ -1303,6 +1346,7 @@ function updateUI() {
     //TODO: does not work for several jobs
     //updateQuickTaskDisplay('job');
     updateSkillQuickTaskDisplay();
+    updateBattleQuickTaskDisplay();
     updateBattleTaskDisplay();
     hideEntities();
     updateText();
@@ -1341,12 +1385,12 @@ function exportGameData() {
 
 const visibleTooltips = [];
 
-function initTooltips(){
+function initTooltips() {
     const tooltipTriggerElements = document.querySelectorAll('[title]');
     const tooltipConfig = {container: 'body', trigger: 'hover'};
     tooltipTriggerElements.forEach(function (tooltipTriggerElement) {
         new bootstrap.Tooltip(tooltipTriggerElement, tooltipConfig);
-        tooltipTriggerElement.addEventListener('show.bs.tooltip', function (){
+        tooltipTriggerElement.addEventListener('show.bs.tooltip', function () {
             visibleTooltips.push(tooltipTriggerElement);
         });
         tooltipTriggerElement.addEventListener('hide.bs.tooltip', function () {
@@ -1392,21 +1436,14 @@ function initStationName() {
 function setDefaultCurrentValues() {
     gameData.currentSkill = gameData.taskData['Concentration'];
     gameData.currentProperty = gameData.itemData['Homeless'];
-    gameData.currentMisc = []
+    gameData.currentMisc = [];
 }
 
-let preparedBattle;
-
-function initBattle(name) {
+function initBattle() {
     const gameOverMessageWinElement = document.getElementById('gameOverMessageWin');
     const gameOverMessageLoseElement = document.getElementById('gameOverMessageLose');
-    const battleFlavorMessageElement = document.getElementById('battleFlavorMessage');
     gameOverMessageWinElement.hidden = true;
     gameOverMessageLoseElement.hidden = true;
-    battleFlavorMessageElement.hidden = false;
-
-    preparedBattle = name;
-    document.getElementById('battleStartButton').onclick = startBossBattle;
 
     GameEvents.GameOver.subscribe(function (data) {
         if (data.bossDefeated) {
@@ -1414,20 +1451,13 @@ function initBattle(name) {
         } else {
             gameOverMessageLoseElement.hidden = false;
         }
-        battleFlavorMessageElement.hidden = true;
-
-        const battleStartButton = document.getElementById('battleStartButton');
-        battleStartButton.hidden = true;
     });
 }
 
-function startBossBattle() {
-    setBattle(preparedBattle);
+function startBattle(name) {
+    setBattle(name);
     const progressBar = document.getElementById('battleProgressBar');
     progressBar.hidden = false;
-
-    const battleStartButton = document.getElementById('battleStartButton');
-    battleStartButton.hidden = true;
 }
 
 function initSettings() {
@@ -1446,7 +1476,7 @@ function initSettings() {
 }
 
 function displayLoaded() {
-    document.getElementById('main').style.opacity = '1.0';
+    document.getElementById('main').classList.add('ready');
 }
 
 function init() {
@@ -1463,7 +1493,7 @@ function init() {
     //direct ref assignment - taskData could be replaced
     for (let entityData of Object.values(moduleOperations)) {
         entityData.id = 'row ' + entityData.name;
-        gameData.taskData[entityData.name] = entityData
+        gameData.taskData[entityData.name] = entityData;
     }
     createData(gameData.taskData, skillBaseData);
     createData(gameData.battleData, battleBaseData);

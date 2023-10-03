@@ -1,0 +1,23 @@
+.unstable:after {
+    content: "Unstable";
+    text-transform: uppercase;
+    vertical-align: super;
+    font-size: 40%;
+    margin-left: 0.5rem;
+}
+
+label.background {
+    display: block;
+    text-shadow: 1px 1px black, 1px 1px 3px black;
+    padding: 1rem;
+    border: 1px solid white;
+}
+
+label.background + label.background {
+    margin-top: 1rem;
+}
+
+#importExportBox {
+    resize: vertical;
+    min-height: 78px;
+}

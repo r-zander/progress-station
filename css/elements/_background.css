@@ -1,236 +1,23 @@
-:root {
-    --light-bg-color: rgb(243, 243, 243);
-}
-
-h1 {
-    position: fixed;
-    right: 0;
-    top: 25%;
-    rotate: 270deg;
-    transform-origin: right bottom;
-    transform: translateX(50%);
-}
-
-#main {
-    max-width: 1400px;
-
-    transition: opacity 500ms ease-in-out;
-}
-
-#sidebar {
-    width: 360px;
-    /*overflow: auto;*/
-    display: flex;
-    flex-direction: column;
-    margin-right: 1rem; /* me-3 */
-}
-
-@media (min-width: 1296px) {
-    #sidebar {
-        margin-right: auto;
-        margin-left: auto;
-    }
-}
-
-.tabButton {
-    border: none;
-    position: relative;
-}
-
-/* FIXME hidden right now due to scrolling */
-.tabButton::after {
-    content: "";
-    position: absolute;
-    top: calc(50% - 2px);
-    left: 100%;
-    width: 70px;
-    height: 2px;
-    background-color: orange;
-
-    box-shadow: 0 0 5px 2px orange;
-
-    display: none;
-}
-
-.tabButton.active {
-    box-shadow: inset 0 0 5px 4px orange;
-}
-
-.tabButton.active::after {
-    display: block;
-}
-
-.tabButton > h3 {
-    margin: 0;
-}
-
-#content {
-    position: relative;
-    max-width: 900px;
-    box-shadow: inset 9px 0 5px -4px orange;
-}
-
-#content .progress {
-    cursor: pointer;
-}
-
-.game-playing .progress-bar-striped.current,
-.game-playing .progress:hover > .progress-bar-striped {
-    animation: 1s linear infinite progress-bar-stripes reverse;
-}
-
-.game-playing .progress-bar-striped.current {
-    /* TODO would be nice to softly fade this in instead of just showing it. */
-    /* FIXME doesn't work with striped */
-    /*background-image: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.25));*/
-}
-
-#dangerLevel {
-    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-#nameDisplay {
-    cursor: pointer;
-}
-
-.level1 + .level1 {
-    margin-top: 1.5rem; /* mt-4 */
-}
-
-.level1-header {
-    position: sticky;
-    top: 0;
-    background: inherit;
-    z-index: 3;
-}
-
-.level1-header > .category {
-    font-family: var(--title-font-family);
-    font-weight: 400;
-}
-
-.level1-header > div:nth-child(2) {
-    font-weight: normal;
-}
-
-.level1-header > div:first-child {
-    width: 45rem;
-}
-
-.level2 + .level2 {
-    margin-top: 1rem;
-}
-
-.level2.inactive {
-    filter: grayscale(1);
-}
-
-.level2-header {
-    position: sticky;
-    top: 40px;
-    z-index: 2;
-}
-
-.level2-header > div {
-    margin-right: 1rem;
-}
-
-.level2-header > div:first-child {
-    width: 19.5rem;
-}
-
-.level2-header > div:nth-child(3) {
-    width: 7em;
-}
-
-.level2 > .table + .table {
-    margin-top: 0.5rem;
-}
-
-.level3 {
-    position: sticky;
-    top: 80px;
-    z-index: 1;
-    background-color: white;
-}
-
-.table td:first-of-type,
-.table th:first-of-type {
-    width: 20rem;
-}
-
-.table td {
-    vertical-align: middle;
-}
-
-.table th {
-    font-weight: normal;
-}
-
-td.value {
-    max-width: 10rem;
-}
-
-td data {
-    display: block;
-    text-align: right;
-}
-
-td.requirements data {
-    display: inline;
-}
-
-.radio {
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    padding: 7px;
-}
-
-.radio > div {
-    width: 24px;
-    height: 24px;
-}
-
-.unstable:after {
-    content: "Unstable";
-    text-transform: uppercase;
-    vertical-align: super;
-    font-size: 40%;
-    margin-left: 0.5rem;
-}
-
-label.background {
-    display: block;
-    text-shadow: 1px 1px black, 1px 1px 3px black;
-    padding: 1rem;
-    border: 1px solid white;
-}
-
-label.background + label.background {
-    margin-top: 1rem;
-}
-
 .background-simple {
-    background-color: var(--light-bg-color);
+    background-color: var(--body-bg-color);
 }
 
 .background-triangles1 {
-    background-color: var(--light-bg-color);
-    background-image: url("../img/background.svg");
+    background-color: var(--body-bg-color);
+    background-image: url("../../img/background.svg");
     background-size: cover;
     background-attachment: fixed;
     background-position: center;
 }
 
 label.background-space {
-    background-image: url("../img/space.png");
+    background-image: url("../../img/space.png");
     background-size: cover;
     background-position: center;
 }
 
 .background-hexagons {
-    --bg-color-1: var(--dark-bg-color);
+    --bg-color-1: var(--body-bg-color);
     --bg-color-2: #00556f;
     --fg-color: rgba(255, 255, 255, 0);
     --hex-height: 120px;
@@ -250,8 +37,7 @@ label.background-space {
     background-attachment: fixed;
 }
 
-.background-triangles1 .panel,
-.background-triangles1 .tabButton {
+.background-triangles1 .panel {
     background-color: rgba(255, 255, 255, 0.8);
 }
 
@@ -435,43 +221,4 @@ label.background-space {
     to {
         transform: translateX(-2000px);
     }
-}
-
-/*--------------------------------------------------------------------*/
-/*------------------------- BOOTSTRAP --------------------------------*/
-/*--------------------------------------------------------------------*/
-.position-sticky {
-    background: inherit;
-}
-
-.table td,
-.table th {
-    background: none;
-}
-
-.btn {
-    font-family: var(--title-font-family);
-    font-weight: 300;
-    border-radius: 0;
-}
-
-.progress {
-    overflow: visible;
-    border-radius: 0;
-}
-
-.modal-backdrop {
-    backdrop-filter: blur(0px);
-    background-color: transparent;
-}
-
-.modal-backdrop.fade {
-    transition: all 150ms linear;
-    transition-property: backdrop-filter, background-color;
-}
-
-.modal-backdrop.show {
-    opacity: 1;
-    backdrop-filter: blur(5px);
-    background-color: rgba(0, 0, 0, 0.6);
 }

@@ -240,7 +240,7 @@ class DomGetter {
 
     /**
      * @param {string} id dom id of the searched element
-     * @return {Element|null}
+     * @return {HTMLElement|null}
      */
     byId(id) {
         return this.#parent.querySelector('#' + id);
@@ -248,7 +248,7 @@ class DomGetter {
 
     /**
      * @param {string} className css class of the searched element
-     * @return {Element|null}
+     * @return {HTMLElement|null}
      */
     byClass(className) {
         return this.allByClass(className).item(0);

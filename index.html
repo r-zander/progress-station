@@ -4,22 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
 
-    <link rel="stylesheet" type="text/css" href="vendor/bootstrap-5.3.1/bootstrap.min.css">
-
-    <link rel="stylesheet" type="text/css" href="css/styles.css">
-    <link rel="stylesheet" type="text/css" href="css/dark.css">
-    <link rel="stylesheet" type="text/css" href="css/adjustments.css">
-    <link rel="stylesheet" type="text/css" href="css/vfx.css">
-    <link rel="stylesheet" type="text/css" href="css/sci-fi.css">
     <title>Progress Station</title>
 </head>
 <body id="body" class="sci-fi background-space">
 <section id="star-background" class="stars-active">
-    <!--        TODO max-width: 2000 & centered -->
     <div class="stars" id="stars1"></div>
     <div class="stars" id="stars2"></div>
     <div class="stars" id="stars3"></div>
@@ -32,50 +22,19 @@
     <div id="main-planet-overlay"></div>
 </section>
 
-<!-- Elements to preview various resolutions -->
-<!--
-<style>
-    .resolution-helper {
-        position: absolute;
-        display: inline-block;
-        top: 0;
-        left: 0;
-        max-width: 100%;
-        max-height: 100%;;
-        border: 2px dashed;
-        pointer-events: none;
-    }
-
-    .resolution-helper > span {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        padding: 0.5rem;
-    }
-</style>
-<div class="resolution-helper" style="width: 1280px; height: 720px; color: lightcoral;">
-    <span>1280 x 720</span>
-</div>
-
-<div class="resolution-helper" style=" width: 1440px;height: 900px; color: lime;">
-    <span>1440 × 900</span>
-</div>-->
-
-
-<h1 class="panel p-2">Progress Station</h1>
-<main id="main" class="d-flex flex-column" style="opacity: 0;">
-    <header class="panel mb-3 px-3 py-2 d-flex flex-column"
-            style="margin-left: max(0px, (100% - 900px - 360px) / 2)">
+<h1 id="gameTitle" class="panel p-2">Progress Station</h1>
+<main id="main" class="d-flex flex-column">
+    <header id="stationOverview" class="panel my-3 px-3 py-2 d-flex flex-column">
         <div class="d-flex flex-row gap-3 align-items-start">
             <h2 id="nameDisplay" class="m-0 flex-fill">USS Progress</h2>
-            <div class="" style="font-size: large">
+            <div class="primary-stat">
                 <span class="label">Intergalactic cycles:</span>
-                <data id="ageDisplay">14</data>
-                <data id="dayDisplay">0</data>
+                <data id="ageDisplay" value="14">14</data>
+                <data id="dayDisplay" value="0">0</data>
             </div>
-            <div style="color: gray">
+            <div class="secondary-stat help-text">
                 <span class="label">Station age:</span>
-                <data id="stationAge">70</data>
+                <data id="stationAge" value="70">70</data>
                 <data value="">kIC</data>
             </div>
         </div>
@@ -111,51 +70,43 @@
             </div>
         </div>
         <div class="d-flex flex-row gap-3 justify-content-around">
-            <div class="" style="font-size: large">
-                <span class="label">Danger:</span> <data id="dangerLevel" style="color: orange">54.2%</data>
+            <div class="primary-stat">
+                <span class="label">Danger:</span>
+                <data id="dangerLevel" style="color: orange" value="0.542">54.2%</data>
             </div>
             <div class="d-flex flex-row gap-3 align-items-center">
-                <div style="font-size: large">
+                <div class="primary-stat">
                     <span class="label" style="color: rgb(15, 105, 207)">Population:</span>
-                    <data id="happinessDisplay"></data>
+                    <data id="happinessDisplay" value="1">1</data>
                 </div>
-                <div style="color: gray">Affects all work speed</div>
+                <div class="help-text">Affects all work speed</div>
             </div>
             <div id="evilInfo" class="d-flex flex-row gap-3 align-items-center">
-                <div style="font-size: large">
+                <div class="primary-stat">
                     <span class="label" style="color: rgb(200, 0, 0)">Evil:</span>
-                    <data id="evilDisplay"></data>
+                    <data id="evilDisplay" value="1">1</data>
                 </div>
-                <div style="color: gray">
+                <div class="help-text">
                     Affects dark magic xp gain
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="d-flex align-content-start" style="max-height: calc(100vh - 176px)">
+    <div class="d-flex align-content-start" style="max-height: calc(100vh - 192px)">
         <aside id="sidebar" class="mh-100 overflow-x-hidden overflow-y-auto mb-3">
             <div id="actions" class="panel d-flex flex-column p-3">
-                <div id="deathText" class="mb-3">
-                    <!-- TODO is deathText part of actions? -->
-                    <p style="font-size: large; color: red; text-shadow: 1px 1px 2px black;">
-                        <b>The Destroyer</b> found you
-                    </p>
-                    <p style="color: gray">
-                        The danger was too high, and now you have to fight for your life.
-                    </p>
-                </div>
-
                 <div class="d-flex flex-row gap-3">
                     <div class="flex-fill">
-                        <button class="btn btn-secondary btn-lg w-100" id="pauseButton" onClick="setPause()">
+                        <button class="btn btn-secondary btn-lg w-100" id="pauseButton" onClick="setPause();">
                             Pause
                         </button>
 
                         <div id="timeWarping" class="mt-3">
                             <div>
-                                <button id="timeWarpingButton" class="btn btn-light w-100"
-                                        onClick="setTimeWarping()">
+                                <button id="timeWarpingButton"
+                                        class="btn btn-light w-100"
+                                        onClick="setTimeWarping();">
                                     Enable warp
                                 </button>
                             </div>
@@ -174,51 +125,64 @@
                     </div>
                 </div>
                 <div class="mt-2">
-                    <div style="font-size: large">
+                    <div class="primary-stat">
                         <span class="label" style="color: rgb(204, 34, 219)">Time warping: </span>
-                        <data id="timeWarpingDisplay"></data>
+                        <data id="timeWarpingDisplay" value="1">1.00</data>
                     </div>
-                    <div style="color: gray">Affects game speed</div>
+                    <div class="help-text">Affects game speed</div>
                 </div>
-
-
             </div>
             <nav class="mt-3 d-flex flex-column gap-3">
-                <button id="jobsTabButton" class="tabButton p-3" onClick="setTab(this, 'jobs')">
-                    <h3 style="font: inherit">Modules</h3>
-
+                <button id="jobsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'jobs');">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Modules</h3>
+                    <!--suppress HtmlUnknownTag -->
                     <div class="quickTaskDisplay mt-2">
                         <div class="progress job progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
                              aria-valuemin="0" aria-valuemax="100">
-                            <div class="progressFill current progress-bar progress-bar-striped"
-                                 style="width: 0"></div>
+                            <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
                             <div class="progress-text name px-2">Task</div>
                         </div>
                     </div>
                 </button>
-                <button id="skillsTabButton" class="tabButton p-3" onClick="setTab(this, 'skills')">
-                    <h3 style="font: inherit">Research</h3>
+                <button id="skillsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'skills');">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Research</h3>
+                    <!--suppress HtmlUnknownTag -->
                     <div class="quickTaskDisplay mt-2">
                         <div class="progress skill progressBar" role="progressbar" aria-label="Task"
                              aria-valuenow="0"
                              aria-valuemin="0" aria-valuemax="100">
-                            <div class="progressFill current progress-bar progress-bar-striped"
-                                 style="width: 0"></div>
+                            <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
                             <div class="progress-text name px-2">Task</div>
                         </div>
                     </div>
                 </button>
-                <button id="shopTabButton" class="tabButton p-3" onClick="setTab(this, 'shop')">
-                    <h3 style="font: inherit">Sectors</h3>
+                <button id="shopTabButton" class="tabButton panel p-3" onClick="setTab(this, 'shop');">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Sectors</h3>
                 </button>
-                <button id="rebirthTabButton" class="tabButton p-3" onClick="setTab(this, 'rebirth')">
-                    <h3 style="font: inherit">Captain's Log</h3>
+                <button id="rebirthTabButton" class="tabButton panel p-3" onClick="setTab(this, 'rebirth');">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Captain's Log</h3>
                 </button>
-                <button id="battleTabButton" class="tabButton p-3" onClick="setTab(this, 'battleTab')">
-                    <h3 style="font: inherit">Boss Battle</h3>
+                <button id="battleTabButton" class="tabButton panel p-3 hidden" onClick="setTab(this, 'battleTab');">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Boss Battle</h3>
+                    <!--suppress HtmlUnknownTag -->
+                    <div class="quickTaskDisplay mt-2">
+                        <div class="progress battle progressBar" role="progressbar" aria-label="Task"
+                             aria-valuenow="0"
+                             aria-valuemin="0" aria-valuemax="100">
+                            <div class="progressBackground progress-background"></div>
+                            <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
+                            <div class="progress-text name px-2">Task</div>
+                        </div>
+                    </div>
                 </button>
-                <button id="settingsTabButton" class="tabButton p-3" onClick="setTab(this, 'settings')">
-                    <h3 style="font: inherit">Settings</h3>
+                <button id="settingsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'settings');">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Settings</h3>
                 </button>
             </nav>
         </aside>
@@ -244,7 +208,7 @@
                 <div class="level2 ps-3 mt-2">
                     <div class="level2-header bg-light text-dark d-flex justify-content-start align-items-center px-2"
                          style="padding-top: 5px; padding-bottom: 5px;">
-                        <div style="width: 19.5rem">
+                        <div>
                             <div class="progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
                                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
                                  data-bs-placement="right">
@@ -253,7 +217,8 @@
                             </div>
                         </div>
                         <div>
-                            Level: <data class="level">32</data>
+                            Level:
+                            <data class="level" value="32">32</data>
                         </div>
                         <div>
                             <div class="form-check form-switch form-check-reverse">
@@ -316,16 +281,24 @@
                             <div class="progress-text name px-2">Basic Bitch Co. Drills</div>
                         </div>
                     </td>
-                    <td class="level"><data value="53">53</data></td>
+                    <td class="level">
+                        <data value="53">53</data>
+                    </td>
                     <td class="value">
                         <div class="effect">x1.13 Industry</div>
                         <div class="energy-generated">
                             <data value="259">259W</data>
                         </div>
                     </td>
-                    <td class="xpGain"><data value="1600" data-unit="k">1.6</data></td>
-                    <td class="xpLeft"><data value="4550" data-unit="k">45.5</data></td>
-                    <td class="maxLevel"><data value="124">124</data></td>
+                    <td class="xpGain">
+                        <data value="1600" data-unit="k">1.6</data>
+                    </td>
+                    <td class="xpLeft">
+                        <data value="4550" data-unit="k">45.5</data>
+                    </td>
+                    <td class="maxLevel">
+                        <data value="124">124</data>
+                    </td>
                     <td class="skipSkill">
                         <!--suppress HtmlFormInputWithoutLabel -->
                         <input class="checkbox" type="checkbox"/>
@@ -336,7 +309,7 @@
             <template id="level4ItemTemplate">
                 <tr>
                     <td>
-                        <button class="button item-button descriptionTooltip" aria-label="Item"
+                        <button class="button btn btn-primary btn-sm text-start descriptionTooltip" aria-label="Item"
                                 title="Item Description" data-bs-placement="right">
                             <span class="name"></span>
                         </button>
@@ -355,169 +328,154 @@
 
             <template id="level4RequiredTemplate">
                 <tr>
-                    <td class="requirements" style="padding-left: 16px; color: gray" colspan="100%">
+                    <td class="requirements help-text ps-3" colspan="100%">
                         Required:
                         <span class="value">
                             <span class="levels"></span>
                             <span class="energy-stored">
                                 <data value=""></data> <span>stored energy</span>
                             </span>
-                            <data style="color: rgb(200, 0, 0)" class="evil"></data>
+                            <data style="color: rgb(200, 0, 0)" class="evil" value=""></data>
                         </span>
                     </td>
                 </tr>
             </template>
 
-            <div id="jobs" class="tab m-3">
+            <div id="jobs" class="tab p-3">
                 <slot id="jobTable"></slot>
             </div>
 
-            <div id="skills" class="tab m-3">
+            <div id="skills" class="tab p-3">
                 <slot id="skillTable"></slot>
             </div>
 
-            <div id="shop" class="tab m-3">
+            <div id="shop" class="tab p-3">
                 <slot id="itemTable"></slot>
             </div>
 
-            <div id="rebirth" class="tab m-3">
+            <div id="rebirth" class="tab p-3">
                 <ul>
-                    <li style="margin: 8px;">
+                    <li>
                         You stumble across a strange looking amulet on your 25th birthday. It does not look like
                         it has any worth on the market given that it's made from cheap-looking copper. However, you
                         feel a weird urge to keep the amulet, so you slip it into your pocket for safekeeping.
                     </li>
-                    <li style="margin: 8px;" id="rebirthNote1">
+                    <li class="mt-2" id="rebirthNote1">
                         On your 45th birthday, you feel the amulet shiver uncontrollably in your pocket. You take it
                         out and the constant shivering suddenly stops. More to your bizarre surprise, you notice
                         a strange etching on the centre of the amulet.
                     </li>
-                    <li style="margin: 8px;" id="rebirthNote2">
-                        <div style="margin-bottom: 8px">
+                    <li class="mt-2" id="rebirthNote2">
+                        <p>
                             On your 65th birthday, you once again encounter the strange, unexplained shivering from your
                             amulet. But this time, a living eyeball emerges from the centre. Although terribly
                             frightened,
-                            you realise you do not have many years to live left anyway so you consider touching the eye
+                            you realise you do not have many years to live left anyway, so you consider touching the eye
                             to see what happens.
-                        </div>
-                        <i style="color: grey">
+                        </p>
+                        <p class="mt-2 help-text">
                             By touching the eyeball, you will be reborn and have to restart life again, losing all your
                             levels and stored energy.
-                            However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to: <b>1 +
-                            the
-                            max level of the skill or job / 10.</b>
+                            However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to:
+                            <b>1 + the max level of the skill or job / 10.</b>
                             This means you will learn everything again much more quickly than you did in your previous
                             life.
-                            <span style="color: rgb(200, 0, 0)">
-                                Something tells you that the amulet might transform even further after living for <b>2 whole centuries</b>...
-                        </span>
-                        </i>
-                        </br>
-                        <button class="btn btn-light my-2" onClick="rebirthOne()">
+                        </p>
+                        <p style="color: rgb(200, 0, 0)">
+                            Something tells you that the amulet might transform even
+                            further after living for <b>2 whole centuries</b>&hellip;
+                        </p>
+                        <button class="btn btn-light mt-3" onClick="rebirthOne();">
                             Touch the eye
                         </button>
-                        </br>
                     </li>
-                    <li style="margin: 8px;" id="rebirthNote3">
-                        <div style="margin-bottom: 8px;">
+                    <li class="mt-2" id="rebirthNote3">
+                        <p>
                             Your gut instinct was right. The moment you hit the grand age of 200, you hear an ominous
                             hum
                             coming from the amulet.
                             A mouth emerges from its surface and begins to cackle, and proceeds to say: "So you've made
                             it
                             this far... Are you ready to embrace evil?"
-                        </div>
-                        <i style="color: rgb(200, 0, 0)">
-                            If you decide to embrace evil, all of your levels, stored energy and even max levels will be
-                            reset.
-                            You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
-                            <b><span id="evilGainDisplay"></span> evil</b>, which will heavily impact your future lives.
-                        </i>
-                        </br>
-                        <button class="btn btn-light my-2" onClick="rebirthTwo()">
+                        </p>
+                        <p class="mt-2" style="color: rgb(200, 0, 0)">
+                                If you decide to embrace evil, all of your levels, stored energy and even max levels will be
+                                reset.
+                                You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
+                                <b><data id="evilGainDisplay" value=""></data> evil</b>, which will heavily impact your future lives.
+                        </p>
+                        <button class="btn btn-light mt-3" onClick="rebirthTwo();">
                             Embrace evil
                         </button>
-                        </br>
                     </li>
                 </ul>
             </div>
 
-            <div id="battleTab" class="tab m-3">
-                <div class="text-strap">Encounter</div>
-                <h2 id="battleName" class="small-margin">Destroyer</h2>
-                <div class="battle-flavor-text medium-margin" id="battleFlavorMessage">The entity known only as the
-                    'Destroyer' has caught up with you.
-                    <br>You are facing a dark mass of writhing tentacles, teeth and eyes that are fixated on the
-                    station.
-                    <br>Slowly, it moves towards you. Brace for impact!
-                </div>
-                <div id="gameOverMessageWin" class="gameOverMessage battle-flavor-text-win" hidden>
+            <div id="battleTab" class="tab p-3 overflow-hidden">
+                <p class="help-text">Encounter</p>
+                <h2 id="battleName" class="mb-1">Destroyer</h2>
+                <div id="gameOverMessageWin" class="my-3 p-2 battle-flavor-text win" hidden>
                     Congratulations!<br/>
                     You managed to blast through the Destroyer's near endless defenses. The universe is safe.
                 </div>
-                <div id="gameOverMessageLose" class="gameOverMessage battle-flavor-text-lose" hidden>
+                <div id="gameOverMessageLose" class="my-3 p-2 battle-flavor-text lose" hidden>
                     The Destroyer's power is overwhelming. Your only hope is to engage the Temporus artifact
                     and attempt a time jump. You will lose all of your Modules and Exploration progress, but
                     will progress much faster the next time around.
                 </div>
-                <button id="battleStartButton" class="button medium-margin">
-                    <span class="name">Start Battle</span>
-                </button>
-                <div id="battleProgressBar" class="progress battle progressBar" role="progressbar" hidden
+                <div id="battleProgressBar" class="progress battle progressBar w-100 mt-3" role="progressbar" hidden
                      aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progressBackground progress-background"></div>
                     <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
                     <div class="progress-text name px-2">Battle</div>
                 </div>
             </div>
 
-            <div id="settings" class="tab m-3">
+            <div id="settings" class="tab p-3">
                 <ul>
                     <li>
                         <h2><label for="settingsStationNameInput">Station Name</label></h2>
-                        <button class="btn btn-light" onClick="rerollStationName()">Re-roll</button>
+                        <button class="btn btn-light" onClick="rerollStationName();">Re-roll</button>
                         <form class="mt-3">
                             <input type="text"
                                    id="settingsStationNameInput"
                                    class="stationNameInput w-100"
-                                   style="width:100%"
                                    maxlength="30"
                                    placeholder=""/>
                         </form>
                     </li>
                     <li>
-                        <h2>Import/export save</h2>
-                        <button class="btn btn-light" onClick="importGameData()">Import</button>
-                        <button class="btn btn-light" onClick="exportGameData()">Export</button>
+                        <h2><label for="importExportBox">Import/export save</label></h2>
+                        <button class="btn btn-light" onClick="importGameData();">Import</button>
+                        <button class="btn btn-light" onClick="exportGameData();">Export</button>
                         <form class="mt-3">
-                        <textarea id="importExportBox"
-                                  style="width:100%; resize: vertical; min-height: 73px"
-                                  rows="3"></textarea>
+                            <textarea id="importExportBox" class="w-100" rows="3"></textarea>
                         </form>
                     </li>
                     <li>
                         <h2>Light/dark mode</h2>
-                        <button class="btn btn-light" onClick="toggleLightDarkMode()">Toggle</button>
+                        <button class="btn btn-light" onClick="toggleLightDarkMode();">Toggle</button>
                     </li>
                     <li>
                         <h2 class="unstable">Sci-fi mode</h2>
-                        <button class="btn btn-light" onClick="toggleSciFiMode()">Toggle</button>
+                        <button class="btn btn-light" onClick="toggleSciFiMode();">Toggle</button>
                     </li>
                     <li>
                         <h2 class="unstable">Background</h2>
                         <label class="background background-simple">
-                            <input type="radio" name="background" onClick="setBackground('simple')"/>
+                            <input type="radio" name="background" onClick="setBackground('simple');"/>
                             Simple Color
                         </label>
                         <label class="background background-triangles1">
-                            <input type="radio" name="background" onClick="setBackground('triangles1')"/>
+                            <input type="radio" name="background" onClick="setBackground('triangles1');"/>
                             Trianglify
                         </label>
                         <label class="background background-space">
-                            <input type="radio" name="background" onClick="setBackground('space')"/>
+                            <input type="radio" name="background" onClick="setBackground('space');"/>
                             Space
                         </label>
                         <label class="background background-hexagons">
-                            <input type="radio" name="background" onClick="setBackground('hexagons')"/>
+                            <input type="radio" name="background" onClick="setBackground('hexagons');"/>
                             Bestagons
                         </label>
                     </li>
@@ -530,7 +488,7 @@
                     </li>
                     <li>
                         <h2>Hard reset game</h2>
-                        <button class="btn btn-danger" onClick="resetGameData()">Reset</button>
+                        <button class="btn btn-danger" onClick="resetGameData();">Reset</button>
                     </li>
                 </ul>
             </div>
@@ -571,14 +529,37 @@
     </div>
 </div>
 
+<div id="deathModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-4 fw-light"><b>The Destroyer</b> found you</h2>
+            </div>
+            <div class="modal-body">
+                <p>
+                    The danger was too high, and now the entity known only as the 'Destroyer' has caught up with you.
+                </p>
+                <p>
+                    You are facing a dark mass of writhing tentacles, teeth and eyes that are fixated on the station.
+                </p>
+                <p>
+                    Slowly, it moves towards you - brace for impact!
+                </p>
+            </div>
+            <div class="modal-footer d-flex justify-content-end">
+                <button type="button" class="btn btn-primary" onclick="startBossBattle();">Fight!</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Do not include background timer during local development -> it makes debugging a pain -->
+<!--<script type="text/javascript" src="vendor/hacktimer-1.1.3/HackTimer.min.js"></script>-->
 <script type="text/javascript" src="vendor/bootstrap-5.3.1/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="vendor/lodash-4.17.15/lodash.min.js"></script>
-<!-- Do not include background timer during local development -> it makes debugging a pain -->
-<!--<script type="text/javascript" src="js/HackTimer.js"></script>-->
-<script type="text/javascript" src="js/p5.Color.js"></script>
+<script type="text/javascript" src="vendor/p5.Color.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/gameEvents.js"></script>
-<script type="text/javascript" src="js/types.js"></script>
 <script type="text/javascript" src="js/classes.js"></script>
 <script type="text/javascript" src="js/battle.js"></script>
 <script type="text/javascript" src="js/gameConfig.js"></script>
