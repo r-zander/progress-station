@@ -30,37 +30,37 @@ const battleBaseData = {
 
 const skillBaseData = {
     Concentration: {title: 'Concentration', maxXp: 100, effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}]},
-    Productivity: {title: 'Productivity', maxXp: 100, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }]},
+    Productivity: {title: 'Productivity', maxXp: 100, effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}]},
 };
 
 const itemBaseData = {
-    Homeless: {title: 'Homeless', expense: 0, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }]},
-    Book: {title: 'Book', expense: 10, effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], description: 'Research xp'},
+    Homeless: {title: 'Homeless', expense: 0, effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}]},
+    Book: {title: 'Book', expense: 10, effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], description: 'Research xp'},
 };
 
 const moduleOperations = {
-    Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], maxXp: 400}),
-    Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], maxXp: 50}),
-    Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], maxXp: 100}),
-    Steel: new ModuleOperation({title: 'Steel', effects: [{effectType: EffectType.Population, baseValue: 5 }, {effectType: EffectType.Energy, baseValue: 5 }], maxXp: 200}),
-    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 30}),
-    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 40}),
-    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 50}),
-    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 60}),
-    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Population, baseValue: 5 }], maxXp: 400, energyConsumption: 80}),
-}
+    Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 400}),
+    Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 50}),
+    Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 100}),
+    Steel: new ModuleOperation({title: 'Steel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 200}),
+    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 30}),
+    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 40}),
+    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 50}),
+    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 60}),
+    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 80}),
+};
 
 const moduleComponents = {
     Fuel: new ModuleComponent({title: 'Fuel', operations: [moduleOperations.Garbage, moduleOperations.Diesel]}),
     Products: new ModuleComponent({title: 'Products', operations: [moduleOperations.Plastics, moduleOperations.Steel]}),
     Replication: new ModuleComponent({title: 'Replication', operations: [moduleOperations.QuantumReplicator, moduleOperations.BioGenesisChamber, moduleOperations.NanoFertilityDrones]}),
     Living: new ModuleComponent({title: 'Living', operations: [moduleOperations.HoloCommunityHub, moduleOperations.TemporalBreedingPods]}),
-}
+};
 
 const modules = {
-    Furnace: new Module({title:'Furnace', components: [moduleComponents.Fuel, moduleComponents.Products]}),
-    Hive: new Module({title:'Hive', components: [moduleComponents.Replication, moduleComponents.Living]}),
-}
+    Furnace: new Module({title: 'Furnace', components: [moduleComponents.Fuel, moduleComponents.Products]}),
+    Hive: new Module({title: 'Hive', components: [moduleComponents.Replication, moduleComponents.Living]}),
+};
 
 /*
 const moduleCategories = {
@@ -87,7 +87,7 @@ for (const [key, module] of Object.entries(moduleOperations)) {
     module.baseData.name = key;
 }
 
-function assignNames(data){
+function assignNames(data) {
     for (const [key, val] of Object.entries(data)) {
         val.name = key;
     }
@@ -156,7 +156,7 @@ const layerData = [
     new LayerData('#47ff00'),
 ];
 
-const lastLayerData= new LayerData('#000000');
+const lastLayerData = new LayerData('#000000');
 
 function createRequirements(getElementsByClass, getTaskElement, getItemElement) {
     return {
@@ -204,7 +204,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Chairman': new TaskRequirement([getTaskElement('Chairman')], [{task: 'Mana control', requirement: 2000}, {task: 'Master wizard', requirement: 10}]),
 */
         //Fundamentals
-        Concentration : new TaskRequirement([getTaskElement('Concentration')], []),
+        Concentration: new TaskRequirement([getTaskElement('Concentration')], []),
         Productivity: new TaskRequirement([getTaskElement('Productivity')], [{task: 'Concentration', requirement: 5}]),
         //'Bargaining': new TaskRequirement([getTaskElement('Bargaining')], [{task: 'Concentration', requirement: 20}]),
         /*

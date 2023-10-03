@@ -10,12 +10,12 @@ class LayeredTask extends Task {
         this.maxLayers = this.baseData.maxLayers;
     }
 
-    do(){
+    do() {
         if (this.isDone()) return;
         super.do();
     }
 
-    isDone(){
+    isDone() {
         return this.level >= this.maxLayers;
     }
 }

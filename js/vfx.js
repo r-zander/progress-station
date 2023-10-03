@@ -18,7 +18,7 @@ function htmlToElement(html) {
  * @param {{[cssProperty]: function(): string }} styleObject
  * @return {string}
  */
-function renderStyle(styleObject){
+function renderStyle(styleObject) {
     let result = '';
     for (const [property, valueFn] of Object.entries(styleObject)) {
         result += property + ': ' + valueFn() + ';';

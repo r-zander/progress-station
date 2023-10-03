@@ -29,7 +29,7 @@ function initDeath() {
         deathModal.hide();
         tabButtons.battle.classList.remove('hidden');
         setTab(tabButtons.battle, 'battleTab');
-        resetBattle('Destroyer')
+        resetBattle('Destroyer');
         startBattle('Destroyer');
         unpause();
     };

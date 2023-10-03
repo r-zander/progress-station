@@ -266,7 +266,7 @@ const elementWords = [
 const moreWords = [
     'End of the Universe', // The Hitchhiker's Guide to the Galaxy
     '42', // The Hitchhiker's Guide to the Galaxy
-]
+];
 // end of unused words
 
 const numberWords = [

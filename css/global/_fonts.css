@@ -45,6 +45,7 @@
     font-weight: 200;
     src: url('../../fonts/exo-2-v21-latin-200.woff2') format('woff2');
 }
+
 @font-face {
     font-display: swap;
     font-family: 'Exo 2';

@@ -40,7 +40,7 @@
         display: none;
     }
 
-    &:hover ,
+    &:hover,
     &.detailed {
         .detail {
             display: block;

@@ -24,7 +24,7 @@ class GameEvent {
      * @param {function} callback if the callback returns a truthy value, it will be removed after it has been called once
      * @param {Object} context optional
      */
-    subscribe(callback, context= undefined) {
+    subscribe(callback, context = undefined) {
         if (this._isOnetime && this._triggerCount > 0) {
             // One time event was already triggered - just execute
             // the callback with appropriate parameters and done

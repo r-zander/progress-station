@@ -9,8 +9,6 @@ const spaceReferences = mergeWordLists(shortSpaceReferences, longSpaceReferences
 const stationTypes = mergeWordLists(shortStationTypes, longStationTypes);
 
 
-
-
 class NameGenerator {
     #name = '';
     #maxLength = 20;
