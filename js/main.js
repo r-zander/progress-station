@@ -95,7 +95,7 @@ function getGameSpeed(ignoreDeath = false) {
     //const timeWarping = gameData.taskData['Time warping'];
     //const timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1;
     if (ignoreDeath) {
-        return baseGameSpeed * +!gameData.paused * timeWarpingSpeed;
+        return baseGameSpeed * +!gameData.paused /* * timeWarpingSpeed */;
     } else {
         return baseGameSpeed * +isPlaying();
     }
@@ -283,9 +283,7 @@ function createModuleLevel2Elements(categoryName, category, level2Slot, domId) {
         level2DomGetter.byClass('name').textContent = module.title;
         level2DomGetter.byClass('level').textContent = '0';
 
-        const toggle = level2DomGetter.byClass('form-check-input');
-        module.toggleButton = toggle;
-        toggle.addEventListener('click', module.onToggleButton.bind(module));
+        module.setToggleButton(level2DomGetter.byClass('form-check-input'));
 
         const level3Slot = level2DomGetter.byId('level3');
         createModuleLevel3Elements(categoryName, module, level3Slot, domId);

@@ -192,6 +192,15 @@ class Module {
         }
     }
 
+    /**
+     *
+     * @param {HTMLInputElement} button
+     */
+    setToggleButton(button) {
+        this.toggleButton = button;
+        button.addEventListener('click', this.onToggleButton.bind(this));
+    }
+
     onToggleButton() {
         this.setEnabled(this.toggleButton.checked);
     }
