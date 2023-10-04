@@ -1104,50 +1104,49 @@ function resetBattle(name) {
 
 function rebirthOne() {
     gameData.rebirthOneCount += 1;
-
     rebirthReset();
 }
 
 function rebirthTwo() {
-    gameData.rebirthTwoCount += 1;
+    rebirthOne();
     gameData.evil += getEvilGain();
 
-    rebirthReset();
-
-    for (let taskName in gameData.taskData) {
-        const task = gameData.taskData[taskName];
-        task.maxLevel = 0;
-    }
+    resetMaxLevels();
 }
 
 function rebirthReset() {
     setTab(tabButtons.jobs, 'jobs');
 
-    // TODO encapsulate with start data
-    gameData.storedEnergy = 0;
-    gameData.days = 365 * 14;
-    setDefaultCurrentValues();
-    gameData.autoLearnEnabled = false;
-    gameData.autoPromoteEnabled = false;
+    setDefaultValues();
+    setPermanentUnlocksAndResetData();
+}
 
+function setPermanentUnlocksAndResetData(){
     for (let taskName in gameData.taskData) {
         const task = gameData.taskData[taskName];
-        if (task.level > task.maxLevel) task.maxLevel = task.level;
-        task.level = 0;
-        task.xp = 0;
+        task.updateMaxLevelAndReset();
     }
 
     for (let battleName in gameData.battleData) {
         const battle = gameData.battleData[battleName];
-        if (battle.level > battle.maxLevel) battle.maxLevel = battle.level;
-        battle.level = 0;
-        battle.xp = 0;
+        battle.updateMaxLevelAndReset()
     }
 
     for (let key in gameData.requirements) {
         const requirement = gameData.requirements[key];
         if (requirement.completed && permanentUnlocks.includes(key)) continue;
         requirement.completed = false;
+    }
+}
+
+function resetMaxLevels(){
+    for (let taskName in gameData.taskData) {
+        const task = gameData.taskData[taskName];
+        task.maxLevel = 0;
+    }
+    for (let battleName in gameData.battleData) {
+        const battle = gameData.battleData[battleName];
+        battle.maxLevel = 0;
     }
 }
 
@@ -1398,6 +1397,15 @@ function initStationName() {
             setStationName(event.target.value);
         });
     }
+}
+
+function setDefaultValues() {
+    setDefaultCurrentValues();
+
+    gameData.storedEnergy = 0;
+
+    gameData.autoLearnEnabled = false;
+    gameData.autoPromoteEnabled = false;
 }
 
 function setDefaultCurrentValues() {
