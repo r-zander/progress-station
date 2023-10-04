@@ -36,7 +36,7 @@
 
 .level2-header {
     position: sticky;
-    top: 40px;
+    top: 0;
     z-index: 2;
 }
 
@@ -58,9 +58,17 @@
 
 .level3 {
     position: sticky;
-    top: 80px;
+    top: 0;
     z-index: 1;
     background-color: white;
+}
+
+.level1 .level2-header {
+    top: 40px;
+}
+
+.level1 .level2 .level3 {
+    top: 80px;
 }
 
 .table td,

@@ -209,72 +209,51 @@ function createRequiredRow(categoryName) {
     return requiredRow;
 }
 
-function createModuleLevel4Elements(categoryName, module, level4Slot, domId) {
+function createModuleLevel4Elements(categoryName, component) {
     const level4Elements = [];
-    const operations = module.operations;
+    const operations = component.operations;
 
     operations.forEach(function (mode) {
-        let level4Element;
-        if (domId === 'itemTable') {
-            level4Element = Dom.new.fromTemplate('level4ItemTemplate');
-        } else {
-            level4Element = Dom.new.fromTemplate('level4TaskTemplate');
-        }
-
+        const level4Element = Dom.new.fromTemplate('level4TaskTemplate');
         const level4DomGetter = Dom.get(level4Element);
+
         level4DomGetter.byClass('name').textContent = mode.title;
-        let descriptionElement = level4DomGetter.byClass('descriptionTooltip');
+        const descriptionElement = level4DomGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = mode.title;
         descriptionElement.title = tooltips[mode.title];
         level4Element.id = 'row ' + mode.name;
-
-        if (domId === 'itemTable') {
-            const setFunction = module === 'Properties' ? setProperty : setMisc;
-            level4DomGetter.byClass('button').onclick = function () {
-                setFunction(mode.name);
-            };
-            level4DomGetter.byClass('radio').onclick = function () {
-                setFunction(mode.name);
-            };
-        } else {
-            level4DomGetter.byClass('progressBar').onclick = function () {
-                module.setActiveMode(mode);
-            };
-        }
+        level4DomGetter.byClass('progressBar').onclick = function () {
+            component.setActiveMode(mode);
+        };
 
         level4Elements.push(level4Element);
     });
 
     level4Elements.push(createRequiredRow(categoryName));
-    level4Slot.append(...level4Elements);
+
+    return level4Elements;
 }
 
-function createModuleLevel3Elements(categoryName, module, level3Slot, domId) {
+function createModuleLevel3Elements(categoryName, module) {
     const level3Elements = [];
 
-    for (let comp of module.components) {
-        let level3Element;
-        if (domId === 'itemTable') {
-            level3Element = Dom.new.fromTemplate('level3ItemTemplate');
-        } else {
-            level3Element = Dom.new.fromTemplate('level3TaskTemplate');
-        }
-
+    for (let component of module.components) {
+        const level3Element = Dom.new.fromTemplate('level3TaskTemplate');
         const level3DomGetter = Dom.get(level3Element);
-        level3DomGetter.byClass('name').textContent = comp.title;
 
-        level3DomGetter.byClass('valueType').textContent = 'Effect';
+        level3DomGetter.byClass('name').textContent = component.title;
+        level3DomGetter.byClass('skipSkill').style.display = 'none';
 
         const level4Slot = level3DomGetter.byClass('level4');
-        createModuleLevel4Elements(categoryName, comp, level4Slot, domId);
+        level4Slot.append(...createModuleLevel4Elements(categoryName, component));
 
         level3Elements.push(level3Element);
     }
 
-    level3Slot.replaceWith(...level3Elements);
+    return level3Elements;
 }
 
-function createModuleLevel2Elements(categoryName, category, level2Slot, domId) {
+function createModuleLevel2Elements(categoryName, category) {
     const level2Elements = [];
 
     for (let module of category) {
@@ -286,21 +265,20 @@ function createModuleLevel2Elements(categoryName, category, level2Slot, domId) {
         module.setToggleButton(level2DomGetter.byClass('form-check-input'));
 
         const level3Slot = level2DomGetter.byId('level3');
-        createModuleLevel3Elements(categoryName, module, level3Slot, domId);
+        level3Slot.replaceWith(...createModuleLevel3Elements(categoryName, module));
 
         level2Elements.push(level2Element);
     }
 
-    level2Slot.replaceWith(...level2Elements);
+    return level2Elements;
 }
 
-function createNestedRows(categoryDefinition, domId) {
+function createModuleUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
     const level1Elements = [];
 
     for (let categoryName in categoryDefinition) {
         const level1Element = Dom.new.fromTemplate('level1Template');
-        level1Elements.push(level1Element);
 
         const category = categoryDefinition[categoryName];
         level1Element.classList.add(removeSpaces(categoryName));
@@ -311,50 +289,15 @@ function createNestedRows(categoryDefinition, domId) {
         level1DomGetter.byClass('level1-header').style.backgroundColor = headerRowColors[categoryName];
 
         const level2Slot = level1DomGetter.byId('level2');
+        level2Slot.replaceWith(...createModuleLevel2Elements(categoryName, category));
 
-        if (categoryDefinition === moduleCategories) {
-            createModuleLevel2Elements(categoryName, category, level2Slot, domId);
-        } else {
-            createLevel2Rows(categoryName, category, level2Slot, domId);
-        }
+        level1Elements.push(level1Element);
     }
 
     slot.replaceWith(...level1Elements);
 }
 
-//// TODO: Remove obsolete func with 2-layered UI
-/**
- *
- * @param categoryName
- * @param category
- * @param level2Slot
- * @param {string} domId
- */
-function createLevel2Rows(categoryName, category, level2Slot, domId) {
-    const level2Element = Dom.new.fromTemplate('level2Template');
-    const level2DomGetter = Dom.get(level2Element);
-    level2DomGetter.byClass('name').textContent = 'Module name';
-    level2DomGetter.byClass('level').textContent = '0';
-    level2Slot.replaceWith(level2Element);
-
-    const level3Slot = level2DomGetter.byId('level3');
-    let level3Element;
-    if (domId === 'itemTable') {
-        level3Element = Dom.new.fromTemplate('level3ItemTemplate');
-    } else {
-        level3Element = Dom.new.fromTemplate('level3TaskTemplate');
-    }
-    const level3DomGetter = Dom.get(level3Element);
-    level3DomGetter.byClass('name').textContent = 'Component name';
-    if (domId === 'jobTable') {
-        level3DomGetter.byClass('valueType').textContent = 'Generated/cycle';
-    } else if (domId === 'skillTable') {
-        level3DomGetter.byClass('valueType').textContent = 'Effect';
-    }
-    level3Slot.replaceWith(level3Element);
-
-    /** @type {HTMLElement} */
-    const level4Slot = level3DomGetter.byClass('level4');
+function createLevel4Elements(domId, category, categoryName) {
     const level4Elements = [];
     category.forEach(function (entry) {
         let level4Element;
@@ -395,8 +338,47 @@ function createLevel2Rows(categoryName, category, level2Slot, domId) {
     });
 
     level4Elements.push(createRequiredRow(categoryName));
+    return level4Elements;
+}
 
-    level4Slot.append(...level4Elements);
+function createLevel3Element(domId, category, categoryName, categoryIndex) {
+    let level3Element;
+    if (domId === 'itemTable') {
+        level3Element = Dom.new.fromTemplate('level3ItemTemplate');
+    } else {
+        level3Element = Dom.new.fromTemplate('level3TaskTemplate');
+    }
+
+    level3Element.classList.add(removeSpaces(categoryName));
+    level3Element.classList.remove('ps-3');
+    if (categoryIndex === 0) {
+        level3Element.classList.remove('mt-2');
+    }
+
+    const level3DomGetter = Dom.get(level3Element);
+    // TODO this should be category.title
+    level3DomGetter.byClass('name').textContent = categoryName;
+    level3Element.querySelector('.header-row').style.backgroundColor = headerRowColors[categoryName];
+
+    /** @type {HTMLElement} */
+    const level4Slot = level3DomGetter.byClass('level4');
+    level4Slot.append(...createLevel4Elements(domId, category, categoryName));
+
+    return level3Element;
+}
+
+/**
+ * Due to styling reasons, the two rendered levels are actually level 3 + 4 - don't get confused.
+ */
+function createTwoLevelUI(categoryDefinition, domId) {
+    const slot = Dom.get().byId(domId);
+    const level3Elements = [];
+
+    for (let categoryName in categoryDefinition) {
+        level3Elements.push(createLevel3Element(domId, categoryDefinition[categoryName], categoryName, level3Elements.length));
+    }
+
+    slot.replaceWith(...level3Elements);
 }
 
 function cleanUpDom() {
@@ -414,7 +396,7 @@ function initSidebar() {
 
 function updateSkillQuickTaskDisplay() {
     const currentTask = gameData.currentSkill;
-    const progressBar = document.querySelector(`.quickTaskDisplay .${'skill'}`);
+    const progressBar = document.querySelector(`.quickTaskDisplay .skill`);
     progressBar.getElementsByClassName('name')[0].textContent = currentTask.title + ' lvl ' + currentTask.level;
     setProgress(progressBar.getElementsByClassName('progressFill')[0], currentTask.xp / currentTask.getMaxXp());
 }
@@ -625,19 +607,18 @@ function updateItemRows() {
     }
 }
 
-function updateHeaderRows(categories) {
-    for (let category in categories) {
-        const className = removeSpaces(category);
-        const headerRow = document.getElementsByClassName(className)[0];
-        const maxLevelElement = headerRow.getElementsByClassName('maxLevel')[0];
-        gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove('hidden') : maxLevelElement.classList.add('hidden');
-        const skipSkillElement = headerRow.getElementsByClassName('skipSkill')[0];
-        if (categories === skillCategories && autoLearnElement.checked) {
+function updateHeaderRows() {
+    document.querySelectorAll('.level3 .maxLevel').forEach(function (maxLevelElement) {
+        maxLevelElement.classList.toggle('hidden', gameData.rebirthOneCount === 0);
+    });
+
+    document.querySelectorAll('#skills .level3 .skipSkill').forEach(function (skipSkillElement) {
+        if (autoLearnElement.checked) {
             skipSkillElement.style.removeProperty('display');
         } else {
             skipSkillElement.style.display = 'none';
         }
-    }
+    });
 }
 
 function updateEnergyBar() {
@@ -712,20 +693,6 @@ function updateEnergyDisplay(amount, dataElement, formatConfig = {}) {
         unit: units.energy,
         prefixes: metricPrefixes
     }, formatConfig));
-}
-
-function setSignDisplay() {
-    const signDisplay = document.getElementById('signDisplay');
-    if (getEnergyGeneration() > getEnergyUsage()) {
-        signDisplay.textContent = '+';
-        signDisplay.style.color = 'green';
-    } else if (getEnergyUsage() > getEnergyGeneration()) {
-        signDisplay.textContent = '-';
-        signDisplay.style.color = 'red';
-    } else {
-        signDisplay.textContent = '';
-        signDisplay.style.color = 'gray';
-    }
 }
 
 function getNet() {
@@ -1341,8 +1308,7 @@ function updateUI() {
     updateRequiredRows(moduleCategories);
     updateRequiredRows(skillCategories);
     updateRequiredRows(itemCategories);
-    updateHeaderRows(moduleCategories);
-    updateHeaderRows(skillCategories);
+    updateHeaderRows();
     //TODO: does not work for several jobs
     //updateQuickTaskDisplay('job');
     updateSkillQuickTaskDisplay();
@@ -1480,11 +1446,9 @@ function displayLoaded() {
 }
 
 function init() {
-    createNestedRows(moduleCategories, 'jobTable');
-
-    //TODO Raoul: flat hierarchy
-    createNestedRows(skillCategories, 'skillTable');
-    createNestedRows(itemCategories, 'itemTable');
+    createModuleUI(moduleCategories, 'jobTable');
+    createTwoLevelUI(skillCategories, 'skillTable');
+    createTwoLevelUI(itemCategories, 'itemTable');
 
     cleanUpDom();
 
