@@ -170,7 +170,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Rebirth note 2': new AgeRequirement([Dom.get().byId('rebirthNote2')], [{requirement: 65}]),
         'Rebirth note 3': new AgeRequirement([Dom.get().byId('rebirthNote3')], [{requirement: 200}]),
         'Evil info': new EvilRequirement([Dom.get().byId('evilInfo')], [{requirement: 1}]),
-        'Time warping info': new TaskRequirement([Dom.get().byId('timeWarping')], [{task: 'Mage', requirement: 10}]),
+        'Time warping info': new TaskRequirement(getElementsByClass('timeWarping'), [{task: 'Mage', requirement: 10}]),
         'Automation': new AgeRequirement([Dom.get().byId('automation')], [{requirement: 20}]),
         'Quick task display': new AgeRequirement(getElementsByClass('quickTaskDisplay'), [{requirement: 20}]),
         */
