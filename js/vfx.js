@@ -206,7 +206,7 @@ GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
     const numberOfParticles = 10;
     const direction = taskInfo.type === 'Battle' ? 'left' : 'right';
     let taskProgressBar;
-    if (taskInfo.type === 'Battle') {
+    if (taskInfo.type === 'battle') {
         taskProgressBar = getBattleElement(taskInfo.name);
     } else {
         const taskElement = getTaskElement(taskInfo.name);

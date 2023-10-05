@@ -567,11 +567,12 @@ function updateTaskRows() {
         setProgress(progressFill, task.xp / task.getMaxXp());
         if (task instanceof ModuleOperation && gameData.currentOperations.hasOwnProperty(task.name)) {
             progressFill.classList.add('current');
-        }
-        if (task instanceof Skill && task === gameData.currentSkill) {
-            progressFill.classList.add('current');
         } else {
-            progressFill.classList.remove('current');
+            if (task instanceof Skill && task === gameData.currentSkill) {
+                progressFill.classList.add('current');
+            } else {
+                progressFill.classList.remove('current');
+            }
         }
 
         const valueElement = row.getElementsByClassName('value')[0];
