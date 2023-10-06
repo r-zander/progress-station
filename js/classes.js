@@ -103,7 +103,9 @@ class Task {
     }
 
     updateMaxLevelAndReset() {
-        if (this.level > this.maxLevel) this.maxLevel = this.level;
+        if (this.level > this.maxLevel) {
+                this.maxLevel = this.level;
+        }
         this.level = 0;
         this.xp = 0;
     }
