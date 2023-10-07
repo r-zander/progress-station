@@ -392,17 +392,16 @@
                     <li class="mt-2" id="rebirthNote3">
                         <p>
                             Your gut instinct was right. The moment you hit the grand age of 200, you hear an ominous
-                            hum
-                            coming from the amulet.
-                            A mouth emerges from its surface and begins to cackle, and proceeds to say: "So you've made
-                            it
-                            this far... Are you ready to embrace evil?"
+                            hum coming from the amulet.<br/>
+                            A mouth emerges from its surface and begins to cackle, and proceeds to say: <i>"So you've made
+                            it this far... Are you ready to embrace evil?"</i>
                         </p>
                         <p class="mt-2" style="color: rgb(200, 0, 0)">
-                                If you decide to embrace evil, all of your levels, stored energy and even max levels will be
-                                reset.
-                                You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
-                                <b><data id="evilGainDisplay" value=""></data> evil</b>, which will heavily impact your future lives.
+                            If you decide to embrace evil, all of your levels, stored energy and even max levels will be
+                            reset.
+                            You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
+                            <b><data id="evilGainDisplay" value=""></data> evil</b>, which will heavily impact your
+                            future lives.
                         </p>
                         <button class="btn btn-light mt-3" onClick="rebirthTwo();">
                             Embrace evil
@@ -414,20 +413,14 @@
             <div id="battleTab" class="tab p-3 overflow-hidden">
                 <p class="help-text">Encounter</p>
                 <h2 id="battleName" class="mb-1">Destroyer</h2>
-                <div id="gameOverMessageWin" class="my-3 p-2 battle-flavor-text win" hidden>
-                    Congratulations!<br/>
-                    You managed to blast through the Destroyer's near endless defenses. The universe is safe.
-                </div>
-                <div id="gameOverMessageLose" class="my-3 p-2 battle-flavor-text lose" hidden>
-                    The Destroyer's power is overwhelming. Your only hope is to engage the Temporus artifact
-                    and attempt a time jump. You will lose all of your Modules and Exploration progress, but
-                    will progress much faster the next time around.
-                </div>
                 <div id="battleProgressBar" class="progress battle progressBar w-100 mt-3" role="progressbar" hidden
                      aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                     <div class="progressBackground progress-background"></div>
                     <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
                     <div class="progress-text name px-2">Battle</div>
+                </div>
+                <div class="mt-5 clearfix">
+                    <button class="btn btn-sm btn-light float-end" onclick="concedeBattle();">Concede</button>
                 </div>
             </div>
 
@@ -523,7 +516,7 @@
             </div>
             <div class="modal-footer d-flex justify-content-between">
                 <button type="button" id="rerollName" class="btn btn-secondary">Re-roll name</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Take control</button>
+                <button type="button" class="btn btn-primary" onclick="finishIntro()">Take control</button>
             </div>
         </div>
     </div>
@@ -548,6 +541,36 @@
             </div>
             <div class="modal-footer d-flex justify-content-end">
                 <button type="button" class="btn btn-primary" onclick="startBossBattle();">Fight!</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="gameOverModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-4 fw-light win-only">You defeated <b>The Destroyer</b></h2>
+                <h2 class="modal-title fs-4 fw-light loss-only"><b>The Destroyer</b> defeated you</h2>
+            </div>
+            <div class="modal-body win-only">
+                <p>
+                    Congratulations!
+                </p>
+                <p>
+                    You managed to blast through the Destroyer's near endless defenses. The universe is safe.
+                </p>
+            </div>
+            <div class="modal-body loss-only">
+                <p>
+                    The Destroyer's power is overwhelming. Your only hope is to engage the Temporus artifact
+                    and attempt a time jump. You will lose all of your Modules and Exploration progress, but
+                    will progress much faster the next time around.
+                </p>
+            </div>
+            <div class="modal-footer d-flex justify-content-end">
+                <button type="button" class="btn btn-primary win-only" onclick="resetAfterGameOver();">Start new game</button>
+                <button type="button" class="btn btn-primary loss-only" onclick="restartAfterGameOver();">Attempt time jump!</button>
             </div>
         </div>
     </div>

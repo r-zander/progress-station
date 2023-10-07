@@ -1,15 +1,32 @@
-.battle-flavor-text {
-    color: antiquewhite;
-    border: 2px solid;
-
+#gameOverModal {
     &.win {
-        color: lightcyan;
-        border-color: cyan;
+        .loss-only {
+            display: none;
+        }
+
+        .modal-content {
+            border: 3px solid cyan;
+        }
+
+        .modal-title,
+        .modal-body {
+            color: lightcyan;
+        }
     }
 
-    &.lose {
-        color: lightcoral;
-        border-color: darkred;
+    &.loss {
+        .win-only {
+            display: none;
+        }
+
+        .modal-content {
+            border: 3px solid darkred;
+        }
+
+        .modal-title,
+        .modal-body {
+            color: lightcoral;
+        }
     }
 }
 

@@ -745,7 +745,6 @@ function doTasks() {
 
 function doTask(task) {
     if (task == null) return;
-    if (task instanceof LayeredTask && task.isDone()) return;
     task.do();
 }
 
@@ -1406,25 +1405,17 @@ function setDefaultCurrentValues() {
     gameData.currentMisc = [];
 }
 
-function initBattle() {
-    const gameOverMessageWinElement = document.getElementById('gameOverMessageWin');
-    const gameOverMessageLoseElement = document.getElementById('gameOverMessageLose');
-    gameOverMessageWinElement.hidden = true;
-    gameOverMessageLoseElement.hidden = true;
-
-    GameEvents.GameOver.subscribe(function (data) {
-        if (data.bossDefeated) {
-            gameOverMessageWinElement.hidden = false;
-        } else {
-            gameOverMessageLoseElement.hidden = false;
-        }
-    });
-}
-
 function startBattle(name) {
     setBattle(name);
     const progressBar = document.getElementById('battleProgressBar');
     progressBar.hidden = false;
+}
+
+function concedeBattle() {
+    gameData.currentBattle = null;
+    GameEvents.GameOver.trigger({
+        bossDefeated: false,
+    });
 }
 
 function initSettings() {
@@ -1465,7 +1456,6 @@ function init() {
     createData(gameData.itemData, itemBaseData);
 
     setDefaultCurrentValues();
-    initBattle('Destroyer');
 
     gameData.requirements = createRequirements(getElementsByClass, getTaskElement, getItemElement);
 

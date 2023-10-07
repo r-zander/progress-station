@@ -10,7 +10,7 @@ class GameEvent {
      * @param {boolean} onetime A onetime GameEvent is only triggered once. If you subscribe to it and
      * it was already triggered, your callback will be executed immediately.
      */
-    constructor(payloadDefinition, requiresListeners = false, onetime = false) {
+    constructor(payloadDefinition, requiresListeners = true, onetime = false) {
         this._payloadDefinition = payloadDefinition;
         this._requiresListeners = requiresListeners;
         this._isOnetime = onetime;
@@ -134,7 +134,7 @@ const GameEvents = {
         name: 'string',
         previousLevel: 'number',
         nextLevel: 'number'
-    }),
+    }, false),
     Death: new GameEvent(undefined),
     GameOver: new GameEvent({
         bossDefeated: 'boolean',

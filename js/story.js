@@ -1,8 +1,7 @@
 'use strict';
 
 function initIntro() {
-    const introModalElement = document.getElementById('storyIntro');
-    const introModal = new bootstrap.Modal(introModalElement);
+    const modal = new bootstrap.Modal( document.getElementById('storyIntro'));
 
     const rerollNameButton = Dom.get().byId('rerollName');
     rerollNameButton.addEventListener('click', function (event) {
@@ -11,22 +10,23 @@ function initIntro() {
     });
 
     GameEvents.NewGameStarted.subscribe(function () {
-        introModal.show();
+        modal.show();
     });
 
-    introModalElement.addEventListener('hidden.bs.modal', function () {
+    window.finishIntro = function () {
+        modal.hide();
         unpause();
-    });
+    };
 }
 
 function initDeath() {
-    const deathModal = new bootstrap.Modal(document.getElementById('deathModal'));
+    const modal = new bootstrap.Modal(document.getElementById('deathModal'));
     GameEvents.Death.subscribe(function () {
-        deathModal.show();
+        modal.show();
     });
 
     window.startBossBattle = function () {
-        deathModal.hide();
+        modal.hide();
         tabButtons.battle.classList.remove('hidden');
         setTab(tabButtons.battle, 'battleTab');
         resetBattle('Destroyer');
@@ -35,9 +35,33 @@ function initDeath() {
     };
 }
 
+function initGameOver() {
+    let modalElement = document.getElementById('gameOverModal');
+    const modal = new bootstrap.Modal(modalElement);
+    GameEvents.GameOver.subscribe(function (payload) {
+        modal.show();
+
+        modalElement.classList.toggle('win', payload.bossDefeated);
+        modalElement.classList.toggle('loss', !payload.bossDefeated);
+    });
+
+    window.resetAfterGameOver = function () {
+        // TODO thing about what actually to do. This is just a fail-safe
+        if (confirm('This is going to delete all your progress. Continue?')) {
+            resetGameData();
+        }
+    };
+
+    window.restartAfterGameOver = function () {
+        modal.hide();
+        rebirthOne();
+    };
+}
+
 function initStory() {
     initIntro();
     initDeath();
+    initGameOver();
 }
 
 initStory();

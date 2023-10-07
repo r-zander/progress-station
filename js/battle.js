@@ -12,11 +12,19 @@ class LayeredTask extends Task {
 
     do() {
         if (this.isDone()) return;
+
         super.do();
+        if (this.isDone()) {
+            this.onDone();
+        }
     }
 
     isDone() {
         return this.level >= this.maxLayers;
+    }
+
+    onDone() {
+        // Default no-op
     }
 }
 
@@ -25,11 +33,10 @@ class Battle extends LayeredTask {
         super.increaseXp(ignoreDeath);
     }
 
-    // TODO never triggered
     onDone() {
         super.onDone();
         GameEvents.GameOver.trigger({
-            bossDefeated: this.isDone(),
+            bossDefeated: true,
         });
     }
 }
