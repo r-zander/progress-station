@@ -1116,7 +1116,7 @@ function rebirthTwo() {
 function rebirthReset() {
     setTab(tabButtons.jobs, 'jobs');
 
-    setDefaultValues();
+    setDefaultGameDataValues();
     setPermanentUnlocksAndResetData();
 }
 
@@ -1398,7 +1398,7 @@ function initStationName() {
     }
 }
 
-function setDefaultValues() {
+function setDefaultGameDataValues() {
     setDefaultCurrentValues();
 
     gameData.storedEnergy = 0;
