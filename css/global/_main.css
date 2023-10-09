@@ -106,3 +106,7 @@ data[data-unit]::after {
 .position-sticky {
     background: inherit;
 }
+
+.icon-header {
+    height: 24px;
+}
