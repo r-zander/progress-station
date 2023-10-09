@@ -7,6 +7,7 @@ let gameData = {
     battleData: {},
 
     population: 0,
+    heat: 0,
     storedEnergy: 0,
     evil: 0,
     paused: true,
@@ -73,22 +74,21 @@ function applySpeed(value, ignoreDeath = false) {
 }
 
 //Need to review formula + application in updatePopulation()
-function getHeat() {
+function updateHeat() {
     let danger = getEffectFromOperations(EffectType.Danger);
     danger += gameData.currentSkill.getEffect(EffectType.Danger);
     const military = getEffectFromOperations(EffectType.Military);
-    if (danger <= military) {
-        return 0;
+
+    if (danger === military) {
+        return;
     }
 
-    //TODO: 'real' formula + base?
-    return Math.log1p(danger - military);
+    gameData.heat = Math.sign(danger-military) * Math.log10(Math.abs(danger - military));
 }
 
 function updatePopulation(){
     const growth = getEffectFromOperations(EffectType.Growth);
-    const heat = getHeat();
-    gameData.population += applySpeed(growth - heat);
+    gameData.population += applySpeed(growth - (0.01 * gameData.population) * (1 - Math.log10(1 + gameData.heat)));
     gameData.population = Math.max(gameData.population, 0);
 }
 
@@ -652,7 +652,7 @@ function updateEnergyBar() {
 }
 
 function updateHeatDisplay() {
-    const heat = getHeat();
+    const heat = gameData.heat;
     const heatElement = document.getElementById('heatDisplay');
     heatElement.textContent = (heat * 100).toFixed(1) + '%';
     if (heat < 0.5) {
@@ -1347,6 +1347,7 @@ function update() {
     autoLearn();
     doTasks();
     updateEnergy();
+    updateHeat();
     updatePopulation();
     updateUI();
 }
