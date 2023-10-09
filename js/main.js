@@ -798,8 +798,7 @@ function updateEnergy() {
 
 function goBlackout() {
     gameData.storedEnergy = 0;
-    gameData.currentProperty = gameData.itemData['Homeless'];
-    gameData.currentMisc = [];
+    setDefaultCurrentValues();
 }
 
 function daysToYears(days) {
@@ -1409,9 +1408,15 @@ function setDefaultValues() {
 }
 
 function setDefaultCurrentValues() {
-    gameData.currentSkill = gameData.taskData['Concentration'];
-    gameData.currentProperty = gameData.itemData['Homeless'];
+    gameData.currentSkill = gameData.taskData[defaultSkill];
+    gameData.currentProperty = gameData.itemData[defaultProperty];
     gameData.currentMisc = [];
+    gameData.currentModules = {};
+    gameData.currentOperations = {};
+
+    for (const module of defaultModules){
+        module.setEnabled(true);
+    }
 }
 
 function initBattle() {

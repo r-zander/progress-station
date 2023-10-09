@@ -38,6 +38,9 @@ const itemBaseData = {
     Book: {title: 'Book', expense: 10, effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], description: 'Research xp'},
 };
 
+const defaultSkill = 'Concentration';
+const defaultProperty = 'Homeless';
+
 const moduleOperations = {
     Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 400}),
     Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 50}),
@@ -61,6 +64,10 @@ const modules = {
     Furnace: new Module({title: 'Furnace', components: [moduleComponents.Fuel, moduleComponents.Products]}),
     Hive: new Module({title: 'Hive', components: [moduleComponents.Replication, moduleComponents.Living]}),
 };
+
+const defaultModules = [
+    modules.Furnace
+]
 
 /*
 const moduleCategories = {
