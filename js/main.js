@@ -1107,9 +1107,9 @@ function rebirthOne() {
 }
 
 function rebirthTwo() {
-    rebirthOne();
+    gameData.rebirthTwoCount += 1;
     gameData.evil += getEvilGain();
-
+    rebirthReset();
     resetMaxLevels();
 }
 
