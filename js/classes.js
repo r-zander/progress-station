@@ -8,6 +8,7 @@ class EffectType {
 
     static Population = new EffectType('x', 'Population');
     static Energy = new EffectType('+', 'Energy');
+    static GridStrength = new EffectType('+', 'GridStrength');
 }
 
 class Task {
@@ -294,6 +295,18 @@ class ModuleOperation extends Job {
     }
 }
 
+class GridStrength extends Task{
+    collectEffects(){}
+
+    getXpGain() {
+        return applyMultipliers(getEnergyGeneration(), this.xpMultipliers);
+    }
+
+    getGridStrength(){
+         return this.getEffect(EffectType.GridStrength) + Math.floor(this.maxLevel / 10);
+    }
+}
+
 class Requirement {
     constructor(type, elements, requirements) {
         this.type = type;
@@ -328,13 +341,13 @@ class TaskRequirement extends Requirement {
     }
 }
 
-class StoredEnergyRequirement extends Requirement {
+class GridStrengthRequirement extends Requirement {
     constructor(elements, requirements) {
-        super('storedEnergy', elements, requirements);
+        super('gridStrength', elements, requirements);
     }
 
     getCondition(requirement) {
-        return gameData.storedEnergy >= requirement.requirement;
+        return gridStrength.getGridStrength() >= requirement.requirement;
     }
 }
 

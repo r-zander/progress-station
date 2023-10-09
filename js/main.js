@@ -6,7 +6,7 @@ let gameData = {
     itemData: {},
     battleData: {},
 
-    storedEnergy: 0,
+    gridStrength: gridStrength,
     evil: 0,
     paused: true,
     timeWarpingEnabled: true,
@@ -599,7 +599,7 @@ function updateItemRows() {
         const item = gameData.itemData[key];
         const row = document.getElementById('row ' + item.name);
         const button = row.getElementsByClassName('button')[0];
-        button.disabled = gameData.storedEnergy < item.getEnergyUsage();
+        button.disabled = getNet() < item.getEnergyUsage();
         const active = row.getElementsByClassName('active')[0];
         const color = itemCategories['Properties'].includes(item.name) ? headerRowColors['Properties'] : headerRowColors['Misc'];
         active.style.backgroundColor = gameData.currentMisc.includes(item) || item === gameData.currentProperty ? color : 'white';
@@ -623,13 +623,14 @@ function updateHeaderRows() {
 }
 
 function updateEnergyBar() {
+    //TODO Raoul: Update for Grid Strength
     const energyDisplayElement = document.getElementById('energyDisplay');
-    updateEnergyDisplay(getEnergyGeneration(), energyDisplayElement.querySelector('.energy-generated > data'));
+    updateEnergyDisplay(getGridStrength(), energyDisplayElement.querySelector('.energy-generated > data'));
     updateEnergyDisplay(getNet(), energyDisplayElement.querySelector('.energy-net > data'), {forceSign: true});
-    updateEnergyDisplay(gameData.storedEnergy, energyDisplayElement.querySelector('.energy-stored > data'), {unit: units.storedEnergy});
+    updateEnergyDisplay(0, energyDisplayElement.querySelector('.energy-stored > data'), {unit: units.storedEnergy});
     updateEnergyDisplay(getMaxEnergy(), energyDisplayElement.querySelector('.energy-max > data'), {unit: units.storedEnergy});
-    updateEnergyDisplay(getEnergyUsage(), energyDisplayElement.querySelector('.energy-usage > data'));
-    setProgress(energyDisplayElement.querySelector('.energy-fill'), gameData.storedEnergy / getMaxEnergy());
+    updateEnergyDisplay(getGridUsage(), energyDisplayElement.querySelector('.energy-usage > data'));
+    setProgress(energyDisplayElement.querySelector('.energy-fill'), gridStrength.xp / gridStrength.getMaxXp());
 }
 
 function updateDangerDisplay() {
@@ -697,7 +698,7 @@ function updateEnergyDisplay(amount, dataElement, formatConfig = {}) {
 }
 
 function getNet() {
-    return getEnergyGeneration() - getEnergyUsage();
+    return getGridStrength() - getGridUsage();
 }
 
 function hideEntities() {
@@ -741,11 +742,16 @@ function doTasks() {
     // Legacy
     doTask(gameData.currentSkill);
     doTask(gameData.currentBattle);
+    doTask(gridStrength);
 }
 
 function doTask(task) {
     if (task == null) return;
     task.do();
+}
+
+function getGridStrength() {
+    return 1 + gridStrength.getGridStrength();
 }
 
 function getEnergyGeneration() {
@@ -762,11 +768,10 @@ function getEnergyGeneration() {
 }
 
 function getMaxEnergy() {
-    // TODO
-    return 1000 + getEnergyGeneration() * 1000;
+    return gridStrength.getMaxXp();
 }
 
-function getEnergyUsage() {
+function getGridUsage() {
     let energyUsage = 0;
 
     const tasks = gameData.currentOperations;
@@ -786,17 +791,12 @@ function getEnergyUsage() {
 }
 
 function updateEnergy() {
-    const generated = applySpeed(getEnergyGeneration());
-    gameData.storedEnergy += generated;
-    const usage = applySpeed(getEnergyUsage());
-    gameData.storedEnergy -= usage;
-    if (gameData.storedEnergy < 0) {
+    if (getNet() < 0) {
         goBlackout();
     }
 }
 
 function goBlackout() {
-    gameData.storedEnergy = 0;
     gameData.currentProperty = gameData.itemData['Homeless'];
     gameData.currentMisc = [];
 }
@@ -1203,8 +1203,8 @@ function assignMethods() {
             case 'task':
                 requirement = Object.assign(new TaskRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
-            case 'storedEnergy':
-                requirement = Object.assign(new StoredEnergyRequirement(requirement.elements, requirement.requirements), requirement);
+            case 'gridStrength':
+                requirement = Object.assign(new GridStrengthRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
             case 'age':
                 requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement);
@@ -1270,6 +1270,11 @@ function loadGameData() {
         replaceSaveDict(gameData.taskData, gameDataSave.taskData);
         replaceSaveDict(gameData.itemData, gameDataSave.itemData);
         replaceSaveDict(gameData.battleData, gameDataSave.battleData);
+
+        gameData.gridStrength.level = gameDataSave['gridStrength'].level;
+        gameData.gridStrength.maxLevel = gameDataSave['gridStrength'].maxLevel;
+        gameData.gridStrength.xp = gameDataSave['gridStrength'].xp;
+        gameDataSave['gridStrength'] = gameData.gridStrength;
 
         for (let id in gameDataSave.currentOperations) {
             gameDataSave.currentOperations[id] = moduleOperations[id];
@@ -1400,6 +1405,7 @@ function initStationName() {
 }
 
 function setDefaultCurrentValues() {
+    gameData.gridStrength = gridStrength;
     gameData.currentSkill = gameData.taskData['Concentration'];
     gameData.currentProperty = gameData.itemData['Homeless'];
     gameData.currentMisc = [];

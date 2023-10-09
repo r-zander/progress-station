@@ -24,6 +24,8 @@ const units = {
     storedEnergy: 'Wh'
 };
 
+const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100, effects: [{effectType: EffectType.GridStrength, baseValue: 1}]});
+
 const battleBaseData = {
     Destroyer: {title: 'The Destroyer', maxXp: 500, maxLayers: 5, progressBarId: 'battleProgressBar', layerLabel: 'Tentacles layer'},
 };
@@ -34,20 +36,20 @@ const skillBaseData = {
 };
 
 const itemBaseData = {
-    Homeless: {title: 'Homeless', expense: 0, effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}]},
-    Book: {title: 'Book', expense: 10, effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], description: 'Research xp'},
+    Homeless: {title: 'Homeless', expense: 0, effects: [{effectType: EffectType.Population, baseValue: 5}]},
+    Book: {title: 'Book', expense: 10, effects: [{effectType: EffectType.Population, baseValue: 5}], description: 'Research xp'},
 };
 
 const moduleOperations = {
-    Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 400}),
-    Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 50}),
-    Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 100}),
-    Steel: new ModuleOperation({title: 'Steel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 200}),
-    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 30}),
-    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 40}),
-    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 50}),
-    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 60}),
-    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 80}),
+    Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 1}], maxXp: 400, energyConsumption: 1}),
+    Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 2}], maxXp: 50, energyConsumption: 1}),
+    Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 1}], maxXp: 100, energyConsumption: 1}),
+    Steel: new ModuleOperation({title: 'Steel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 2}], maxXp: 200, energyConsumption: 1}),
+    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 1}),
+    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 1}),
+    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 2}),
+    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 1}),
+    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 3}),
 };
 
 const moduleComponents = {
@@ -230,7 +232,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Demon\'s wealth': new EvilRequirement([getTaskElement('Demon\'s wealth')], [{requirement: 500}]),
 */
         //Properties
-        Homeless: new StoredEnergyRequirement([getItemElement('Homeless')], [{requirement: 0}]),
+        Homeless: new GridStrengthRequirement([getItemElement('Homeless')], [{requirement: 0}]),
         /*
         'Tent': new StoredEnergyRequirement([getItemElement('Tent')], [{requirement: 0}]),
         'Wooden hut': new StoredEnergyRequirement([getItemElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getEnergyUsage() * 100}]),
@@ -241,7 +243,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Grand palace': new StoredEnergyRequirement([getItemElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getEnergyUsage() * 100}]),
 */
         //Misc
-        Book: new StoredEnergyRequirement([getItemElement('Book')], [{requirement: 0}]),
+        Book: new GridStrengthRequirement([getItemElement('Book')], [{requirement: 0}]),
         /*
         'Dumbbells': new StoredEnergyRequirement([getItemElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getEnergyUsage() * 100}]),
         'Personal squire': new StoredEnergyRequirement([getItemElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getEnergyUsage() * 100}]),
