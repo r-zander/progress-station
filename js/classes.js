@@ -101,6 +101,14 @@ class Task {
         }
         this.xp = this.getMaxXp() + excess;
     }
+
+    updateMaxLevelAndReset() {
+        if (this.level > this.maxLevel) {
+                this.maxLevel = this.level;
+        }
+        this.level = 0;
+        this.xp = 0;
+    }
 }
 
 class Job extends Task {
