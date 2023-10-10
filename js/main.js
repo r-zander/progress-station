@@ -260,8 +260,7 @@ function createModuleLevel2Elements(categoryName, category) {
         const level2Element = Dom.new.fromTemplate('level2Template');
         const level2DomGetter = Dom.get(level2Element);
         level2DomGetter.byClass('name').textContent = module.title;
-        level2DomGetter.byClass('level').textContent = '0';
-
+        module.setLevelTextElement(level2DomGetter.byClass('level'));
         module.setToggleButton(level2DomGetter.byClass('form-check-input'));
 
         const level3Slot = level2DomGetter.byId('level3');
@@ -1298,6 +1297,7 @@ function loadGameData() {
     //Enable/disable modules
     for (let id in modules) {
         const module = modules[id];
+        module.init();
         modules[id].setEnabled(gameData.currentModules.hasOwnProperty(module.name));
     }
 }
