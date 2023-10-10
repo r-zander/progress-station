@@ -42,6 +42,7 @@
              title="Click to toggle detailed view" data-bs-placement="bottom">
             <div class="above-energy-bar">
                 <p class="energy-generated energy-text detail">
+                    <img src="img/icons/energy.svg" class="icon-header" alt="Energy Icon"/>
                     <span>Generated:</span>
                     <data value="200">200 W</data>
                 </p>
@@ -69,18 +70,34 @@
                 </p>
             </div>
         </div>
-        <div class="d-flex flex-row gap-3 justify-content-around">
+        <div class="d-flex flex-row gap-3 justify-content-left">
+            <div class="d-flex flex-row gap-3 align-items-center">
+                <div class="primary-stat">
+                    <img src = "img/icons/population.svg" class="icon-header" alt="Population Icon"/>
+                    <span class="label" style="color: rgb(46, 148, 231)">Population:</span>
+                    <data id="populationDisplay" value="1">1</data>
+                </div>
+            </div>
             <div class="primary-stat">
-                <span class="label">Danger:</span>
-                <data id="dangerLevel" style="color: orange" value="0.542">54.2%</data>
+                <img src = "img/icons/heat.svg" class="icon-header" alt="Heat Icon"/>
+                <span class="label">Heat:</span>
+                <data id="heatDisplay" style="color: rgb(15, 105, 207)" value="1">54.2%</data>
             </div>
             <div class="d-flex flex-row gap-3 align-items-center">
                 <div class="primary-stat">
-                    <span class="label" style="color: rgb(15, 105, 207)">Population:</span>
-                    <data id="happinessDisplay" value="1">1</data>
+                    <img src="img/icons/industry.svg" class="icon-header" alt="Population Icon"/>
+                    <span class="label" style="color: rgb(97, 173, 50)">Industry:</span>
+                    <data id="industryDisplay" value="1">1</data>
                 </div>
-                <div class="help-text">Affects all work speed</div>
             </div>
+            <div class="d-flex flex-row gap-3 align-items-center">
+                <div class="primary-stat">
+                    <img src="img/icons/military.svg" class="icon-header" alt="Military Icon"/>
+                    <span class="label" style="color: rgb(255, 0, 0)">Military:</span>
+                    <data id="militaryDisplay" value="1">1</data>
+                </div>
+            </div>
+            <!--
             <div id="evilInfo" class="d-flex flex-row gap-3 align-items-center">
                 <div class="primary-stat">
                     <span class="label" style="color: rgb(200, 0, 0)">Evil:</span>
@@ -90,6 +107,7 @@
                     Affects dark magic xp gain
                 </div>
             </div>
+            -->
         </div>
     </header>
 
@@ -206,15 +224,10 @@
 
             <template id="level2Template">
                 <div class="level2 ps-3 mt-2">
-                    <div class="level2-header bg-light text-dark d-flex justify-content-start align-items-center px-2"
+                    <div class="level2-header bg-primary text-dark d-flex justify-content-start align-items-center px-2"
                          style="padding-top: 5px; padding-bottom: 5px;">
                         <div>
-                            <div class="progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
-                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
-                                 data-bs-placement="right">
-                                <div class="progressFill progress-bar progress-bar-striped" style="width: 63%;"></div>
-                                <div class="progress-text name px-2">Mining Bay</div>
-                            </div>
+                            <div class="progress-text name px-2">Mining Bay</div>
                         </div>
                         <div>
                             Level:
@@ -476,7 +489,7 @@
                         <h2>Join the discord community!</h2>
                         <a href="https://discord.gg/fTRS4pHGka" target="_blank">
                             <img src="https://cdn.icon-icons.com/icons2/2108/PNG/512/discord_icon_130958.png"
-                                 width="100" height="100"/>
+                                 width="100" height="100" alt="Discord icon"/>
                         </a>
                     </li>
                     <li>

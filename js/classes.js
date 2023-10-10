@@ -6,8 +6,12 @@ class EffectType {
         this.description = description;
     }
 
-    static Population = new EffectType('x', 'Population');
+    static Growth = new EffectType('x', 'Growth');
     static Energy = new EffectType('+', 'Energy');
+    static Industry = new EffectType('x', 'Industry');
+    static Military = new EffectType('x', 'Military');
+    static Heat = new EffectType('+', 'Heat');
+    static Danger = new EffectType('x', 'Danger');
 }
 
 class Task {

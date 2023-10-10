@@ -6,6 +6,8 @@ let gameData = {
     itemData: {},
     battleData: {},
 
+    population: 0,
+    heat: 0,
     storedEnergy: 0,
     evil: 0,
     paused: true,
@@ -71,17 +73,40 @@ function applySpeed(value, ignoreDeath = false) {
     return value * getGameSpeed(ignoreDeath) / updateSpeed;
 }
 
-function getPopulation() {
-    let population = 0;
+//Need to review formula + application in updatePopulation()
+function updateHeat() {
+    let danger = getEffectFromOperations(EffectType.Danger);
+    danger += gameData.currentSkill.getEffect(EffectType.Danger);
+    const military = getEffectFromOperations(EffectType.Military);
+
+    if (approximatelyEquals(danger, military)) {
+        return;
+    }
+
+    gameData.heat = Math.sign(danger-military) * Math.log10(Math.abs(danger - military));
+}
+
+function updatePopulation(){
+    const growth = getEffectFromOperations(EffectType.Growth);
+    gameData.population += applySpeed(growth - (0.01 * gameData.population) * (1 - Math.log10(1 + gameData.heat)));
+    gameData.population = Math.max(gameData.population, 1);
+}
+
+/**
+ * @param {EffectType} effectType
+
+ */
+function getEffectFromOperations(effectType) {
+    let result = 0;
     const tasks = gameData.currentOperations;
     if (tasks !== null) {
         for (const taskName in tasks) {
             const task = tasks[taskName];
             if (task != null)
-                population += task.getEffect(EffectType.Population);
+                result += task.getEffect(effectType);
         }
     }
-    return population;
+    return result;
 }
 
 function getEvilGain() {
@@ -99,11 +124,6 @@ function getGameSpeed(ignoreDeath = false) {
     } else {
         return baseGameSpeed * +isPlaying();
     }
-}
-
-function getDangerLevel() {
-    // TODO use game designed value - right now this is just the age/lifespan
-    return gameData.days / getLifespan();
 }
 
 function hideAllTooltips() {
@@ -259,7 +279,7 @@ function createModuleLevel2Elements(categoryName, category) {
     for (let module of category) {
         const level2Element = Dom.new.fromTemplate('level2Template');
         const level2DomGetter = Dom.get(level2Element);
-        level2DomGetter.byClass('name').textContent = module.title;
+        level2DomGetter.byClass('name').textContent = module.title + ' Module';
         level2DomGetter.byClass('level').textContent = '0';
 
         module.setToggleButton(level2DomGetter.byClass('form-check-input'));
@@ -357,7 +377,7 @@ function createLevel3Element(domId, category, categoryName, categoryIndex) {
 
     const level3DomGetter = Dom.get(level3Element);
     // TODO this should be category.title
-    level3DomGetter.byClass('name').textContent = categoryName;
+    level3DomGetter.byClass('name').textContent = category.title;
     level3Element.querySelector('.header-row').style.backgroundColor = headerRowColors[categoryName];
 
     /** @type {HTMLElement} */
@@ -632,22 +652,22 @@ function updateEnergyBar() {
     setProgress(energyDisplayElement.querySelector('.energy-fill'), gameData.storedEnergy / getMaxEnergy());
 }
 
-function updateDangerDisplay() {
-    const dangerLevel = getDangerLevel();
-    const dangerLevelElement = document.getElementById('dangerLevel');
-    dangerLevelElement.textContent = (dangerLevel * 100).toFixed(1) + '%';
-    if (dangerLevel < 0.5) {
-        dangerLevelElement.style.color = lerpColor(
+function updateHeatDisplay() {
+    const heat = gameData.heat;
+    const heatElement = document.getElementById('heatDisplay');
+    heatElement.textContent = (heat * 100).toFixed(1) + '%';
+    if (heat < 0.5) {
+        heatElement.style.color = lerpColor(
             dangerColors[0],
             dangerColors[1],
-            dangerLevel / 0.5,
+            heat / 0.5,
             'RGB'
         ).toString('rgb');
     } else {
-        dangerLevelElement.style.color = lerpColor(
+        heatElement.style.color = lerpColor(
             dangerColors[1],
             dangerColors[2],
-            (dangerLevel - 0.5) / 0.5,
+            (heat - 0.5) / 0.5,
             'RGB'
         ).toString('rgb');
     }
@@ -668,10 +688,12 @@ function updateText() {
         pauseButton.classList.replace('btn-primary', 'btn-secondary');
     }
 
-    updateDangerDisplay();
+    updateHeatDisplay();
     updateEnergyBar();
 
-    document.getElementById('happinessDisplay').textContent = formatPopulation(getPopulation());
+    document.getElementById('populationDisplay').textContent = formatPopulation(gameData.population);
+    document.getElementById('industryDisplay').textContent = formatPopulation(getEffectFromOperations(EffectType.Industry));
+    document.getElementById('militaryDisplay').textContent = formatPopulation(getEffectFromOperations(EffectType.Military));
 
     //PK stuff
     /*
@@ -1323,6 +1345,8 @@ function update() {
     autoLearn();
     doTasks();
     updateEnergy();
+    updateHeat();
+    updatePopulation();
     updateUI();
 }
 
