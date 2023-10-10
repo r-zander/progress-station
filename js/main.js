@@ -6,7 +6,6 @@ let gameData = {
     itemData: {},
     battleData: {},
 
-    gridStrength: gridStrength,
     evil: 0,
     paused: true,
     timeWarpingEnabled: true,
@@ -553,6 +552,7 @@ function updateRequiredRows(categoryType) {
 function updateTaskRows() {
     for (let key in gameData.taskData) {
         const task = gameData.taskData[key];
+        if (task instanceof GridStrength) continue;
         const row = document.getElementById('row ' + task.name);
         formatValue(row.querySelector('.level > data'), task.level, {keepNumber: true});
         formatValue(row.querySelector('.xpGain > data'), task.getXpGain());
@@ -599,7 +599,7 @@ function updateItemRows() {
         const item = gameData.itemData[key];
         const row = document.getElementById('row ' + item.name);
         const button = row.getElementsByClassName('button')[0];
-        button.disabled = getNet() < item.getEnergyUsage();
+        button.disabled = getRemainingGridStrength() < item.getEnergyUsage();
         const active = row.getElementsByClassName('active')[0];
         const color = itemCategories['Properties'].includes(item.name) ? headerRowColors['Properties'] : headerRowColors['Misc'];
         active.style.backgroundColor = gameData.currentMisc.includes(item) || item === gameData.currentProperty ? color : 'white';
@@ -626,7 +626,7 @@ function updateEnergyBar() {
     //TODO Raoul: Update for Grid Strength
     const energyDisplayElement = document.getElementById('energyDisplay');
     updateEnergyDisplay(getGridStrength(), energyDisplayElement.querySelector('.energy-generated > data'));
-    updateEnergyDisplay(getNet(), energyDisplayElement.querySelector('.energy-net > data'), {forceSign: true});
+    updateEnergyDisplay(getRemainingGridStrength(), energyDisplayElement.querySelector('.energy-net > data'), {forceSign: true});
     updateEnergyDisplay(0, energyDisplayElement.querySelector('.energy-stored > data'), {unit: units.storedEnergy});
     updateEnergyDisplay(getMaxEnergy(), energyDisplayElement.querySelector('.energy-max > data'), {unit: units.storedEnergy});
     updateEnergyDisplay(getGridUsage(), energyDisplayElement.querySelector('.energy-usage > data'));
@@ -697,7 +697,7 @@ function updateEnergyDisplay(amount, dataElement, formatConfig = {}) {
     }, formatConfig));
 }
 
-function getNet() {
+function getRemainingGridStrength() {
     return getGridStrength() - getGridUsage();
 }
 
@@ -799,12 +799,6 @@ function getGridUsage() {
     //    energyUsage += misc.getEnergyUsage();
     //}
     return energyUsage;
-}
-
-function updateEnergy() {
-    if (getNet() < 0) {
-        goBlackout();
-    }
 }
 
 function goBlackout() {
@@ -1183,7 +1177,7 @@ function isPlaying() {
 function assignMethods() {
     for (let key in gameData.taskData) {
         let task = gameData.taskData[key];
-        if (task instanceof Job) {
+        if (task instanceof Job || task instanceof GridStrength) {
             //task.baseData = moduleBaseData[task.name];
             //task = Object.assign(new ModuleOperation(moduleBaseData[task.name]), task);
 
@@ -1246,15 +1240,12 @@ function assignMethods() {
 
 function replaceSaveDict(dict, saveDict) {
     for (let key in dict) {
-        if (!(key in saveDict)) {
-            saveDict[key] = dict[key];
-        }
-        if (dict === gameData.taskData && dict[key] instanceof Job) {
-            dict[key].level = saveDict[key].level;
-            dict[key].maxLevel = saveDict[key].maxLevel;
-            dict[key].xp = saveDict[key].xp;
-            saveDict[key] = dict[key];
+        if (dict === gameData.taskData && (dict[key] instanceof Job || dict[key] instanceof GridStrength)) {
+            assignAndReplaceSavedTaskObject(dict[key], saveDict);
         } else if (dict === gameData.requirements) {
+            if (!(key in saveDict)) {
+                saveDict[key] = dict[key];
+            }
             if (saveDict[key].type !== tempData['requirements'][key].type) {
                 saveDict[key] = tempData['requirements'][key];
             }
@@ -1266,6 +1257,14 @@ function replaceSaveDict(dict, saveDict) {
             delete saveDict[key];
         }
     }
+}
+
+function assignAndReplaceSavedTaskObject(object, saveDict){
+    const key = object.name;
+    if (key in saveDict) {
+        object.assignSaveData(saveDict[key]);
+    }
+    saveDict[key] = object;
 }
 
 function saveGameData() {
@@ -1281,11 +1280,6 @@ function loadGameData() {
         replaceSaveDict(gameData.taskData, gameDataSave.taskData);
         replaceSaveDict(gameData.itemData, gameDataSave.itemData);
         replaceSaveDict(gameData.battleData, gameDataSave.battleData);
-
-        gameData.gridStrength.level = gameDataSave['gridStrength'].level;
-        gameData.gridStrength.maxLevel = gameDataSave['gridStrength'].maxLevel;
-        gameData.gridStrength.xp = gameDataSave['gridStrength'].xp;
-        gameDataSave['gridStrength'] = gameData.gridStrength;
 
         for (let id in gameDataSave.currentOperations) {
             gameDataSave.currentOperations[id] = moduleOperations[id];
@@ -1340,7 +1334,6 @@ function update() {
     autoPromote();
     autoLearn();
     doTasks();
-    updateEnergy();
     updateUI();
 }
 
@@ -1416,7 +1409,6 @@ function initStationName() {
 }
 
 function setDefaultCurrentValues() {
-    gameData.gridStrength = gridStrength;
     gameData.currentSkill = gameData.taskData['Concentration'];
     gameData.currentProperty = gameData.itemData['Homeless'];
     gameData.currentMisc = [];
@@ -1471,6 +1463,7 @@ function init() {
     createData(gameData.taskData, skillBaseData);
     createData(gameData.battleData, battleBaseData);
     createData(gameData.itemData, itemBaseData);
+    gameData.taskData[gridStrength.name] = gridStrength;
 
     setDefaultCurrentValues();
 

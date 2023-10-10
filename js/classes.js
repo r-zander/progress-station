@@ -24,6 +24,12 @@ class Task {
         this.xpMultipliers = [];
     }
 
+    assignSaveData(saveData){
+        this.level = saveData.level;
+        this.maxLevel = saveData.maxLevel;
+        this.xp = saveData.xp;
+    }
+
     do() {
         this.increaseXp();
     }
