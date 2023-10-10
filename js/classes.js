@@ -9,7 +9,6 @@ class EffectType {
     static Population = new EffectType('x', 'Population');
     static Energy = new EffectType('+', 'Energy');
     static EnergyFactor = new EffectType('x', 'Energy');
-    static GridStrength = new EffectType('+', 'GridStrength');
 }
 
 class Task {
@@ -307,6 +306,10 @@ class ModuleOperation extends Job {
 }
 
 class GridStrength extends Task{
+    constructor(baseData) {
+        super(baseData);
+    }
+
     collectEffects(){}
 
     getXpGain() {
@@ -314,7 +317,7 @@ class GridStrength extends Task{
     }
 
     getGridStrength(){
-         return this.getEffect(EffectType.GridStrength) + Math.floor(this.maxLevel / 10);
+         return this.level + Math.floor(this.maxLevel / 10);
     }
 }
 

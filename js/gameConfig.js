@@ -24,7 +24,7 @@ const units = {
     storedEnergy: 'Wh'
 };
 
-const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100, effects: [{effectType: EffectType.GridStrength, baseValue: 1}]});
+const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100});
 
 const battleBaseData = {
     Destroyer: {title: 'The Destroyer', maxXp: 500, maxLayers: 5, progressBarId: 'battleProgressBar', layerLabel: 'Tentacles layer'},
