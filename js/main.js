@@ -89,7 +89,7 @@ function updateHeat() {
 function updatePopulation(){
     const growth = getEffectFromOperations(EffectType.Growth);
     gameData.population += applySpeed(growth - (0.01 * gameData.population) * (1 - Math.log10(1 + gameData.heat)));
-    gameData.population = Math.max(gameData.population, 0);
+    gameData.population = Math.max(gameData.population, 1);
 }
 
 /**
