@@ -93,7 +93,8 @@ function updatePopulation(){
 }
 
 /**
- * @param{EffectType} effectType
+ * @param {EffectType} effectType
+
  */
 function getEffectFromOperations(effectType) {
     let result = 0;
