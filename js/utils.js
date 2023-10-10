@@ -227,6 +227,16 @@ function lerpColor(color1, color2, amount, mode) {
     return new Color([l0, l1, l2, l3], mode);
 }
 
+
+/**
+ * @param {number} a
+ * @param {number} b
+ * @param {number} epsilon
+ */
+function approximatelyEquals(a, b, epsilon = 128 * Number.EPSILON) {
+    return Math.abs(a - b) <= epsilon;
+}
+
 class DomGetter {
     /**
      *

@@ -79,7 +79,7 @@ function updateHeat() {
     danger += gameData.currentSkill.getEffect(EffectType.Danger);
     const military = getEffectFromOperations(EffectType.Military);
 
-    if (danger === military) {
+    if (approximatelyEquals(danger, military)) {
         return;
     }
 
