@@ -760,8 +760,19 @@ function getEnergyGeneration() {
     if (tasks !== null) {
         for (const taskName in tasks) {
             const task = tasks[taskName];
-            if (task != null)
+            if (task != null) {
                 energy += task.getEnergyGeneration();
+            }
+        }
+        for (const taskName in tasks) {
+            const task = tasks[taskName];
+            if (task != null) {
+                const multiplier = task.getEnergyMultiplier();
+                if (multiplier !== 1 && energy === 0){
+                    energy = 1;
+                }
+                energy *= multiplier;
+            }
         }
     }
     return energy;

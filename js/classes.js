@@ -8,6 +8,7 @@ class EffectType {
 
     static Population = new EffectType('x', 'Population');
     static Energy = new EffectType('+', 'Energy');
+    static EnergyFactor = new EffectType('x', 'Energy');
     static GridStrength = new EffectType('+', 'GridStrength');
 }
 
@@ -124,6 +125,10 @@ class Job extends Task {
 
     getLevelMultiplier() {
         return 1 + Math.log10(this.level + 1);
+    }
+
+    getEnergyMultiplier() {
+        return this.getEffect(EffectType.EnergyFactor);
     }
 
     getEnergyGeneration() {
