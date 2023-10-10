@@ -41,15 +41,15 @@ const itemBaseData = {
 };
 
 const moduleOperations = {
-    Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 1}], maxXp: 400, energyConsumption: 1}),
-    Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 2}], maxXp: 50, energyConsumption: 1}),
-    Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 1}], maxXp: 100, energyConsumption: 1}),
-    Steel: new ModuleOperation({title: 'Steel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.EnergyFactor, baseValue: 2}], maxXp: 200, energyConsumption: 1}),
-    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 1}),
-    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 1}),
-    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 2}),
-    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 1}),
-    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, energyConsumption: 3}),
+    Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 1}], maxXp: 400, gridLoad: 1}),
+    Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 2}], maxXp: 50, gridLoad: 1}),
+    Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 1}], maxXp: 100, gridLoad: 1}),
+    Steel: new ModuleOperation({title: 'Steel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.EnergyFactor, baseValue: 2}], maxXp: 200, gridLoad: 1}),
+    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, gridLoad: 2}),
+    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, gridLoad: 3}),
 };
 
 const moduleComponents = {

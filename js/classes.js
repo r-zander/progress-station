@@ -136,7 +136,7 @@ class Job extends Task {
     }
 
     getEnergyUsage() {
-        return this.baseData.energyConsumption === undefined ? 0 : this.baseData.energyConsumption;
+        return this.baseData.gridLoad === undefined ? 0 : this.baseData.gridLoad;
     }
 }
 
