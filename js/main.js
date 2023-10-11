@@ -621,12 +621,13 @@ function updateItemRows() {
         const item = gameData.itemData[key];
         const row = document.getElementById('row ' + item.name);
         const button = row.getElementsByClassName('button')[0];
-        button.disabled = getRemainingGridStrength() < item.getEnergyUsage();
+        //TODO: Why do 'Items' check for grid load?
+        button.disabled = getRemainingGridStrength() < item.getGridLoad();
         const active = row.getElementsByClassName('active')[0];
         const color = itemCategories['Properties'].includes(item.name) ? headerRowColors['Properties'] : headerRowColors['Misc'];
         active.style.backgroundColor = gameData.currentMisc.includes(item) || item === gameData.currentProperty ? color : 'white';
         row.getElementsByClassName('effect')[0].textContent = item.getEffectDescription();
-        updateEnergyDisplay(item.getEnergyUsage(), row.querySelector('.energy-usage > data'));
+        updateEnergyDisplay(item.getGridLoad(), row.querySelector('.energy-usage > data'));
     }
 }
 
@@ -814,13 +815,13 @@ function getGridUsage() {
         for (const taskName in tasks) {
             const task = tasks[taskName];
             if (task != null)
-                energyUsage += task.getEnergyUsage();
+                energyUsage += task.getGridLoad();
         }
     }
     //No 'property' or 'misc' defined atm
-    //energyUsage += gameData.currentProperty.getEnergyUsage();
+    //energyUsage += gameData.currentProperty.getGridLoad();
     //for (let misc of gameData.currentMisc) {
-    //    energyUsage += misc.getEnergyUsage();
+    //    energyUsage += misc.getGridLoad();
     //}
     return energyUsage;
 }

@@ -183,7 +183,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         //Other
         'Arcane energy': new TaskRequirement(getElementsByClass('Arcane energy'), [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),
         'Dark magic': new EvilRequirement(getElementsByClass('Dark magic'), [{requirement: 1}]),
-        'Shop': new StoredEnergyRequirement([Dom.get().byId('shopTabButton')], [{requirement: gameData.itemData['Tent'].getEnergyUsage() * 50}]),
+        'Shop': new StoredEnergyRequirement([Dom.get().byId('shopTabButton')], [{requirement: gameData.itemData['Tent'].getGridLoad() * 50}]),
         'Rebirth tab': new AgeRequirement([Dom.get().byId('rebirthTabButton')], [{requirement: 25}]),
         'Rebirth note 1': new AgeRequirement([Dom.get().byId('rebirthNote1')], [{requirement: 45}]),
         'Rebirth note 2': new AgeRequirement([Dom.get().byId('rebirthNote2')], [{requirement: 65}]),
@@ -252,23 +252,23 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         Homeless: new GridStrengthRequirement([getItemElement('Homeless')], [{requirement: 0}]),
         /*
         'Tent': new StoredEnergyRequirement([getItemElement('Tent')], [{requirement: 0}]),
-        'Wooden hut': new StoredEnergyRequirement([getItemElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getEnergyUsage() * 100}]),
-        'Cottage': new StoredEnergyRequirement([getItemElement('Cottage')], [{requirement: gameData.itemData['Cottage'].getEnergyUsage() * 100}]),
-        'House': new StoredEnergyRequirement([getItemElement('House')], [{requirement: gameData.itemData['House'].getEnergyUsage() * 100}]),
-        'Large house': new StoredEnergyRequirement([getItemElement('Large house')], [{requirement: gameData.itemData['Large house'].getEnergyUsage() * 100}]),
-        'Small palace': new StoredEnergyRequirement([getItemElement('Small palace')], [{requirement: gameData.itemData['Small palace'].getEnergyUsage() * 100}]),
-        'Grand palace': new StoredEnergyRequirement([getItemElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getEnergyUsage() * 100}]),
+        'Wooden hut': new StoredEnergyRequirement([getItemElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getGridLoad() * 100}]),
+        'Cottage': new StoredEnergyRequirement([getItemElement('Cottage')], [{requirement: gameData.itemData['Cottage'].getGridLoad() * 100}]),
+        'House': new StoredEnergyRequirement([getItemElement('House')], [{requirement: gameData.itemData['House'].getGridLoad() * 100}]),
+        'Large house': new StoredEnergyRequirement([getItemElement('Large house')], [{requirement: gameData.itemData['Large house'].getGridLoad() * 100}]),
+        'Small palace': new StoredEnergyRequirement([getItemElement('Small palace')], [{requirement: gameData.itemData['Small palace'].getGridLoad() * 100}]),
+        'Grand palace': new StoredEnergyRequirement([getItemElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getGridLoad() * 100}]),
 */
         //Misc
         Book: new GridStrengthRequirement([getItemElement('Book')], [{requirement: 0}]),
         /*
-        'Dumbbells': new StoredEnergyRequirement([getItemElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getEnergyUsage() * 100}]),
-        'Personal squire': new StoredEnergyRequirement([getItemElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getEnergyUsage() * 100}]),
-        'Steel longsword': new StoredEnergyRequirement([getItemElement('Steel longsword')], [{requirement: gameData.itemData['Steel longsword'].getEnergyUsage() * 100}]),
-        'Butler': new StoredEnergyRequirement([getItemElement('Butler')], [{requirement: gameData.itemData['Butler'].getEnergyUsage() * 100}]),
-        'Sapphire charm': new StoredEnergyRequirement([getItemElement('Sapphire charm')], [{requirement: gameData.itemData['Sapphire charm'].getEnergyUsage() * 100}]),
-        'Study desk': new StoredEnergyRequirement([getItemElement('Study desk')], [{requirement: gameData.itemData['Study desk'].getEnergyUsage() * 100}]),
-        'Library': new StoredEnergyRequirement([getItemElement('Library')], [{requirement: gameData.itemData['Library'].getEnergyUsage() * 100}]),
+        'Dumbbells': new StoredEnergyRequirement([getItemElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getGridLoad() * 100}]),
+        'Personal squire': new StoredEnergyRequirement([getItemElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getGridLoad() * 100}]),
+        'Steel longsword': new StoredEnergyRequirement([getItemElement('Steel longsword')], [{requirement: gameData.itemData['Steel longsword'].getGridLoad() * 100}]),
+        'Butler': new StoredEnergyRequirement([getItemElement('Butler')], [{requirement: gameData.itemData['Butler'].getGridLoad() * 100}]),
+        'Sapphire charm': new StoredEnergyRequirement([getItemElement('Sapphire charm')], [{requirement: gameData.itemData['Sapphire charm'].getGridLoad() * 100}]),
+        'Study desk': new StoredEnergyRequirement([getItemElement('Study desk')], [{requirement: gameData.itemData['Study desk'].getGridLoad() * 100}]),
+        'Library': new StoredEnergyRequirement([getItemElement('Library')], [{requirement: gameData.itemData['Library'].getGridLoad() * 100}]),
    */
     };
 }

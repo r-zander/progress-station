@@ -152,7 +152,7 @@ class Job extends Task {
         return applyMultipliers(this.getEffect(EffectType.Energy), this.energyGenerationMultipliers);
     }
 
-    getEnergyUsage() {
+    getGridLoad() {
         return this.baseData.gridLoad === undefined ? 0 : this.baseData.gridLoad;
     }
 }
@@ -197,7 +197,7 @@ class Item {
         //return 'x' + this.baseData.effects.toFixed(1) + ' ' + description;
     }
 
-    getEnergyUsage() {
+    getGridLoad() {
         return applyMultipliers(this.baseData.expense, this.expenseMultipliers);
     }
 }
