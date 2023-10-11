@@ -193,6 +193,7 @@ class Module {
 
     loadSaveData(saveData){
         this.maxLevel = saveData.maxLevel;
+        this.propagateMaxLevel();
     }
 
     do() {
@@ -241,11 +242,7 @@ class Module {
     }
 
     init() {
-        for (let component of this.components) {
-            for (let mode of component.operations) {
-                mode.maxLevel = this.maxLevel;
-            }
-        }
+        this.propagateMaxLevel();
         this.setEnabled(gameData.currentModules.hasOwnProperty(this.name));
     }
 
@@ -253,6 +250,22 @@ class Module {
         return this.components.reduce(function (sum, component) {
             return sum + component.getOperationLevels()
         }, 0);
+    }
+
+    propagateMaxLevel(){
+        for (let component of this.components) {
+            for (let mode of component.operations) {
+                mode.maxLevel = this.maxLevel;
+            }
+        }
+    }
+
+    updateMaxLevel() {
+        const currentLevel = this.getLevel();
+        if (currentLevel > this.maxLevel) {
+            this.maxLevel = currentLevel;
+        }
+        this.propagateMaxLevel();
     }
 }
 

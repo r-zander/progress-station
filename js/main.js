@@ -1138,6 +1138,7 @@ function rebirthReset() {
     gameData.autoLearnEnabled = false;
     gameData.autoPromoteEnabled = false;
 
+    //TODO: operationModes should not have their own max level...
     for (let taskName in gameData.taskData) {
         const task = gameData.taskData[taskName];
         if (task.level > task.maxLevel) task.maxLevel = task.level;
@@ -1156,6 +1157,11 @@ function rebirthReset() {
         const requirement = gameData.requirements[key];
         if (requirement.completed && permanentUnlocks.includes(key)) continue;
         requirement.completed = false;
+    }
+
+    for (let key in modules) {
+        const module = modules[key];
+        module.updateMaxLevel();
     }
 }
 
