@@ -37,6 +37,7 @@ let gameData = {
 };
 
 const tempData = {};
+let skipGameDataSave = false;
 
 let skillWithLowestMaxXp = null;
 
@@ -145,6 +146,7 @@ function setTab(element, selectedTab) {
     }
     element.classList.add('active');
     gameData.selectedTab = selectedTab;
+    saveGameData();
 
     hideAllTooltips();
 }
@@ -1092,11 +1094,13 @@ function toggleLightDarkMode(force = undefined) {
         gameData.settings.darkMode = force;
     }
     document.documentElement.dataset['bsTheme'] = gameData.settings.darkMode ? 'dark' : 'light';
+    saveGameData();
 }
 
 function toggleSciFiMode(force = undefined) {
     const body = document.getElementById('body');
     gameData.settings.sciFiMode = body.classList.toggle('sci-fi', force);
+    saveGameData();
 }
 
 function setBackground(background) {
@@ -1109,6 +1113,7 @@ function setBackground(background) {
 
     body.classList.add('background-' + background);
     gameData.settings.background = background;
+    saveGameData();
 }
 
 // TODO remove this function, it's an anti-pattern
@@ -1278,6 +1283,8 @@ function replaceSaveDict(dict, saveDict) {
 }
 
 function saveGameData() {
+    if (skipGameDataSave) return;
+
     localStorage.setItem('gameDataSave', JSON.stringify(gameData));
 }
 
@@ -1403,6 +1410,7 @@ function setStationName(newStationName) {
     for (let stationNameInput of Dom.get().allByClass('stationNameInput')) {
         stationNameInput.value = newStationName;
     }
+    saveGameData();
 }
 
 function initStationName() {
@@ -1475,6 +1483,9 @@ function displayLoaded() {
 }
 
 function init() {
+    // During the setup a lot of functions are called that trigger an auto save. To not save various times,
+    // saving is skipped until the game is actually under player control.
+    skipGameDataSave = true;
     createModuleUI(moduleCategories, 'jobTable');
     createTwoLevelUI(skillCategories, 'skillTable');
     createTwoLevelUI(itemCategories, 'itemTable');
@@ -1517,6 +1528,7 @@ function init() {
     initStationName();
     initSettings();
 
+    skipGameDataSave = false;
     displayLoaded();
 
     update();
