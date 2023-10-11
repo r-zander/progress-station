@@ -7,7 +7,7 @@ const baseLifespan = 365 * 70;
 const dangerColors = [
     new Color([0, 128, 0], 'RGB'),    // 0% color: dark green
     new Color([255, 255, 0], 'RGB'),  // 50% color: yellow
-    new Color([128, 0, 0], 'RGB'),    // 100% color: dark red
+    new Color([219, 92, 92], 'RGB'),    // 100% color: red
 ];
 
 const defaultStationName = 'USS Progressor';
@@ -31,25 +31,34 @@ const battleBaseData = {
 };
 
 const skillBaseData = {
-    Concentration: {title: 'Concentration', maxXp: 100, effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}]},
-    Productivity: {title: 'Productivity', maxXp: 100, effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}]},
+    Concentration: {title: 'Concentration', maxXp: 100, effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 5}]},
+    Productivity: {title: 'Productivity', maxXp: 100, effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 500}]},
 };
 
 const itemBaseData = {
-    Homeless: {title: 'Homeless', expense: 0, effects: [{effectType: EffectType.Population, baseValue: 5}]},
-    Book: {title: 'Book', expense: 10, effects: [{effectType: EffectType.Population, baseValue: 5}], description: 'Research xp'},
+    Homeless: {title: 'Funky Sector', expense: 0, effects: [{effectType: EffectType.Growth, baseValue: 5}]},
+    Book: {title: 'Video Game Land', expense: 10, effects: [{effectType: EffectType.Industry, baseValue: 5}], description: 'Research xp'},
 };
 
+const defaultSkill = 'Concentration';
+const defaultProperty = 'Homeless';
+
 const moduleOperations = {
-    Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 1}], maxXp: 400, gridLoad: 1}),
-    Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 2}], maxXp: 50, gridLoad: 1}),
-    Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 1}], maxXp: 100, gridLoad: 1}),
-    Steel: new ModuleOperation({title: 'Steel', effects: [{effectType: EffectType.Population, baseValue: 5}, {effectType: EffectType.EnergyFactor, baseValue: 2}], maxXp: 200, gridLoad: 1}),
-    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, gridLoad: 1}),
-    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, gridLoad: 1}),
-    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, gridLoad: 2}),
-    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, gridLoad: 1}),
-    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Population, baseValue: 5}], maxXp: 400, gridLoad: 3}),
+    Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 50, gridLoad: 1}),
+    Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 100, gridLoad: 1}),
+    Steel: new ModuleOperation({title: 'Steel', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.EnergyFactor, baseValue: 5}], maxXp: 200, gridLoad: 1}),
+    //Population
+    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    //Military
+    BallisticTurrets: new ModuleOperation({title: 'Ballistic Turrets', effects: [{effectType: EffectType.Military, baseValue: 2}], maxXp: 100, gridLoad: 1}),
+    LaserTurrets: new ModuleOperation({title: 'Laser Turrets', effects: [{effectType: EffectType.Military, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    FighterSquadron: new ModuleOperation({title: 'Fighter Squadron', effects: [{effectType: EffectType.Military, baseValue: 3}], maxXp: 150, gridLoad: 1}),
+    EliteForce: new ModuleOperation({title: 'Elite Force', effects: [{effectType: EffectType.Military, baseValue: 10}], maxXp: 1000, gridLoad: 1}),
 };
 
 const moduleComponents = {
@@ -57,12 +66,19 @@ const moduleComponents = {
     Products: new ModuleComponent({title: 'Products', operations: [moduleOperations.Plastics, moduleOperations.Steel]}),
     Replication: new ModuleComponent({title: 'Replication', operations: [moduleOperations.QuantumReplicator, moduleOperations.BioGenesisChamber, moduleOperations.NanoFertilityDrones]}),
     Living: new ModuleComponent({title: 'Living', operations: [moduleOperations.HoloCommunityHub, moduleOperations.TemporalBreedingPods]}),
+    Turrets: new ModuleComponent({title: 'Turrets', operations: [moduleOperations.BallisticTurrets, moduleOperations.LaserTurrets]}),
+    Squads: new ModuleComponent({title: 'Squads', operations: [moduleOperations.FighterSquadron, moduleOperations.EliteForce]}),
 };
 
 const modules = {
     Furnace: new Module({title: 'Furnace', components: [moduleComponents.Fuel, moduleComponents.Products]}),
     Hive: new Module({title: 'Hive', components: [moduleComponents.Replication, moduleComponents.Living]}),
+    WeaponBay: new Module({title: 'Weapon Bay', components: [moduleComponents.Turrets, moduleComponents.Squads]}),
 };
+
+const defaultModules = [
+    modules.Furnace
+]
 
 /*
 const moduleCategories = {
@@ -72,6 +88,7 @@ const moduleCategories = {
 const moduleCategories = {
     Fundamentals: [modules.Furnace],
     Population: [modules.Hive],
+    Military: [modules.WeaponBay],
 };
 
 const skillCategories = {

@@ -2,7 +2,7 @@
     margin-left: max(0px, (100% - var(--content-width) - var(--sidebar-width)) / 2);
 }
 
-#dangerLevel {
+#heatDisplay {
     text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.2);
 }
 

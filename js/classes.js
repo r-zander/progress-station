@@ -6,9 +6,13 @@ class EffectType {
         this.description = description;
     }
 
-    static Population = new EffectType('x', 'Population');
+    static Growth = new EffectType('x', 'Growth');
     static Energy = new EffectType('+', 'Energy');
     static EnergyFactor = new EffectType('x', 'Energy');
+    static Industry = new EffectType('x', 'Industry');
+    static Military = new EffectType('x', 'Military');
+    static Heat = new EffectType('+', 'Heat');
+    static Danger = new EffectType('x', 'Danger');
 }
 
 class Task {
@@ -107,6 +111,14 @@ class Task {
             });
         }
         this.xp = this.getMaxXp() + excess;
+    }
+
+    updateMaxLevelAndReset() {
+        if (this.level > this.maxLevel) {
+                this.maxLevel = this.level;
+        }
+        this.level = 0;
+        this.xp = 0;
     }
 }
 
