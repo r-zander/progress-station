@@ -6,15 +6,33 @@
     margin-left: 0.5rem;
 }
 
-label.background {
+#settings {
+    .form-check {
+        cursor: pointer;
+
+        > * {
+            cursor: inherit;
+        }
+    }
+}
+
+.form-check.background {
     display: block;
     text-shadow: 1px 1px black, 1px 1px 3px black;
     padding: 1rem;
+    padding-left: 2.5rem;
     border: 1px solid white;
+    line-height: 23px;
 }
 
-label.background + label.background {
-    margin-top: 1rem;
+.form-check.background-space {
+    background-image: url("../../img/space.png");
+    background-size: cover;
+    background-position: center;
+}
+
+.form-check.background + .form-check.background {
+    margin-top: 0.5rem;
 }
 
 #importExportBox {

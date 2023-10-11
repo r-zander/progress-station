@@ -1112,6 +1112,7 @@ function setBackground(background) {
     });
 
     body.classList.add('background-' + background);
+    document.querySelector(`.background-${background} > input[type="radio"]`).checked = true;
     gameData.settings.background = background;
     saveGameData();
 }
@@ -1466,7 +1467,6 @@ function concedeBattle() {
 function initSettings() {
     const background = gameData.settings.background;
     if (isString(background)) {
-        document.querySelector(`.background-${background} > input[type="radio"]`).checked = true;
         setBackground(background);
     }
 

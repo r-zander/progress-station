@@ -28,7 +28,7 @@
         )
     }
 
-    .btn {
+    :not(.btn-group) > .btn {
         --corner-length: 12px;
         clip-path: polygon(
                 0 var(--corner-length),
