@@ -180,14 +180,19 @@ class Item {
 }
 
 class Module {
-    #levelTextElement
-
     constructor(baseData) {
         this.data = baseData;
         this.title = baseData.title;
         this.components = baseData.components;
-        this.level = 0;
         this.maxLevel = 0;
+    }
+
+    getSaveData() {
+        return {maxLevel: this.maxLevel};
+    }
+
+    loadSaveData(saveData){
+        this.maxLevel = saveData.maxLevel;
     }
 
     do() {
@@ -238,26 +243,16 @@ class Module {
     init() {
         for (let component of this.components) {
             for (let mode of component.operations) {
-                mode.onLevelUp = this.updateLevel.bind(this);
                 mode.maxLevel = this.maxLevel;
             }
         }
-        this.updateLevel();
+        this.setEnabled(gameData.currentModules.hasOwnProperty(this.name));
     }
 
-    setLevelTextElement(textElement){
-        this.#levelTextElement = textElement;
-    }
-
-    updateLevel(){
-        let level = 0;
-        for (let component of this.components) {
-            level += component.getOperationLevels();
-        }
-        this.level = level;
-        if (this.#levelTextElement !== undefined) {
-            this.#levelTextElement.textContent = this.level;
-        }
+    getLevel() {
+        return this.components.reduce(function (sum, component) {
+            return sum + component.getOperationLevels()
+        }, 0);
     }
 }
 
@@ -314,8 +309,6 @@ class ModuleComponent {
 }
 
 class ModuleOperation extends Job {
-    onLevelUp;
-
     setEnabled(value) {
         if (value) {
             if (!gameData.currentOperations.hasOwnProperty(this.name)) {
@@ -330,13 +323,6 @@ class ModuleOperation extends Job {
 
     toggleEnabled() {
         this.setEnabled(!this.enabled);
-    }
-
-    levelUp(){
-        super.levelUp();
-        if (this.onLevelUp !== undefined) {
-            this.onLevelUp();
-        }
     }
 
     getMaxLevelMultiplier() {
