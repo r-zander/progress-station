@@ -329,7 +329,7 @@ class GridStrength extends Task{
     }
 
     getGridStrength(){
-         return this.level + Math.floor(this.maxLevel / 10);
+         return this.level;
     }
 }
 
