@@ -154,14 +154,30 @@
                 <button id="jobsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'jobs');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Modules</h3>
-                    <!--suppress HtmlUnknownTag -->
-                    <div class="quickTaskDisplay mt-2">
-                        <div class="progress job progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
-                             aria-valuemin="0" aria-valuemax="100">
-                            <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
-                            <div class="progress-text name px-2">Task</div>
+
+                    <template id="moduleQuickTaskDisplayTemplate">
+                        <div class="quickTaskDisplayContainer hidden">
+                            <h4 class="fs-6 text-start moduleName mb-0 mt-3">Module</h4>
+                            <slot id="componentsQuickTaskDisplay"></slot>
                         </div>
-                    </div>
+                    </template>
+
+                    <template id="componentQuickTaskDisplayTemplate">
+                        <div class="quickTaskDisplay mt-2">
+                            <div class="progress progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
+                                 aria-valuemin="0" aria-valuemax="100">
+                                <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
+                                <div class="progress-text name px-2">
+                                    <span class="component">Component</span>
+                                    <span>:</span>
+                                    <span class="operation">Operation</span>
+                                    <span>lvl</span>
+                                    <data value="0" class="level">0</data>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <slot id="modulesQuickTaskDisplay"></slot>
                 </button>
                 <button id="skillsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'skills');">
                     <!--suppress HtmlUnknownTag -->
@@ -224,11 +240,9 @@
 
             <template id="level2Template">
                 <div class="level2 ps-3 mt-2">
-                    <div class="level2-header bg-primary text-dark d-flex justify-content-start align-items-center px-2"
+                    <div class="level2-header bg-light text-dark d-flex justify-content-start align-items-center px-2 gap-3"
                          style="padding-top: 5px; padding-bottom: 5px;">
-                        <div>
-                            <div class="progress-text name px-2">Mining Bay</div>
-                        </div>
+                        <div class="name">Mining Bay</div>
                         <div>
                             Level:
                             <data class="level" value="32">32</data>
@@ -516,7 +530,8 @@
                     <div class="col-sm-2 col-form-label">Credits</div>
                     <div class="col-sm-10">
                         <p>
-                            A game by <a href="http://kringel.games/" target="_blank">Kringel Games</a> <small class="help-text">(link opens in new tab)</small>.
+                            A game by <a href="http://kringel.games/" target="_blank">Kringel Games</a>
+                            <small class="help-text">(link opens in new tab)</small>.
                         </p>
 
                         <table class="table  table-borderless table-striped align-middle w-auto">

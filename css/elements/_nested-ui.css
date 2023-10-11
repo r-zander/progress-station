@@ -40,16 +40,13 @@
     z-index: 2;
 }
 
-.level2-header > div {
-    margin-right: 1rem;
+.level2-header > .name {
+    font-family: var(--title-font-family);
+    font-weight: 400;
 }
 
 .level2-header > div:first-child {
     width: var(--main-column-width);
-}
-
-.level2-header > div:nth-child(3) {
-    width: 7em;
 }
 
 .level2 > .table + .table {

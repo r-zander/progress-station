@@ -10,7 +10,6 @@ const dangerColors = [
     new Color([219, 92, 92], 'RGB'),    // 100% color: red
 ];
 
-const defaultStationName = 'USS Progressor';
 const emptyStationName = 'Unknown Station';
 
 // Not const to allow easy game speed increase
@@ -76,7 +75,7 @@ const modules = {
 
 const defaultModules = [
     modules.Furnace
-]
+];
 
 /*
 const moduleCategories = {

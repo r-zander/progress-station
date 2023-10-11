@@ -272,6 +272,15 @@ class DomGetter {
     allByClass(className) {
         return this.#parent.getElementsByClassName(className);
     }
+
+    /**
+     *
+     * @param {string} selector
+     * @returns {HTMLElement|null}
+     */
+    bySelector(selector) {
+        return this.#parent.querySelector(selector);
+    }
 }
 
 const documentDomGetter = new DomGetter(document);

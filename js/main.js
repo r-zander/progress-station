@@ -84,10 +84,10 @@ function updateHeat() {
         return;
     }
 
-    gameData.heat = Math.sign(danger-military) * Math.log10(Math.abs(danger - military));
+    gameData.heat = Math.sign(danger - military) * Math.log10(Math.abs(danger - military));
 }
 
-function updatePopulation(){
+function updatePopulation() {
     const growth = getEffectFromOperations(EffectType.Growth);
     gameData.population += applySpeed(growth - (0.01 * gameData.population) * (1 - Math.log10(1 + gameData.heat)));
     gameData.population = Math.max(gameData.population, 1);
@@ -396,11 +396,37 @@ function createTwoLevelUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
     const level3Elements = [];
 
-    for (let categoryName in categoryDefinition) {
+    for (const categoryName in categoryDefinition) {
         level3Elements.push(createLevel3Element(domId, categoryDefinition[categoryName], categoryName, level3Elements.length));
     }
 
     slot.replaceWith(...level3Elements);
+}
+
+function createModuleQuickTaskDisplay() {
+    const slot = Dom.get().byId('modulesQuickTaskDisplay');
+    const moduleQuickTaskDisplayElements = [];
+    for (const moduleName in modules) {
+        const module = modules[moduleName];
+        const moduleQuickTaskDisplayElement = Dom.new.fromTemplate('moduleQuickTaskDisplayTemplate');
+        const moduleDomGetter = Dom.get(moduleQuickTaskDisplayElement);
+        moduleQuickTaskDisplayElement.classList.add(moduleName);
+        moduleDomGetter.byClass('moduleName').textContent = module.title;
+        const componentSlot = moduleDomGetter.byId('componentsQuickTaskDisplay');
+        const componentQuickTaskDisplayElements = [];
+        for (const component of module.components) {
+            const componentQuickTaskDisplayElement = Dom.new.fromTemplate('componentQuickTaskDisplayTemplate');
+            const componentDomGetter = Dom.get(componentQuickTaskDisplayElement);
+            componentQuickTaskDisplayElement.classList.add(component.name);
+            componentDomGetter.bySelector('.name > .component').textContent = component.title;
+
+            componentQuickTaskDisplayElements.push(componentQuickTaskDisplayElement);
+        }
+        componentSlot.replaceWith(...componentQuickTaskDisplayElements);
+
+        moduleQuickTaskDisplayElements.push(moduleQuickTaskDisplayElement);
+    }
+    slot.replaceWith(...moduleQuickTaskDisplayElements);
 }
 
 function cleanUpDom() {
@@ -414,6 +440,31 @@ function initSidebar() {
     energyDisplayElement.addEventListener('click', function () {
         energyDisplayElement.classList.toggle('detailed');
     });
+}
+
+function updateModuleQuickTaskDisplay() {
+    for (const moduleName in modules) {
+        let container = Dom.get().bySelector('.quickTaskDisplayContainer.' + moduleName);
+        if (!gameData.currentModules.hasOwnProperty(moduleName)) {
+            container.classList.add('hidden');
+            return;
+        }
+
+        const module = modules[moduleName];
+        container.classList.remove('hidden');
+        const containerDomGetter = Dom.get(container);
+        for (const component of module.components) {
+            const componentDomGetter = Dom.get(containerDomGetter.bySelector('.quickTaskDisplay.' + component.name));
+            let currentOperation = component.currentMode;
+            componentDomGetter.bySelector('.name > .operation').textContent = currentOperation.title;
+            formatValue(
+                componentDomGetter.bySelector('.name > .level'),
+                currentOperation.level,
+                {keepNumber: true}
+            );
+            setProgress(componentDomGetter.byClass('progressFill'), currentOperation.xp / currentOperation.getMaxXp());
+        }
+    }
 }
 
 function updateSkillQuickTaskDisplay() {
@@ -1147,7 +1198,7 @@ function rebirthReset() {
     setPermanentUnlocksAndResetData();
 }
 
-function setPermanentUnlocksAndResetData(){
+function setPermanentUnlocksAndResetData() {
     for (let taskName in gameData.taskData) {
         const task = gameData.taskData[taskName];
         task.updateMaxLevelAndReset();
@@ -1165,7 +1216,7 @@ function setPermanentUnlocksAndResetData(){
     }
 }
 
-function resetMaxLevels(){
+function resetMaxLevels() {
     for (let taskName in gameData.taskData) {
         const task = gameData.taskData[taskName];
         task.maxLevel = 0;
@@ -1337,8 +1388,7 @@ function updateUI() {
     updateRequiredRows(skillCategories);
     updateRequiredRows(itemCategories);
     updateHeaderRows();
-    //TODO: does not work for several jobs
-    //updateQuickTaskDisplay('job');
+    updateModuleQuickTaskDisplay();
     updateSkillQuickTaskDisplay();
     updateBattleQuickTaskDisplay();
     updateBattleTaskDisplay();
@@ -1446,7 +1496,7 @@ function setDefaultCurrentValues() {
     gameData.currentModules = {};
     gameData.currentOperations = {};
 
-    for (const module of defaultModules){
+    for (const module of defaultModules) {
         module.setEnabled(true);
     }
 }
@@ -1482,6 +1532,7 @@ function displayLoaded() {
     document.getElementById('main').classList.add('ready');
 }
 
+
 function init() {
     // During the setup a lot of functions are called that trigger an auto save. To not save various times,
     // saving is skipped until the game is actually under player control.
@@ -1489,6 +1540,7 @@ function init() {
     createModuleUI(moduleCategories, 'jobTable');
     createTwoLevelUI(skillCategories, 'skillTable');
     createTwoLevelUI(itemCategories, 'itemTable');
+    createModuleQuickTaskDisplay();
 
     cleanUpDom();
 
