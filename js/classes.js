@@ -191,13 +191,13 @@ class Module {
         return {maxLevel: this.maxLevel};
     }
 
-    loadSaveData(saveData){
+    loadSaveData(saveData) {
         this.maxLevel = saveData.maxLevel;
         this.propagateMaxLevel();
     }
 
     do() {
-        for (let component of this.components) {
+        for (const component of this.components) {
             component.do();
         }
     }
@@ -227,7 +227,7 @@ class Module {
             }
         }
 
-        for (let component of this.components) {
+        for (const component of this.components) {
             component.setEnabled(value);
         }
     }
@@ -247,14 +247,14 @@ class Module {
     }
 
     getLevel() {
-        return this.components.reduce(function (sum, component) {
-            return sum + component.getOperationLevels()
+        return this.components.reduce(function (levelSum, component) {
+            return levelSum + component.getOperationLevels();
         }, 0);
     }
 
-    propagateMaxLevel(){
-        for (let component of this.components) {
-            for (let mode of component.operations) {
+    propagateMaxLevel() {
+        for (const component of this.components) {
+            for (const mode of component.operations) {
                 mode.maxLevel = this.maxLevel;
             }
         }
@@ -271,7 +271,6 @@ class Module {
 
 class ModuleComponent {
     /**
-     *
      * @param {{title: string, operations: object[]}} baseData
      */
     constructor(baseData) {
@@ -288,7 +287,7 @@ class ModuleComponent {
 
     setEnabled(value) {
         if (!value) {
-            for (let mode of this.operations) {
+            for (const mode of this.operations) {
                 mode.setEnabled(false);
             }
         } else {
@@ -304,7 +303,7 @@ class ModuleComponent {
     setActiveMode(modeId) {
         if (this.currentMode === modeId) return;
 
-        for (let mode of this.operations) {
+        for (const mode of this.operations) {
             if (mode === modeId) {
                 this.currentMode = mode;
             }
@@ -312,9 +311,9 @@ class ModuleComponent {
         }
     }
 
-    getOperationLevels(){
+    getOperationLevels() {
         let levels = 0;
-        for (let mode of this.operations) {
+        for (const mode of this.operations) {
             levels += mode.level;
         }
         return levels;
