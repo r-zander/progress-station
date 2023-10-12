@@ -757,6 +757,7 @@ function updateText() {
     formatValue(Dom.get().byId('populationDisplay'), gameData.population);
     formatValue(Dom.get().byId('industryDisplay'), getEffectFromOperations(EffectType.Industry));
     formatValue(Dom.get().byId('militaryDisplay'), getEffectFromOperations(EffectType.Military));
+    formatValue(Dom.get().byId('researchDisplay'), getResearch());
 
     //PK stuff
     /*
@@ -766,6 +767,16 @@ function updateText() {
     document.getElementById('timeWarpingDisplay').textContent = 'x' + gameData.taskData['Time warping'].getEffect().toFixed(2);
     document.getElementById('timeWarpingButton').textContent = gameData.timeWarpingEnabled ? 'Disable warp' : 'Enable warp';
     */
+}
+
+function getResearch() {
+    let base = getEffectFromOperations(EffectType.Research);
+    let factor = getEffectFromOperations(EffectType.ResearchFactor);
+    if (base === 0 && factor > 1) {
+        return factor;
+    }
+
+    return base * factor;
 }
 
 /**

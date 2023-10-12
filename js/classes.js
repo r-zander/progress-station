@@ -17,6 +17,8 @@ class EffectType {
     static Military = new EffectType('x', 'Military');
     static Heat = new EffectType('+', 'Heat');
     static Danger = new EffectType('x', 'Danger');
+    static Research = new EffectType('+', 'Research');
+    static ResearchFactor = new EffectType('x', 'Research');
 }
 
 class Task {
