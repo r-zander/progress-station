@@ -40,8 +40,8 @@ let skipGameDataSave = false;
 
 let skillWithLowestMaxXp = null;
 
-const autoPromoteElement = document.getElementById('autoPromote');
-const autoLearnElement = document.getElementById('autoLearn');
+// const autoPromoteElement = document.getElementById('autoPromote');
+// const autoLearnElement = document.getElementById('autoLearn');
 
 const tabButtons = {
     'jobs': document.getElementById('jobsTabButton'),
@@ -662,11 +662,11 @@ function updateTaskRows() {
         valueElement.getElementsByClassName('effect')[0].style.display = task instanceof Skill ? 'block' : 'none';
 
         const skipSkillElement = row.getElementsByClassName('skipSkill')[0];
-        if (task instanceof Skill && autoLearnElement.checked) {
-            skipSkillElement.style.removeProperty('display');
-        } else {
+        // if (task instanceof Skill && autoLearnElement.checked) {
+        //     skipSkillElement.style.removeProperty('display');
+        // } else {
             skipSkillElement.style.display = 'none';
-        }
+        // }
 
         if (task instanceof Job) {
             valueElement.getElementsByClassName('energy-generated')[0].textContent = task.getEffectDescription();
@@ -697,11 +697,11 @@ function updateHeaderRows() {
     });
 
     document.querySelectorAll('#skills .level3 .skipSkill').forEach(function (skipSkillElement) {
-        if (autoLearnElement.checked) {
-            skipSkillElement.style.removeProperty('display');
-        } else {
+        // if (autoLearnElement.checked) {
+        //     skipSkillElement.style.removeProperty('display');
+        // } else {
             skipSkillElement.style.display = 'none';
-        }
+        // }
     });
 }
 
@@ -912,11 +912,12 @@ function getNextEntity(data, categoryType, entityName) {
 }
 
 function autoPromote() {
-    gameData.autoPromoteEnabled = autoPromoteElement.checked;
-    if (!autoPromoteElement.checked) return;
-    autoPromoteModules();
-    return;
-    autoPromoteOther();
+    throw new Error('Not supported currently.');
+    // gameData.autoPromoteEnabled = autoPromoteElement.checked;
+    // if (!autoPromoteElement.checked) return;
+    // autoPromoteModules();
+    // return;
+    // autoPromoteOther();
 }
 
 function autoPromoteModules() {
@@ -984,9 +985,10 @@ function getKeyOfLowestValueFromDict(dict) {
 }
 
 function autoLearn() {
-    gameData.autoLearnEnabled = autoLearnElement.checked;
-    if (!autoLearnElement.checked || !skillWithLowestMaxXp) return;
-    gameData.currentSkill = skillWithLowestMaxXp;
+    throw new Error('Not supported currently');
+    // gameData.autoLearnEnabled = autoLearnElement.checked;
+    // if (!autoLearnElement.checked || !skillWithLowestMaxXp) return;
+    // gameData.currentSkill = skillWithLowestMaxXp;
 }
 
 function yearsToDays(years) {
@@ -1440,8 +1442,8 @@ function updateUI() {
 
 function update() {
     increaseDays();
-    autoPromote();
-    autoLearn();
+    // autoPromote();
+    // autoLearn();
     doTasks();
     updateHeat();
     updatePopulation();
@@ -1621,8 +1623,8 @@ function init() {
     } else {
         setTab(tabButtons.jobs, 'jobs');
     }
-    autoLearnElement.checked = gameData.autoLearnEnabled;
-    autoPromoteElement.checked = gameData.autoPromoteEnabled;
+    // autoLearnElement.checked = gameData.autoLearnEnabled;
+    // autoPromoteElement.checked = gameData.autoPromoteEnabled;
     initTooltips();
     initStationName();
     initSettings();
