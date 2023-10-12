@@ -219,8 +219,7 @@ function createEntity(data, entity) {
     } else {
         data[entity.name] = new Item(entity);
     }
-    // TODO get rid of whitespace ids
-    data[entity.name].id = 'row ' + entity.name;
+    data[entity.name].id = 'row_' + entity.name;
 }
 
 function createRequiredRow(categoryName) {
@@ -234,17 +233,17 @@ function createModuleLevel4Elements(categoryName, component) {
     const level4Elements = [];
     const operations = component.operations;
 
-    operations.forEach(function (mode) {
+    operations.forEach(function (operation) {
         const level4Element = Dom.new.fromTemplate('level4TaskTemplate');
         const level4DomGetter = Dom.get(level4Element);
 
-        level4DomGetter.byClass('name').textContent = mode.title;
+        level4DomGetter.byClass('name').textContent = operation.title;
         const descriptionElement = level4DomGetter.byClass('descriptionTooltip');
-        descriptionElement.ariaLabel = mode.title;
-        descriptionElement.title = tooltips[mode.title];
-        level4Element.id = 'row ' + mode.name;
+        descriptionElement.ariaLabel = operation.title;
+        descriptionElement.title = tooltips[operation.title];
+        level4Element.id = 'row_' + operation.name;
         level4DomGetter.byClass('progressBar').onclick = function () {
-            component.setActiveMode(mode);
+            component.setActiveOperation(operation);
         };
 
         level4Elements.push(level4Element);
@@ -331,7 +330,7 @@ function createLevel4Elements(domId, category, categoryName) {
         let descriptionElement = level4DomGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = entry.title;
         descriptionElement.title = tooltips[entry.name];
-        level4Element.id = 'row ' + entry.name;
+        level4Element.id = 'row_' + entry.name;
         if (domId === 'itemTable') {
             if (categoryName === 'Properties') {
                 level4DomGetter.byClass('button').onclick = function () {
@@ -453,7 +452,7 @@ function updateModuleQuickTaskDisplay() {
         const containerDomGetter = Dom.get(container);
         for (const component of module.components) {
             const componentDomGetter = Dom.get(containerDomGetter.bySelector('.quickTaskDisplay.' + component.name));
-            let currentOperation = component.currentMode;
+            let currentOperation = component.currentOperation;
             componentDomGetter.bySelector('.name > .operation').textContent = currentOperation.title;
             formatValue(
                 componentDomGetter.bySelector('.name > .level'),
@@ -635,7 +634,7 @@ function updateTaskRows() {
     for (let key in gameData.taskData) {
         const task = gameData.taskData[key];
         if (task instanceof GridStrength) continue;
-        const row = document.getElementById('row ' + task.name);
+        const row = document.getElementById('row_' + task.name);
         formatValue(row.querySelector('.level > data'), task.level, {keepNumber: true});
         formatValue(row.querySelector('.xpGain > data'), task.getXpGain());
         formatValue(row.querySelector('.xpLeft > data'), task.getXpLeft());
@@ -679,7 +678,7 @@ function updateTaskRows() {
 function updateItemRows() {
     for (let key in gameData.itemData) {
         const item = gameData.itemData[key];
-        const row = document.getElementById('row ' + item.name);
+        const row = document.getElementById('row_' + item.name);
         const button = row.getElementsByClassName('button')[0];
         //TODO: Why do 'Items' check for grid load?
         button.disabled = getRemainingGridStrength() < item.getGridLoad();
@@ -755,9 +754,9 @@ function updateText() {
     updateHeatDisplay();
     updateEnergyBar();
 
-    document.getElementById('populationDisplay').textContent = formatPopulation(gameData.population);
-    document.getElementById('industryDisplay').textContent = formatPopulation(getEffectFromOperations(EffectType.Industry));
-    document.getElementById('militaryDisplay').textContent = formatPopulation(getEffectFromOperations(EffectType.Military));
+    formatValue(Dom.get().byId('populationDisplay'), gameData.population);
+    formatValue(Dom.get().byId('industryDisplay'), getEffectFromOperations(EffectType.Industry));
+    formatValue(Dom.get().byId('militaryDisplay'), getEffectFromOperations(EffectType.Military));
 
     //PK stuff
     /*
@@ -946,7 +945,7 @@ function autoPromoteOther() {
 }
 
 function checkSkillSkipped(skill) {
-    const row = document.getElementById('row ' + skill.name);
+    const row = document.getElementById('row_' + skill.name);
     return row.getElementsByClassName('checkbox')[0].checked;
 }
 
@@ -1406,9 +1405,9 @@ function loadGameData() {
             const override = modules[id];
             for (let component of override.components) {
                 const saved = gameDataSave.currentModules[id].components.find((element) => element.name === component.name);
-                if (saved.currentMode === null || saved.currentMode === undefined) continue;
-                if (moduleOperations.hasOwnProperty(saved.currentMode.name)) {
-                    component.currentMode = moduleOperations[saved.currentMode.name];
+                if (saved.currentOperation === null || saved.currentOperation === undefined) continue;
+                if (moduleOperations.hasOwnProperty(saved.currentOperation.name)) {
+                    component.currentMode = moduleOperations[saved.currentOperation.name];
                 }
             }
             modules[id].setEnabled(true);
@@ -1590,7 +1589,7 @@ function init() {
 
     //direct ref assignment - taskData could be replaced
     for (let entityData of Object.values(moduleOperations)) {
-        entityData.id = 'row ' + entityData.name;
+        entityData.id = 'row_' + entityData.name;
         gameData.taskData[entityData.name] = entityData;
     }
     createData(gameData.taskData, skillBaseData);
@@ -1637,7 +1636,7 @@ function init() {
     setInterval(saveGameData, 3000);
 
     GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
-        if (taskInfo.type === 'skill') {
+        if (taskInfo.type === 'Skill') {
             setSkillWithLowestMaxXp();
         }
     });

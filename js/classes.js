@@ -1,8 +1,12 @@
 'use strict';
 
 class EffectType {
-    constructor(application, description) {
-        this.operator = application;
+    /**
+     * @param {'+'|'x'} operator
+     * @param {string} description
+     */
+    constructor(operator, description) {
+        this.operator = operator;
         this.description = description;
     }
 
@@ -17,7 +21,7 @@ class EffectType {
 
 class Task {
     constructor(baseData) {
-        this.type = this.constructor.name.toLowerCase();
+        this.type = this.constructor.name;
         this.name = baseData.name;
         this.baseData = baseData;
         this.title = baseData.title;
@@ -277,8 +281,8 @@ class Module {
 
     propagateMaxLevel() {
         for (const component of this.components) {
-            for (const mode of component.operations) {
-                mode.maxLevel = this.maxLevel;
+            for (const operation of component.operations) {
+                operation.maxLevel = this.maxLevel;
             }
         }
     }
@@ -299,45 +303,43 @@ class ModuleComponent {
     constructor(baseData) {
         this.title = baseData.title;
         this.operations = baseData.operations;
-        this.currentMode = this.operations[0];
+        this.currentOperation = this.operations[0];
     }
 
     do() {
-        if (this.currentMode !== null && this.currentMode !== undefined) {
-            this.currentMode.do();
+        if (this.currentOperation instanceof ModuleOperation) {
+            this.currentOperation.do();
         }
     }
 
     setEnabled(value) {
         if (!value) {
-            for (const mode of this.operations) {
-                mode.setEnabled(false);
+            for (const operation of this.operations) {
+                operation.setEnabled(false);
             }
         } else {
-            if (this.currentMode !== null) {
-                this.currentMode.setEnabled(value);
+            if (this.currentOperation !== null) {
+                this.currentOperation.setEnabled(value);
             }
         }
 
     }
 
-    //Support only one active mode
-    //Introduce default mode?
-    setActiveMode(modeId) {
-        if (this.currentMode === modeId) return;
+    setActiveOperation(newOperation) {
+        if (this.currentOperation === newOperation) return;
 
-        for (const mode of this.operations) {
-            if (mode === modeId) {
-                this.currentMode = mode;
+        for (const operation of this.operations) {
+            if (operation === newOperation) {
+                this.currentOperation = operation;
             }
-            mode.setEnabled(mode === modeId);
+            operation.setEnabled(operation === newOperation);
         }
     }
 
     getOperationLevels() {
         let levels = 0;
-        for (const mode of this.operations) {
-            levels += mode.level;
+        for (const operation of this.operations) {
+            levels += operation.level;
         }
         return levels;
     }

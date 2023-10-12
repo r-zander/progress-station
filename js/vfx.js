@@ -206,10 +206,10 @@ GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
     const numberOfParticles = 10;
     const direction = taskInfo.type === 'Battle' ? 'left' : 'right';
     let taskProgressBar;
-    if (taskInfo.type === 'battle') {
+    if (taskInfo.type === 'Battle') {
         taskProgressBar = getBattleElement(taskInfo.name);
     }
-    else if (taskInfo.type === 'gridstrength') {
+    else if (taskInfo.type === 'GridStrength') {
         taskProgressBar = document.getElementById('energyDisplay').querySelector('.energy-fill')
     }
     else {
