@@ -1,5 +1,9 @@
 #stationOverview {
     margin-left: max(0px, (100% - var(--content-width) - var(--sidebar-width)) / 2);
+
+    .primary-stat {
+        text-align: center;
+    }
 }
 
 #heatDisplay {
