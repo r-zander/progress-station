@@ -280,9 +280,8 @@ function createModuleLevel2Elements(categoryName, category) {
     for (let module of category) {
         const level2Element = Dom.new.fromTemplate('level2Template');
         const level2DomGetter = Dom.get(level2Element);
+        level2Element.id = 'module-row-' + module.name;
         level2DomGetter.byClass('name').textContent = module.title + ' Module';
-        level2DomGetter.byClass('level').textContent = '0';
-
         module.setToggleButton(level2DomGetter.byClass('form-check-input'));
 
         const level3Slot = level2DomGetter.byId('level3');
@@ -619,6 +618,16 @@ function updateRequiredRows(categoryType) {
                 );
             }
         }
+    }
+}
+
+function updateModuleRows(){
+    for (let key in modules) {
+        const module = modules[key];
+        const row = document.getElementById('module-row-' + module.name);
+        const level = module.getLevel();
+        const dataElement = row.querySelector('.level');
+        formatValue(dataElement, level);
     }
 }
 
@@ -1220,6 +1229,11 @@ function setPermanentUnlocksAndResetData() {
         if (requirement.completed && permanentUnlocks.includes(key)) continue;
         requirement.completed = false;
     }
+
+    for (let key in modules) {
+        const module = modules[key];
+        module.updateMaxLevel();
+    }
 }
 
 function resetMaxLevels() {
@@ -1348,13 +1362,34 @@ function assignAndReplaceSavedTaskObject(object, saveDict){
 function saveGameData() {
     if (skipGameDataSave) return;
 
+    updateModuleSavaData(gameData);
     localStorage.setItem('gameDataSave', JSON.stringify(gameData));
+}
+
+function updateModuleSavaData(saveData){
+    if (saveData.moduleSaveData === undefined) {
+        saveData.moduleSaveData = {};
+    }
+    for (let id in modules) {
+        const module = modules[id];
+        saveData.moduleSaveData[id] = module.getSaveData();
+    }
+}
+
+function assignDictFromSaveData(dict, saveData){
+    for (let id in dict) {
+        const object = dict[id];
+        if (saveData !== undefined && id in saveData) {
+            object.loadSaveData(saveData[id]);
+        }
+    }
 }
 
 function loadGameData() {
     const gameDataSave = JSON.parse(localStorage.getItem('gameDataSave'));
 
     if (gameDataSave !== null) {
+        assignDictFromSaveData(modules, gameDataSave.moduleSaveData);
         replaceSaveDict(gameData, gameDataSave);
         replaceSaveDict(gameData.requirements, gameDataSave.requirements);
         replaceSaveDict(gameData.taskData, gameDataSave.taskData);
@@ -1384,16 +1419,11 @@ function loadGameData() {
     }
 
     assignMethods();
-
-    //Enable/disable modules
-    for (let id in modules) {
-        const module = modules[id];
-        modules[id].setEnabled(gameData.currentModules.hasOwnProperty(module.name));
-    }
 }
 
 function updateUI() {
     updateTaskRows();
+    updateModuleRows();
     updateItemRows();
     updateRequiredRows(moduleCategories);
     updateRequiredRows(skillCategories);
@@ -1579,6 +1609,12 @@ function init() {
 
     //setCustomEffects();
     addMultipliers();
+
+    //Init and enable/disable modules
+    for (let id in modules) {
+        const module = modules[id];
+        module.init();
+    }
 
     if (tabButtons.hasOwnProperty(gameData.selectedTab)) {
         setTab(tabButtons[gameData.selectedTab], gameData.selectedTab);

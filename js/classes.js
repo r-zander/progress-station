@@ -207,10 +207,20 @@ class Module {
         this.data = baseData;
         this.title = baseData.title;
         this.components = baseData.components;
+        this.maxLevel = 0;
+    }
+
+    getSaveData() {
+        return {maxLevel: this.maxLevel};
+    }
+
+    loadSaveData(saveData) {
+        this.maxLevel = saveData.maxLevel;
+        this.propagateMaxLevel();
     }
 
     do() {
-        for (let component of this.components) {
+        for (const component of this.components) {
             component.do();
         }
     }
@@ -240,7 +250,7 @@ class Module {
             }
         }
 
-        for (let component of this.components) {
+        for (const component of this.components) {
             component.setEnabled(value);
         }
     }
@@ -253,11 +263,37 @@ class Module {
         //TODO
         return null;
     }
+
+    init() {
+        this.propagateMaxLevel();
+        this.setEnabled(gameData.currentModules.hasOwnProperty(this.name));
+    }
+
+    getLevel() {
+        return this.components.reduce(function (levelSum, component) {
+            return levelSum + component.getOperationLevels();
+        }, 0);
+    }
+
+    propagateMaxLevel() {
+        for (const component of this.components) {
+            for (const mode of component.operations) {
+                mode.maxLevel = this.maxLevel;
+            }
+        }
+    }
+
+    updateMaxLevel() {
+        const currentLevel = this.getLevel();
+        if (currentLevel > this.maxLevel) {
+            this.maxLevel = currentLevel;
+        }
+        this.propagateMaxLevel();
+    }
 }
 
 class ModuleComponent {
     /**
-     *
      * @param {{title: string, operations: object[]}} baseData
      */
     constructor(baseData) {
@@ -274,7 +310,7 @@ class ModuleComponent {
 
     setEnabled(value) {
         if (!value) {
-            for (let mode of this.operations) {
+            for (const mode of this.operations) {
                 mode.setEnabled(false);
             }
         } else {
@@ -290,12 +326,20 @@ class ModuleComponent {
     setActiveMode(modeId) {
         if (this.currentMode === modeId) return;
 
-        for (let mode of this.operations) {
+        for (const mode of this.operations) {
             if (mode === modeId) {
                 this.currentMode = mode;
             }
             mode.setEnabled(mode === modeId);
         }
+    }
+
+    getOperationLevels() {
+        let levels = 0;
+        for (const mode of this.operations) {
+            levels += mode.level;
+        }
+        return levels;
     }
 }
 
@@ -314,6 +358,10 @@ class ModuleOperation extends Job {
 
     toggleEnabled() {
         this.setEnabled(!this.enabled);
+    }
+
+    getMaxLevelMultiplier() {
+        return 1 + this.maxLevel / 100;
     }
 }
 
