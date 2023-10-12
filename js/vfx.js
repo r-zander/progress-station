@@ -208,7 +208,11 @@ GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
     let taskProgressBar;
     if (taskInfo.type === 'battle') {
         taskProgressBar = getBattleElement(taskInfo.name);
-    } else {
+    }
+    else if (taskInfo.type === 'gridstrength') {
+        taskProgressBar = document.getElementById('energyDisplay').querySelector('.energy-fill')
+    }
+    else {
         const taskElement = getTaskElement(taskInfo.name);
         taskProgressBar = taskElement.querySelector('.progressBar');
     }

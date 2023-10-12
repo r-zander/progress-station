@@ -8,7 +8,6 @@ let gameData = {
 
     population: 0,
     heat: 0,
-    storedEnergy: 0,
     evil: 0,
     paused: true,
     timeWarpingEnabled: true,
@@ -626,6 +625,7 @@ function updateRequiredRows(categoryType) {
 function updateTaskRows() {
     for (let key in gameData.taskData) {
         const task = gameData.taskData[key];
+        if (task instanceof GridStrength) continue;
         const row = document.getElementById('row ' + task.name);
         formatValue(row.querySelector('.level > data'), task.level, {keepNumber: true});
         formatValue(row.querySelector('.xpGain > data'), task.getXpGain());
@@ -672,12 +672,13 @@ function updateItemRows() {
         const item = gameData.itemData[key];
         const row = document.getElementById('row ' + item.name);
         const button = row.getElementsByClassName('button')[0];
-        button.disabled = gameData.storedEnergy < item.getEnergyUsage();
+        //TODO: Why do 'Items' check for grid load?
+        button.disabled = getRemainingGridStrength() < item.getGridLoad();
         const active = row.getElementsByClassName('active')[0];
         const color = itemCategories['Properties'].includes(item.name) ? headerRowColors['Properties'] : headerRowColors['Misc'];
         active.style.backgroundColor = gameData.currentMisc.includes(item) || item === gameData.currentProperty ? color : 'white';
         row.getElementsByClassName('effect')[0].textContent = item.getEffectDescription();
-        updateEnergyDisplay(item.getEnergyUsage(), row.querySelector('.energy-usage > data'));
+        updateEnergyDisplay(item.getGridLoad(), row.querySelector('.energy-usage > data'));
     }
 }
 
@@ -696,13 +697,14 @@ function updateHeaderRows() {
 }
 
 function updateEnergyBar() {
+    //TODO Raoul: Update for Grid Strength
     const energyDisplayElement = document.getElementById('energyDisplay');
-    updateEnergyDisplay(getEnergyGeneration(), energyDisplayElement.querySelector('.energy-generated > data'));
-    updateEnergyDisplay(getNet(), energyDisplayElement.querySelector('.energy-net > data'), {forceSign: true});
-    updateEnergyDisplay(gameData.storedEnergy, energyDisplayElement.querySelector('.energy-stored > data'), {unit: units.storedEnergy});
+    updateEnergyDisplay(getGridStrength(), energyDisplayElement.querySelector('.energy-generated > data'));
+    updateEnergyDisplay(getRemainingGridStrength(), energyDisplayElement.querySelector('.energy-net > data'), {forceSign: true});
+    updateEnergyDisplay(0, energyDisplayElement.querySelector('.energy-stored > data'), {unit: units.storedEnergy});
     updateEnergyDisplay(getMaxEnergy(), energyDisplayElement.querySelector('.energy-max > data'), {unit: units.storedEnergy});
-    updateEnergyDisplay(getEnergyUsage(), energyDisplayElement.querySelector('.energy-usage > data'));
-    setProgress(energyDisplayElement.querySelector('.energy-fill'), gameData.storedEnergy / getMaxEnergy());
+    updateEnergyDisplay(getGridUsage(), energyDisplayElement.querySelector('.energy-usage > data'));
+    setProgress(energyDisplayElement.querySelector('.energy-fill'), gridStrength.xp / gridStrength.getMaxXp());
 }
 
 function updateHeatDisplay() {
@@ -771,8 +773,8 @@ function updateEnergyDisplay(amount, dataElement, formatConfig = {}) {
     }, formatConfig));
 }
 
-function getNet() {
-    return getEnergyGeneration() - getEnergyUsage();
+function getRemainingGridStrength() {
+    return getGridStrength() - getGridUsage();
 }
 
 function hideEntities() {
@@ -816,11 +818,16 @@ function doTasks() {
     // Legacy
     doTask(gameData.currentSkill);
     doTask(gameData.currentBattle);
+    doTask(gridStrength);
 }
 
 function doTask(task) {
     if (task == null) return;
     task.do();
+}
+
+function getGridStrength() {
+    return 1 + gridStrength.getGridStrength();
 }
 
 function getEnergyGeneration() {
@@ -829,19 +836,29 @@ function getEnergyGeneration() {
     if (tasks !== null) {
         for (const taskName in tasks) {
             const task = tasks[taskName];
-            if (task != null)
+            if (task != null) {
                 energy += task.getEnergyGeneration();
+            }
+        }
+        for (const taskName in tasks) {
+            const task = tasks[taskName];
+            if (task != null) {
+                const multiplier = task.getEnergyMultiplier();
+                if (multiplier !== 1 && energy === 0){
+                    energy = 1;
+                }
+                energy *= multiplier;
+            }
         }
     }
     return energy;
 }
 
 function getMaxEnergy() {
-    // TODO
-    return 1000 + getEnergyGeneration() * 1000;
+    return gridStrength.getMaxXp();
 }
 
-function getEnergyUsage() {
+function getGridUsage() {
     let energyUsage = 0;
 
     const tasks = gameData.currentOperations;
@@ -849,29 +866,18 @@ function getEnergyUsage() {
         for (const taskName in tasks) {
             const task = tasks[taskName];
             if (task != null)
-                energyUsage += task.getEnergyUsage();
+                energyUsage += task.getGridLoad();
         }
     }
     //No 'property' or 'misc' defined atm
-    //energyUsage += gameData.currentProperty.getEnergyUsage();
+    //energyUsage += gameData.currentProperty.getGridLoad();
     //for (let misc of gameData.currentMisc) {
-    //    energyUsage += misc.getEnergyUsage();
+    //    energyUsage += misc.getGridLoad();
     //}
     return energyUsage;
 }
 
-function updateEnergy() {
-    const generated = applySpeed(getEnergyGeneration());
-    gameData.storedEnergy += generated;
-    const usage = applySpeed(getEnergyUsage());
-    gameData.storedEnergy -= usage;
-    if (gameData.storedEnergy < 0) {
-        goBlackout();
-    }
-}
-
 function goBlackout() {
-    gameData.storedEnergy = 0;
     setDefaultCurrentValues();
 }
 
@@ -1249,7 +1255,7 @@ function isPlaying() {
 function assignMethods() {
     for (let key in gameData.taskData) {
         let task = gameData.taskData[key];
-        if (task instanceof Job) {
+        if (task instanceof Job || task instanceof GridStrength) {
             //task.baseData = moduleBaseData[task.name];
             //task = Object.assign(new ModuleOperation(moduleBaseData[task.name]), task);
 
@@ -1280,8 +1286,8 @@ function assignMethods() {
             case 'task':
                 requirement = Object.assign(new TaskRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
-            case 'storedEnergy':
-                requirement = Object.assign(new StoredEnergyRequirement(requirement.elements, requirement.requirements), requirement);
+            case 'gridStrength':
+                requirement = Object.assign(new GridStrengthRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
             case 'age':
                 requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement);
@@ -1312,15 +1318,12 @@ function assignMethods() {
 
 function replaceSaveDict(dict, saveDict) {
     for (let key in dict) {
-        if (!(key in saveDict)) {
-            saveDict[key] = dict[key];
-        }
-        if (dict === gameData.taskData && dict[key] instanceof Job) {
-            dict[key].level = saveDict[key].level;
-            dict[key].maxLevel = saveDict[key].maxLevel;
-            dict[key].xp = saveDict[key].xp;
-            saveDict[key] = dict[key];
+        if (dict === gameData.taskData && (dict[key] instanceof Job || dict[key] instanceof GridStrength)) {
+            assignAndReplaceSavedTaskObject(dict[key], saveDict);
         } else if (dict === gameData.requirements) {
+            if (!(key in saveDict)) {
+                saveDict[key] = dict[key];
+            }
             if (saveDict[key].type !== tempData['requirements'][key].type) {
                 saveDict[key] = tempData['requirements'][key];
             }
@@ -1332,6 +1335,14 @@ function replaceSaveDict(dict, saveDict) {
             delete saveDict[key];
         }
     }
+}
+
+function assignAndReplaceSavedTaskObject(object, saveDict){
+    const key = object.name;
+    if (key in saveDict) {
+        object.assignSaveData(saveDict[key]);
+    }
+    saveDict[key] = object;
 }
 
 function saveGameData() {
@@ -1402,7 +1413,6 @@ function update() {
     autoPromote();
     autoLearn();
     doTasks();
-    updateEnergy();
     updateHeat();
     updatePopulation();
     updateUI();
@@ -1554,6 +1564,7 @@ function init() {
     createData(gameData.taskData, skillBaseData);
     createData(gameData.battleData, battleBaseData);
     createData(gameData.itemData, itemBaseData);
+    gameData.taskData[gridStrength.name] = gridStrength;
 
     setDefaultCurrentValues();
 

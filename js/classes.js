@@ -8,6 +8,7 @@ class EffectType {
 
     static Growth = new EffectType('x', 'Growth');
     static Energy = new EffectType('+', 'Energy');
+    static EnergyFactor = new EffectType('x', 'Energy');
     static Industry = new EffectType('x', 'Industry');
     static Military = new EffectType('x', 'Military');
     static Heat = new EffectType('+', 'Heat');
@@ -24,6 +25,12 @@ class Task {
         this.maxLevel = 0;
         this.xp = 0;
         this.xpMultipliers = [];
+    }
+
+    assignSaveData(saveData){
+        this.level = saveData.level;
+        this.maxLevel = saveData.maxLevel;
+        this.xp = saveData.xp;
     }
 
     do() {
@@ -137,12 +144,16 @@ class Job extends Task {
         return 1 + Math.log10(this.level + 1);
     }
 
+    getEnergyMultiplier() {
+        return this.getEffect(EffectType.EnergyFactor);
+    }
+
     getEnergyGeneration() {
         return applyMultipliers(this.getEffect(EffectType.Energy), this.energyGenerationMultipliers);
     }
 
-    getEnergyUsage() {
-        return this.baseData.energyConsumption === undefined ? 0 : this.baseData.energyConsumption;
+    getGridLoad() {
+        return this.baseData.gridLoad === undefined ? 0 : this.baseData.gridLoad;
     }
 }
 
@@ -186,7 +197,7 @@ class Item {
         //return 'x' + this.baseData.effects.toFixed(1) + ' ' + description;
     }
 
-    getEnergyUsage() {
+    getGridLoad() {
         return applyMultipliers(this.baseData.expense, this.expenseMultipliers);
     }
 }
@@ -306,6 +317,22 @@ class ModuleOperation extends Job {
     }
 }
 
+class GridStrength extends Task{
+    constructor(baseData) {
+        super(baseData);
+    }
+
+    collectEffects(){}
+
+    getXpGain() {
+        return applyMultipliers(getEnergyGeneration(), this.xpMultipliers);
+    }
+
+    getGridStrength(){
+         return this.level;
+    }
+}
+
 class Requirement {
     constructor(type, elements, requirements) {
         this.type = type;
@@ -340,13 +367,13 @@ class TaskRequirement extends Requirement {
     }
 }
 
-class StoredEnergyRequirement extends Requirement {
+class GridStrengthRequirement extends Requirement {
     constructor(elements, requirements) {
-        super('storedEnergy', elements, requirements);
+        super('gridStrength', elements, requirements);
     }
 
     getCondition(requirement) {
-        return gameData.storedEnergy >= requirement.requirement;
+        return gridStrength.getGridStrength() >= requirement.requirement;
     }
 }
 

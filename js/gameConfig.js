@@ -23,6 +23,8 @@ const units = {
     storedEnergy: 'Wh'
 };
 
+const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100});
+
 const battleBaseData = {
     Destroyer: {title: 'The Destroyer', maxXp: 500, maxLayers: 5, progressBarId: 'battleProgressBar', layerLabel: 'Tentacles layer'},
 };
@@ -41,21 +43,21 @@ const defaultSkill = 'Concentration';
 const defaultProperty = 'Homeless';
 
 const moduleOperations = {
-    Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 400}),
-    Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 50}),
-    Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 100}),
-    Steel: new ModuleOperation({title: 'Steel', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 200}),
+    Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 50, gridLoad: 1}),
+    Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 100, gridLoad: 1}),
+    Steel: new ModuleOperation({title: 'Steel', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.EnergyFactor, baseValue: 5}], maxXp: 200, gridLoad: 1}),
     //Population
-    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, energyConsumption: 30}),
-    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, energyConsumption: 40}),
-    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, energyConsumption: 50}),
-    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, energyConsumption: 60}),
-    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, energyConsumption: 80}),
+    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
     //Military
-    BallisticTurrets: new ModuleOperation({title: 'Ballistic Turrets', effects: [{effectType: EffectType.Military, baseValue: 2}], maxXp: 100, energyConsumption: 5}),
-    LaserTurrets: new ModuleOperation({title: 'Laser Turrets', effects: [{effectType: EffectType.Military, baseValue: 5}], maxXp: 400, energyConsumption: 20}),
-    FighterSquadron: new ModuleOperation({title: 'Fighter Squadron', effects: [{effectType: EffectType.Military, baseValue: 3}], maxXp: 150, energyConsumption: 8}),
-    EliteForce: new ModuleOperation({title: 'Elite Force', effects: [{effectType: EffectType.Military, baseValue: 10}], maxXp: 1000, energyConsumption: 50}),
+    BallisticTurrets: new ModuleOperation({title: 'Ballistic Turrets', effects: [{effectType: EffectType.Military, baseValue: 2}], maxXp: 100, gridLoad: 1}),
+    LaserTurrets: new ModuleOperation({title: 'Laser Turrets', effects: [{effectType: EffectType.Military, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    FighterSquadron: new ModuleOperation({title: 'Fighter Squadron', effects: [{effectType: EffectType.Military, baseValue: 3}], maxXp: 150, gridLoad: 1}),
+    EliteForce: new ModuleOperation({title: 'Elite Force', effects: [{effectType: EffectType.Military, baseValue: 10}], maxXp: 1000, gridLoad: 1}),
 };
 
 const moduleComponents = {
@@ -180,7 +182,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         //Other
         'Arcane energy': new TaskRequirement(getElementsByClass('Arcane energy'), [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),
         'Dark magic': new EvilRequirement(getElementsByClass('Dark magic'), [{requirement: 1}]),
-        'Shop': new StoredEnergyRequirement([Dom.get().byId('shopTabButton')], [{requirement: gameData.itemData['Tent'].getEnergyUsage() * 50}]),
+        'Shop': new StoredEnergyRequirement([Dom.get().byId('shopTabButton')], [{requirement: gameData.itemData['Tent'].getGridLoad() * 50}]),
         'Rebirth tab': new AgeRequirement([Dom.get().byId('rebirthTabButton')], [{requirement: 25}]),
         'Rebirth note 1': new AgeRequirement([Dom.get().byId('rebirthNote1')], [{requirement: 45}]),
         'Rebirth note 2': new AgeRequirement([Dom.get().byId('rebirthNote2')], [{requirement: 65}]),
@@ -246,26 +248,26 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Demon\'s wealth': new EvilRequirement([getTaskElement('Demon\'s wealth')], [{requirement: 500}]),
 */
         //Properties
-        Homeless: new StoredEnergyRequirement([getItemElement('Homeless')], [{requirement: 0}]),
+        Homeless: new GridStrengthRequirement([getItemElement('Homeless')], [{requirement: 0}]),
         /*
         'Tent': new StoredEnergyRequirement([getItemElement('Tent')], [{requirement: 0}]),
-        'Wooden hut': new StoredEnergyRequirement([getItemElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getEnergyUsage() * 100}]),
-        'Cottage': new StoredEnergyRequirement([getItemElement('Cottage')], [{requirement: gameData.itemData['Cottage'].getEnergyUsage() * 100}]),
-        'House': new StoredEnergyRequirement([getItemElement('House')], [{requirement: gameData.itemData['House'].getEnergyUsage() * 100}]),
-        'Large house': new StoredEnergyRequirement([getItemElement('Large house')], [{requirement: gameData.itemData['Large house'].getEnergyUsage() * 100}]),
-        'Small palace': new StoredEnergyRequirement([getItemElement('Small palace')], [{requirement: gameData.itemData['Small palace'].getEnergyUsage() * 100}]),
-        'Grand palace': new StoredEnergyRequirement([getItemElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getEnergyUsage() * 100}]),
+        'Wooden hut': new StoredEnergyRequirement([getItemElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getGridLoad() * 100}]),
+        'Cottage': new StoredEnergyRequirement([getItemElement('Cottage')], [{requirement: gameData.itemData['Cottage'].getGridLoad() * 100}]),
+        'House': new StoredEnergyRequirement([getItemElement('House')], [{requirement: gameData.itemData['House'].getGridLoad() * 100}]),
+        'Large house': new StoredEnergyRequirement([getItemElement('Large house')], [{requirement: gameData.itemData['Large house'].getGridLoad() * 100}]),
+        'Small palace': new StoredEnergyRequirement([getItemElement('Small palace')], [{requirement: gameData.itemData['Small palace'].getGridLoad() * 100}]),
+        'Grand palace': new StoredEnergyRequirement([getItemElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getGridLoad() * 100}]),
 */
         //Misc
-        Book: new StoredEnergyRequirement([getItemElement('Book')], [{requirement: 0}]),
+        Book: new GridStrengthRequirement([getItemElement('Book')], [{requirement: 0}]),
         /*
-        'Dumbbells': new StoredEnergyRequirement([getItemElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getEnergyUsage() * 100}]),
-        'Personal squire': new StoredEnergyRequirement([getItemElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getEnergyUsage() * 100}]),
-        'Steel longsword': new StoredEnergyRequirement([getItemElement('Steel longsword')], [{requirement: gameData.itemData['Steel longsword'].getEnergyUsage() * 100}]),
-        'Butler': new StoredEnergyRequirement([getItemElement('Butler')], [{requirement: gameData.itemData['Butler'].getEnergyUsage() * 100}]),
-        'Sapphire charm': new StoredEnergyRequirement([getItemElement('Sapphire charm')], [{requirement: gameData.itemData['Sapphire charm'].getEnergyUsage() * 100}]),
-        'Study desk': new StoredEnergyRequirement([getItemElement('Study desk')], [{requirement: gameData.itemData['Study desk'].getEnergyUsage() * 100}]),
-        'Library': new StoredEnergyRequirement([getItemElement('Library')], [{requirement: gameData.itemData['Library'].getEnergyUsage() * 100}]),
+        'Dumbbells': new StoredEnergyRequirement([getItemElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getGridLoad() * 100}]),
+        'Personal squire': new StoredEnergyRequirement([getItemElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getGridLoad() * 100}]),
+        'Steel longsword': new StoredEnergyRequirement([getItemElement('Steel longsword')], [{requirement: gameData.itemData['Steel longsword'].getGridLoad() * 100}]),
+        'Butler': new StoredEnergyRequirement([getItemElement('Butler')], [{requirement: gameData.itemData['Butler'].getGridLoad() * 100}]),
+        'Sapphire charm': new StoredEnergyRequirement([getItemElement('Sapphire charm')], [{requirement: gameData.itemData['Sapphire charm'].getGridLoad() * 100}]),
+        'Study desk': new StoredEnergyRequirement([getItemElement('Study desk')], [{requirement: gameData.itemData['Study desk'].getGridLoad() * 100}]),
+        'Library': new StoredEnergyRequirement([getItemElement('Library')], [{requirement: gameData.itemData['Library'].getGridLoad() * 100}]),
    */
     };
 }
