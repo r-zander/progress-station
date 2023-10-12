@@ -57,6 +57,11 @@
     color: rgb(128, 128, 128);
 }
 
+.table td,
+.table th {
+    background: none;
+}
+
 data[data-unit]::after {
     content: attr(data-unit);
     font-family: var(--body-font-family);
@@ -105,4 +110,8 @@ data[data-unit]::after {
 
 .position-sticky {
     background: inherit;
+}
+
+.icon-header {
+    height: 24px;
 }

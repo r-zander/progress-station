@@ -42,7 +42,8 @@
              title="Click to toggle detailed view" data-bs-placement="bottom">
             <div class="above-energy-bar">
                 <p class="energy-generated energy-text detail">
-                    <span>Generated:</span>
+                    <img src="img/icons/energy.svg" class="icon-header" alt="Energy Icon"/>
+                    <span>Grid Strength:</span>
                     <data value="200">200 W</data>
                 </p>
             </div>
@@ -60,7 +61,7 @@
             </div>
             <div class="below-energy-bar">
                 <p class="energy-usage energy-text detail">
-                    <span>Usage:</span>
+                    <span>Load:</span>
                     <data value="180">180 W</data>
                 </p>
                 <p class="energy-max energy-text">
@@ -69,18 +70,34 @@
                 </p>
             </div>
         </div>
-        <div class="d-flex flex-row gap-3 justify-content-around">
+        <div class="d-flex flex-row gap-3 justify-content-left">
+            <div class="d-flex flex-row gap-3 align-items-center">
+                <div class="primary-stat">
+                    <img src = "img/icons/population.svg" class="icon-header" alt="Population Icon"/>
+                    <span class="label" style="color: rgb(46, 148, 231)">Population:</span>
+                    <data id="populationDisplay" value="1">1</data>
+                </div>
+            </div>
             <div class="primary-stat">
-                <span class="label">Danger:</span>
-                <data id="dangerLevel" style="color: orange" value="0.542">54.2%</data>
+                <img src = "img/icons/heat.svg" class="icon-header" alt="Heat Icon"/>
+                <span class="label">Heat:</span>
+                <data id="heatDisplay" style="color: rgb(15, 105, 207)" value="1">54.2%</data>
             </div>
             <div class="d-flex flex-row gap-3 align-items-center">
                 <div class="primary-stat">
-                    <span class="label" style="color: rgb(15, 105, 207)">Population:</span>
-                    <data id="happinessDisplay" value="1">1</data>
+                    <img src="img/icons/industry.svg" class="icon-header" alt="Population Icon"/>
+                    <span class="label" style="color: rgb(97, 173, 50)">Industry:</span>
+                    <data id="industryDisplay" value="1">1</data>
                 </div>
-                <div class="help-text">Affects all work speed</div>
             </div>
+            <div class="d-flex flex-row gap-3 align-items-center">
+                <div class="primary-stat">
+                    <img src="img/icons/military.svg" class="icon-header" alt="Military Icon"/>
+                    <span class="label" style="color: rgb(255, 0, 0)">Military:</span>
+                    <data id="militaryDisplay" value="1">1</data>
+                </div>
+            </div>
+            <!--
             <div id="evilInfo" class="d-flex flex-row gap-3 align-items-center">
                 <div class="primary-stat">
                     <span class="label" style="color: rgb(200, 0, 0)">Evil:</span>
@@ -90,6 +107,7 @@
                     Affects dark magic xp gain
                 </div>
             </div>
+            -->
         </div>
     </header>
 
@@ -136,14 +154,30 @@
                 <button id="jobsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'jobs');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Modules</h3>
-                    <!--suppress HtmlUnknownTag -->
-                    <div class="quickTaskDisplay mt-2">
-                        <div class="progress job progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
-                             aria-valuemin="0" aria-valuemax="100">
-                            <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
-                            <div class="progress-text name px-2">Task</div>
+
+                    <template id="moduleQuickTaskDisplayTemplate">
+                        <div class="quickTaskDisplayContainer hidden">
+                            <h4 class="fs-6 text-start moduleName mb-0 mt-3">Module</h4>
+                            <slot id="componentsQuickTaskDisplay"></slot>
                         </div>
-                    </div>
+                    </template>
+
+                    <template id="componentQuickTaskDisplayTemplate">
+                        <div class="quickTaskDisplay mt-2">
+                            <div class="progress progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
+                                 aria-valuemin="0" aria-valuemax="100">
+                                <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
+                                <div class="progress-text name px-2">
+                                    <span class="component">Component</span>
+                                    <span>:</span>
+                                    <span class="operation">Operation</span>
+                                    <span>lvl</span>
+                                    <data value="0" class="level">0</data>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <slot id="modulesQuickTaskDisplay"></slot>
                 </button>
                 <button id="skillsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'skills');">
                     <!--suppress HtmlUnknownTag -->
@@ -206,16 +240,9 @@
 
             <template id="level2Template">
                 <div class="level2 ps-3 mt-2">
-                    <div class="level2-header bg-light text-dark d-flex justify-content-start align-items-center px-2"
+                    <div class="level2-header bg-light text-dark d-flex justify-content-start align-items-center px-2 gap-3"
                          style="padding-top: 5px; padding-bottom: 5px;">
-                        <div>
-                            <div class="progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
-                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
-                                 data-bs-placement="right">
-                                <div class="progressFill progress-bar progress-bar-striped" style="width: 63%;"></div>
-                                <div class="progress-text name px-2">Mining Bay</div>
-                            </div>
-                        </div>
+                        <div class="name">Mining Bay</div>
                         <div>
                             Level:
                             <data class="level" value="32">32</data>
@@ -425,65 +452,113 @@
             </div>
 
             <div id="settings" class="tab p-3">
-                <ul>
-                    <li>
-                        <h2><label for="settingsStationNameInput">Station Name</label></h2>
-                        <button class="btn btn-light" onClick="rerollStationName();">Re-roll</button>
-                        <form class="mt-3">
-                            <input type="text"
-                                   id="settingsStationNameInput"
-                                   class="stationNameInput w-100"
-                                   maxlength="30"
-                                   placeholder=""/>
-                        </form>
-                    </li>
-                    <li>
-                        <h2><label for="importExportBox">Import/export save</label></h2>
-                        <button class="btn btn-light" onClick="importGameData();">Import</button>
-                        <button class="btn btn-light" onClick="exportGameData();">Export</button>
-                        <form class="mt-3">
-                            <textarea id="importExportBox" class="w-100" rows="3"></textarea>
-                        </form>
-                    </li>
-                    <li>
-                        <h2>Light/dark mode</h2>
-                        <button class="btn btn-light" onClick="toggleLightDarkMode();">Toggle</button>
-                    </li>
-                    <li>
-                        <h2 class="unstable">Sci-fi mode</h2>
-                        <button class="btn btn-light" onClick="toggleSciFiMode();">Toggle</button>
-                    </li>
-                    <li>
-                        <h2 class="unstable">Background</h2>
-                        <label class="background background-simple">
-                            <input type="radio" name="background" onClick="setBackground('simple');"/>
-                            Simple Color
-                        </label>
-                        <label class="background background-triangles1">
-                            <input type="radio" name="background" onClick="setBackground('triangles1');"/>
-                            Trianglify
-                        </label>
-                        <label class="background background-space">
-                            <input type="radio" name="background" onClick="setBackground('space');"/>
-                            Space
-                        </label>
-                        <label class="background background-hexagons">
-                            <input type="radio" name="background" onClick="setBackground('hexagons');"/>
-                            Bestagons
-                        </label>
-                    </li>
-                    <li>
-                        <h2>Join the discord community!</h2>
-                        <a href="https://discord.gg/fTRS4pHGka" target="_blank">
-                            <img src="https://cdn.icon-icons.com/icons2/2108/PNG/512/discord_icon_130958.png"
-                                 width="100" height="100"/>
-                        </a>
-                    </li>
-                    <li>
-                        <h2>Hard reset game</h2>
-                        <button class="btn btn-danger" onClick="resetGameData();">Reset</button>
-                    </li>
-                </ul>
+                <div class="row">
+                    <label for="settingsStationNameInput" class="col-sm-2 col-form-label">Station Name</label>
+                    <div class="col-sm-10">
+                        <input type="text"
+                               id="settingsStationNameInput"
+                               class="stationNameInput form-control"
+                               maxlength="30"
+                               placeholder=""/>
+                        <button class="btn btn-light py-1 mt-3 float-end" onClick="rerollStationName();">Re-roll</button>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <label for="importExportBox" class="col-sm-2 col-form-label">Import/export save</label>
+                    <div class="col-sm-10">
+                        <textarea id="importExportBox" class="form-control" rows="3"></textarea>
+
+                        <div class="mt-3 float-end">
+                            <button class="btn btn-light py-1" onClick="importGameData();">Import</button>
+                            <button class="btn btn-light py-1" onClick="exportGameData();">Export</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-sm-2 col-form-label">Light/dark mode</div>
+                    <div class="col-sm-10">
+                        <div class="btn-group">
+                            <button class="btn btn-light py-1" onClick="toggleLightDarkMode(false);">Light</button>
+                            <button class="btn btn-dark py-1" onClick="toggleLightDarkMode(true);">Dark</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-sm-2 col-form-label unstable">Sci-fi mode</div>
+                    <div class="col-sm-10">
+                        <div class="btn-group">
+                            <button class="btn btn-light py-1" onClick="toggleSciFiMode(false);">On</button>
+                            <button class="btn btn-primary py-1" onClick="toggleSciFiMode(true);">Off</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-sm-2 col-form-label unstable">Background</div>
+                    <div class="col-sm-10">
+                        <div class="form-check background background-simple" onclick="setBackground('simple');">
+                            <input class="form-check-input" type="radio" name="background" id="radioBackground1">
+                            <label class="form-check-label" for="radioBackground1">
+                                Simple Color
+                            </label>
+                        </div>
+                        <div class="form-check background background-triangles1" onClick="setBackground('triangles1');">
+                            <input class="form-check-input" type="radio" name="background" id="radioBackground2">
+                            <label class="form-check-label" for="radioBackground2">
+                                Trianglify
+                            </label>
+                        </div>
+                        <div class="form-check background background-space" onClick="setBackground('space');">
+                            <input class="form-check-input" type="radio" name="background" id="radioBackground3">
+                            <label class="form-check-label" for="radioBackground3">
+                                Space
+                            </label>
+                        </div>
+                        <div class="form-check background background-hexagons" onClick="setBackground('hexagons');">
+                            <input class="form-check-input" type="radio" name="background" id="radioBackground4">
+                            <label class="form-check-label" for="radioBackground4">
+                                Bestagons
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-sm-2 col-form-label">Credits</div>
+                    <div class="col-sm-10">
+                        <p>
+                            A game by <a href="http://kringel.games/" target="_blank">Kringel Games</a>
+                            <small class="help-text">(link opens in new tab)</small>.
+                        </p>
+
+                        <table class="table  table-borderless table-striped align-middle w-auto">
+                            <tbody>
+                            <tr>
+                                <th class="ps-0">Vision Keeper</th>
+                                <td>Janik</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0">Feature Coder</th>
+                                <td>Mark</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0">Visual Coder</th>
+                                <td>Raoul</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-sm-2 col-form-label">Hard reset game</div>
+                    <div class="col-sm-10">
+                        <button class="btn btn-danger py-1" onClick="resetGameData();">Reset</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

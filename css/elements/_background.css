@@ -10,12 +10,6 @@
     background-position: center;
 }
 
-label.background-space {
-    background-image: url("../../img/space.png");
-    background-size: cover;
-    background-position: center;
-}
-
 .background-hexagons {
     --bg-color-1: var(--body-bg-color);
     --bg-color-2: #00556f;
