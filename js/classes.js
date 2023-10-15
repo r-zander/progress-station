@@ -33,7 +33,7 @@ class Task {
         this.xpMultipliers = [];
     }
 
-    assignSaveData(saveData){
+    assignSaveData(saveData) {
         this.level = saveData.level;
         this.maxLevel = saveData.maxLevel;
         this.xp = saveData.xp;
@@ -121,7 +121,7 @@ class Task {
 
     updateMaxLevelAndReset() {
         if (this.level > this.maxLevel) {
-                this.maxLevel = this.level;
+            this.maxLevel = this.level;
         }
         this.level = 0;
         this.xp = 0;
@@ -369,19 +369,20 @@ class ModuleOperation extends Job {
     }
 }
 
-class GridStrength extends Task{
+class GridStrength extends Task {
     constructor(baseData) {
         super(baseData);
     }
 
-    collectEffects(){}
+    collectEffects() {
+    }
 
     getXpGain() {
         return applyMultipliers(getEnergyGeneration(), this.xpMultipliers);
     }
 
-    getGridStrength(){
-         return this.level;
+    getGridStrength() {
+        return this.level;
     }
 }
 
@@ -446,5 +447,15 @@ class EvilRequirement extends Requirement {
 
     getCondition(requirement) {
         return gameData.evil >= requirement.requirement;
+    }
+}
+
+class ResearchRequirement extends Requirement {
+    constructor(elements, requirements) {
+        super('research', elements, requirements);
+    }
+
+    getCondition(requirement) {
+        return getResearch() >= requirement.requirement;
     }
 }
