@@ -5,6 +5,7 @@
 @import url(global/_html-tags.css);
 @import url(global/_main.css);
 
+@import url(elements/_attributes.css);
 @import url(elements/_background.css);
 @import url(elements/_navigation.css);
 @import url(elements/_station-overview.css);

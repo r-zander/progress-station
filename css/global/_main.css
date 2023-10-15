@@ -36,18 +36,6 @@
     min-height: 100%;
 }
 
-.primary-stat {
-    font-size: large;
-}
-
-.secondary-stat {
-    font-size: 100%;
-}
-
-:is(.primary-stat, .secondary-stat) > data {
-    font-size: 1em;
-}
-
 .label {
     font-family: var(--title-font-family);
     font-weight: 300;
@@ -112,6 +100,6 @@ data[data-unit]::after {
     background: inherit;
 }
 
-.icon-header {
-    height: 24px;
+.icon {
+    height: 1.5rem;
 }

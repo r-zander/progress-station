@@ -1,0 +1,32 @@
+.primary-stat {
+    font-size: large;
+
+  /*  > .label::after {
+        content: ":";
+    }*/
+}
+
+.secondary-stat {
+    font-size: 100%;
+}
+
+:is(.primary-stat, .secondary-stat) > data {
+    font-size: 1em;
+}
+
+#stationOverview {
+    .primary-stat {
+        & data {
+            display: block;
+        }
+    }
+}
+
+#attributes {
+    .table {
+        .title,
+        .formula {
+            white-space: nowrap;
+        }
+    }
+}

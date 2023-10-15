@@ -42,7 +42,7 @@
              title="Click to toggle detailed view" data-bs-placement="bottom">
             <div class="above-energy-bar">
                 <p class="energy-generated energy-text detail">
-                    <img src="img/icons/energy.svg" class="icon-header" alt="Energy Icon"/>
+                    <img src="img/icons/energy.svg" class="icon" alt="Energy Icon"/>
                     <span>Grid Strength:</span>
                     <data value="200">200 W</data>
                 </p>
@@ -70,31 +70,43 @@
                 </p>
             </div>
         </div>
-        <div class="row">
+        <div id="attributesDisplay" class="row justify-content-center"
+             onclick="setTab(tabButtons.attributes, 'attributes');">
             <div class="col primary-stat">
-                <img src="img/icons/population.svg" class="icon-header" alt="Population Icon"/>
-                <span class="label" style="color: rgb(46, 148, 231)">Population:</span>
+                <img src="img/icons/population.svg" class="icon" alt="Population Icon"/>
+                <span class="label" style="color: rgb(46, 148, 231)">Population</span>
                 <data id="populationDisplay" value="1">1</data>
             </div>
             <div class="col primary-stat">
-                <img src="img/icons/heat.svg" class="icon-header" alt="Heat Icon"/>
-                <span class="label">Heat:</span>
-                <data id="heatDisplay" style="color: rgb(15, 105, 207)" value="1">54.2%</data>
-            </div>
-            <div class="col primary-stat">
-                <img src="img/icons/industry.svg" class="icon-header" alt="Population Icon"/>
-                <span class="label" style="color: rgb(97, 173, 50)">Industry:</span>
+                <img src="img/icons/industry.svg" class="icon" alt="Population Icon"/>
+                <span class="label" style="color: rgb(97, 173, 50)">Industry</span>
                 <data id="industryDisplay" value="1">1</data>
             </div>
             <div class="col primary-stat">
-                <img src="img/icons/military.svg" class="icon-header" alt="Military Icon"/>
-                <span class="label" style="color: rgb(255, 0, 0)">Military:</span>
-                <data id="militaryDisplay" value="1">1</data>
+                <img src="img/icons/research.svg" class="icon" alt="Research Icon"/>
+                <span class="label" style="color: #cc4ee2">Research</span>
+                <data id="researchDisplay" value="1">1</data>
+            </div>
+
+            <div class="col primary-stat">
+                <img src="img/icons/growth.svg" class="icon" alt="Growth Icon"/>
+                <span class="label" style="color: green">Growth</span>
+                <data id="growthDisplay" value="1">1</data>
             </div>
             <div class="col primary-stat">
-                <img src="img/icons/research.svg" class="icon-header" alt="Military Icon"/>
-                <span class="label" style="color: #cc4ee2">Research:</span>
-                <data id="researchDisplay" value="1">1</data>
+                <img src="img/icons/heat.svg" class="icon" alt="Heat Icon"/>
+                <span class="label">Heat</span>
+                <data id="heatDisplay" style="color: rgb(15, 105, 207)" value="1">54.2%</data>
+            </div>
+            <div class="col primary-stat">
+                <img src="img/icons/danger.svg" class="icon" alt="Danger Icon"/>
+                <span class="label" style="color: rgb(200, 0, 0)">Danger</span>
+                <data id="dangerDisplay" value="1">1</data>
+            </div>
+            <div class="col primary-stat">
+                <img src="img/icons/military.svg" class="icon" alt="Military Icon"/>
+                <span class="label" style="color: #b3b3b3">Military</span>
+                <data id="militaryDisplay" value="1">1</data>
             </div>
             <!--
             <div id="evilInfo" class="d-flex flex-row gap-3 align-items-center">
@@ -213,6 +225,10 @@
                         </div>
                     </div>
                 </button>
+                <button id="attributesTabButton" class="tabButton panel p-3" onClick="setTab(this, 'attributes');">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Attributes</h3>
+                </button>
                 <button id="settingsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'settings');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Settings</h3>
@@ -273,7 +289,7 @@
                         </tr>
                         </thead>
                         <tbody class="level4">
-                        <!-- repeat level 4 row -->
+                            <!-- repeat level 4 row -->
                         </tbody>
                     </table>
                 </div>
@@ -291,7 +307,7 @@
                         </tr>
                         </thead>
                         <tbody class="level4">
-                        <slot id="level4"></slot>
+                            <!-- repeat level 4 row -->
                         </tbody>
                     </table>
                 </div>
@@ -448,6 +464,48 @@
                 <div class="mt-5 clearfix">
                     <button class="btn btn-sm btn-light float-end" onclick="concedeBattle();">Concede</button>
                 </div>
+            </div>
+
+            <div id="attributes" class="tab p-3">
+                <!-- TODO: boxed design for mobile -> be able to have 1 attribute per row -->
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="text-nowrap">Attribute</th>
+                        <th class="text-nowrap">Value</th>
+                        <th class="text-nowrap">Per Cycle</th>
+                        <th class="text-nowrap">Breakdown</th>
+                        <th class="text-nowrap">Description</th>
+                    </tr>
+                    </thead>
+                    <template id="attributeRowTemplate">
+                        <tr>
+                            <td class="title">
+                                <img src="img/icons/industry.svg" class="icon" alt="Population Icon"/>
+                                <span class="name" style="color: rgb(97, 173, 50)">Industry</span>
+                            </td>
+                            <td class="value"></td>
+                            <td>
+                                <data value="0" class="delta">0</data>
+                            </td>
+                            <td class="breakdown"
+                                style="line-height: 1.1rem; padding-top: 0.3rem; padding-bottom: 0.3rem;">
+                                <ul class="balance hidden m-0">
+                                    <li class="balanceEntry">
+                                        <data value="0" class="entryValue">0</data>
+                                        <span class="entryName"></span>
+                                    </li>
+                                </ul>
+
+                                <p class="formula hidden">
+                                </p>
+                            </td>
+                            <td class="description"></td>
+                        </tr>
+                    </template>
+                    <tbody id="attributeRows">
+                    </tbody>
+                </table>
             </div>
 
             <div id="settings" class="tab p-3">

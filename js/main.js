@@ -49,6 +49,7 @@ const tabButtons = {
     'shop': document.getElementById('shopTabButton'),
     'rebirth': document.getElementById('rebirthTabButton'),
     'battle': document.getElementById('battleTabButton'),
+    'attributes': document.getElementById('attributesTabButton'),
     'settings': document.getElementById('settingsTabButton'),
 };
 
@@ -73,13 +74,18 @@ function applySpeed(value, ignoreDeath = false) {
     return value * getGameSpeed(ignoreDeath) / updateSpeed;
 }
 
-//Need to review formula + application in updatePopulation()
-function updateHeat() {
+function getDanger() {
     let danger = getEffectFromOperations(EffectType.Danger);
     danger += gameData.currentSkill.getEffect(EffectType.Danger);
+    return danger;
+}
+
+//Need to review formula + application in updatePopulation()
+function updateHeat() {
+    let danger = getDanger();
     const military = getEffectFromOperations(EffectType.Military);
 
-    if (approximatelyEquals(danger, military)) {
+    if (approximatelyEquals(getDanger(), military)) {
         return;
     }
 
@@ -426,6 +432,130 @@ function createModuleQuickTaskDisplay() {
     slot.replaceWith(...moduleQuickTaskDisplayElements);
 }
 
+/**
+ * @typedef {Object} AttributeDefinition
+ * @property {string} [name] - identifier
+ * @property {string} title - displayed name of the attribute
+ * @property {null|string} color - font color to display the title
+ * @property {null|string} icon - path to the icon file#
+ * @property {string} [description] - (HTML) description of the attribute
+ */
+
+/**
+ *
+ * @type {Object.<string, AttributeDefinition>}
+ */
+const attributes = {
+    danger: {title: 'Danger', color: 'rgb(200, 0, 0)', icon: 'img/icons/danger.svg'},
+    gridLoad: {title: 'Grid Load', color: '#2CCBFF', icon: 'img/icons/energy.svg'},
+    gridStrength: {title: 'Grid Strength', color: '#0C65AD', icon: 'img/icons/energy.svg'},
+    growth: {title: 'Growth', color: 'green', icon: 'img/icons/growth.svg'},
+    heat: {title: 'Heat', color: 'rgb(245, 166, 35)', icon: 'img/icons/heat.svg'},
+    industry: {title: 'Industry', color: 'rgb(97, 173, 50)', icon: 'img/icons/industry.svg'},
+    military: {title: 'Military', color: '#b3b3b3', icon: 'img/icons/military.svg'},
+    population: {title: 'Population', color: 'rgb(46, 148, 231)', icon: 'img/icons/military.svg'},
+    research: {title: 'Research', color: '#cc4ee2', icon: 'img/icons/population.svg'},
+};
+assignNames(attributes);
+attributes.danger.description = 'Increases ' + createAttributeInlineHTML(attributes.heat) + '.';
+attributes.gridLoad.description = 'Amount of ' + createAttributeInlineHTML(attributes.gridStrength) + ' currently assigned.';
+attributes.gridStrength.description = 'Limits the number of concurrently active operations.';
+attributes.growth.description = 'Increases ' + createAttributeInlineHTML(attributes.population) + '.';
+attributes.heat.description = 'Reduces ' + createAttributeInlineHTML(attributes.population) + '.';
+attributes.industry.description = 'Speeds up constructions.';
+attributes.military.description = 'Counteracts ' + createAttributeInlineHTML(attributes.danger) + '.';
+attributes.population.description = 'Affects all work speed.';
+attributes.research.description = 'Unlocks new knowledge.';
+
+/**
+ * @param {AttributeDefinition} attribute
+ */
+function createAttributeInlineHTML(attribute) {
+    return `<span class="attribute" style="color: ${attribute.color}">${attribute.title}</span>`;
+}
+
+/**
+ *
+ * @param {AttributeDefinition} attribute
+ * @returns {HTMLElement}
+ */
+function createAttributeRow(attribute) {
+    const dangerRow = Dom.new.fromTemplate('attributeRowTemplate');
+    dangerRow.classList.add(attribute.name);
+    const dangerDomGetter = Dom.get(dangerRow);
+    if (attribute.icon === null) {
+        dangerDomGetter.byClass('icon').remove();
+    } else {
+        dangerDomGetter.byClass('icon').src = attribute.icon;
+    }
+    let nameElement = dangerDomGetter.byClass('name');
+    nameElement.textContent = attribute.title;
+    if (attribute.color === null) {
+        nameElement.style.removeProperty('color');
+    } else {
+        nameElement.style.color = attribute.color;
+    }
+    dangerDomGetter.byClass('description').innerHTML = attribute.description;
+    return dangerRow;
+}
+
+function createAttributesUI() {
+    const slot = Dom.get().byId('attributeRows');
+    const rows = [];
+
+    // Danger
+    const dangerRow = createAttributeRow(attributes.danger);
+    Dom.get(dangerRow).byClass('balance').classList.remove('hidden');
+    // TODO prepare 1 balance entry per operation & skill that can have danger
+    rows.push(dangerRow);
+    // Grid Load
+    const gridLoadRow = createAttributeRow(attributes.gridLoad);
+    Dom.get(gridLoadRow).byClass('balance').classList.remove('hidden');
+    // TODO prepare balance
+    rows.push(gridLoadRow);
+    // Grid Strength
+    const gridStrengthRow = createAttributeRow(attributes.gridStrength);
+    // TODO what to show as Grid Strength breakdown?
+    rows.push(gridStrengthRow);
+    // Growth
+    const growthRow = createAttributeRow(attributes.growth);
+    Dom.get(growthRow).byClass('balance').classList.remove('hidden');
+    // TODO prepare balance
+    rows.push(growthRow);
+    // Heat
+    const heatRow = createAttributeRow(attributes.heat);
+    let heatFormulaElement = Dom.get(heatRow).byClass('formula');
+    heatFormulaElement.classList.remove('hidden');
+    heatFormulaElement.innerHTML = 'max(' + createAttributeInlineHTML(attributes.danger) + ' - ' + createAttributeInlineHTML(attributes.military) + ', 1)';
+    rows.push(heatRow);
+    // Industry
+    const industryRow = createAttributeRow(attributes.industry);
+    Dom.get(industryRow).byClass('balance').classList.remove('hidden');
+    // TODO prepare balance
+    rows.push(industryRow);
+    // Military
+    const militaryRow = createAttributeRow(attributes.military);
+    Dom.get(militaryRow).byClass('balance').classList.remove('hidden');
+    // TODO prepare balance
+    rows.push(militaryRow);
+    // Population
+    const populationRow = createAttributeRow(attributes.population);
+    let populationFormulaElement = Dom.get(populationRow).byClass('formula');
+    populationFormulaElement.classList.remove('hidden');
+    populationFormulaElement.innerHTML =
+        createAttributeInlineHTML(attributes.growth) + ' - ' +
+        createAttributeInlineHTML(attributes.population) + ' * 0.01 * ' +
+        createAttributeInlineHTML(attributes.heat) + '<br />per cycle';
+    rows.push(populationRow);
+    // Research
+    const researchRow = createAttributeRow(attributes.research);
+    Dom.get(researchRow).byClass('balance').classList.remove('hidden');
+    // TODO prepare balance
+    rows.push(researchRow);
+
+    slot.append(...rows);
+}
+
 function cleanUpDom() {
     document.querySelectorAll('template').forEach(function (template) {
         template.remove();
@@ -620,7 +750,7 @@ function updateRequiredRows(categoryType) {
     }
 }
 
-function updateModuleRows(){
+function updateModuleRows() {
     for (let key in modules) {
         const module = modules[key];
         const row = document.getElementById('module-row-' + module.name);
@@ -664,7 +794,7 @@ function updateTaskRows() {
         // if (task instanceof Skill && autoLearnElement.checked) {
         //     skipSkillElement.style.removeProperty('display');
         // } else {
-            skipSkillElement.style.display = 'none';
+        skipSkillElement.style.display = 'none';
         // }
 
         if (task instanceof Job) {
@@ -699,7 +829,7 @@ function updateHeaderRows() {
         // if (autoLearnElement.checked) {
         //     skipSkillElement.style.removeProperty('display');
         // } else {
-            skipSkillElement.style.display = 'none';
+        skipSkillElement.style.display = 'none';
         // }
     });
 }
@@ -717,23 +847,31 @@ function updateEnergyBar() {
 
 function updateHeatDisplay() {
     const heat = gameData.heat;
-    const heatElement = document.getElementById('heatDisplay');
-    heatElement.textContent = (heat * 100).toFixed(1) + '%';
+    let heatText = (heat * 100).toFixed(1) + '%';
+    let color;
     if (heat < 0.5) {
-        heatElement.style.color = lerpColor(
+        color = lerpColor(
             dangerColors[0],
             dangerColors[1],
             heat / 0.5,
             'RGB'
         ).toString('rgb');
     } else {
-        heatElement.style.color = lerpColor(
+        color = lerpColor(
             dangerColors[1],
             dangerColors[2],
             (heat - 0.5) / 0.5,
             'RGB'
         ).toString('rgb');
     }
+
+    const heatElement1 = Dom.get().byId('heatDisplay');
+    heatElement1.textContent = heatText;
+    heatElement1.style.color = color;
+
+    const heatElement2 = Dom.get().bySelector('#attributeRows > .heat > .value');
+    heatElement2.textContent = heatText;
+    heatElement2.style.color = color;
 }
 
 function updateText() {
@@ -753,11 +891,19 @@ function updateText() {
 
     updateHeatDisplay();
     updateEnergyBar();
+    formatValue(Dom.get().bySelector('#attributeRows > .gridStrength > .value'), getGridStrength());
+    formatValue(Dom.get().bySelector('#attributeRows > .gridLoad > .value'), getGridUsage());
 
     formatValue(Dom.get().byId('populationDisplay'), gameData.population);
     formatValue(Dom.get().byId('industryDisplay'), getEffectFromOperations(EffectType.Industry));
     formatValue(Dom.get().byId('militaryDisplay'), getEffectFromOperations(EffectType.Military));
     formatValue(Dom.get().byId('researchDisplay'), getResearch());
+
+
+    formatValue(Dom.get().bySelector('#attributeRows > .population > .value'), gameData.population);
+    formatValue(Dom.get().bySelector('#attributeRows > .industry > .value'), getEffectFromOperations(EffectType.Industry));
+    formatValue(Dom.get().bySelector('#attributeRows > .military > .value'), getEffectFromOperations(EffectType.Military));
+    formatValue(Dom.get().bySelector('#attributeRows > .research > .value'), getResearch());
 
     //PK stuff
     /*
@@ -863,7 +1009,7 @@ function getEnergyGeneration() {
             const task = tasks[taskName];
             if (task != null) {
                 const multiplier = task.getEnergyMultiplier();
-                if (multiplier !== 1 && energy === 0){
+                if (multiplier !== 1 && energy === 0) {
                     energy = 1;
                 }
                 energy *= multiplier;
@@ -1363,7 +1509,7 @@ function replaceSaveDict(dict, saveDict) {
     }
 }
 
-function assignAndReplaceSavedTaskObject(object, saveDict){
+function assignAndReplaceSavedTaskObject(object, saveDict) {
     const key = object.name;
     if (key in saveDict) {
         object.assignSaveData(saveDict[key]);
@@ -1378,7 +1524,7 @@ function saveGameData() {
     localStorage.setItem('gameDataSave', JSON.stringify(gameData));
 }
 
-function updateModuleSavaData(saveData){
+function updateModuleSavaData(saveData) {
     if (saveData.moduleSaveData === undefined) {
         saveData.moduleSaveData = {};
     }
@@ -1388,7 +1534,7 @@ function updateModuleSavaData(saveData){
     }
 }
 
-function assignDictFromSaveData(dict, saveData){
+function assignDictFromSaveData(dict, saveData) {
     for (let id in dict) {
         const object = dict[id];
         if (saveData !== undefined && id in saveData) {
@@ -1593,6 +1739,7 @@ function init() {
     createTwoLevelUI(skillCategories, 'skillTable');
     createTwoLevelUI(itemCategories, 'itemTable');
     createModuleQuickTaskDisplay();
+    createAttributesUI();
 
     cleanUpDom();
 
