@@ -23,6 +23,39 @@ const units = {
     storedEnergy: 'Wh'
 };
 
+/**
+ * @type {Object.<string, AttributeDefinition>}
+ */
+// TODO render those into #attributesDisplay
+const attributes = {
+    danger: {title: 'Danger', color: 'rgb(200, 0, 0)', icon: 'img/icons/danger.svg'},
+    gridLoad: {title: 'Grid Load', color: '#2CCBFF', icon: 'img/icons/energy.svg'},
+    gridStrength: {title: 'Grid Strength', color: '#0C65AD', icon: 'img/icons/energy.svg'},
+    growth: {title: 'Growth', color: 'green', icon: 'img/icons/growth.svg'},
+    heat: {title: 'Heat', color: 'rgb(245, 166, 35)', icon: 'img/icons/heat.svg'},
+    industry: {title: 'Industry', color: 'rgb(97, 173, 50)', icon: 'img/icons/industry.svg'},
+    military: {title: 'Military', color: '#b3b3b3', icon: 'img/icons/military.svg'},
+    population: {title: 'Population', color: 'rgb(46, 148, 231)', icon: 'img/icons/military.svg'},
+    research: {title: 'Research', color: '#cc4ee2', icon: 'img/icons/population.svg'},
+};
+assignNames(attributes);
+
+/**
+ *
+ * @param {function(AttributeDefinition): string} createAttributeInlineHTML
+ */
+function createAttributeDescriptions(createAttributeInlineHTML) {
+    attributes.danger.description = 'Increases ' + createAttributeInlineHTML(attributes.heat) + '.';
+    attributes.gridLoad.description = 'Amount of ' + createAttributeInlineHTML(attributes.gridStrength) + ' currently assigned.';
+    attributes.gridStrength.description = 'Limits the number of concurrently active operations.';
+    attributes.growth.description = 'Increases ' + createAttributeInlineHTML(attributes.population) + '.';
+    attributes.heat.description = 'Reduces ' + createAttributeInlineHTML(attributes.population) + '.';
+    attributes.industry.description = 'Speeds up constructions.';
+    attributes.military.description = 'Counteracts ' + createAttributeInlineHTML(attributes.danger) + '.';
+    attributes.population.description = 'Affects all work speed.';
+    attributes.research.description = 'Unlocks new knowledge.';
+}
+
 const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100});
 
 const battleBaseData = {

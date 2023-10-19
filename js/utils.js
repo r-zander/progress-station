@@ -300,5 +300,11 @@ const Dom = {
         fromTemplate: function (templateId) {
             return document.getElementById(templateId).content.firstElementChild.cloneNode(true);
         }
+    },
+
+    outerHeight: function (element) {
+        const styles = window.getComputedStyle(element);
+        const margin = parseFloat(styles.marginTop) + parseFloat(styles.marginBottom);
+        return Math.ceil(element.offsetHeight + margin);
     }
 };

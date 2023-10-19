@@ -92,24 +92,29 @@ function updateHeat() {
     gameData.heat = Math.sign(danger - military) * Math.log10(Math.abs(danger - military));
 }
 
+function getGrowth() {
+    return getEffectFromOperations(EffectType.Growth);
+}
+
+function populationDelta() {
+    return getGrowth() - (0.01 * gameData.population) * (1 - Math.log10(1 + gameData.heat));
+}
+
 function updatePopulation() {
-    const growth = getEffectFromOperations(EffectType.Growth);
-    gameData.population += applySpeed(growth - (0.01 * gameData.population) * (1 - Math.log10(1 + gameData.heat)));
+    gameData.population += applySpeed(populationDelta());
     gameData.population = Math.max(gameData.population, 1);
 }
 
 /**
  * @param {EffectType} effectType
-
  */
 function getEffectFromOperations(effectType) {
-    let result = 0;
+    let result = effectType.getDefaultValue();
     const tasks = gameData.currentOperations;
-    if (tasks !== null) {
-        for (const taskName in tasks) {
-            const task = tasks[taskName];
-            if (task != null)
-                result += task.getEffect(effectType);
+    for (const taskName in tasks) {
+        const task = tasks[taskName];
+        if (task != null) {
+            result = effectType.combine(result, task.getEffect(effectType));
         }
     }
     return result;
@@ -433,41 +438,6 @@ function createModuleQuickTaskDisplay() {
 }
 
 /**
- * @typedef {Object} AttributeDefinition
- * @property {string} [name] - identifier
- * @property {string} title - displayed name of the attribute
- * @property {null|string} color - font color to display the title
- * @property {null|string} icon - path to the icon file#
- * @property {string} [description] - (HTML) description of the attribute
- */
-
-/**
- *
- * @type {Object.<string, AttributeDefinition>}
- */
-const attributes = {
-    danger: {title: 'Danger', color: 'rgb(200, 0, 0)', icon: 'img/icons/danger.svg'},
-    gridLoad: {title: 'Grid Load', color: '#2CCBFF', icon: 'img/icons/energy.svg'},
-    gridStrength: {title: 'Grid Strength', color: '#0C65AD', icon: 'img/icons/energy.svg'},
-    growth: {title: 'Growth', color: 'green', icon: 'img/icons/growth.svg'},
-    heat: {title: 'Heat', color: 'rgb(245, 166, 35)', icon: 'img/icons/heat.svg'},
-    industry: {title: 'Industry', color: 'rgb(97, 173, 50)', icon: 'img/icons/industry.svg'},
-    military: {title: 'Military', color: '#b3b3b3', icon: 'img/icons/military.svg'},
-    population: {title: 'Population', color: 'rgb(46, 148, 231)', icon: 'img/icons/military.svg'},
-    research: {title: 'Research', color: '#cc4ee2', icon: 'img/icons/population.svg'},
-};
-assignNames(attributes);
-attributes.danger.description = 'Increases ' + createAttributeInlineHTML(attributes.heat) + '.';
-attributes.gridLoad.description = 'Amount of ' + createAttributeInlineHTML(attributes.gridStrength) + ' currently assigned.';
-attributes.gridStrength.description = 'Limits the number of concurrently active operations.';
-attributes.growth.description = 'Increases ' + createAttributeInlineHTML(attributes.population) + '.';
-attributes.heat.description = 'Reduces ' + createAttributeInlineHTML(attributes.population) + '.';
-attributes.industry.description = 'Speeds up constructions.';
-attributes.military.description = 'Counteracts ' + createAttributeInlineHTML(attributes.danger) + '.';
-attributes.population.description = 'Affects all work speed.';
-attributes.research.description = 'Unlocks new knowledge.';
-
-/**
  * @param {AttributeDefinition} attribute
  */
 function createAttributeInlineHTML(attribute) {
@@ -499,6 +469,28 @@ function createAttributeRow(attribute) {
     return dangerRow;
 }
 
+/**
+ *
+ * @param {HTMLElement} rowElement
+ * @param {EffectType[]} effectTypes
+ */
+function createAttributeBalance(rowElement, effectTypes) {
+    // TODO
+    // const balanceElement = Dom.get(rowElement).byClass('balance');
+    // balanceElement.classList.remove('hidden');
+    // for (const effectType in effectTypes) {
+    //     // TODO iterate modules, components, operations
+    //
+    //     // TODO iterate skills
+    //     for (const skillName of skillBaseData){
+    //         const skill = skillBaseData[skillName];
+    //         if (skill.effects)
+    //     }
+    //
+    //     // TODO iterate items
+    // }
+}
+
 function createAttributesUI() {
     const slot = Dom.get().byId('attributeRows');
     const rows = [];
@@ -506,54 +498,72 @@ function createAttributesUI() {
     // Danger
     const dangerRow = createAttributeRow(attributes.danger);
     Dom.get(dangerRow).byClass('balance').classList.remove('hidden');
-    // TODO prepare 1 balance entry per operation & skill that can have danger
+    createAttributeBalance(dangerRow, [EffectType.Danger]);
     rows.push(dangerRow);
+
     // Grid Load
     const gridLoadRow = createAttributeRow(attributes.gridLoad);
     Dom.get(gridLoadRow).byClass('balance').classList.remove('hidden');
     // TODO prepare balance
     rows.push(gridLoadRow);
+
     // Grid Strength
     const gridStrengthRow = createAttributeRow(attributes.gridStrength);
-    // TODO what to show as Grid Strength breakdown?
+    const gridStrengthFormulaElement = Dom.get(gridStrengthRow).byClass('formula');
+    gridStrengthFormulaElement.classList.remove('hidden');
+    gridStrengthFormulaElement.innerHTML = '+<data value="0" class="delta">?</data> per cycle';
     rows.push(gridStrengthRow);
+
     // Growth
     const growthRow = createAttributeRow(attributes.growth);
     Dom.get(growthRow).byClass('balance').classList.remove('hidden');
-    // TODO prepare balance
+    createAttributeBalance(growthRow, [EffectType.Growth]);
     rows.push(growthRow);
+
     // Heat
     const heatRow = createAttributeRow(attributes.heat);
-    let heatFormulaElement = Dom.get(heatRow).byClass('formula');
+    const heatFormulaElement = Dom.get(heatRow).byClass('formula');
     heatFormulaElement.classList.remove('hidden');
     heatFormulaElement.innerHTML = 'max(' + createAttributeInlineHTML(attributes.danger) + ' - ' + createAttributeInlineHTML(attributes.military) + ', 1)';
     rows.push(heatRow);
+
     // Industry
     const industryRow = createAttributeRow(attributes.industry);
     Dom.get(industryRow).byClass('balance').classList.remove('hidden');
-    // TODO prepare balance
+    createAttributeBalance(industryRow, [EffectType.Industry]);
     rows.push(industryRow);
+
     // Military
     const militaryRow = createAttributeRow(attributes.military);
     Dom.get(militaryRow).byClass('balance').classList.remove('hidden');
-    // TODO prepare balance
+    createAttributeBalance(militaryRow, [EffectType.Military]);
     rows.push(militaryRow);
+
     // Population
     const populationRow = createAttributeRow(attributes.population);
-    let populationFormulaElement = Dom.get(populationRow).byClass('formula');
+    const populationFormulaElement = Dom.get(populationRow).byClass('formula');
     populationFormulaElement.classList.remove('hidden');
     populationFormulaElement.innerHTML =
         createAttributeInlineHTML(attributes.growth) + ' - ' +
         createAttributeInlineHTML(attributes.population) + ' * 0.01 * ' +
-        createAttributeInlineHTML(attributes.heat) + '<br />per cycle';
+        createAttributeInlineHTML(attributes.heat) + '<br />&wedgeq;<data value="0" class="delta">?</data> per cycle';
     rows.push(populationRow);
+
     // Research
     const researchRow = createAttributeRow(attributes.research);
     Dom.get(researchRow).byClass('balance').classList.remove('hidden');
-    // TODO prepare balance
+    createAttributeBalance(researchRow, [EffectType.Research, EffectType.ResearchFactor]);
     rows.push(researchRow);
 
     slot.append(...rows);
+}
+
+/**
+ * Does layout calculations Raoul's too stupid to do in pure CSS.
+ */
+function adjustLayout() {
+    const headerHeight = Dom.outerHeight(Dom.get().byId('stationOverview'));
+    Dom.get().byId('contentWrapper').style.maxHeight = `calc(100vh - ${headerHeight}px)`;
 }
 
 function cleanUpDom() {
@@ -841,7 +851,7 @@ function updateEnergyBar() {
     updateEnergyDisplay(getRemainingGridStrength(), energyDisplayElement.querySelector('.energy-net > data'), {forceSign: true});
     updateEnergyDisplay(0, energyDisplayElement.querySelector('.energy-stored > data'), {unit: units.storedEnergy});
     updateEnergyDisplay(getMaxEnergy(), energyDisplayElement.querySelector('.energy-max > data'), {unit: units.storedEnergy});
-    updateEnergyDisplay(getGridUsage(), energyDisplayElement.querySelector('.energy-usage > data'));
+    updateEnergyDisplay(getGridLoad(), energyDisplayElement.querySelector('.energy-usage > data'));
     setProgress(energyDisplayElement.querySelector('.energy-fill'), gridStrength.xp / gridStrength.getMaxXp());
 }
 
@@ -869,7 +879,7 @@ function updateHeatDisplay() {
     heatElement1.textContent = heatText;
     heatElement1.style.color = color;
 
-    const heatElement2 = Dom.get().bySelector('#attributeRows > .heat > .value');
+    const heatElement2 = Dom.get().bySelector('#attributeRows > .heat .value');
     heatElement2.textContent = heatText;
     heatElement2.style.color = color;
 }
@@ -889,21 +899,39 @@ function updateText() {
         pauseButton.classList.replace('btn-primary', 'btn-secondary');
     }
 
-    updateHeatDisplay();
+    // TODO Danger display
+    const danger = getDanger();
+    formatValue(Dom.get().byId('dangerDisplay'), danger);
+    formatValue(Dom.get().bySelector('#attributeRows > .danger .value'), danger);
+
+
     updateEnergyBar();
-    formatValue(Dom.get().bySelector('#attributeRows > .gridStrength > .value'), getGridStrength());
-    formatValue(Dom.get().bySelector('#attributeRows > .gridLoad > .value'), getGridUsage());
+    formatValue(Dom.get().bySelector('#attributeRows > .gridLoad .value'), getGridLoad());
+    formatValue(Dom.get().bySelector('#attributeRows > .gridStrength .value'), getGridStrength());
+    formatValue(Dom.get().bySelector('#attributeRows > .gridStrength .delta'), gridStrength.getDelta());
+
+    const growth = getGrowth();
+    formatValue(Dom.get().byId('growthDisplay'), growth);
+    formatValue(Dom.get().bySelector('#attributeRows > .growth .value'), growth);
+
+    updateHeatDisplay();
+
+    const industry = getEffectFromOperations(EffectType.Industry);
+    formatValue(Dom.get().byId('industryDisplay'), industry);
+    formatValue(Dom.get().bySelector('#attributeRows > .industry .value'), industry);
+
+    const military = getEffectFromOperations(EffectType.Military);
+    formatValue(Dom.get().byId('militaryDisplay'), military);
+    formatValue(Dom.get().bySelector('#attributeRows > .military .value'), military);
 
     formatValue(Dom.get().byId('populationDisplay'), gameData.population);
-    formatValue(Dom.get().byId('industryDisplay'), getEffectFromOperations(EffectType.Industry));
-    formatValue(Dom.get().byId('militaryDisplay'), getEffectFromOperations(EffectType.Military));
-    formatValue(Dom.get().byId('researchDisplay'), getResearch());
+    formatValue(Dom.get().bySelector('#attributeRows > .population .value'), gameData.population);
+    formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), populationDelta());
 
+    const research = getResearch();
+    formatValue(Dom.get().byId('researchDisplay'), research);
+    formatValue(Dom.get().bySelector('#attributeRows > .research .value'), research);
 
-    formatValue(Dom.get().bySelector('#attributeRows > .population > .value'), gameData.population);
-    formatValue(Dom.get().bySelector('#attributeRows > .industry > .value'), getEffectFromOperations(EffectType.Industry));
-    formatValue(Dom.get().bySelector('#attributeRows > .military > .value'), getEffectFromOperations(EffectType.Military));
-    formatValue(Dom.get().bySelector('#attributeRows > .research > .value'), getResearch());
 
     //PK stuff
     /*
@@ -939,7 +967,7 @@ function updateEnergyDisplay(amount, dataElement, formatConfig = {}) {
 }
 
 function getRemainingGridStrength() {
-    return getGridStrength() - getGridUsage();
+    return getGridStrength() - getGridLoad();
 }
 
 function hideEntities() {
@@ -1023,23 +1051,23 @@ function getMaxEnergy() {
     return gridStrength.getMaxXp();
 }
 
-function getGridUsage() {
-    let energyUsage = 0;
+function getGridLoad() {
+    let gridLoad = 0;
 
     const tasks = gameData.currentOperations;
     if (tasks !== null) {
         for (const taskName in tasks) {
             const task = tasks[taskName];
             if (task != null)
-                energyUsage += task.getGridLoad();
+                gridLoad += task.getGridLoad();
         }
     }
     //No 'property' or 'misc' defined atm
-    //energyUsage += gameData.currentProperty.getGridLoad();
+    //gridLoad += gameData.currentProperty.getGridLoad();
     //for (let misc of gameData.currentMisc) {
-    //    energyUsage += misc.getGridLoad();
+    //    gridLoad += misc.getGridLoad();
     //}
-    return energyUsage;
+    return gridLoad;
 }
 
 function goBlackout() {
@@ -1739,8 +1767,11 @@ function init() {
     createTwoLevelUI(skillCategories, 'skillTable');
     createTwoLevelUI(itemCategories, 'itemTable');
     createModuleQuickTaskDisplay();
+
+    createAttributeDescriptions(createAttributeInlineHTML);
     createAttributesUI();
 
+    adjustLayout();
     cleanUpDom();
 
     initSidebar();

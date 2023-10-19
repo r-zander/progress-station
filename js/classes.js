@@ -1,5 +1,14 @@
 'use strict';
 
+/**
+ * @typedef {Object} AttributeDefinition
+ * @property {string} [name] - identifier
+ * @property {string} title - displayed name of the attribute
+ * @property {null|string} color - font color to display the title
+ * @property {null|string} icon - path to the icon file#
+ * @property {string} [description] - (HTML) description of the attribute
+ */
+
 class EffectType {
     /**
      * @param {'+'|'x'} operator
@@ -8,6 +17,18 @@ class EffectType {
     constructor(operator, description) {
         this.operator = operator;
         this.description = description;
+    }
+
+    getDefaultValue() {
+        return this.operator === 'x' ? 1 : 0;
+    }
+
+    combine(a, b) {
+        if (this.operator === 'x') {
+            return a * b;
+        } else {
+            return a + b;
+        }
     }
 
     static Growth = new EffectType('x', 'Growth');
@@ -51,6 +72,13 @@ class Task {
         return Math.round(this.getMaxXp() - this.xp);
     }
 
+    /**
+     * value change per cycle. Inversion of number of cycles to increase value by 1.
+     */
+    getDelta() {
+        return this.getXpGain() / this.getMaxXp();
+    }
+
     collectEffects() {
         this.xpMultipliers.push(this.getMaxLevelMultiplier.bind(this));
 
@@ -67,9 +95,14 @@ class Task {
     }
 
     calculateEffectValue(effect) {
-        return (effect.effectType.operator === 'x' ? 1 : 0) + effect.baseValue * this.level;
+        return effect.effectType.getDefaultValue() + effect.baseValue * this.level;
     }
 
+    /**
+     *
+     * @param {EffectType} effectType
+     * @returns {number}
+     */
     getEffect(effectType) {
         for (const id in this.baseData.effects) {
             const effect = this.baseData.effects[id];
@@ -77,21 +110,15 @@ class Task {
                 return this.calculateEffectValue(effect);
             }
         }
-        return effectType.operator === 'x' ? 1 : 0;
+        return effectType.getDefaultValue();
     }
 
     getEffectDescription() {
-        let output = '';
-        for (let i = 0; i < this.baseData.effects.length; i++) {
-            let effect = this.baseData.effects[i];
-            output += `${effect.effectType.operator}${this.calculateEffectValue(effect).toFixed(2)}`;
-            output += ` ${effect.effectType.description}`;
-            if (i < this.baseData.effects.length - 1) {
-                output += ', ';
-            }
-        }
-
-        return output;
+        return this.baseData.effects.map(function (effect) {
+            return effect.effectType.operator +
+                this.calculateEffectValue(effect).toFixed(2) +
+                ' ' + effect.effectType.description;
+        }, this).join(', ');
     }
 
     increaseXp(ignoreDeath = false) {
