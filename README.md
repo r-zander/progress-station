@@ -15,9 +15,7 @@ Progress Station is a space-station-sim incremental based in a quirky sci-fi set
 ### Where can I play Progress Station?
 Progress Station can be played on the following sites:
 
-TBD
-
-- [Site Name](https://example.com/progress-station/)
+- [pgs.webmilio.com](https://pgs.webmilio.com/)
 
 ### Development
 
