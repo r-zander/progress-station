@@ -488,7 +488,7 @@
                             </td>
                             <td class="breakdown"
                                 style="line-height: 1.1rem; padding-top: 0.3rem; padding-bottom: 0.3rem;">
-                                <ul class="balance hidden m-0">
+                                <ul class="balance hidden m-0 list-unstyled">
                                     <!-- Repeat balanceEntry -->
                                 </ul>
 
@@ -500,8 +500,9 @@
                     </template>
                     <template id="balanceEntryTemplate">
                         <li class="balanceEntry">
+                            <span class="operator"></span>
                             <data value="0" class="entryValue">?</data>
-                            <span class="entryName"></span>
+                            <span class="name"></span>
                         </li>
                     </template>
                     <tbody id="attributeRows">

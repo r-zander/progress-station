@@ -29,4 +29,8 @@
             white-space: nowrap;
         }
     }
+
+    .balance {
+        list-style: none;
+    }
 }

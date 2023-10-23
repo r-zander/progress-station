@@ -50,7 +50,7 @@ function createAttributeDescriptions(createAttributeInlineHTML) {
     attributes.gridStrength.description = 'Limits the number of concurrently active operations.';
     attributes.growth.description = 'Increases ' + createAttributeInlineHTML(attributes.population) + '.';
     attributes.heat.description = 'Reduces ' + createAttributeInlineHTML(attributes.population) + '.';
-    attributes.industry.description = 'Speeds up constructions.';
+    attributes.industry.description = 'Speeds up operations progress.';
     attributes.military.description = 'Counteracts ' + createAttributeInlineHTML(attributes.danger) + '.';
     attributes.population.description = 'Affects all work speed.';
     attributes.research.description = 'Unlocks new knowledge.';

@@ -40,6 +40,18 @@ let skipGameDataSave = false;
 
 let skillWithLowestMaxXp = null;
 
+/**
+ *
+ * @type {{element: HTMLElement, effectType: EffectType, taskOrItem: EffectsHolder, isActive: function(): boolean}[]}
+ */
+const attributeBalanceEntries = [];
+
+/**
+ *
+ * @type {{element: HTMLElement, taskOrItem: EffectsHolder, isActive: function(): boolean}[]}
+ */
+const gridLoadBalanceEntries = [];
+
 // const autoPromoteElement = document.getElementById('autoPromote');
 // const autoLearnElement = document.getElementById('autoLearn');
 
@@ -118,6 +130,46 @@ function getEffectFromOperations(effectType) {
         }
     }
     return result;
+}
+
+/**
+ *
+ * @param {Effect} effect
+ * @param {number} level
+ * @return {number}
+ */
+function calculateEffectValue(effect, level) {
+    return effect.effectType.getDefaultValue() + effect.baseValue * level;
+}
+
+/**
+ *
+ * @param {EffectType} effectType
+ * @param {Effect[]} effects
+ * @param {number} level
+ * @returns {number}
+ */
+function getEffect(effectType, effects, level) {
+    for (const effect of effects) {
+        if (effectType === effect.effectType) {
+            return calculateEffectValue(effect, level);
+        }
+    }
+    return effectType.getDefaultValue();
+}
+
+/**
+ *
+ * @param {Effect[]} effects
+ * @param {number} level
+ * @return {string}
+ */
+function getEffectDescription(effects, level) {
+    return effects.map(function (effect) {
+        return effect.effectType.operator +
+            calculateEffectValue(effect, level).toFixed(2) +
+            ' ' + effect.effectType.description;
+    }, this).join(', ');
 }
 
 function getEvilGain() {
@@ -471,24 +523,116 @@ function createAttributeRow(attribute) {
 
 /**
  *
+ * @param {HTMLElement} balanceElement
+ * @param {EffectsHolder} effectsHolder
+ * @param {EffectType} effectType
+ * @param {string} name
+ * @param {function():boolean} isActiveFn
+ * @return {HTMLElement | false}
+ */
+function createAttributeBalanceEntry(balanceElement, effectsHolder, effectType, name, isActiveFn) {
+    const affectsEffectType = effectsHolder.getEffects().find(function (effect) {
+        return effect.effectType === effectType;
+    }) !== undefined;
+    if (!affectsEffectType) return false;
+
+    const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
+    const domGetter = Dom.get(balanceEntryElement);
+    domGetter.byClass('name').textContent = '(' + name + ')';
+    domGetter.byClass('operator').textContent = effectType.operator;
+    attributeBalanceEntries.push({
+        element: balanceEntryElement,
+        effectType: effectType,
+        taskOrItem: effectsHolder,
+        isActive: isActiveFn,
+    });
+    balanceElement.append(balanceEntryElement);
+}
+
+/**
+ *
  * @param {HTMLElement} rowElement
  * @param {EffectType[]} effectTypes
  */
 function createAttributeBalance(rowElement, effectTypes) {
-    // TODO
-    // const balanceElement = Dom.get(rowElement).byClass('balance');
-    // balanceElement.classList.remove('hidden');
-    // for (const effectType in effectTypes) {
-    //     // TODO iterate modules, components, operations
-    //
-    //     // TODO iterate skills
-    //     for (const skillName of skillBaseData){
-    //         const skill = skillBaseData[skillName];
-    //         if (skill.effects)
-    //     }
-    //
-    //     // TODO iterate items
-    // }
+    const balanceElement = Dom.get(rowElement).byClass('balance');
+    balanceElement.classList.remove('hidden');
+
+    let onlyMultipliers = effectTypes.every(function (effectType) {
+        return effectType.operator === 'x';
+    });
+
+    if (onlyMultipliers) {
+        const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
+        const domGetter = Dom.get(balanceEntryElement);
+        domGetter.byClass('operator').textContent = '';
+        domGetter.byClass('entryValue').textContent = '1';
+        domGetter.byClass('name').textContent = '(Base)';
+        balanceElement.append(balanceEntryElement);
+    }
+
+    for (const effectType of effectTypes) {
+        for (const moduleName in modules) {
+            const module = modules[moduleName];
+            for (const component of module.components) {
+                for (const operation of component.operations) {
+                    createAttributeBalanceEntry(balanceElement, operation, effectType,
+                        module.title + ' ' + component.title + ': ' + operation.title,
+                        function () {
+                            return gameData.currentOperations.hasOwnProperty(this.name);
+                        }.bind(operation)
+                    );
+                }
+            }
+        }
+
+        for (const skillName in skillBaseData) {
+            const skill = gameData.taskData[skillName];
+            createAttributeBalanceEntry(balanceElement, skill, effectType,
+                'Skill: ' + skill.title,
+                skill.isActive.bind(skill)
+            );
+        }
+
+        for (const itemName in itemBaseData) {
+            const item = gameData.itemData[itemName];
+            createAttributeBalanceEntry(balanceElement, item, effectType,
+                'Item: ' + item.baseData.title,
+                item.isActive.bind(item)
+            );
+        }
+    }
+}
+
+/**
+ * @param {HTMLElement} rowElement
+ */
+function createGridLoadBalance(rowElement) {
+    const balanceElement = Dom.get(rowElement).byClass('balance');
+    balanceElement.classList.remove('hidden');
+
+    for (const moduleName in modules) {
+        const module = modules[moduleName];
+        for (const component of module.components) {
+            for (const operation of component.operations) {
+                if (operation.getGridLoad() === 0) continue;
+
+                const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
+                const domGetter = Dom.get(balanceEntryElement);
+                domGetter.byClass('name').textContent = '(' + module.title + ' ' + component.title + ': ' + operation.title + ')';
+                domGetter.byClass('operator').textContent = '+';
+                formatValue(domGetter.byClass('entryValue'),operation.getGridLoad());
+                gridLoadBalanceEntries.push({
+                    element: balanceEntryElement,
+                    taskOrItem: operation,
+                    isActive: function () {
+                        return gameData.currentOperations.hasOwnProperty(this.name);
+                    }.bind(operation),
+                });
+                balanceElement.append(balanceEntryElement);
+            }
+        }
+    }
 }
 
 function createAttributesUI() {
@@ -504,7 +648,7 @@ function createAttributesUI() {
     // Grid Load
     const gridLoadRow = createAttributeRow(attributes.gridLoad);
     Dom.get(gridLoadRow).byClass('balance').classList.remove('hidden');
-    // TODO prepare balance
+    createGridLoadBalance(gridLoadRow);
     rows.push(gridLoadRow);
 
     // Grid Strength
@@ -842,6 +986,24 @@ function updateHeaderRows() {
         skipSkillElement.style.display = 'none';
         // }
     });
+}
+
+function updateAttributeRows() {
+    for (const balanceEntry of attributeBalanceEntries) {
+        if (balanceEntry.isActive()) {
+            formatValue(
+                Dom.get(balanceEntry.element).byClass('entryValue'),
+                balanceEntry.taskOrItem.getEffect(balanceEntry.effectType)
+            );
+            balanceEntry.element.classList.remove('hidden');
+        } else {
+            balanceEntry.element.classList.add('hidden');
+        }
+    }
+
+    for (const balanceEntry of gridLoadBalanceEntries) {
+        balanceEntry.element.classList.toggle('hidden', !balanceEntry.isActive());
+    }
 }
 
 function updateEnergyBar() {
@@ -1191,7 +1353,7 @@ function increaseDays() {
     gameData.totalDays += increase;
 
     if (gameData.days >= getLifespan()) {
-        GameEvents.Death.trigger();
+        GameEvents.Death.trigger(undefined);
     }
 }
 
@@ -1202,6 +1364,7 @@ function increaseDays() {
  * @param {{prefixes?: string[], unit?: string, forceSign?: boolean, keepNumber?: boolean}} config
  */
 function formatValue(dataElement, value, config = {}) {
+    // TODO render full number + unit into dataElement.title
     dataElement.value = String(value);
 
     const defaultConfig = {
@@ -1213,7 +1376,7 @@ function formatValue(dataElement, value, config = {}) {
     config = Object.assign({}, defaultConfig, config);
 
     // what tier? (determines SI symbol)
-    const tier = Math.log10(Math.abs(value)) / 3 | 0;
+    const tier = Math.max(0, Math.log10(Math.abs(value)) / 3 | 0);
 
     let prefix = '';
     if (config.forceSign) {
@@ -1407,7 +1570,7 @@ function setPermanentUnlocksAndResetData() {
 
     for (let battleName in gameData.battleData) {
         const battle = gameData.battleData[battleName];
-        battle.updateMaxLevelAndReset()
+        battle.updateMaxLevelAndReset();
     }
 
     for (let key in gameData.requirements) {
@@ -1619,6 +1782,7 @@ function updateUI() {
     updateSkillQuickTaskDisplay();
     updateBattleQuickTaskDisplay();
     updateBattleTaskDisplay();
+    updateAttributeRows();
     hideEntities();
     updateText();
     updateBodyClasses();
@@ -1768,11 +1932,7 @@ function init() {
     createTwoLevelUI(itemCategories, 'itemTable');
     createModuleQuickTaskDisplay();
 
-    createAttributeDescriptions(createAttributeInlineHTML);
-    createAttributesUI();
-
     adjustLayout();
-    cleanUpDom();
 
     initSidebar();
 
@@ -1797,6 +1957,9 @@ function init() {
 
     loadGameData();
 
+    createAttributeDescriptions(createAttributeInlineHTML);
+    createAttributesUI();
+
     //setCustomEffects();
     addMultipliers();
 
@@ -1816,6 +1979,8 @@ function init() {
     initTooltips();
     initStationName();
     initSettings();
+
+    cleanUpDom();
 
     skipGameDataSave = false;
     displayLoaded();

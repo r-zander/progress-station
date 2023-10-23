@@ -65,7 +65,7 @@
 }
 
 .level1 .level2 .level3 {
-    top: 80px;
+    top: 77px;
 }
 
 :is(#jobs, #skills, #shop) {

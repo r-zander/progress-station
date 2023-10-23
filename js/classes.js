@@ -9,6 +9,19 @@
  * @property {string} [description] - (HTML) description of the attribute
  */
 
+/**
+ * @typedef {Object} Effect
+ * @property {EffectType} effectType
+ * @property {number} baseValue
+ */
+
+/**
+ * @typedef {Object} EffectsHolder
+ * @property {string} title
+ * @property {function(): Effect[]} getEffects
+ * @property {function(EffectType): number} getEffect
+ */
+
 class EffectType {
     /**
      * @param {'+'|'x'} operator
@@ -86,6 +99,13 @@ class Task {
         //this.xpMultipliers.push(getBoundTaskEffect('Demon training'));
     }
 
+    /**
+     * @returns {Effect[]}
+     */
+    getEffects() {
+        return this.baseData.effects;
+    }
+
     getMaxLevelMultiplier() {
         return 1 + this.maxLevel / 10;
     }
@@ -94,31 +114,19 @@ class Task {
         return applyMultipliers(10, this.xpMultipliers);
     }
 
-    calculateEffectValue(effect) {
-        return effect.effectType.getDefaultValue() + effect.baseValue * this.level;
-    }
-
     /**
-     *
      * @param {EffectType} effectType
      * @returns {number}
      */
     getEffect(effectType) {
-        for (const id in this.baseData.effects) {
-            const effect = this.baseData.effects[id];
-            if (effectType === effect.effectType) {
-                return this.calculateEffectValue(effect);
-            }
-        }
-        return effectType.getDefaultValue();
+        return getEffect(effectType, this.baseData.effects, this.level);
     }
 
+    /**
+     * @return {string}
+     */
     getEffectDescription() {
-        return this.baseData.effects.map(function (effect) {
-            return effect.effectType.operator +
-                this.calculateEffectValue(effect).toFixed(2) +
-                ' ' + effect.effectType.description;
-        }, this).join(', ');
+        return getEffectDescription(this.baseData.effects, this.level);
     }
 
     increaseXp(ignoreDeath = false) {
@@ -195,6 +203,13 @@ class Skill extends Task {
         super(baseData);
     }
 
+    /**
+     * @return {boolean}
+     */
+    isActive() {
+        return gameData.currentSkill === this;
+    }
+
     collectEffects() {
         super.collectEffects();
         //this.xpMultipliers.push(getBoundTaskEffect('Concentration'));
@@ -211,23 +226,38 @@ class Item {
         this.expenseMultipliers = [];
     }
 
+    /**
+     * @return {boolean}
+     */
+    isActive() {
+        return gameData.currentProperty === this || gameData.currentMisc.includes(this);
+    }
+
     collectEffects() {
         //this.expenseMultipliers.push(getBoundTaskEffect('Bargaining'));
         //this.expenseMultipliers.push(getBoundTaskEffect('Intimidation'));
     }
 
-    getEffect() {
-        if (gameData.currentProperty !== this && !gameData.currentMisc.includes(this)) return 1;
+    /**
+     * @returns {Effect[]}
+     */
+    getEffects() {
         return this.baseData.effects;
     }
 
+    /**
+     * @param {EffectType} effectType
+     * @returns {number}
+     */
+    getEffect(effectType) {
+        return getEffect(effectType, this.baseData.effects, 1);
+    }
+
+    /**
+     * @return {string}
+     */
     getEffectDescription() {
-        return 'not implemented';
-        //let description = this.baseData.description;
-        //if (itemCategories['Properties'].includes(this.name)) {
-        //    description = 'Population';
-        //}
-        //return 'x' + this.baseData.effects.toFixed(1) + ' ' + description;
+        return getEffectDescription(this.baseData.effects, 1);
     }
 
     getGridLoad() {
@@ -236,6 +266,11 @@ class Item {
 }
 
 class Module {
+    /**
+     * @var {string}
+     */
+    name;
+
     constructor(baseData) {
         this.data = baseData;
         this.title = baseData.title;
@@ -327,7 +362,7 @@ class Module {
 
 class ModuleComponent {
     /**
-     * @param {{title: string, operations: object[]}} baseData
+     * @param {{title: string, operations: ModuleOperation[]}} baseData
      */
     constructor(baseData) {
         this.title = baseData.title;
