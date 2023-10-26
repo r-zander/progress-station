@@ -212,17 +212,14 @@ class Skill extends Task {
 
     collectEffects() {
         super.collectEffects();
-        //this.xpMultipliers.push(getBoundTaskEffect('Concentration'));
-        //this.xpMultipliers.push(getBoundItemEffect('Book'));
-        //this.xpMultipliers.push(getBoundItemEffect('Study desk'));
-        //this.xpMultipliers.push(getBoundItemEffect('Library'));
     }
 }
 
-class Item {
+class PointOfInterest {
     constructor(baseData) {
         this.baseData = baseData;
         this.name = this.baseData.name;
+        this.title = this.baseData.title;
         this.expenseMultipliers = [];
     }
 
@@ -230,7 +227,7 @@ class Item {
      * @return {boolean}
      */
     isActive() {
-        return gameData.currentProperty === this || gameData.currentMisc.includes(this);
+        return gameData.currentPointOfInterest === this;
     }
 
     collectEffects() {
@@ -259,6 +256,15 @@ class Item {
     getEffectDescription() {
         return getEffectDescription(this.baseData.effects, 1);
     }
+
+    /**
+     * @param {EffectType} effectException
+     * @return {string}
+     */
+    getEffectDescriptionExcept(effectTypeException) {
+        return getEffectDescriptionExcept(this.baseData.effects, 1, effectTypeException);
+    }
+    
 
     getGridLoad() {
         return applyMultipliers(this.baseData.expense, this.expenseMultipliers);

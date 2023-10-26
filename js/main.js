@@ -3,7 +3,6 @@
 // Not a const as it can be overridden when loading a save game
 let gameData = {
     taskData: {},
-    itemData: {},
     battleData: {},
 
     population: 0,
@@ -21,8 +20,7 @@ let gameData = {
 
     currentModules: {},
     currentOperations: {},
-    currentSkill: null,
-    currentProperty: null,
+    currentPointOfInterest: null,
     currentMisc: null,
     currentBattle: null,
 
@@ -37,8 +35,6 @@ let gameData = {
 
 const tempData = {};
 let skipGameDataSave = false;
-
-let skillWithLowestMaxXp = null;
 
 /**
  *
@@ -129,8 +125,7 @@ function getCurrentEffectValue(effectType) {
         }
     }
 
-    result = effectType.combine(result, gameData.currentProperty.getEffect(effectType));
-    result = effectType.combine(result, gameData.currentSkill.getEffect(effectType));
+    result = effectType.combine(result, gameData.currentPointOfInterest.getEffect(effectType));
 
     return result;
 }
@@ -172,6 +167,23 @@ function getEffectDescription(effects, level) {
         return effect.effectType.operator +
             calculateEffectValue(effect, level).toFixed(2) +
             ' ' + effect.effectType.description;
+    }, this).join(', ');
+}
+
+/**
+ *
+ * @param {Effect[]} effects
+ * @param {number} level
+ * @param {EffectType} effectException
+ * @return {string}
+ */
+function getEffectDescriptionExcept(effects, level, effectException) {
+    return effects.map(function (effect) {
+        if (effect.effectType !== effectException) {
+            return effect.effectType.operator +
+                calculateEffectValue(effect, level).toFixed(2) +
+                ' ' + effect.effectType.description;
+            }
     }, this).join(', ');
 }
 
@@ -230,36 +242,10 @@ function setTimeWarping() {
     gameData.timeWarpingEnabled = !gameData.timeWarpingEnabled;
 }
 
-function setTask(taskName) {
+function setPointOfInterest(name) {
     if (!isPlaying()) return;
 
-    const task = gameData.taskData[taskName];
-    if (task instanceof Job) {
-        console.error('setTask with job no longer supported');
-    } else {
-        gameData.currentSkill = task;
-    }
-}
-
-function setProperty(propertyName) {
-    if (!isPlaying()) return;
-
-    gameData.currentProperty = gameData.itemData[propertyName];
-}
-
-function setMisc(miscName) {
-    if (!isPlaying()) return;
-
-    const misc = gameData.itemData[miscName];
-    if (gameData.currentMisc.includes(misc)) {
-        for (let i = 0; i < gameData.currentMisc.length; i++) {
-            if (gameData.currentMisc[i] === misc) {
-                gameData.currentMisc.splice(i, 1);
-            }
-        }
-    } else {
-        gameData.currentMisc.push(misc);
-    }
+    gameData.currentPointOfInterest = pointsOfInterest[name];
 }
 
 function setBattle(name) {
@@ -280,10 +266,6 @@ function createEntity(data, entity) {
         data[entity.name] = new Battle(entity);
     } else if ('energyGeneration' in entity) {
         data[entity.name] = new ModuleOperation(entity);
-    } else if ('maxXp' in entity) {
-        data[entity.name] = new Skill(entity);
-    } else {
-        data[entity.name] = new Item(entity);
     }
     data[entity.name].id = 'row_' + entity.name;
 }
@@ -386,8 +368,8 @@ function createLevel4Elements(domId, category, categoryName) {
     const level4Elements = [];
     category.forEach(function (entry) {
         let level4Element;
-        if (domId === 'itemTable') {
-            level4Element = Dom.new.fromTemplate('level4ItemTemplate');
+        if (domId === 'sectorTable') {
+            level4Element = Dom.new.fromTemplate('level4PointOfInterestTemplate');
         } else {
             level4Element = Dom.new.fromTemplate('level4TaskTemplate');
         }
@@ -397,25 +379,25 @@ function createLevel4Elements(domId, category, categoryName) {
         descriptionElement.ariaLabel = entry.title;
         descriptionElement.title = tooltips[entry.name];
         level4Element.id = 'row_' + entry.name;
-        if (domId === 'itemTable') {
+        if (domId === 'sectorTable') {
             if (categoryName === 'Properties') {
                 level4DomGetter.byClass('button').onclick = function () {
-                    setProperty(entry.name);
+                    setPointOfInterest(entry.name);
                 };
                 level4DomGetter.byClass('radio').onclick = function () {
-                    setProperty(entry.name);
+                    setPointOfInterest(entry.name);
                 };
             } else {
                 level4DomGetter.byClass('button').onclick = function () {
-                    setMisc(entry.name);
+                    setPointOfInterest(entry.name);
                 };
                 level4DomGetter.byClass('radio').onclick = function () {
-                    setMisc(entry.name);
+                    setPointOfInterest(entry.name);
                 };
             }
         } else {
             level4DomGetter.byClass('progressBar').onclick = function () {
-                setTask(entry.name);
+                //TODO: Needed?
             };
         }
 
@@ -428,8 +410,8 @@ function createLevel4Elements(domId, category, categoryName) {
 
 function createLevel3Element(domId, category, categoryName, categoryIndex) {
     let level3Element;
-    if (domId === 'itemTable') {
-        level3Element = Dom.new.fromTemplate('level3ItemTemplate');
+    if (domId === 'sectorTable') {
+        level3Element = Dom.new.fromTemplate('level3PointOfInterestTemplate');
     } else {
         level3Element = Dom.new.fromTemplate('level3TaskTemplate');
     }
@@ -460,7 +442,8 @@ function createTwoLevelUI(categoryDefinition, domId) {
     const level3Elements = [];
 
     for (const categoryName in categoryDefinition) {
-        level3Elements.push(createLevel3Element(domId, categoryDefinition[categoryName], categoryName, level3Elements.length));
+        const category = categoryDefinition[categoryName];
+        level3Elements.push(createLevel3Element(domId, category.content, category.title, level3Elements.length));
     }
 
     slot.replaceWith(...level3Elements);
@@ -589,16 +572,8 @@ function createAttributeBalance(rowElement, effectTypes) {
             }
         }
 
-        for (const skillName in skillBaseData) {
-            const skill = gameData.taskData[skillName];
-            createAttributeBalanceEntry(balanceElement, skill, effectType,
-                'Skill: ' + skill.title,
-                skill.isActive.bind(skill)
-            );
-        }
-
-        for (const itemName in itemBaseData) {
-            const item = gameData.itemData[itemName];
+        for (const itemName in pointsOfInterest) {
+            const item = pointsOfInterest[itemName];
             createAttributeBalanceEntry(balanceElement, item, effectType,
                 'Item: ' + item.baseData.title,
                 item.isActive.bind(item)
@@ -751,13 +726,6 @@ function updateModuleQuickTaskDisplay() {
     }
 }
 
-function updateSkillQuickTaskDisplay() {
-    const currentTask = gameData.currentSkill;
-    const progressBar = document.querySelector(`.quickTaskDisplay .skill`);
-    progressBar.getElementsByClassName('name')[0].textContent = currentTask.title + ' lvl ' + currentTask.level;
-    setProgress(progressBar.getElementsByClassName('progressFill')[0], currentTask.xp / currentTask.getMaxXp());
-}
-
 /**
  *
  * @param {LayeredTask} currentTask
@@ -874,7 +842,7 @@ function updateRequiredRows(categoryType) {
             const evilElement = requiredRow.getElementsByClassName('evil')[0];
 
             let finalText = [];
-            if (categoryType === moduleCategories || categoryType === skillCategories) {
+            if (categoryType === moduleCategories) {
                 energyStoredElement.classList.add('hiddenTask');
                 if (requirementObject instanceof EvilRequirement) {
                     levelElement.classList.add('hiddenTask');
@@ -893,7 +861,7 @@ function updateRequiredRows(categoryType) {
                     }
                     levelElement.innerHTML = finalText.join(', ');
                 }
-            } else if (categoryType === itemCategories) {
+            } else if (categoryType === sectors) {
                 evilElement.classList.add('hiddenTask');
                 levelElement.classList.add('hiddenTask');
                 energyStoredElement.classList.remove('hiddenTask');
@@ -935,24 +903,14 @@ function updateTaskRows() {
         setProgress(progressFill, task.xp / task.getMaxXp());
         if (task instanceof ModuleOperation && gameData.currentOperations.hasOwnProperty(task.name)) {
             progressFill.classList.add('current');
-        } else {
-            if (task instanceof Skill && task === gameData.currentSkill) {
-                progressFill.classList.add('current');
-            } else {
-                progressFill.classList.remove('current');
-            }
         }
 
         const valueElement = row.getElementsByClassName('value')[0];
         valueElement.getElementsByClassName('energy-generated')[0].style.display = task instanceof Job ? 'block' : 'none';
-        valueElement.getElementsByClassName('effect')[0].style.display = task instanceof Skill ? 'block' : 'none';
-
+        //TODO 'Skill' feature leftovers
+        valueElement.getElementsByClassName('effect')[0].style.display = 'none';
         const skipSkillElement = row.getElementsByClassName('skipSkill')[0];
-        // if (task instanceof Skill && autoLearnElement.checked) {
-        //     skipSkillElement.style.removeProperty('display');
-        // } else {
         skipSkillElement.style.display = 'none';
-        // }
 
         if (task instanceof Job) {
             valueElement.getElementsByClassName('energy-generated')[0].textContent = task.getEffectDescription();
@@ -962,18 +920,14 @@ function updateTaskRows() {
     }
 }
 
-function updateItemRows() {
-    for (let key in gameData.itemData) {
-        const item = gameData.itemData[key];
-        const row = document.getElementById('row_' + item.name);
-        const button = row.getElementsByClassName('button')[0];
-        //TODO: Why do 'Items' check for grid load?
-        button.disabled = getRemainingGridStrength() < item.getGridLoad();
+function updateSectorRows() {
+    for (let key in pointsOfInterest) {
+        const pointOfInterest = pointsOfInterest[key];
+        const row = document.getElementById('row_' + pointOfInterest.name);
         const active = row.getElementsByClassName('active')[0];
-        const color = itemCategories['Properties'].includes(item.name) ? headerRowColors['Properties'] : headerRowColors['Misc'];
-        active.style.backgroundColor = gameData.currentMisc.includes(item) || item === gameData.currentProperty ? color : 'white';
-        row.getElementsByClassName('effect')[0].textContent = item.getEffectDescription();
-        updateEnergyDisplay(item.getGridLoad(), row.querySelector('.energy-usage > data'));
+        active.style.backgroundColor = pointOfInterest === gameData.currentPointOfInterest ? headerRowColors['PointsOfInterest'] : 'white';
+        row.getElementsByClassName('effect')[0].textContent = pointOfInterest.getEffectDescriptionExcept(EffectType.Danger);
+        row.getElementsByClassName('danger')[0].textContent = pointOfInterest.getEffect(EffectType.Danger);
     }
 }
 
@@ -1174,7 +1128,6 @@ function doTasks() {
     }*/
 
     // Legacy
-    doTask(gameData.currentSkill);
     doTask(gameData.currentBattle);
     doTask(gridStrength);
 }
@@ -1228,7 +1181,7 @@ function getGridLoad() {
         }
     }
     //No 'property' or 'misc' defined atm
-    //gridLoad += gameData.currentProperty.getGridLoad();
+    //gridLoad += gameData.currentPointOfInterest.getGridLoad();
     //for (let misc of gameData.currentMisc) {
     //    gridLoad += misc.getGridLoad();
     //}
@@ -1294,31 +1247,6 @@ function autoPromoteOther() {
     if (requirement.isCompleted()) gameData.currentJob = nextEntity;
 }
 
-function checkSkillSkipped(skill) {
-    const row = document.getElementById('row_' + skill.name);
-    return row.getElementsByClassName('checkbox')[0].checked;
-}
-
-function setSkillWithLowestMaxXp() {
-    const xpDict = {};
-
-    for (let skillName in gameData.taskData) {
-        const skill = gameData.taskData[skillName];
-        const requirement = gameData.requirements[skillName];
-        if (skill instanceof Skill && requirement.isCompleted() && !checkSkillSkipped(skill)) {
-            xpDict[skill.name] = skill.level; //skill.getMaxXp() / skill.getXpGain()
-        }
-    }
-
-    if (Object.values(xpDict).length === 0) {
-        skillWithLowestMaxXp = gameData.taskData['Concentration'];
-        return;
-    }
-
-    const skillName = getKeyOfLowestValueFromDict(xpDict);
-    skillWithLowestMaxXp = gameData.taskData[skillName];
-}
-
 function getKeyOfLowestValueFromDict(dict) {
     const values = Object.values(dict);
 
@@ -1335,9 +1263,6 @@ function getKeyOfLowestValueFromDict(dict) {
 
 function autoLearn() {
     throw new Error('Not supported currently');
-    // gameData.autoLearnEnabled = autoLearnElement.checked;
-    // if (!autoLearnElement.checked || !skillWithLowestMaxXp) return;
-    // gameData.currentSkill = skillWithLowestMaxXp;
 }
 
 function yearsToDays(years) {
@@ -1492,13 +1417,18 @@ function getBattleElement(taskName) {
     return document.getElementById(task.baseData.progressBarId);
 }
 
-function getItemElement(itemName) {
-    const item = gameData.itemData[itemName];
-    if (item == null) {
-        console.log('Item not found in data: ' + itemName);
+function getItemElement(name) {
+    const pointOfInterest = pointsOfInterest[name];
+    if (pointOfInterest == null) {
+        console.log('Point of Interest not found in data: ' + name);
         return;
     }
-    return document.getElementById(item.id);
+    if (pointOfInterest == undefined) {
+        console.log('Point of Interest not found in dataloooooooooooooooooooooooooooooooooooooooooooooool: ' + name);
+        return;
+    }
+    let el = document.getElementById(pointOfInterest.id);
+    return document.getElementById(pointOfInterest.id);
 }
 
 function getElementsByClass(className) {
@@ -1619,26 +1549,6 @@ function isPlaying() {
 }
 
 function assignMethods() {
-    for (let key in gameData.taskData) {
-        let task = gameData.taskData[key];
-        if (task instanceof Job || task instanceof GridStrength) {
-            //task.baseData = moduleBaseData[task.name];
-            //task = Object.assign(new ModuleOperation(moduleBaseData[task.name]), task);
-
-        } else {
-            task.baseData = skillBaseData[task.name];
-            task = Object.assign(new Skill(skillBaseData[task.name]), task);
-        }
-        gameData.taskData[key] = task;
-    }
-
-    for (let key in gameData.itemData) {
-        let item = gameData.itemData[key];
-        item.baseData = itemBaseData[item.name];
-        item = Object.assign(new Item(itemBaseData[item.name]), item);
-        gameData.itemData[key] = item;
-    }
-
     for (let key in gameData.battleData) {
         let battle = gameData.battleData[key];
         battle.baseData = battleBaseData[battle.name];
@@ -1669,17 +1579,10 @@ function assignMethods() {
         gameData.requirements[key] = requirement;
     }
 
-    gameData.currentSkill = gameData.taskData[gameData.currentSkill.name];
-    gameData.currentProperty = gameData.itemData[gameData.currentProperty.name];
+    gameData.currentPointOfInterest = pointsOfInterest[gameData.currentPointOfInterest.name]
     if (gameData.currentBattle !== null) {
         startBattle(gameData.currentBattle.name);
     }
-
-    const newArray = [];
-    for (let misc of gameData.currentMisc) {
-        newArray.push(gameData.itemData[misc.name]);
-    }
-    gameData.currentMisc = newArray;
 }
 
 function replaceSaveDict(dict, saveDict) {
@@ -1745,7 +1648,6 @@ function loadGameData() {
         replaceSaveDict(gameData, gameDataSave);
         replaceSaveDict(gameData.requirements, gameDataSave.requirements);
         replaceSaveDict(gameData.taskData, gameDataSave.taskData);
-        replaceSaveDict(gameData.itemData, gameDataSave.itemData);
         replaceSaveDict(gameData.battleData, gameDataSave.battleData);
 
         for (let id in gameDataSave.currentOperations) {
@@ -1776,13 +1678,11 @@ function loadGameData() {
 function updateUI() {
     updateTaskRows();
     updateModuleRows();
-    updateItemRows();
+    updateSectorRows();
     updateRequiredRows(moduleCategories);
-    updateRequiredRows(skillCategories);
-    updateRequiredRows(itemCategories);
+    updateRequiredRows(sectors);
     updateHeaderRows();
     updateModuleQuickTaskDisplay();
-    updateSkillQuickTaskDisplay();
     updateBattleQuickTaskDisplay();
     updateBattleTaskDisplay();
     updateAttributeRows();
@@ -1883,8 +1783,7 @@ function setDefaultGameDataValues() {
 }
 
 function setDefaultCurrentValues() {
-    gameData.currentSkill = gameData.taskData[defaultSkill];
-    gameData.currentProperty = gameData.itemData[defaultProperty];
+    gameData.currentPointOfInterest = defaultPointOfInterest;
     gameData.currentMisc = [];
     gameData.currentModules = {};
     gameData.currentOperations = {};
@@ -1931,8 +1830,7 @@ function init() {
     // saving is skipped until the game is actually under player control.
     skipGameDataSave = true;
     createModuleUI(moduleCategories, 'jobTable');
-    createTwoLevelUI(skillCategories, 'skillTable');
-    createTwoLevelUI(itemCategories, 'itemTable');
+    createTwoLevelUI(sectors, 'sectorTable');
     createModuleQuickTaskDisplay();
 
     adjustLayout();
@@ -1944,9 +1842,7 @@ function init() {
         entityData.id = 'row_' + entityData.name;
         gameData.taskData[entityData.name] = entityData;
     }
-    createData(gameData.taskData, skillBaseData);
     createData(gameData.battleData, battleBaseData);
-    createData(gameData.itemData, itemBaseData);
     gameData.taskData[gridStrength.name] = gridStrength;
 
     setDefaultCurrentValues();
@@ -1991,12 +1887,6 @@ function init() {
     update();
     setInterval(update, 1000 / updateSpeed);
     setInterval(saveGameData, 3000);
-
-    GameEvents.TaskLevelChanged.subscribe(function (taskInfo) {
-        if (taskInfo.type === 'Skill') {
-            setSkillWithLowestMaxXp();
-        }
-    });
 }
 
 init();

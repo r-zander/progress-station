@@ -62,19 +62,6 @@ const battleBaseData = {
     Destroyer: {title: 'The Destroyer', maxXp: 500, maxLayers: 5, progressBarId: 'battleProgressBar', layerLabel: 'Tentacles layer'},
 };
 
-const skillBaseData = {
-    Concentration: {title: 'Concentration', maxXp: 100, effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 5}]},
-    Productivity: {title: 'Productivity', maxXp: 100, effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 500}]},
-};
-
-const itemBaseData = {
-    Homeless: {title: 'Funky Sector', expense: 0, effects: [{effectType: EffectType.Growth, baseValue: 5}]},
-    Book: {title: 'Video Game Land', expense: 10, effects: [{effectType: EffectType.Industry, baseValue: 5}], description: 'Research xp'},
-};
-
-const defaultSkill = 'Concentration';
-const defaultProperty = 'Homeless';
-
 const moduleOperations = {
     Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 400, gridLoad: 1}),
     Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 50, gridLoad: 1}),
@@ -123,14 +110,18 @@ const moduleCategories = {
     Military: [modules.WeaponBay],
 };
 
-const skillCategories = {
-    Fundamentals: [skillBaseData.Concentration, skillBaseData.Productivity],
+const pointsOfInterest = {
+    Funky: new PointOfInterest({title: 'Funky Sector', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 10}]}),
+    VideoGameLand: new PointOfInterest({title: 'Video Game Land', effects: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 25}]}),
+    Gurkenland: new PointOfInterest({title: 'Gurkenland', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 50}]}),
 };
 
-const itemCategories = {
-    Properties: [itemBaseData.Homeless],
-    Misc: [itemBaseData.Book]
+const sectors = {
+    DanceSector: { title: "Dance Sector", content: [pointsOfInterest.Funky] },
+    NerdSector: { title: "Nerd Sector", content: [pointsOfInterest.VideoGameLand, pointsOfInterest.Gurkenland] },
 };
+
+const defaultPointOfInterest = pointsOfInterest.Funky;
 
 //Initialize names
 for (const [key, module] of Object.entries(moduleOperations)) {
@@ -141,6 +132,7 @@ for (const [key, module] of Object.entries(moduleOperations)) {
 function assignNames(data) {
     for (const [key, val] of Object.entries(data)) {
         val.name = key;
+        val.id = 'row_' + key;
     }
 }
 
@@ -148,8 +140,7 @@ assignNames(moduleComponents);
 assignNames(modules);
 assignNames(moduleCategories);
 assignNames(battleBaseData);
-assignNames(itemBaseData);
-assignNames(skillBaseData);
+assignNames(pointsOfInterest);
 
 const permanentUnlocks = ['Scheduling', 'Shop', 'Automation', 'Quick task display'];
 
@@ -161,7 +152,7 @@ const headerRowColors = {
     'Combat': '#FF704D',
     'Magic': '#875F9A',
     'Dark magic': '#73000F',
-    'Properties': '#219EBC',
+    'PointsOfInterest': '#219EBC',
     'Misc': '#B56576',
 };
 
@@ -174,10 +165,10 @@ const tooltips = {
     'Concentration': 'Improve your learning speed through practising intense concentration activities.',
     'Productivity': 'Learn to procrastinate less at work and receive more job experience per day.',
 
-    'Homeless': 'Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.',
+    'Funky': 'Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.',
 
 
-    'Book': 'A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly.',
+    'VideoGameLand': 'A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly.',
 
     "Quantum Replicator": "Introducing the 'Quantum Replicator'—the ultimate solution for population growth! This futuristic device uses quantum technology to duplicate individuals, allowing you to rapidly expand your population. With each activation, watch as your society flourishes and thrives. Just remember to keep track of the originals, or you might end up with an army of duplicates!",
     "Bio-Genesis Chamber": "Step into the 'Bio-Genesis Chamber,' where life finds a new beginning! This advanced technology can create life forms from scratch, jump-starting your population growth. Simply input the genetic code and environmental parameters, and within moments, you'll have a thriving population ready to build a bright future. Handle with care; creating life is a profound responsibility!",
@@ -255,8 +246,6 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Chairman': new TaskRequirement([getTaskElement('Chairman')], [{task: 'Mana control', requirement: 2000}, {task: 'Master wizard', requirement: 10}]),
 */
         //Fundamentals
-        Concentration: new TaskRequirement([getTaskElement('Concentration')], []),
-        Productivity: new TaskRequirement([getTaskElement('Productivity')], [{task: 'Concentration', requirement: 5}]),
         //'Bargaining': new TaskRequirement([getTaskElement('Bargaining')], [{task: 'Concentration', requirement: 20}]),
         /*
         'Meditation': new TaskRequirement([getTaskElement('Meditation')], [{task: 'Concentration', requirement: 30}, {task: 'Productivity', requirement: 20}]),
@@ -281,7 +270,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Demon\'s wealth': new EvilRequirement([getTaskElement('Demon\'s wealth')], [{requirement: 500}]),
 */
         //Properties
-        Homeless: new GridStrengthRequirement([getItemElement('Homeless')], [{requirement: 0}]),
+        Funky: new GridStrengthRequirement([getItemElement('Funky')], [{requirement: 0}]),
         /*
         'Tent': new StoredEnergyRequirement([getItemElement('Tent')], [{requirement: 0}]),
         'Wooden hut': new StoredEnergyRequirement([getItemElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getGridLoad() * 100}]),
@@ -292,7 +281,8 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Grand palace': new StoredEnergyRequirement([getItemElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getGridLoad() * 100}]),
 */
         //Misc
-        Book: new GridStrengthRequirement([getItemElement('Book')], [{requirement: 0}]),
+        VideoGameLand: new GridStrengthRequirement([getItemElement('VideoGameLand')], [{requirement: 0}]),
+        Gurkenland: new GridStrengthRequirement([getItemElement('Gurkenland')], [{requirement: 0}]),
         /*
         'Dumbbells': new StoredEnergyRequirement([getItemElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getGridLoad() * 100}]),
         'Personal squire': new StoredEnergyRequirement([getItemElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getGridLoad() * 100}]),
