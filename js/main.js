@@ -88,7 +88,6 @@ function applySpeed(value, ignoreDeath = false) {
 
 function getDanger() {
     let danger = getCurrentEffectValue(EffectType.Danger);
-    danger += gameData.currentSkill.getEffect(EffectType.Danger);
     return danger;
 }
 
@@ -130,7 +129,8 @@ function getCurrentEffectValue(effectType) {
         }
     }
 
-    effectType.combine(result, gameData.currentProperty.getEffect(effectType));
+    result = effectType.combine(result, gameData.currentProperty.getEffect(effectType));
+    result = effectType.combine(result, gameData.currentSkill.getEffect(effectType));
 
     return result;
 }
