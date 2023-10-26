@@ -87,7 +87,7 @@ function applySpeed(value, ignoreDeath = false) {
 }
 
 function getDanger() {
-    let danger = getEffectFromOperations(EffectType.Danger);
+    let danger = getCurrentEffectValue(EffectType.Danger);
     danger += gameData.currentSkill.getEffect(EffectType.Danger);
     return danger;
 }
@@ -95,7 +95,7 @@ function getDanger() {
 //Need to review formula + application in updatePopulation()
 function updateHeat() {
     let danger = getDanger();
-    const military = getEffectFromOperations(EffectType.Military);
+    const military = getCurrentEffectValue(EffectType.Military);
 
     if (approximatelyEquals(getDanger(), military)) {
         return;
@@ -105,7 +105,7 @@ function updateHeat() {
 }
 
 function getGrowth() {
-    return getEffectFromOperations(EffectType.Growth);
+    return getCurrentEffectValue(EffectType.Growth);
 }
 
 function populationDelta() {
@@ -120,7 +120,7 @@ function updatePopulation() {
 /**
  * @param {EffectType} effectType
  */
-function getEffectFromOperations(effectType) {
+function getCurrentEffectValue(effectType) {
     let result = effectType.getDefaultValue();
     const tasks = gameData.currentOperations;
     for (const taskName in tasks) {
@@ -129,6 +129,9 @@ function getEffectFromOperations(effectType) {
             result = effectType.combine(result, task.getEffect(effectType));
         }
     }
+
+    effectType.combine(result, gameData.currentProperty.getEffect(effectType));
+
     return result;
 }
 
@@ -1078,11 +1081,11 @@ function updateText() {
 
     updateHeatDisplay();
 
-    const industry = getEffectFromOperations(EffectType.Industry);
+    const industry = getCurrentEffectValue(EffectType.Industry);
     formatValue(Dom.get().byId('industryDisplay'), industry);
     formatValue(Dom.get().bySelector('#attributeRows > .industry .value'), industry);
 
-    const military = getEffectFromOperations(EffectType.Military);
+    const military = getCurrentEffectValue(EffectType.Military);
     formatValue(Dom.get().byId('militaryDisplay'), military);
     formatValue(Dom.get().bySelector('#attributeRows > .military .value'), military);
 
@@ -1106,8 +1109,8 @@ function updateText() {
 }
 
 function getResearch() {
-    let base = getEffectFromOperations(EffectType.Research);
-    let factor = getEffectFromOperations(EffectType.ResearchFactor);
+    let base = getCurrentEffectValue(EffectType.Research);
+    let factor = getCurrentEffectValue(EffectType.ResearchFactor);
     if (base === 0 && factor > 1) {
         return factor;
     }
