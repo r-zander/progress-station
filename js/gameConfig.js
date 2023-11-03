@@ -121,7 +121,7 @@ const moduleCategories = {
 
 const pointsOfInterest = {
     FunkySector: new PointOfInterest({
-        title: 'FunkySector Sector',
+        title: 'Funky Sector',
         effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 10}],
         modifiers: [{modifies: [moduleOperations.QuantumReplicator, moduleOperations.Diesel], from: EffectType.Growth, to: EffectType.Research}]
     }),

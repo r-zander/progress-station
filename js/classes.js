@@ -78,14 +78,14 @@ class Task {
      * @returns {number}
      */
     getEffect(effectType) {
-        return Effect.getValue(effectType, this.baseData.effects, this.level);
+        return Effect.getValue(this, effectType, this.baseData.effects, this.level);
     }
 
     /**
      * @return {string}
      */
     getEffectDescription() {
-        return Effect.getDescription(this.baseData.effects, this.level);
+        return Effect.getDescription(this, this.baseData.effects, this.level);
     }
 
     increaseXp(ignoreDeath = false) {
@@ -183,6 +183,8 @@ class PointOfInterest {
         this.name = this.baseData.name;
         this.title = this.baseData.title;
         this.expenseMultipliers = [];
+        /** @var {ModifierDefinition[]} */
+        this.modifiers = this.baseData.modifiers;
     }
 
     /**
@@ -209,14 +211,14 @@ class PointOfInterest {
      * @returns {number}
      */
     getEffect(effectType) {
-        return Effect.getValue(effectType, this.baseData.effects, 1);
+        return Effect.getValue(this, effectType, this.baseData.effects, 1);
     }
 
     /**
      * @return {string}
      */
     getEffectDescription() {
-        return Effect.getDescription(this.baseData.effects, 1);
+        return Effect.getDescription(this, this.baseData.effects, 1);
     }
 
     /**
@@ -224,7 +226,7 @@ class PointOfInterest {
      * @return {string}
      */
     getEffectDescriptionExcept(effectTypeException) {
-        return Effect.getDescriptionExcept(this.baseData.effects, 1, effectTypeException);
+        return Effect.getDescriptionExcept(this, this.baseData.effects, 1, effectTypeException);
     }
 
     getGridLoad() {

@@ -1,12 +1,49 @@
 'use strict';
 
-// Not a const as it can be overridden when loading a save game
+/**
+ * @typedef {Object} GameData
+ * @property {Object} taskData
+ * @property {Object} battleData
+ * @property {Object} requirements
+ *
+ * @property {number} population
+ * @property {number} evil
+ *
+ * @property {boolean} paused
+ * @property {boolean} timeWarpingEnabled
+ * @property {boolean} autoLearnEnabled
+ * @property {boolean} autoPromoteEnabled
+ *
+ * @property {number} days
+ * @property {number} rebirthOneCount
+ * @property {number} rebirthTwoCount
+ * @property {number} totalDays
+ *
+ * @property {Object<string, Module>} currentModules
+ * @property {Object<string, ModuleOperation>} currentOperations
+ * @property {PointOfInterest} currentPointOfInterest
+ * @property {Battle} currentBattle
+ *
+ * @property {string} stationName
+ * @property {string} selectedTab
+ * @property {Object} settings
+ * @property {boolean} settings.darkMode
+ * @property {boolean} settings.sciFiMode
+ * @property {string} settings.background
+ */
+
+/**
+ * Not a const as it can be overridden when loading a save game.
+ *
+ * @type {GameData}
+ */
 let gameData = {
     taskData: {},
     battleData: {},
 
     population: 0,
     evil: 0,
+
     paused: true,
     timeWarpingEnabled: true,
     autoLearnEnabled: false,
@@ -20,7 +57,6 @@ let gameData = {
     currentModules: {},
     currentOperations: {},
     currentPointOfInterest: null,
-    currentMisc: null,
     currentBattle: null,
 
     stationName: stationNameGenerator.generate(),
@@ -791,6 +827,8 @@ function updateTaskRows() {
         setProgress(progressFill, task.xp / task.getMaxXp());
         if (task instanceof ModuleOperation && gameData.currentOperations.hasOwnProperty(task.name)) {
             progressFill.classList.add('current');
+        } else {
+            progressFill.classList.remove('current');
         }
 
         const valueElement = row.getElementsByClassName('value')[0];
@@ -812,10 +850,13 @@ function updateSectorRows() {
     for (let key in pointsOfInterest) {
         const pointOfInterest = pointsOfInterest[key];
         const row = document.getElementById('row_' + pointOfInterest.name);
-        const active = row.getElementsByClassName('active')[0];
-        active.style.backgroundColor = pointOfInterest === gameData.currentPointOfInterest ? 'rgb(12, 101, 173)' : 'white';
-        row.getElementsByClassName('effect')[0].textContent = pointOfInterest.getEffectDescriptionExcept(EffectType.Danger);
-        row.getElementsByClassName('danger')[0].textContent = pointOfInterest.getEffect(EffectType.Danger);
+        const domGetter = Dom.get(row);
+        const isActive = pointOfInterest === gameData.currentPointOfInterest;
+        domGetter.byClass('active').style.backgroundColor = isActive ? 'rgb(12, 101, 173)' : 'white';
+        domGetter.byClass('button').classList.toggle('btn-dark', !isActive);
+        domGetter.byClass('button').classList.toggle('btn-warning', isActive);
+        domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescriptionExcept(EffectType.Danger);
+        domGetter.byClass('danger').textContent = pointOfInterest.getEffect(EffectType.Danger);
     }
 }
 
@@ -1169,6 +1210,16 @@ function formatValue(dataElement, value, config = {}) {
     // TODO render full number + unit into dataElement.title
     dataElement.value = String(value);
 
+    function toString(value) {
+        if (Number.isInteger(value)) {
+            return value.toFixed(0);
+        } else if (Math.abs(value) < 1) {
+            return value.toFixed(2);
+        } else {
+            return value.toPrecision(3);
+        }
+    }
+
     const defaultConfig = {
         prefixes: magnitudes,
         unit: '',
@@ -1206,11 +1257,7 @@ function formatValue(dataElement, value, config = {}) {
     }
 
     if (tier === 0) {
-        if (Number.isInteger(value)) {
-            dataElement.textContent = prefix + value.toFixed(0);
-        } else {
-            dataElement.textContent = prefix + value.toPrecision(3);
-        }
+        dataElement.textContent = prefix + toString(value);
         return;
     }
     const scale = Math.pow(10, tier * 3);
@@ -1219,7 +1266,7 @@ function formatValue(dataElement, value, config = {}) {
     const scaled = value / scale;
 
     // format number and add suffix
-    dataElement.textContent = prefix + scaled.toPrecision(3);
+    dataElement.textContent = prefix + toString(scaled);
 }
 
 /**
@@ -1646,7 +1693,6 @@ function setDefaultGameDataValues() {
 
 function setDefaultCurrentValues() {
     gameData.currentPointOfInterest = defaultPointOfInterest;
-    gameData.currentMisc = [];
     gameData.currentModules = {};
     gameData.currentOperations = {};
 
