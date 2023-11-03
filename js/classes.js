@@ -7,54 +7,13 @@
  * @property {null|string} color - font color to display the title
  * @property {null|string} icon - path to the icon file#
  * @property {string} [description] - (HTML) description of the attribute
+ * @property {function(): number} getValue - retrieves the current value for this attribute
  */
+
 
 /**
- * @typedef {Object} Effect
- * @property {EffectType} effectType
- * @property {number} baseValue
+ * @implements EffectsHolder
  */
-
-/**
- * @typedef {Object} EffectsHolder
- * @property {string} title
- * @property {function(): Effect[]} getEffects
- * @property {function(EffectType): number} getEffect
- */
-
-class EffectType {
-    /**
-     * @param {'+'|'x'} operator
-     * @param {string} description
-     */
-    constructor(operator, description) {
-        this.operator = operator;
-        this.description = description;
-    }
-
-    getDefaultValue() {
-        return this.operator === 'x' ? 1 : 0;
-    }
-
-    combine(a, b) {
-        if (this.operator === 'x') {
-            return a * b;
-        } else {
-            return a + b;
-        }
-    }
-
-    static Growth = new EffectType('x', 'Growth');
-    static Energy = new EffectType('+', 'Energy');
-    static EnergyFactor = new EffectType('x', 'Energy');
-    static Industry = new EffectType('x', 'Industry');
-    static Military = new EffectType('x', 'Military');
-    static Heat = new EffectType('+', 'Heat');
-    static Danger = new EffectType('x', 'Danger');
-    static Research = new EffectType('+', 'Research');
-    static ResearchFactor = new EffectType('x', 'Research');
-}
-
 class Task {
     constructor(baseData) {
         this.type = this.constructor.name;
@@ -100,7 +59,7 @@ class Task {
     }
 
     /**
-     * @returns {Effect[]}
+     * @returns {EffectDefinition[]}
      */
     getEffects() {
         return this.baseData.effects;
@@ -119,14 +78,14 @@ class Task {
      * @returns {number}
      */
     getEffect(effectType) {
-        return getEffect(effectType, this.baseData.effects, this.level);
+        return Effect.getValue(effectType, this.baseData.effects, this.level);
     }
 
     /**
      * @return {string}
      */
     getEffectDescription() {
-        return getEffectDescription(this.baseData.effects, this.level);
+        return Effect.getDescription(this.baseData.effects, this.level);
     }
 
     increaseXp(ignoreDeath = false) {
@@ -219,6 +178,9 @@ class Skill extends Task {
     }
 }
 
+/**
+ * @implements EffectsHolder
+ */
 class Item {
     constructor(baseData) {
         this.baseData = baseData;
@@ -239,7 +201,7 @@ class Item {
     }
 
     /**
-     * @returns {Effect[]}
+     * @returns {EffectDefinition[]}
      */
     getEffects() {
         return this.baseData.effects;
@@ -250,14 +212,14 @@ class Item {
      * @returns {number}
      */
     getEffect(effectType) {
-        return getEffect(effectType, this.baseData.effects, 1);
+        return Effect.getValue(effectType, this.baseData.effects, 1);
     }
 
     /**
      * @return {string}
      */
     getEffectDescription() {
-        return getEffectDescription(this.baseData.effects, 1);
+        return Effect.getDescription(this.baseData.effects, 1);
     }
 
     getGridLoad() {
@@ -518,6 +480,6 @@ class ResearchRequirement extends Requirement {
     }
 
     getCondition(requirement) {
-        return getResearch() >= requirement.requirement;
+        return attributes.research.getValue() >= requirement.requirement;
     }
 }
