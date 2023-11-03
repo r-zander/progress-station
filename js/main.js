@@ -192,7 +192,10 @@ function setTimeWarping() {
 }
 
 function setPointOfInterest(name) {
-    if (!isPlaying()) return;
+    if (!isPlaying()) {
+        VFX.shakePlayButton();
+        return;
+    }
 
     gameData.currentPointOfInterest = pointsOfInterest[name];
 }

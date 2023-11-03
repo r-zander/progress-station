@@ -100,6 +100,16 @@ VFX.flash = function (element, baseColor) {
     element.append(flashElement);
 };
 
+let playButtonShakeTimeout;
+
+VFX.shakePlayButton = function () {
+    clearTimeout(playButtonShakeTimeout);
+    Dom.get().byId('pauseButton').classList.add('shake-strong-tilt-move');
+    playButtonShakeTimeout = setTimeout(function () {
+        Dom.get().byId('pauseButton').classList.remove('shake-strong-tilt-move');
+    }, 150);
+};
+
 const ParticleSystem = {
     followMouseInterval: undefined
 };
