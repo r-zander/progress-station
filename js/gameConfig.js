@@ -71,19 +71,6 @@ const battleBaseData = {
     Destroyer: {title: 'The Destroyer', maxXp: 500, maxLayers: 5, progressBarId: 'battleProgressBar', layerLabel: 'Tentacles layer'},
 };
 
-const skillBaseData = {
-    Concentration: {title: 'Concentration', maxXp: 100, effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 5}]},
-    Productivity: {title: 'Productivity', maxXp: 100, effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 500}]},
-};
-
-const itemBaseData = {
-    Homeless: {title: 'Funky Sector', expense: 0, effects: [{effectType: EffectType.Growth, baseValue: 5}]},
-    Book: {title: 'Video Game Land', expense: 10, effects: [{effectType: EffectType.Industry, baseValue: 5}], description: 'Research xp'},
-};
-
-const defaultSkill = 'Concentration';
-const defaultProperty = 'Homeless';
-
 const moduleOperations = {
     Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 400, gridLoad: 1}),
     Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 50, gridLoad: 1}),
@@ -132,14 +119,30 @@ const moduleCategories = {
     Military: [modules.WeaponBay],
 };
 
-const skillCategories = {
-    Fundamentals: [skillBaseData.Concentration, skillBaseData.Productivity],
+const pointsOfInterest = {
+    FunkySector: new PointOfInterest({
+        title: 'Funky Sector',
+        effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 10}],
+        modifiers: [{modifies: [moduleOperations.QuantumReplicator, moduleOperations.Diesel], from: EffectType.Growth, to: EffectType.Research}]
+    }),
+    VideoGameLand: new PointOfInterest({
+        title: 'Video Game Land',
+        effects: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 25}],
+        modifiers: [{modifies: [moduleOperations.BallisticTurrets, moduleOperations.LaserTurrets], from: EffectType.Military, to: EffectType.Energy}]
+    }),
+    Gurkenland: new PointOfInterest({
+        title: 'Gurkenland',
+        effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 50}],
+        modifiers: [{modifies: [moduleOperations.Plastics], from: EffectType.Industry, to: EffectType.Growth}, {modifies: [moduleOperations.Steel], from: EffectType.Growth, to: EffectType.Industry}]
+    }),
 };
 
-const itemCategories = {
-    Properties: [itemBaseData.Homeless],
-    Misc: [itemBaseData.Book]
+const sectors = {
+    DanceSector: new Sector({ title: 'Dance Sector', pointsOfInterest: [pointsOfInterest.FunkySector] }),
+    NerdSector: new Sector({ title: 'Nerd Sector', pointsOfInterest: [pointsOfInterest.VideoGameLand, pointsOfInterest.Gurkenland] }),
 };
+
+const defaultPointOfInterest = pointsOfInterest.FunkySector;
 
 //Initialize names
 for (const [key, module] of Object.entries(moduleOperations)) {
@@ -150,6 +153,7 @@ for (const [key, module] of Object.entries(moduleOperations)) {
 function assignNames(data) {
     for (const [key, val] of Object.entries(data)) {
         val.name = key;
+        val.id = 'row_' + key;
     }
 }
 
@@ -157,21 +161,22 @@ assignNames(moduleComponents);
 assignNames(modules);
 assignNames(moduleCategories);
 assignNames(battleBaseData);
-assignNames(itemBaseData);
-assignNames(skillBaseData);
+assignNames(sectors);
+assignNames(pointsOfInterest);
 
 const permanentUnlocks = ['Scheduling', 'Shop', 'Automation', 'Quick task display'];
 
 const headerRowColors = {
     'Common generators': '#55A630',
     'Military grade': '#E63946',
-    'Arcane energy': '#C71585',
     'Fundamentals': '#4A4E69',
     'Combat': '#FF704D',
     'Magic': '#875F9A',
     'Dark magic': '#73000F',
-    'Properties': '#219EBC',
     'Misc': '#B56576',
+
+    DanceSector: '#C71585',
+    NerdSector: '#219EBC',
 };
 
 const tooltips = {
@@ -183,10 +188,10 @@ const tooltips = {
     'Concentration': 'Improve your learning speed through practising intense concentration activities.',
     'Productivity': 'Learn to procrastinate less at work and receive more job experience per day.',
 
-    'Homeless': 'Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.',
+    'FunkySector': 'Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.',
 
 
-    'Book': 'A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly.',
+    'VideoGameLand': 'A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly.',
 
     "Quantum Replicator": "Introducing the 'Quantum Replicator'—the ultimate solution for population growth! This futuristic device uses quantum technology to duplicate individuals, allowing you to rapidly expand your population. With each activation, watch as your society flourishes and thrives. Just remember to keep track of the originals, or you might end up with an army of duplicates!",
     "Bio-Genesis Chamber": "Step into the 'Bio-Genesis Chamber,' where life finds a new beginning! This advanced technology can create life forms from scratch, jump-starting your population growth. Simply input the genetic code and environmental parameters, and within moments, you'll have a thriving population ready to build a bright future. Handle with care; creating life is a profound responsibility!",
@@ -224,7 +229,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         //Other
         'Arcane energy': new TaskRequirement(getElementsByClass('Arcane energy'), [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),
         'Dark magic': new EvilRequirement(getElementsByClass('Dark magic'), [{requirement: 1}]),
-        'Shop': new StoredEnergyRequirement([Dom.get().byId('shopTabButton')], [{requirement: gameData.itemData['Tent'].getGridLoad() * 50}]),
+        'Shop': new StoredEnergyRequirement([Dom.get().byId('locationTabButton')], [{requirement: gameData.itemData['Tent'].getGridLoad() * 50}]),
         'Rebirth tab': new AgeRequirement([Dom.get().byId('rebirthTabButton')], [{requirement: 25}]),
         'Rebirth note 1': new AgeRequirement([Dom.get().byId('rebirthNote1')], [{requirement: 45}]),
         'Rebirth note 2': new AgeRequirement([Dom.get().byId('rebirthNote2')], [{requirement: 65}]),
@@ -264,8 +269,6 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Chairman': new TaskRequirement([getTaskElement('Chairman')], [{task: 'Mana control', requirement: 2000}, {task: 'Master wizard', requirement: 10}]),
 */
         //Fundamentals
-        Concentration: new TaskRequirement([getTaskElement('Concentration')], []),
-        Productivity: new TaskRequirement([getTaskElement('Productivity')], [{task: 'Concentration', requirement: 5}]),
         //'Bargaining': new TaskRequirement([getTaskElement('Bargaining')], [{task: 'Concentration', requirement: 20}]),
         /*
         'Meditation': new TaskRequirement([getTaskElement('Meditation')], [{task: 'Concentration', requirement: 30}, {task: 'Productivity', requirement: 20}]),
@@ -290,26 +293,27 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Demon\'s wealth': new EvilRequirement([getTaskElement('Demon\'s wealth')], [{requirement: 500}]),
 */
         //Properties
-        Homeless: new GridStrengthRequirement([getItemElement('Homeless')], [{requirement: 0}]),
+        FunkySector: new GridStrengthRequirement([getItemElement('FunkySector')], [{requirement: 0}]),
         /*
-        'Tent': new StoredEnergyRequirement([getItemElement('Tent')], [{requirement: 0}]),
-        'Wooden hut': new StoredEnergyRequirement([getItemElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getGridLoad() * 100}]),
-        'Cottage': new StoredEnergyRequirement([getItemElement('Cottage')], [{requirement: gameData.itemData['Cottage'].getGridLoad() * 100}]),
-        'House': new StoredEnergyRequirement([getItemElement('House')], [{requirement: gameData.itemData['House'].getGridLoad() * 100}]),
-        'Large house': new StoredEnergyRequirement([getItemElement('Large house')], [{requirement: gameData.itemData['Large house'].getGridLoad() * 100}]),
-        'Small palace': new StoredEnergyRequirement([getItemElement('Small palace')], [{requirement: gameData.itemData['Small palace'].getGridLoad() * 100}]),
-        'Grand palace': new StoredEnergyRequirement([getItemElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getGridLoad() * 100}]),
+        'Tent': new StoredEnergyRequirement([getPointOfInterestElement('Tent')], [{requirement: 0}]),
+        'Wooden hut': new StoredEnergyRequirement([getPointOfInterestElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getGridLoad() * 100}]),
+        'Cottage': new StoredEnergyRequirement([getPointOfInterestElement('Cottage')], [{requirement: gameData.itemData['Cottage'].getGridLoad() * 100}]),
+        'House': new StoredEnergyRequirement([getPointOfInterestElement('House')], [{requirement: gameData.itemData['House'].getGridLoad() * 100}]),
+        'Large house': new StoredEnergyRequirement([getPointOfInterestElement('Large house')], [{requirement: gameData.itemData['Large house'].getGridLoad() * 100}]),
+        'Small palace': new StoredEnergyRequirement([getPointOfInterestElement('Small palace')], [{requirement: gameData.itemData['Small palace'].getGridLoad() * 100}]),
+        'Grand palace': new StoredEnergyRequirement([getPointOfInterestElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getGridLoad() * 100}]),
 */
         //Misc
-        Book: new GridStrengthRequirement([getItemElement('Book')], [{requirement: 0}]),
+        VideoGameLand: new GridStrengthRequirement([getItemElement('VideoGameLand')], [{requirement: 0}]),
+        Gurkenland: new GridStrengthRequirement([getItemElement('Gurkenland')], [{requirement: 0}]),
         /*
-        'Dumbbells': new StoredEnergyRequirement([getItemElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getGridLoad() * 100}]),
-        'Personal squire': new StoredEnergyRequirement([getItemElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getGridLoad() * 100}]),
-        'Steel longsword': new StoredEnergyRequirement([getItemElement('Steel longsword')], [{requirement: gameData.itemData['Steel longsword'].getGridLoad() * 100}]),
-        'Butler': new StoredEnergyRequirement([getItemElement('Butler')], [{requirement: gameData.itemData['Butler'].getGridLoad() * 100}]),
-        'Sapphire charm': new StoredEnergyRequirement([getItemElement('Sapphire charm')], [{requirement: gameData.itemData['Sapphire charm'].getGridLoad() * 100}]),
-        'Study desk': new StoredEnergyRequirement([getItemElement('Study desk')], [{requirement: gameData.itemData['Study desk'].getGridLoad() * 100}]),
-        'Library': new StoredEnergyRequirement([getItemElement('Library')], [{requirement: gameData.itemData['Library'].getGridLoad() * 100}]),
+        'Dumbbells': new StoredEnergyRequirement([getPointOfInterestElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getGridLoad() * 100}]),
+        'Personal squire': new StoredEnergyRequirement([getPointOfInterestElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getGridLoad() * 100}]),
+        'Steel longsword': new StoredEnergyRequirement([getPointOfInterestElement('Steel longsword')], [{requirement: gameData.itemData['Steel longsword'].getGridLoad() * 100}]),
+        'Butler': new StoredEnergyRequirement([getPointOfInterestElement('Butler')], [{requirement: gameData.itemData['Butler'].getGridLoad() * 100}]),
+        'Sapphire charm': new StoredEnergyRequirement([getPointOfInterestElement('Sapphire charm')], [{requirement: gameData.itemData['Sapphire charm'].getGridLoad() * 100}]),
+        'Study desk': new StoredEnergyRequirement([getPointOfInterestElement('Study desk')], [{requirement: gameData.itemData['Study desk'].getGridLoad() * 100}]),
+        'Library': new StoredEnergyRequirement([getPointOfInterestElement('Library')], [{requirement: gameData.itemData['Library'].getGridLoad() * 100}]),
    */
     };
 }

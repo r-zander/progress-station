@@ -19,7 +19,7 @@ class Task {
         this.type = this.constructor.name;
         this.name = baseData.name;
         this.baseData = baseData;
-        this.title = baseData.title;
+        this.title = prepareTitle(baseData.title);
         this.level = 0;
         this.maxLevel = 0;
         this.xp = 0;
@@ -78,14 +78,14 @@ class Task {
      * @returns {number}
      */
     getEffect(effectType) {
-        return Effect.getValue(effectType, this.baseData.effects, this.level);
+        return Effect.getValue(this, effectType, this.baseData.effects, this.level);
     }
 
     /**
      * @return {string}
      */
     getEffectDescription() {
-        return Effect.getDescription(this.baseData.effects, this.level);
+        return Effect.getDescription(this, this.baseData.effects, this.level);
     }
 
     increaseXp(ignoreDeath = false) {
@@ -171,28 +171,37 @@ class Skill extends Task {
 
     collectEffects() {
         super.collectEffects();
-        //this.xpMultipliers.push(getBoundTaskEffect('Concentration'));
-        //this.xpMultipliers.push(getBoundItemEffect('Book'));
-        //this.xpMultipliers.push(getBoundItemEffect('Study desk'));
-        //this.xpMultipliers.push(getBoundItemEffect('Library'));
+    }
+}
+
+class Sector {
+    constructor(baseData) {
+        this.baseData = baseData;
+        this.name = baseData.name;
+        this.title = prepareTitle(baseData.title);
+        /** @var {PointOfInterest[]} */
+        this.pointsOfInterest = baseData.pointsOfInterest;
     }
 }
 
 /**
  * @implements EffectsHolder
  */
-class Item {
+class PointOfInterest {
     constructor(baseData) {
         this.baseData = baseData;
-        this.name = this.baseData.name;
+        this.name = baseData.name;
+        this.title = prepareTitle(baseData.title);
         this.expenseMultipliers = [];
+        /** @var {ModifierDefinition[]} */
+        this.modifiers = baseData.modifiers;
     }
 
     /**
      * @return {boolean}
      */
     isActive() {
-        return gameData.currentProperty === this || gameData.currentMisc.includes(this);
+        return gameData.currentPointOfInterest === this;
     }
 
     collectEffects() {
@@ -212,14 +221,22 @@ class Item {
      * @returns {number}
      */
     getEffect(effectType) {
-        return Effect.getValue(effectType, this.baseData.effects, 1);
+        return Effect.getValue(this, effectType, this.baseData.effects, 1);
     }
 
     /**
      * @return {string}
      */
     getEffectDescription() {
-        return Effect.getDescription(this.baseData.effects, 1);
+        return Effect.getDescription(this, this.baseData.effects, 1);
+    }
+
+    /**
+     * @param effectTypeException
+     * @return {string}
+     */
+    getEffectDescriptionExcept(effectTypeException) {
+        return Effect.getDescriptionExcept(this, this.baseData.effects, 1, effectTypeException);
     }
 
     getGridLoad() {
@@ -235,7 +252,7 @@ class Module {
 
     constructor(baseData) {
         this.data = baseData;
-        this.title = baseData.title;
+        this.title = prepareTitle(baseData.title);
         this.components = baseData.components;
         this.maxLevel = 0;
     }
@@ -327,7 +344,7 @@ class ModuleComponent {
      * @param {{title: string, operations: ModuleOperation[]}} baseData
      */
     constructor(baseData) {
-        this.title = baseData.title;
+        this.title = prepareTitle(baseData.title);
         this.operations = baseData.operations;
         this.currentOperation = this.operations[0];
     }

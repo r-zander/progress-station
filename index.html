@@ -190,22 +190,9 @@
                     </template>
                     <slot id="modulesQuickTaskDisplay"></slot>
                 </button>
-                <button id="skillsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'skills');">
+                <button id="locationTabButton" class="tabButton panel p-3" onClick="setTab(this, 'location');">
                     <!--suppress HtmlUnknownTag -->
-                    <h3>Research</h3>
-                    <!--suppress HtmlUnknownTag -->
-                    <div class="quickTaskDisplay mt-2">
-                        <div class="progress skill progressBar" role="progressbar" aria-label="Task"
-                             aria-valuenow="0"
-                             aria-valuemin="0" aria-valuemax="100">
-                            <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
-                            <div class="progress-text name px-2">Task</div>
-                        </div>
-                    </div>
-                </button>
-                <button id="shopTabButton" class="tabButton panel p-3" onClick="setTab(this, 'shop');">
-                    <!--suppress HtmlUnknownTag -->
-                    <h3>Sectors</h3>
+                    <h3>Location</h3>
                 </button>
                 <button id="rebirthTabButton" class="tabButton panel p-3" onClick="setTab(this, 'rebirth');">
                     <!--suppress HtmlUnknownTag -->
@@ -295,15 +282,16 @@
                 </div>
             </template>
 
-            <template id="level3ItemTemplate">
+            <template id="level3PointOfInterestTemplate">
                 <div class="table-container ps-3">
                     <table class="table mb-0">
                         <thead class="level3">
                         <tr class="header-row">
-                            <th class="name">Item</th>
-                            <th>Active</th>
+                            <th class="name">Point Of Interest</th>
+                            <th>Stationed</th>
                             <th>Effect</th>
-                            <th>Usage/cycle</th>
+                            <th>Modifier</th>
+                            <th>Danger</th>
                         </tr>
                         </thead>
                         <tbody class="level4">
@@ -348,11 +336,11 @@
                 </tr>
             </template>
 
-            <template id="level4ItemTemplate">
+            <template id="level4PointOfInterestTemplate">
                 <tr>
-                    <td>
-                        <button class="button btn btn-primary btn-sm text-start descriptionTooltip" aria-label="Item"
-                                title="Item Description" data-bs-placement="right">
+                    <td style="width: 16rem">
+                        <button class="button btn btn-dark btn-sm w-100 descriptionTooltip" aria-label="Item"
+                                title="Description" data-bs-placement="right">
                             <span class="name"></span>
                         </button>
                     </td>
@@ -362,9 +350,8 @@
                         </div>
                     </td>
                     <td class="effect"></td>
-                    <td class="energy-usage">
-                        <data value=""></data>
-                    </td>
+                    <td class="modifier"></td>
+                    <td class="danger"></td>
                 </tr>
             </template>
 
@@ -391,8 +378,8 @@
                 <slot id="skillTable"></slot>
             </div>
 
-            <div id="shop" class="tab p-3">
-                <slot id="itemTable"></slot>
+            <div id="location" class="tab p-3">
+                <slot id="sectorTable"></slot>
             </div>
 
             <div id="rebirth" class="tab p-3">
