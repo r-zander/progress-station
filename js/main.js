@@ -447,13 +447,12 @@ function createAttributeRow(attribute) {
  * @param {EffectType} effectType
  * @param {string} name
  * @param {function():boolean} isActiveFn
- * @return {HTMLElement | false}
  */
 function createAttributeBalanceEntry(balanceElement, effectsHolder, effectType, name, isActiveFn) {
     const affectsEffectType = effectsHolder.getEffects().find(function (effect) {
         return effect.effectType === effectType;
     }) !== undefined;
-    if (!affectsEffectType) return false;
+    if (!affectsEffectType) return;
 
     const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
     const domGetter = Dom.get(balanceEntryElement);
