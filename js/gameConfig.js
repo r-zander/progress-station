@@ -120,17 +120,29 @@ const moduleCategories = {
 };
 
 const pointsOfInterest = {
-    Funky: new PointOfInterest({title: 'Funky Sector', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 10}]}),
-    VideoGameLand: new PointOfInterest({title: 'Video Game Land', effects: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 25}]}),
-    Gurkenland: new PointOfInterest({title: 'Gurkenland', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 50}]}),
+    FunkySector: new PointOfInterest({
+        title: 'FunkySector Sector',
+        effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 10}],
+        modifiers: [{modifies: [moduleOperations.QuantumReplicator, moduleOperations.Diesel], from: EffectType.Growth, to: EffectType.Research}]
+    }),
+    VideoGameLand: new PointOfInterest({
+        title: 'Video Game Land',
+        effects: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 25}],
+        modifiers: [{modifies: [moduleOperations.BallisticTurrets, moduleOperations.LaserTurrets], from: EffectType.Military, to: EffectType.Energy}]
+    }),
+    Gurkenland: new PointOfInterest({
+        title: 'Gurkenland',
+        effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 50}],
+        modifiers: [{modifies: [moduleOperations.Plastics], from: EffectType.Industry, to: EffectType.Growth}, {modifies: [moduleOperations.Steel], from: EffectType.Growth, to: EffectType.Industry}]
+    }),
 };
 
 const sectors = {
-    DanceSector: { title: "Dance Sector", content: [pointsOfInterest.Funky] },
+    DanceSector: { title: "Dance Sector", content: [pointsOfInterest.FunkySector] },
     NerdSector: { title: "Nerd Sector", content: [pointsOfInterest.VideoGameLand, pointsOfInterest.Gurkenland] },
 };
 
-const defaultPointOfInterest = pointsOfInterest.Funky;
+const defaultPointOfInterest = pointsOfInterest.FunkySector;
 
 //Initialize names
 for (const [key, module] of Object.entries(moduleOperations)) {
@@ -156,13 +168,14 @@ const permanentUnlocks = ['Scheduling', 'Shop', 'Automation', 'Quick task displa
 const headerRowColors = {
     'Common generators': '#55A630',
     'Military grade': '#E63946',
-    'Arcane energy': '#C71585',
     'Fundamentals': '#4A4E69',
     'Combat': '#FF704D',
     'Magic': '#875F9A',
     'Dark magic': '#73000F',
-    'PointsOfInterest': '#219EBC',
     'Misc': '#B56576',
+
+    DanceSector: '#C71585',
+    NerdSector: '#219EBC',
 };
 
 const tooltips = {
@@ -174,7 +187,7 @@ const tooltips = {
     'Concentration': 'Improve your learning speed through practising intense concentration activities.',
     'Productivity': 'Learn to procrastinate less at work and receive more job experience per day.',
 
-    'Funky': 'Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.',
+    'FunkySector': 'Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.',
 
 
     'VideoGameLand': 'A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly.',
@@ -215,7 +228,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         //Other
         'Arcane energy': new TaskRequirement(getElementsByClass('Arcane energy'), [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),
         'Dark magic': new EvilRequirement(getElementsByClass('Dark magic'), [{requirement: 1}]),
-        'Shop': new StoredEnergyRequirement([Dom.get().byId('shopTabButton')], [{requirement: gameData.itemData['Tent'].getGridLoad() * 50}]),
+        'Shop': new StoredEnergyRequirement([Dom.get().byId('locationTabButton')], [{requirement: gameData.itemData['Tent'].getGridLoad() * 50}]),
         'Rebirth tab': new AgeRequirement([Dom.get().byId('rebirthTabButton')], [{requirement: 25}]),
         'Rebirth note 1': new AgeRequirement([Dom.get().byId('rebirthNote1')], [{requirement: 45}]),
         'Rebirth note 2': new AgeRequirement([Dom.get().byId('rebirthNote2')], [{requirement: 65}]),
@@ -279,7 +292,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Demon\'s wealth': new EvilRequirement([getTaskElement('Demon\'s wealth')], [{requirement: 500}]),
 */
         //Properties
-        Funky: new GridStrengthRequirement([getItemElement('Funky')], [{requirement: 0}]),
+        FunkySector: new GridStrengthRequirement([getItemElement('FunkySector')], [{requirement: 0}]),
         /*
         'Tent': new StoredEnergyRequirement([getPointOfInterestElement('Tent')], [{requirement: 0}]),
         'Wooden hut': new StoredEnergyRequirement([getPointOfInterestElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getGridLoad() * 100}]),

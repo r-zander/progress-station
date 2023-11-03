@@ -52,8 +52,7 @@ const gridLoadBalanceEntries = [];
 
 const tabButtons = {
     'jobs': document.getElementById('jobsTabButton'),
-    'skills': document.getElementById('skillsTabButton'),
-    'shop': document.getElementById('shopTabButton'),
+    'location': document.getElementById('locationTabButton'),
     'rebirth': document.getElementById('rebirthTabButton'),
     'battle': document.getElementById('battleTabButton'),
     'attributes': document.getElementById('attributesTabButton'),
@@ -281,39 +280,19 @@ function createModuleUI(categoryDefinition, domId) {
 function createLevel4Elements(domId, category, categoryName) {
     const level4Elements = [];
     category.forEach(function (entry) {
-        let level4Element;
-        if (domId === 'sectorTable') {
-            level4Element = Dom.new.fromTemplate('level4PointOfInterestTemplate');
-        } else {
-            level4Element = Dom.new.fromTemplate('level4TaskTemplate');
-        }
+        const level4Element = Dom.new.fromTemplate('level4PointOfInterestTemplate');
         const level4DomGetter = Dom.get(level4Element);
         level4DomGetter.byClass('name').textContent = entry.title;
-        let descriptionElement = level4DomGetter.byClass('descriptionTooltip');
+        const descriptionElement = level4DomGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = entry.title;
         descriptionElement.title = tooltips[entry.name];
         level4Element.id = 'row_' + entry.name;
-        if (domId === 'sectorTable') {
-            if (categoryName === 'Properties') {
-                level4DomGetter.byClass('button').onclick = function () {
-                    setPointOfInterest(entry.name);
-                };
-                level4DomGetter.byClass('radio').onclick = function () {
-                    setPointOfInterest(entry.name);
-                };
-            } else {
-                level4DomGetter.byClass('button').onclick = function () {
-                    setPointOfInterest(entry.name);
-                };
-                level4DomGetter.byClass('radio').onclick = function () {
-                    setPointOfInterest(entry.name);
-                };
-            }
-        } else {
-            level4DomGetter.byClass('progressBar').onclick = function () {
-                //TODO: Needed?
-            };
-        }
+        level4DomGetter.byClass('button').onclick = function () {
+            setPointOfInterest(entry.name);
+        };
+        level4DomGetter.byClass('radio').onclick = function () {
+            setPointOfInterest(entry.name);
+        };
 
         level4Elements.push(level4Element);
     });
@@ -323,14 +302,9 @@ function createLevel4Elements(domId, category, categoryName) {
 }
 
 function createLevel3Element(domId, category, categoryName, categoryIndex) {
-    let level3Element;
-    if (domId === 'sectorTable') {
-        level3Element = Dom.new.fromTemplate('level3PointOfInterestTemplate');
-    } else {
-        level3Element = Dom.new.fromTemplate('level3TaskTemplate');
-    }
+    let level3Element = Dom.new.fromTemplate('level3PointOfInterestTemplate');
 
-    level3Element.classList.add(removeSpaces(categoryName));
+    level3Element.classList.add(categoryName);
     level3Element.classList.remove('ps-3');
     if (categoryIndex === 0) {
         level3Element.classList.remove('mt-2');
@@ -343,8 +317,7 @@ function createLevel3Element(domId, category, categoryName, categoryIndex) {
 
     /** @type {HTMLElement} */
     const level4Slot = level3DomGetter.byClass('level4');
-    level4Slot.append(...createLevel4Elements(domId, category, categoryName));
-
+    level4Slot.append(...createLevel4Elements(domId, category.content, categoryName));
     return level3Element;
 }
 
@@ -357,7 +330,7 @@ function createTwoLevelUI(categoryDefinition, domId) {
 
     for (const categoryName in categoryDefinition) {
         const category = categoryDefinition[categoryName];
-        level3Elements.push(createLevel3Element(domId, category.content, category.title, level3Elements.length));
+        level3Elements.push(createLevel3Element(domId, category, categoryName, level3Elements.length));
     }
 
     slot.replaceWith(...level3Elements);
@@ -840,7 +813,7 @@ function updateSectorRows() {
         const pointOfInterest = pointsOfInterest[key];
         const row = document.getElementById('row_' + pointOfInterest.name);
         const active = row.getElementsByClassName('active')[0];
-        active.style.backgroundColor = pointOfInterest === gameData.currentPointOfInterest ? headerRowColors['PointsOfInterest'] : 'white';
+        active.style.backgroundColor = pointOfInterest === gameData.currentPointOfInterest ? 'rgb(12, 101, 173)' : 'white';
         row.getElementsByClassName('effect')[0].textContent = pointOfInterest.getEffectDescriptionExcept(EffectType.Danger);
         row.getElementsByClassName('danger')[0].textContent = pointOfInterest.getEffect(EffectType.Danger);
     }
@@ -1469,7 +1442,7 @@ function assignMethods() {
         gameData.requirements[key] = requirement;
     }
 
-    gameData.currentPointOfInterest = pointsOfInterest[gameData.currentPointOfInterest.name]
+    gameData.currentPointOfInterest = pointsOfInterest[gameData.currentPointOfInterest.name];
     if (gameData.currentBattle !== null) {
         startBattle(gameData.currentBattle.name);
     }
