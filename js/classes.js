@@ -19,7 +19,7 @@ class Task {
         this.type = this.constructor.name;
         this.name = baseData.name;
         this.baseData = baseData;
-        this.title = baseData.title;
+        this.title = prepareTitle(baseData.title);
         this.level = 0;
         this.maxLevel = 0;
         this.xp = 0;
@@ -174,17 +174,27 @@ class Skill extends Task {
     }
 }
 
+class Sector {
+    constructor(baseData) {
+        this.baseData = baseData;
+        this.name = baseData.name;
+        this.title = prepareTitle(baseData.title);
+        /** @var {PointOfInterest[]} */
+        this.pointsOfInterest = baseData.pointsOfInterest;
+    }
+}
+
 /**
  * @implements EffectsHolder
  */
 class PointOfInterest {
     constructor(baseData) {
         this.baseData = baseData;
-        this.name = this.baseData.name;
-        this.title = this.baseData.title;
+        this.name = baseData.name;
+        this.title = prepareTitle(baseData.title);
         this.expenseMultipliers = [];
         /** @var {ModifierDefinition[]} */
-        this.modifiers = this.baseData.modifiers;
+        this.modifiers = baseData.modifiers;
     }
 
     /**
@@ -242,7 +252,7 @@ class Module {
 
     constructor(baseData) {
         this.data = baseData;
-        this.title = baseData.title;
+        this.title = prepareTitle(baseData.title);
         this.components = baseData.components;
         this.maxLevel = 0;
     }
@@ -334,7 +344,7 @@ class ModuleComponent {
      * @param {{title: string, operations: ModuleOperation[]}} baseData
      */
     constructor(baseData) {
-        this.title = baseData.title;
+        this.title = prepareTitle(baseData.title);
         this.operations = baseData.operations;
         this.currentOperation = this.operations[0];
     }

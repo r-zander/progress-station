@@ -292,7 +292,7 @@ function createModuleLevel2Elements(categoryName, category) {
     return level2Elements;
 }
 
-function createModuleUI(categoryDefinition, domId) {
+function createModulesUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
     const level1Elements = [];
 
@@ -316,6 +316,13 @@ function createModuleUI(categoryDefinition, domId) {
     slot.replaceWith(...level1Elements);
 }
 
+/**
+ *
+ * @param {string} domId
+ * @param {PointOfInterest[]} category
+ * @param {string} categoryName
+ * @return {HTMLElement[]}
+ */
 function createLevel4Elements(domId, category, categoryName) {
     const level4Elements = [];
     category.forEach(function (entry) {
@@ -326,6 +333,7 @@ function createLevel4Elements(domId, category, categoryName) {
         descriptionElement.ariaLabel = entry.title;
         descriptionElement.title = tooltips[entry.name];
         level4Element.id = 'row_' + entry.name;
+        level4DomGetter.byClass('modifier').innerHTML = entry.modifiers.map(Modifier.getDescription).join(',\n');
         level4DomGetter.byClass('button').onclick = function () {
             setPointOfInterest(entry.name);
         };
@@ -350,20 +358,19 @@ function createLevel3Element(domId, category, categoryName, categoryIndex) {
     }
 
     const level3DomGetter = Dom.get(level3Element);
-    // TODO this should be category.title
     level3DomGetter.byClass('name').textContent = category.title;
     level3Element.querySelector('.header-row').style.backgroundColor = headerRowColors[categoryName];
 
     /** @type {HTMLElement} */
     const level4Slot = level3DomGetter.byClass('level4');
-    level4Slot.append(...createLevel4Elements(domId, category.content, categoryName));
+    level4Slot.append(...createLevel4Elements(domId, category.pointsOfInterest, categoryName));
     return level3Element;
 }
 
 /**
  * Due to styling reasons, the two rendered levels are actually level 3 + 4 - don't get confused.
  */
-function createTwoLevelUI(categoryDefinition, domId) {
+function createSectorsUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
     const level3Elements = [];
 
@@ -1740,8 +1747,8 @@ function init() {
     // During the setup a lot of functions are called that trigger an auto save. To not save various times,
     // saving is skipped until the game is actually under player control.
     skipGameDataSave = true;
-    createModuleUI(moduleCategories, 'jobTable');
-    createTwoLevelUI(sectors, 'sectorTable');
+    createModulesUI(moduleCategories, 'jobTable');
+    createSectorsUI(sectors, 'sectorTable');
     createModuleQuickTaskDisplay();
 
     adjustLayout();

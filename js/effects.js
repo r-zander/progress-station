@@ -50,15 +50,28 @@ class EffectType {
     }
 }
 
-class Effect {
-
+class Modifier {
     /**
      *
      * @return {ModifierDefinition[]}
      */
-    static #getActiveModifiers(){
+    static getActiveModifiers(){
         return gameData.currentPointOfInterest.modifiers;
     }
+
+    /**
+     *
+     * @param {ModifierDefinition} modifier
+     * @return {string}
+     */
+    static getDescription(modifier){
+        return modifier.modifies.map(function (effectHolder) {
+            return effectHolder.title;
+        }).join(', ') + '\n' + modifier.from.description + ' \u2B9E ' /* Shows: ⮞ */ + modifier.to.description;
+    }
+}
+
+class Effect {
 
     /**
      * Considers all active effect holders in the game, queries them for the requested effect type and combines their
@@ -124,7 +137,7 @@ class Effect {
      * @returns {number}
      */
     static getValue(holder, effectType, effects, level) {
-        const modifiers = Effect.#getActiveModifiers();
+        const modifiers = Modifier.getActiveModifiers();
 
         for (const effect of effects) {
             const actualEffectType = Effect.#getActualEffectType(holder, effect, modifiers);
@@ -159,7 +172,7 @@ class Effect {
      * @return {string}
      */
     static getDescription(holder, effects, level) {
-        const modifiers = Effect.#getActiveModifiers();
+        const modifiers = Modifier.getActiveModifiers();
 
         return effects.map(function (effect) {
             const actualEffectType = Effect.#getActualEffectType(holder, effect, modifiers);

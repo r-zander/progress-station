@@ -138,8 +138,8 @@ const pointsOfInterest = {
 };
 
 const sectors = {
-    DanceSector: { title: "Dance Sector", content: [pointsOfInterest.FunkySector] },
-    NerdSector: { title: "Nerd Sector", content: [pointsOfInterest.VideoGameLand, pointsOfInterest.Gurkenland] },
+    DanceSector: new Sector({ title: 'Dance Sector', pointsOfInterest: [pointsOfInterest.FunkySector] }),
+    NerdSector: new Sector({ title: 'Nerd Sector', pointsOfInterest: [pointsOfInterest.VideoGameLand, pointsOfInterest.Gurkenland] }),
 };
 
 const defaultPointOfInterest = pointsOfInterest.FunkySector;
@@ -161,6 +161,7 @@ assignNames(moduleComponents);
 assignNames(modules);
 assignNames(moduleCategories);
 assignNames(battleBaseData);
+assignNames(sectors);
 assignNames(pointsOfInterest);
 
 const permanentUnlocks = ['Scheduling', 'Shop', 'Automation', 'Quick task display'];
