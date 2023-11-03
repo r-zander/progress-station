@@ -28,15 +28,24 @@ const units = {
  */
 // TODO render those into #attributesDisplay
 const attributes = {
-    danger: {title: 'Danger', color: 'rgb(200, 0, 0)', icon: 'img/icons/danger.svg'},
-    gridLoad: {title: 'Grid Load', color: '#2CCBFF', icon: 'img/icons/energy.svg'},
-    gridStrength: {title: 'Grid Strength', color: '#0C65AD', icon: 'img/icons/energy.svg'},
-    growth: {title: 'Growth', color: 'green', icon: 'img/icons/growth.svg'},
-    heat: {title: 'Heat', color: 'rgb(245, 166, 35)', icon: 'img/icons/heat.svg'},
-    industry: {title: 'Industry', color: 'rgb(97, 173, 50)', icon: 'img/icons/industry.svg'},
-    military: {title: 'Military', color: '#b3b3b3', icon: 'img/icons/military.svg'},
-    population: {title: 'Population', color: 'rgb(46, 148, 231)', icon: 'img/icons/military.svg'},
-    research: {title: 'Research', color: '#cc4ee2', icon: 'img/icons/population.svg'},
+    danger: {title: 'Danger', color: 'rgb(200, 0, 0)', icon: 'img/icons/danger.svg',
+        getValue: Effect.getTotalValue.bind(this, [EffectType.Danger])},
+    gridLoad: {title: 'Grid Load', color: '#2CCBFF', icon: 'img/icons/energy.svg',
+        getValue: function () { return calculateGridLoad(); }},
+    gridStrength: {title: 'Grid Strength', color: '#0C65AD', icon: 'img/icons/energy.svg',
+        getValue: function () { return 1 + gridStrength.getGridStrength(); }},
+    growth: {title: 'Growth', color: 'green', icon: 'img/icons/growth.svg',
+        getValue: Effect.getTotalValue.bind(this, [EffectType.Growth])},
+    heat: {title: 'Heat', color: 'rgb(245, 166, 35)', icon: 'img/icons/heat.svg',
+        getValue: function () { return calculateHeat(); }},
+    industry: {title: 'Industry', color: 'rgb(97, 173, 50)', icon: 'img/icons/industry.svg',
+        getValue: Effect.getTotalValue.bind(this, [EffectType.Industry])},
+    military: {title: 'Military', color: '#b3b3b3', icon: 'img/icons/military.svg',
+        getValue: Effect.getTotalValue.bind(this, [EffectType.Military])},
+    population: {title: 'Population', color: 'rgb(46, 148, 231)', icon: 'img/icons/population.svg',
+        getValue: function () { return gameData.population; }},
+    research: {title: 'Research', color: '#cc4ee2', icon: 'img/icons/research.svg',
+        getValue: Effect.getTotalValue.bind(this, [EffectType.Research, EffectType.ResearchFactor])},
 };
 assignNames(attributes);
 

@@ -6,7 +6,6 @@ let gameData = {
     battleData: {},
 
     population: 0,
-    heat: 0,
     evil: 0,
     paused: true,
     timeWarpingEnabled: true,
@@ -82,109 +81,24 @@ function applySpeed(value, ignoreDeath = false) {
     return value * getGameSpeed(ignoreDeath) / updateSpeed;
 }
 
-function getDanger() {
-    let danger = getCurrentEffectValue(EffectType.Danger);
-    return danger;
-}
+// TODO Need to review formula + application in populationDelta()
+function calculateHeat() {
+    const danger = attributes.danger.getValue();
+    const military = attributes.military.getValue();
 
-//Need to review formula + application in updatePopulation()
-function updateHeat() {
-    let danger = getDanger();
-    const military = getCurrentEffectValue(EffectType.Military);
-
-    if (approximatelyEquals(getDanger(), military)) {
-        return;
-    }
-
-    gameData.heat = Math.sign(danger - military) * Math.log10(Math.abs(danger - military));
-}
-
-function getGrowth() {
-    return getCurrentEffectValue(EffectType.Growth);
+    return Math.max(danger - military, 1);
 }
 
 function populationDelta() {
-    return getGrowth() - (0.01 * gameData.population) * (1 - Math.log10(1 + gameData.heat));
+    const growth = attributes.growth.getValue();
+    const heat = attributes.heat.getValue();
+    const population = attributes.population.getValue();
+    return growth - population * 0.01 * heat;
 }
 
 function updatePopulation() {
     gameData.population += applySpeed(populationDelta());
     gameData.population = Math.max(gameData.population, 1);
-}
-
-/**
- * @param {EffectType} effectType
- */
-function getCurrentEffectValue(effectType) {
-    let result = effectType.getDefaultValue();
-    const tasks = gameData.currentOperations;
-    for (const taskName in tasks) {
-        const task = tasks[taskName];
-        if (task != null) {
-            result = effectType.combine(result, task.getEffect(effectType));
-        }
-    }
-
-    result = effectType.combine(result, gameData.currentPointOfInterest.getEffect(effectType));
-
-    return result;
-}
-
-/**
- *
- * @param {Effect} effect
- * @param {number} level
- * @return {number}
- */
-function calculateEffectValue(effect, level) {
-    return effect.effectType.getDefaultValue() + effect.baseValue * level;
-}
-
-/**
- *
- * @param {EffectType} effectType
- * @param {Effect[]} effects
- * @param {number} level
- * @returns {number}
- */
-function getEffect(effectType, effects, level) {
-    for (const effect of effects) {
-        if (effectType === effect.effectType) {
-            return calculateEffectValue(effect, level);
-        }
-    }
-    return effectType.getDefaultValue();
-}
-
-/**
- *
- * @param {Effect[]} effects
- * @param {number} level
- * @return {string}
- */
-function getEffectDescription(effects, level) {
-    return effects.map(function (effect) {
-        return effect.effectType.operator +
-            calculateEffectValue(effect, level).toFixed(2) +
-            ' ' + effect.effectType.description;
-    }, this).join(', ');
-}
-
-/**
- *
- * @param {Effect[]} effects
- * @param {number} level
- * @param {EffectType} effectException
- * @return {string}
- */
-function getEffectDescriptionExcept(effects, level, effectException) {
-    return effects.map(function (effect) {
-        if (effect.effectType !== effectException) {
-            return effect.effectType.operator +
-                calculateEffectValue(effect, level).toFixed(2) +
-                ' ' + effect.effectType.description;
-            }
-    }, this).join(', ');
 }
 
 function getEvilGain() {
@@ -599,7 +513,7 @@ function createGridLoadBalance(rowElement) {
                 const domGetter = Dom.get(balanceEntryElement);
                 domGetter.byClass('name').textContent = '(' + module.title + ' ' + component.title + ': ' + operation.title + ')';
                 domGetter.byClass('operator').textContent = '+';
-                formatValue(domGetter.byClass('entryValue'),operation.getGridLoad());
+                formatValue(domGetter.byClass('entryValue'), operation.getGridLoad());
                 gridLoadBalanceEntries.push({
                     element: balanceEntryElement,
                     taskOrItem: operation,
@@ -646,6 +560,7 @@ function createAttributesUI() {
     const heatRow = createAttributeRow(attributes.heat);
     const heatFormulaElement = Dom.get(heatRow).byClass('formula');
     heatFormulaElement.classList.remove('hidden');
+    // TODO this is not matching the currently implemented heat formula
     heatFormulaElement.innerHTML = 'max(' + createAttributeInlineHTML(attributes.danger) + ' - ' + createAttributeInlineHTML(attributes.military) + ', 1)';
     rows.push(heatRow);
 
@@ -966,16 +881,17 @@ function updateAttributeRows() {
 function updateEnergyBar() {
     //TODO Raoul: Update for Grid Strength
     const energyDisplayElement = document.getElementById('energyDisplay');
-    updateEnergyDisplay(getGridStrength(), energyDisplayElement.querySelector('.energy-generated > data'));
+    updateEnergyDisplay(attributes.gridStrength.getValue(), energyDisplayElement.querySelector('.energy-generated > data'));
     updateEnergyDisplay(getRemainingGridStrength(), energyDisplayElement.querySelector('.energy-net > data'), {forceSign: true});
     updateEnergyDisplay(0, energyDisplayElement.querySelector('.energy-stored > data'), {unit: units.storedEnergy});
     updateEnergyDisplay(getMaxEnergy(), energyDisplayElement.querySelector('.energy-max > data'), {unit: units.storedEnergy});
-    updateEnergyDisplay(getGridLoad(), energyDisplayElement.querySelector('.energy-usage > data'));
+    updateEnergyDisplay(attributes.gridLoad.getValue(), energyDisplayElement.querySelector('.energy-usage > data'));
     setProgress(energyDisplayElement.querySelector('.energy-fill'), gridStrength.xp / gridStrength.getMaxXp());
 }
 
+// TODO fully borked. This need to be adjusted after a working heat formula is found
 function updateHeatDisplay() {
-    const heat = gameData.heat;
+    const heat = attributes.heat.getValue();
     let heatText = (heat * 100).toFixed(1) + '%';
     let color;
     if (heat < 0.5) {
@@ -1018,36 +934,35 @@ function updateText() {
         pauseButton.classList.replace('btn-primary', 'btn-secondary');
     }
 
-    // TODO Danger display
-    const danger = getDanger();
+    const danger = attributes.danger.getValue();
     formatValue(Dom.get().byId('dangerDisplay'), danger);
     formatValue(Dom.get().bySelector('#attributeRows > .danger .value'), danger);
 
-
     updateEnergyBar();
-    formatValue(Dom.get().bySelector('#attributeRows > .gridLoad .value'), getGridLoad());
-    formatValue(Dom.get().bySelector('#attributeRows > .gridStrength .value'), getGridStrength());
+    formatValue(Dom.get().bySelector('#attributeRows > .gridLoad .value'), attributes.gridLoad.getValue());
+    formatValue(Dom.get().bySelector('#attributeRows > .gridStrength .value'), attributes.gridStrength.getValue());
     formatValue(Dom.get().bySelector('#attributeRows > .gridStrength .delta'), gridStrength.getDelta());
 
-    const growth = getGrowth();
+    const growth = attributes.growth.getValue();
     formatValue(Dom.get().byId('growthDisplay'), growth);
     formatValue(Dom.get().bySelector('#attributeRows > .growth .value'), growth);
 
     updateHeatDisplay();
 
-    const industry = getCurrentEffectValue(EffectType.Industry);
+    const industry = attributes.industry.getValue();
     formatValue(Dom.get().byId('industryDisplay'), industry);
     formatValue(Dom.get().bySelector('#attributeRows > .industry .value'), industry);
 
-    const military = getCurrentEffectValue(EffectType.Military);
+    const military = attributes.military.getValue();
     formatValue(Dom.get().byId('militaryDisplay'), military);
     formatValue(Dom.get().bySelector('#attributeRows > .military .value'), military);
 
-    formatValue(Dom.get().byId('populationDisplay'), gameData.population);
-    formatValue(Dom.get().bySelector('#attributeRows > .population .value'), gameData.population);
+    const population = attributes.population.getValue();
+    formatValue(Dom.get().byId('populationDisplay'), population);
+    formatValue(Dom.get().bySelector('#attributeRows > .population .value'), population);
     formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), populationDelta());
 
-    const research = getResearch();
+    const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);
     formatValue(Dom.get().bySelector('#attributeRows > .research .value'), research);
 
@@ -1060,16 +975,6 @@ function updateText() {
     document.getElementById('timeWarpingDisplay').textContent = 'x' + gameData.taskData['Time warping'].getEffect().toFixed(2);
     document.getElementById('timeWarpingButton').textContent = gameData.timeWarpingEnabled ? 'Disable warp' : 'Enable warp';
     */
-}
-
-function getResearch() {
-    let base = getCurrentEffectValue(EffectType.Research);
-    let factor = getCurrentEffectValue(EffectType.ResearchFactor);
-    if (base === 0 && factor > 1) {
-        return factor;
-    }
-
-    return base * factor;
 }
 
 /**
@@ -1086,7 +991,7 @@ function updateEnergyDisplay(amount, dataElement, formatConfig = {}) {
 }
 
 function getRemainingGridStrength() {
-    return getGridStrength() - getGridLoad();
+    return attributes.gridStrength.getValue() - attributes.gridLoad.getValue();
 }
 
 function hideEntities() {
@@ -1137,10 +1042,6 @@ function doTask(task) {
     task.do();
 }
 
-function getGridStrength() {
-    return 1 + gridStrength.getGridStrength();
-}
-
 function getEnergyGeneration() {
     let energy = 0;
     const tasks = gameData.currentOperations;
@@ -1169,7 +1070,7 @@ function getMaxEnergy() {
     return gridStrength.getMaxXp();
 }
 
-function getGridLoad() {
+function calculateGridLoad() {
     let gridLoad = 0;
 
     const tasks = gameData.currentOperations;
@@ -1390,13 +1291,6 @@ function format(value, config = {}) {
 
     // format number and add suffix
     return prefix + scaled.toPrecision(3) + suffix;
-}
-
-function formatPopulation(population) {
-    // Create some reasonable display numbers
-    if (population > 1.4 && population <= 10.4) return (population * 2).toFixed(0);
-
-    return population.toFixed(0);
 }
 
 function getTaskElement(taskName) {
@@ -1696,7 +1590,6 @@ function update() {
     // autoPromote();
     // autoLearn();
     doTasks();
-    updateHeat();
     updatePopulation();
     updateUI();
 }
