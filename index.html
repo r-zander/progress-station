@@ -108,17 +108,6 @@
                 <span class="label" style="color: #b3b3b3">Military</span>
                 <data id="militaryDisplay" value="1">?</data>
             </div>
-            <!--
-            <div id="evilInfo" class="d-flex flex-row gap-3 align-items-center">
-                <div class="primary-stat">
-                    <span class="label" style="color: rgb(200, 0, 0)">Evil:</span>
-                    <data id="evilDisplay" value="1">1</data>
-                </div>
-                <div class="help-text">
-                    Affects dark magic xp gain
-                </div>
-            </div>
-            -->
         </div>
     </header>
 
@@ -130,35 +119,7 @@
                         <button class="btn btn-secondary btn-lg w-100" id="pauseButton" onClick="setPause();">
                             Pause
                         </button>
-
-                        <div class="timeWarping mt-3 hidden">
-                            <div>
-                                <button id="timeWarpingButton"
-                                        class="btn btn-light w-100"
-                                        onClick="setTimeWarping();">
-                                    Enable warp
-                                </button>
-                            </div>
-                        </div>
                     </div>
-
-                    <!--<div id="automation" class="">
-                        <div class="form-check form-switch form-check-reverse">
-                            <input class="form-check-input" type="checkbox" id="autoPromote">
-                            <label class="form-check-label" for="autoPromote">Auto-promote</label>
-                        </div>
-                        <div class="form-check form-switch form-check-reverse">
-                            <input class="form-check-input" type="checkbox" id="autoLearn">
-                            <label class="form-check-label" for="autoLearn">Auto-learn</label>
-                        </div>
-                    </div>-->
-                </div>
-                <div class="timeWarping mt-2 hidden">
-                    <div class="primary-stat">
-                        <span class="label" style="color: rgb(204, 34, 219)">Time warping: </span>
-                        <data id="timeWarpingDisplay" value="1">1.00</data>
-                    </div>
-                    <div class="help-text">Affects game speed</div>
                 </div>
             </div>
             <nav class="mt-3 d-flex flex-column gap-3">
@@ -364,7 +325,6 @@
                             <span class="energy-stored">
                                 <data value=""></data> <span>stored energy</span>
                             </span>
-                            <data style="color: rgb(200, 0, 0)" class="evil" value=""></data>
                         </span>
                     </td>
                 </tr>
@@ -429,7 +389,7 @@
                             If you decide to embrace evil, all of your levels, stored energy and even max levels will be
                             reset.
                             You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
-                            <b><data id="evilGainDisplay" value=""></data> evil</b>, which will heavily impact your
+                            <b><data id="evilGainDisplay" value="0">0</data> evil</b>, which will heavily impact your
                             future lives.
                         </p>
                         <button class="btn btn-light mt-3" onClick="rebirthTwo();">

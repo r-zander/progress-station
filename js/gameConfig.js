@@ -356,11 +356,6 @@ function setCustomEffects() {
         return multiplier;
     };
 
-    const timeWarping = gameData.taskData['Time warping'];
-    timeWarping.getEffect = function () {
-        return 1 + getBaseLog(13, timeWarping.level + 1);
-    };
-
     const immortality = gameData.taskData['Immortality'];
     immortality.getEffect = function () {
         return 1 + getBaseLog(33, immortality.level + 1);

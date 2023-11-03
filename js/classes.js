@@ -306,11 +306,6 @@ class Module {
         this.setEnabled(!this.toggleButton.checked);
     }
 
-    getNextOperationForAutoPromote() {
-        //TODO
-        return null;
-    }
-
     init() {
         this.propagateMaxLevel();
         this.setEnabled(gameData.currentModules.hasOwnProperty(this.name));
@@ -478,16 +473,6 @@ class AgeRequirement extends Requirement {
 
     getCondition(requirement) {
         return daysToYears(gameData.days) >= requirement.requirement;
-    }
-}
-
-class EvilRequirement extends Requirement {
-    constructor(elements, requirements) {
-        super('evil', elements, requirements);
-    }
-
-    getCondition(requirement) {
-        return gameData.evil >= requirement.requirement;
     }
 }
 

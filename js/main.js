@@ -7,12 +7,8 @@
  * @property {Object} requirements
  *
  * @property {number} population
- * @property {number} evil
  *
  * @property {boolean} paused
- * @property {boolean} timeWarpingEnabled
- * @property {boolean} autoLearnEnabled
- * @property {boolean} autoPromoteEnabled
  *
  * @property {number} days
  * @property {number} rebirthOneCount
@@ -42,12 +38,8 @@ let gameData = {
     battleData: {},
 
     population: 0,
-    evil: 0,
 
     paused: true,
-    timeWarpingEnabled: true,
-    autoLearnEnabled: false,
-    autoPromoteEnabled: false,
 
     days: 365 * 14,
     rebirthOneCount: 0,
@@ -83,9 +75,6 @@ const attributeBalanceEntries = [];
  */
 const gridLoadBalanceEntries = [];
 
-// const autoPromoteElement = document.getElementById('autoPromote');
-// const autoLearnElement = document.getElementById('autoLearn');
-
 const tabButtons = {
     'jobs': document.getElementById('jobsTabButton'),
     'location': document.getElementById('locationTabButton'),
@@ -97,10 +86,6 @@ const tabButtons = {
 
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
-}
-
-function getEvil() {
-    return gameData.evil;
 }
 
 function applyMultipliers(value, multipliers) {
@@ -136,18 +121,9 @@ function updatePopulation() {
     gameData.population = Math.max(gameData.population, 1);
 }
 
-function getEvilGain() {
-    //const evilControl = gameData.taskData['Evil control'];
-    //const bloodMeditation = gameData.taskData['Blood meditation'];
-    //return evilControl.getEffect() * bloodMeditation.getEffect();
-    return 1;
-}
-
 function getGameSpeed(ignoreDeath = false) {
-    //const timeWarping = gameData.taskData['Time warping'];
-    //const timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1;
     if (ignoreDeath) {
-        return baseGameSpeed * +!gameData.paused /* * timeWarpingSpeed */;
+        return baseGameSpeed * +!gameData.paused;
     } else {
         return baseGameSpeed * +isPlaying();
     }
@@ -184,11 +160,6 @@ function setPause() {
 
 function unpause() {
     gameData.paused = false;
-}
-
-// noinspection JSUnusedGlobalSymbols used in HTML
-function setTimeWarping() {
-    gameData.timeWarpingEnabled = !gameData.timeWarpingEnabled;
 }
 
 function setPointOfInterest(name) {
@@ -772,30 +743,21 @@ function updateRequiredRows(categoryType) {
 
             const energyStoredElement = requiredRow.getElementsByClassName('energy-stored')[0];
             const levelElement = requiredRow.getElementsByClassName('levels')[0];
-            const evilElement = requiredRow.getElementsByClassName('evil')[0];
 
             let finalText = [];
             if (categoryType === moduleCategories) {
                 energyStoredElement.classList.add('hiddenTask');
-                if (requirementObject instanceof EvilRequirement) {
-                    levelElement.classList.add('hiddenTask');
-                    evilElement.classList.remove('hiddenTask');
-                    formatValue(evilElement, requirements[0].requirement, {unit: 'evil'});
-                } else {
-                    evilElement.classList.add('hiddenTask');
-                    levelElement.classList.remove('hiddenTask');
-                    for (let requirement of requirements) {
-                        const task = gameData.taskData[requirement.task];
-                        if (task.level >= requirement.requirement) continue;
-                        const text = requirement.task + ' level ' +
-                            '<data value="' + task.level + '">' + task.level + '</data>' + '/' +
-                            '<data value="' + requirement.requirement + '">' + requirement.requirement + '</data>';
-                        finalText.push(text);
-                    }
-                    levelElement.innerHTML = finalText.join(', ');
+                levelElement.classList.remove('hiddenTask');
+                for (let requirement of requirements) {
+                    const task = gameData.taskData[requirement.task];
+                    if (task.level >= requirement.requirement) continue;
+                    const text = requirement.task + ' level ' +
+                        '<data value="' + task.level + '">' + task.level + '</data>' + '/' +
+                        '<data value="' + requirement.requirement + '">' + requirement.requirement + '</data>';
+                    finalText.push(text);
                 }
+                levelElement.innerHTML = finalText.join(', ');
             } else if (categoryType === sectors) {
-                evilElement.classList.add('hiddenTask');
                 levelElement.classList.add('hiddenTask');
                 energyStoredElement.classList.remove('hiddenTask');
                 updateEnergyDisplay(
@@ -872,14 +834,6 @@ function updateSectorRows() {
 function updateHeaderRows() {
     document.querySelectorAll('.level3 .maxLevel').forEach(function (maxLevelElement) {
         maxLevelElement.classList.toggle('hidden', gameData.rebirthOneCount === 0);
-    });
-
-    document.querySelectorAll('#skills .level3 .skipSkill').forEach(function (skipSkillElement) {
-        // if (autoLearnElement.checked) {
-        //     skipSkillElement.style.removeProperty('display');
-        // } else {
-        skipSkillElement.style.display = 'none';
-        // }
     });
 }
 
@@ -988,16 +942,6 @@ function updateText() {
     const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);
     formatValue(Dom.get().bySelector('#attributeRows > .research .value'), research);
-
-
-    //PK stuff
-    /*
-    document.getElementById('evilDisplay').textContent = gameData.evil.toFixed(1);
-    document.getElementById('evilGainDisplay').textContent = getEvilGain().toFixed(1);
-
-    document.getElementById('timeWarpingDisplay').textContent = 'x' + gameData.taskData['Time warping'].getEffect().toFixed(2);
-    document.getElementById('timeWarpingButton').textContent = gameData.timeWarpingEnabled ? 'Disable warp' : 'Enable warp';
-    */
 }
 
 /**
@@ -1129,48 +1073,6 @@ function getCategoryFromEntityName(categoryType, entityName) {
     }
 }
 
-function getNextEntity(data, categoryType, entityName) {
-    const category = getCategoryFromEntityName(categoryType, entityName);
-    const nextIndex = category.indexOf(entityName) + 1;
-    if (nextIndex > category.length - 1) return null;
-    const nextEntityName = category[nextIndex];
-    return data[nextEntityName];
-}
-
-function autoPromote() {
-    throw new Error('Not supported currently.');
-    // gameData.autoPromoteEnabled = autoPromoteElement.checked;
-    // if (!autoPromoteElement.checked) return;
-    // autoPromoteModules();
-    // return;
-    // autoPromoteOther();
-}
-
-function autoPromoteModules() {
-    //TODO modules
-    return;
-    for (const id in modules) {
-        const module = modules[id];
-        let requirement = gameData.requirements[id];
-        if (requirement.isCompleted()) {
-            const operationForAutoPromote = module.getNextOperationForAutoPromote();
-            if (operationForAutoPromote === null) continue;
-            requirement = gameData.requirements[operationForAutoPromote.name];
-            if (requirement.isCompleted()) {
-                operationForAutoPromote.setEnabled(true);
-            }
-        }
-    }
-}
-
-function autoPromoteOther() {
-    //TODO
-    const nextEntity = getNextEntity(gameData.taskData, moduleCategories, null);
-    if (nextEntity == null) return;
-    const requirement = gameData.requirements[nextEntity.name];
-    if (requirement.isCompleted()) gameData.currentJob = nextEntity;
-}
-
 function getKeyOfLowestValueFromDict(dict) {
     const values = Object.values(dict);
 
@@ -1183,10 +1085,6 @@ function getKeyOfLowestValueFromDict(dict) {
             return key;
         }
     }
-}
-
-function autoLearn() {
-    throw new Error('Not supported currently');
 }
 
 function yearsToDays(years) {
@@ -1402,7 +1300,6 @@ function rebirthOne() {
 
 function rebirthTwo() {
     gameData.rebirthTwoCount += 1;
-    gameData.evil += getEvilGain();
     rebirthReset();
     resetMaxLevels();
 }
@@ -1486,9 +1383,6 @@ function assignMethods() {
                 break;
             case 'age':
                 requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement);
-                break;
-            case 'evil':
-                requirement = Object.assign(new EvilRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
         }
 
@@ -1612,8 +1506,6 @@ function updateUI() {
 
 function update() {
     increaseDays();
-    // autoPromote();
-    // autoLearn();
     doTasks();
     updatePopulation();
     updateUI();
@@ -1695,9 +1587,6 @@ function setDefaultGameDataValues() {
     setDefaultCurrentValues();
 
     gameData.storedEnergy = 0;
-
-    gameData.autoLearnEnabled = false;
-    gameData.autoPromoteEnabled = false;
 }
 
 function setDefaultCurrentValues() {
@@ -1706,7 +1595,7 @@ function setDefaultCurrentValues() {
     gameData.currentOperations = {};
 
     for (const module of defaultModules) {
-        module.setEnabled(true);
+        module.setEnabled(false);
     }
 }
 
@@ -1790,8 +1679,6 @@ function init() {
     } else {
         setTab(tabButtons.jobs, 'jobs');
     }
-    // autoLearnElement.checked = gameData.autoLearnEnabled;
-    // autoPromoteElement.checked = gameData.autoPromoteEnabled;
     initTooltips();
     initStationName();
     initSettings();
