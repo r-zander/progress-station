@@ -281,25 +281,25 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         //Properties
         Funky: new GridStrengthRequirement([getItemElement('Funky')], [{requirement: 0}]),
         /*
-        'Tent': new StoredEnergyRequirement([getItemElement('Tent')], [{requirement: 0}]),
-        'Wooden hut': new StoredEnergyRequirement([getItemElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getGridLoad() * 100}]),
-        'Cottage': new StoredEnergyRequirement([getItemElement('Cottage')], [{requirement: gameData.itemData['Cottage'].getGridLoad() * 100}]),
-        'House': new StoredEnergyRequirement([getItemElement('House')], [{requirement: gameData.itemData['House'].getGridLoad() * 100}]),
-        'Large house': new StoredEnergyRequirement([getItemElement('Large house')], [{requirement: gameData.itemData['Large house'].getGridLoad() * 100}]),
-        'Small palace': new StoredEnergyRequirement([getItemElement('Small palace')], [{requirement: gameData.itemData['Small palace'].getGridLoad() * 100}]),
-        'Grand palace': new StoredEnergyRequirement([getItemElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getGridLoad() * 100}]),
+        'Tent': new StoredEnergyRequirement([getPointOfInterestElement('Tent')], [{requirement: 0}]),
+        'Wooden hut': new StoredEnergyRequirement([getPointOfInterestElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getGridLoad() * 100}]),
+        'Cottage': new StoredEnergyRequirement([getPointOfInterestElement('Cottage')], [{requirement: gameData.itemData['Cottage'].getGridLoad() * 100}]),
+        'House': new StoredEnergyRequirement([getPointOfInterestElement('House')], [{requirement: gameData.itemData['House'].getGridLoad() * 100}]),
+        'Large house': new StoredEnergyRequirement([getPointOfInterestElement('Large house')], [{requirement: gameData.itemData['Large house'].getGridLoad() * 100}]),
+        'Small palace': new StoredEnergyRequirement([getPointOfInterestElement('Small palace')], [{requirement: gameData.itemData['Small palace'].getGridLoad() * 100}]),
+        'Grand palace': new StoredEnergyRequirement([getPointOfInterestElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getGridLoad() * 100}]),
 */
         //Misc
         VideoGameLand: new GridStrengthRequirement([getItemElement('VideoGameLand')], [{requirement: 0}]),
         Gurkenland: new GridStrengthRequirement([getItemElement('Gurkenland')], [{requirement: 0}]),
         /*
-        'Dumbbells': new StoredEnergyRequirement([getItemElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getGridLoad() * 100}]),
-        'Personal squire': new StoredEnergyRequirement([getItemElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getGridLoad() * 100}]),
-        'Steel longsword': new StoredEnergyRequirement([getItemElement('Steel longsword')], [{requirement: gameData.itemData['Steel longsword'].getGridLoad() * 100}]),
-        'Butler': new StoredEnergyRequirement([getItemElement('Butler')], [{requirement: gameData.itemData['Butler'].getGridLoad() * 100}]),
-        'Sapphire charm': new StoredEnergyRequirement([getItemElement('Sapphire charm')], [{requirement: gameData.itemData['Sapphire charm'].getGridLoad() * 100}]),
-        'Study desk': new StoredEnergyRequirement([getItemElement('Study desk')], [{requirement: gameData.itemData['Study desk'].getGridLoad() * 100}]),
-        'Library': new StoredEnergyRequirement([getItemElement('Library')], [{requirement: gameData.itemData['Library'].getGridLoad() * 100}]),
+        'Dumbbells': new StoredEnergyRequirement([getPointOfInterestElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getGridLoad() * 100}]),
+        'Personal squire': new StoredEnergyRequirement([getPointOfInterestElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getGridLoad() * 100}]),
+        'Steel longsword': new StoredEnergyRequirement([getPointOfInterestElement('Steel longsword')], [{requirement: gameData.itemData['Steel longsword'].getGridLoad() * 100}]),
+        'Butler': new StoredEnergyRequirement([getPointOfInterestElement('Butler')], [{requirement: gameData.itemData['Butler'].getGridLoad() * 100}]),
+        'Sapphire charm': new StoredEnergyRequirement([getPointOfInterestElement('Sapphire charm')], [{requirement: gameData.itemData['Sapphire charm'].getGridLoad() * 100}]),
+        'Study desk': new StoredEnergyRequirement([getPointOfInterestElement('Study desk')], [{requirement: gameData.itemData['Study desk'].getGridLoad() * 100}]),
+        'Library': new StoredEnergyRequirement([getPointOfInterestElement('Library')], [{requirement: gameData.itemData['Library'].getGridLoad() * 100}]),
    */
     };
 }

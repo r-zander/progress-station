@@ -220,13 +220,12 @@ class PointOfInterest {
     }
 
     /**
-     * @param {EffectType} effectException
+     * @param effectTypeException
      * @return {string}
      */
     getEffectDescriptionExcept(effectTypeException) {
-        return getEffectDescriptionExcept(this.baseData.effects, 1, effectTypeException);
+        return Effect.getDescriptionExcept(this.baseData.effects, 1, effectTypeException);
     }
-
 
     getGridLoad() {
         return applyMultipliers(this.baseData.expense, this.expenseMultipliers);

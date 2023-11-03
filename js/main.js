@@ -486,11 +486,11 @@ function createAttributeBalance(rowElement, effectTypes) {
             }
         }
 
-        for (const itemName in pointsOfInterest) {
-            const item = pointsOfInterest[itemName];
-            createAttributeBalanceEntry(balanceElement, item, effectType,
-                'Item: ' + item.baseData.title,
-                item.isActive.bind(item)
+        for (const poiName in pointsOfInterest) {
+            const pointOfInterest = pointsOfInterest[poiName];
+            createAttributeBalanceEntry(balanceElement, pointOfInterest, effectType,
+                'Point of Interest: ' + pointOfInterest.baseData.title,
+                pointOfInterest.isActive.bind(pointOfInterest)
             );
         }
     }
@@ -1311,17 +1311,13 @@ function getBattleElement(taskName) {
     return document.getElementById(task.baseData.progressBarId);
 }
 
-function getItemElement(name) {
-    const pointOfInterest = pointsOfInterest[name];
-    if (pointOfInterest == null) {
+function getPointOfInterestElement(name) {
+    if (!pointsOfInterest.hasOwnProperty(name)) {
         console.log('Point of Interest not found in data: ' + name);
-        return;
+        return null;
     }
-    if (pointOfInterest == undefined) {
-        console.log('Point of Interest not found in dataloooooooooooooooooooooooooooooooooooooooooooooool: ' + name);
-        return;
-    }
-    let el = document.getElementById(pointOfInterest.id);
+
+    const pointOfInterest = pointsOfInterest[name];
     return document.getElementById(pointOfInterest.id);
 }
 
@@ -1740,7 +1736,7 @@ function init() {
 
     setDefaultCurrentValues();
 
-    gameData.requirements = createRequirements(getElementsByClass, getTaskElement, getItemElement);
+    gameData.requirements = createRequirements(getElementsByClass, getTaskElement, getPointOfInterestElement);
 
     tempData['requirements'] = {};
     for (let key in gameData.requirements) {

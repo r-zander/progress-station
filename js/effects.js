@@ -60,8 +60,7 @@ class Effect {
             }
         }
 
-        result = effectType.combine(result, gameData.currentProperty.getEffect(effectType));
-        result = effectType.combine(result, gameData.currentSkill.getEffect(effectType));
+        result = effectType.combine(result, gameData.currentPointOfInterest.getEffect(effectType));
 
         return result;
     }
@@ -131,6 +130,18 @@ class Effect {
         }, this).join(', ');
     }
 
+    /**
+     *
+     * @param {EffectDefinition[]} effects
+     * @param {number} level
+     * @param {EffectType} effectException
+     * @return {string}
+     */
+    static getDescriptionExcept(effects, level, effectException) {
+        return Effect.getDescription(effects.filter(function (effect) {
+            return effect.effectType !== effectException;
+        }), level);
+    }
     /**
      *
      * @param {EffectDefinition} effect
