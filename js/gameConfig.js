@@ -28,39 +28,38 @@ const units = {
  */
 // TODO render those into #attributesDisplay
 const attributes = {
-    danger: {title: 'Danger', color: 'rgb(200, 0, 0)', icon: 'img/icons/danger.svg',
+    danger: { title: 'Danger', color: 'rgb(200, 0, 0)', icon: 'img/icons/danger.svg',
         getValue: Effect.getTotalValue.bind(this, [EffectType.Danger])},
-    gridLoad: {title: 'Grid Load', color: '#2CCBFF', icon: 'img/icons/energy.svg',
-        getValue: function () { return calculateGridLoad(); }},
-    gridStrength: {title: 'Grid Strength', color: '#0C65AD', icon: 'img/icons/energy.svg',
-        getValue: function () { return 1 + gridStrength.getGridStrength(); }},
-    growth: {title: 'Growth', color: 'green', icon: 'img/icons/growth.svg',
+    gridLoad: { title: 'Grid Load', color: '#2CCBFF', icon: 'img/icons/energy.svg',
+        getValue: () => calculateGridLoad() },
+    gridStrength: { title: 'Grid Strength', color: '#0C65AD', icon: 'img/icons/energy.svg',
+        getValue: () => 1 + gridStrength.getGridStrength() },
+    growth: { title: 'Growth', color: 'green', icon: 'img/icons/growth.svg',
         getValue: Effect.getTotalValue.bind(this, [EffectType.Growth])},
-    heat: {title: 'Heat', color: 'rgb(245, 166, 35)', icon: 'img/icons/heat.svg',
-        getValue: function () { return calculateHeat(); }},
-    industry: {title: 'Industry', color: 'rgb(97, 173, 50)', icon: 'img/icons/industry.svg',
+    heat: { title: 'Heat', color: 'rgb(245, 166, 35)', icon: 'img/icons/heat.svg',
+        getValue: () => calculateHeat() },
+    industry: { title: 'Industry', color: 'rgb(97, 173, 50)', icon: 'img/icons/industry.svg',
         getValue: Effect.getTotalValue.bind(this, [EffectType.Industry])},
-    military: {title: 'Military', color: '#b3b3b3', icon: 'img/icons/military.svg',
+    military: { title: 'Military', color: '#b3b3b3', icon: 'img/icons/military.svg',
         getValue: Effect.getTotalValue.bind(this, [EffectType.Military])},
-    population: {title: 'Population', color: 'rgb(46, 148, 231)', icon: 'img/icons/population.svg',
-        getValue: function () { return gameData.population; }},
-    research: {title: 'Research', color: '#cc4ee2', icon: 'img/icons/research.svg',
+    population: { title: 'Population', color: 'rgb(46, 148, 231)', icon: 'img/icons/population.svg',
+        getValue: () => gameData.population },
+    research: { title: 'Research', color: '#cc4ee2', icon: 'img/icons/research.svg',
         getValue: Effect.getTotalValue.bind(this, [EffectType.Research, EffectType.ResearchFactor])},
 };
-assignNames(attributes);
 
 /**
  *
- * @param {function(AttributeDefinition): string} createAttributeInlineHTML
+ * @param {function(AttributeDefinition): string} attribute renders the provided attribute nicely.
  */
-function createAttributeDescriptions(createAttributeInlineHTML) {
-    attributes.danger.description = 'Increases ' + createAttributeInlineHTML(attributes.heat) + '.';
-    attributes.gridLoad.description = 'Amount of ' + createAttributeInlineHTML(attributes.gridStrength) + ' currently assigned.';
+function createAttributeDescriptions(attribute) {
+    attributes.danger.description = 'Increases ' + attribute(attributes.heat) + '.';
+    attributes.gridLoad.description = 'Amount of ' + attribute(attributes.gridStrength) + ' currently assigned.';
     attributes.gridStrength.description = 'Limits the number of concurrently active operations.';
-    attributes.growth.description = 'Increases ' + createAttributeInlineHTML(attributes.population) + '.';
-    attributes.heat.description = 'Reduces ' + createAttributeInlineHTML(attributes.population) + '.';
+    attributes.growth.description = 'Increases ' + attribute(attributes.population) + '.';
+    attributes.heat.description = 'Reduces ' + attribute(attributes.population) + '.';
     attributes.industry.description = 'Speeds up operations progress.';
-    attributes.military.description = 'Counteracts ' + createAttributeInlineHTML(attributes.danger) + '.';
+    attributes.military.description = 'Counteracts ' + attribute(attributes.danger) + '.';
     attributes.population.description = 'Affects all work speed.';
     attributes.research.description = 'Unlocks new knowledge.';
 }
@@ -143,26 +142,6 @@ const sectors = {
 };
 
 const defaultPointOfInterest = pointsOfInterest.FunkySector;
-
-//Initialize names
-for (const [key, module] of Object.entries(moduleOperations)) {
-    module.name = key;
-    module.baseData.name = key;
-}
-
-function assignNames(data) {
-    for (const [key, val] of Object.entries(data)) {
-        val.name = key;
-        val.id = 'row_' + key;
-    }
-}
-
-assignNames(moduleComponents);
-assignNames(modules);
-assignNames(moduleCategories);
-assignNames(battleBaseData);
-assignNames(sectors);
-assignNames(pointsOfInterest);
 
 const permanentUnlocks = ['Scheduling', 'Shop', 'Automation', 'Quick task display'];
 
@@ -319,7 +298,7 @@ function createRequirements(getTaskElement, getItemElement) {
 }
 
 function addMultipliers() {
-    for (let taskName in gameData.taskData) {
+    for (const taskName in gameData.taskData) {
         const task = gameData.taskData[taskName];
 
         task.xpMultipliers = [];
@@ -328,12 +307,6 @@ function addMultipliers() {
         }
 
         task.collectEffects();
-    }
-
-    for (let itemName in gameData.itemData) {
-        const item = gameData.itemData[itemName];
-        item.expenseMultipliers = [];
-        item.collectEffects();
     }
 }
 

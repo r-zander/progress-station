@@ -89,11 +89,8 @@ function getBaseLog(x, y) {
 }
 
 function applyMultipliers(value, multipliers) {
-    let finalMultiplier = 1;
-    multipliers.forEach(function (multiplierFunction) {
-        const multiplier = multiplierFunction();
-        finalMultiplier *= multiplier;
-    });
+    const finalMultiplier = multipliers.reduce((final, multiplierFn) => final * multiplierFn(), 1);
+
     return Math.round(value * finalMultiplier);
 }
 
@@ -130,21 +127,21 @@ function getGameSpeed(ignoreDeath = false) {
 }
 
 function hideAllTooltips() {
-    visibleTooltips.forEach(function (tooltipTriggerElement) {
+    for (const tooltipTriggerElement of visibleTooltips) {
         // noinspection JSUnresolvedReference
         bootstrap.Tooltip.getInstance(tooltipTriggerElement).hide();
-    });
+    }
 }
 
 function setTab(element, selectedTab) {
     const tabs = Array.prototype.slice.call(document.getElementsByClassName('tab'));
-    tabs.forEach(function (tab) {
+    for (const tab of tabs) {
         tab.style.display = 'none';
-    });
+    }
     document.getElementById(selectedTab).style.display = 'block';
 
     const tabButtons = document.getElementsByClassName('tabButton');
-    for (let tabButton of tabButtons) {
+    for (const tabButton of tabButtons) {
         tabButton.classList.remove('active');
     }
     element.classList.add('active');
@@ -179,7 +176,7 @@ function setBattle(name) {
 }
 
 function createData(data, baseData) {
-    for (let key in baseData) {
+    for (const key in baseData) {
         const entity = baseData[key];
         createEntity(data, entity);
     }
@@ -205,7 +202,7 @@ function createModuleLevel4Elements(categoryName, component) {
     const level4Elements = [];
     const operations = component.operations;
 
-    operations.forEach(function (operation) {
+    for (const operation of operations) {
         const level4Element = Dom.new.fromTemplate('level4TaskTemplate');
         const level4DomGetter = Dom.get(level4Element);
 
@@ -214,12 +211,12 @@ function createModuleLevel4Elements(categoryName, component) {
         descriptionElement.ariaLabel = operation.title;
         descriptionElement.title = tooltips[operation.title];
         level4Element.id = 'row_' + operation.name;
-        level4DomGetter.byClass('progressBar').onclick = function () {
+        level4DomGetter.byClass('progressBar').addEventListener('click', () => {
             component.setActiveOperation(operation);
-        };
+        });
 
         level4Elements.push(level4Element);
-    });
+    }
 
     level4Elements.push(createRequiredRow(categoryName));
 
@@ -229,7 +226,7 @@ function createModuleLevel4Elements(categoryName, component) {
 function createModuleLevel3Elements(categoryName, module) {
     const level3Elements = [];
 
-    for (let component of module.components) {
+    for (const component of module.components) {
         const level3Element = Dom.new.fromTemplate('level3TaskTemplate');
         const level3DomGetter = Dom.get(level3Element);
 
@@ -248,7 +245,7 @@ function createModuleLevel3Elements(categoryName, module) {
 function createModuleLevel2Elements(categoryName, category) {
     const level2Elements = [];
 
-    for (let module of category) {
+    for (const module of category) {
         const level2Element = Dom.new.fromTemplate('level2Template');
         const level2DomGetter = Dom.get(level2Element);
         level2Element.id = 'module-row-' + module.name;
@@ -268,7 +265,7 @@ function createModulesUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
     const level1Elements = [];
 
-    for (let categoryName in categoryDefinition) {
+    for (const categoryName in categoryDefinition) {
         const level1Element = Dom.new.fromTemplate('level1Template');
 
         const category = categoryDefinition[categoryName];
@@ -297,24 +294,24 @@ function createModulesUI(categoryDefinition, domId) {
  */
 function createLevel4Elements(domId, category, categoryName) {
     const level4Elements = [];
-    category.forEach(function (entry) {
+    for (const pointOfInterest of category) {
         const level4Element = Dom.new.fromTemplate('level4PointOfInterestTemplate');
         const level4DomGetter = Dom.get(level4Element);
-        level4DomGetter.byClass('name').textContent = entry.title;
+        level4DomGetter.byClass('name').textContent = pointOfInterest.title;
         const descriptionElement = level4DomGetter.byClass('descriptionTooltip');
-        descriptionElement.ariaLabel = entry.title;
-        descriptionElement.title = tooltips[entry.name];
-        level4Element.id = 'row_' + entry.name;
-        level4DomGetter.byClass('modifier').innerHTML = entry.modifiers.map(Modifier.getDescription).join(',\n');
-        level4DomGetter.byClass('button').onclick = function () {
-            setPointOfInterest(entry.name);
-        };
-        level4DomGetter.byClass('radio').onclick = function () {
-            setPointOfInterest(entry.name);
-        };
+        descriptionElement.ariaLabel = pointOfInterest.title;
+        descriptionElement.title = tooltips[pointOfInterest.name];
+        level4Element.id = 'row_' + pointOfInterest.name;
+        level4DomGetter.byClass('modifier').innerHTML = pointOfInterest.modifiers.map(Modifier.getDescription).join(',\n');
+        level4DomGetter.byClass('button').addEventListener('click', () => {
+            setPointOfInterest(pointOfInterest.name);
+        });
+        level4DomGetter.byClass('radio').addEventListener('click', () => {
+            setPointOfInterest(pointOfInterest.name);
+        });
 
         level4Elements.push(level4Element);
-    });
+    }
 
     level4Elements.push(createRequiredRow(categoryName));
     return level4Elements;
@@ -368,7 +365,8 @@ function createModuleQuickTaskDisplay() {
         for (const component of module.components) {
             const componentQuickTaskDisplayElement = Dom.new.fromTemplate('componentQuickTaskDisplayTemplate');
             const componentDomGetter = Dom.get(componentQuickTaskDisplayElement);
-            componentQuickTaskDisplayElement.classList.add(component.name);
+            componentQuickTaskDisplayElement.classList.add(component.type, component.name);
+            componentDomGetter.byClass('progressBar').classList.add(ModuleOperation.name);
             componentDomGetter.bySelector('.name > .component').textContent = component.title;
 
             componentQuickTaskDisplayElements.push(componentQuickTaskDisplayElement);
@@ -421,9 +419,8 @@ function createAttributeRow(attribute) {
  * @param {function():boolean} isActiveFn
  */
 function createAttributeBalanceEntry(balanceElement, effectsHolder, effectType, name, isActiveFn) {
-    const affectsEffectType = effectsHolder.getEffects().find(function (effect) {
-        return effect.effectType === effectType;
-    }) !== undefined;
+    const affectsEffectType = effectsHolder.getEffects()
+        .find((effect) => effect.effectType === effectType) !== undefined;
     if (!affectsEffectType) return;
 
     const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
@@ -448,9 +445,7 @@ function createAttributeBalance(rowElement, effectTypes) {
     const balanceElement = Dom.get(rowElement).byClass('balance');
     balanceElement.classList.remove('hidden');
 
-    let onlyMultipliers = effectTypes.every(function (effectType) {
-        return effectType.operator === 'x';
-    });
+    let onlyMultipliers = effectTypes.every((effectType) => effectType.operator === 'x');
 
     if (onlyMultipliers) {
         const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
@@ -468,9 +463,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                 for (const operation of component.operations) {
                     createAttributeBalanceEntry(balanceElement, operation, effectType,
                         module.title + ' ' + component.title + ': ' + operation.title,
-                        function () {
-                            return gameData.currentOperations.hasOwnProperty(this.name);
-                        }.bind(operation)
+                        () => gameData.currentOperations.hasOwnProperty(operation.name)
                     );
                 }
             }
@@ -507,9 +500,7 @@ function createGridLoadBalance(rowElement) {
                 gridLoadBalanceEntries.push({
                     element: balanceEntryElement,
                     taskOrItem: operation,
-                    isActive: function () {
-                        return gameData.currentOperations.hasOwnProperty(this.name);
-                    }.bind(operation),
+                    isActive: () => gameData.currentOperations.hasOwnProperty(operation.name),
                 });
                 balanceElement.append(balanceEntryElement);
             }
@@ -550,7 +541,6 @@ function createAttributesUI() {
     const heatRow = createAttributeRow(attributes.heat);
     const heatFormulaElement = Dom.get(heatRow).byClass('formula');
     heatFormulaElement.classList.remove('hidden');
-    // TODO this is not matching the currently implemented heat formula
     heatFormulaElement.innerHTML = 'max(' + createAttributeInlineHTML(attributes.danger) + ' - ' + createAttributeInlineHTML(attributes.military) + ', 1)';
     rows.push(heatRow);
 
@@ -594,14 +584,14 @@ function adjustLayout() {
 }
 
 function cleanUpDom() {
-    document.querySelectorAll('template').forEach(function (template) {
+    for (const template of document.querySelectorAll('template')) {
         template.remove();
-    });
+    }
 }
 
 function initSidebar() {
     const energyDisplayElement = document.querySelector('#energyDisplay');
-    energyDisplayElement.addEventListener('click', function () {
+    energyDisplayElement.addEventListener('click', () => {
         energyDisplayElement.classList.toggle('detailed');
     });
 }
@@ -620,6 +610,8 @@ function updateModuleQuickTaskDisplay() {
         for (const component of module.components) {
             const componentDomGetter = Dom.get(containerDomGetter.bySelector('.quickTaskDisplay.' + component.name));
             let currentOperation = component.currentOperation;
+            // Operation classes are never removed, but who cares
+            componentDomGetter.bySelector('.progressBar').classList.add(currentOperation.name);
             componentDomGetter.bySelector('.name > .operation').textContent = currentOperation.title;
             formatValue(
                 componentDomGetter.bySelector('.name > .level'),
@@ -705,7 +697,7 @@ function setProgress(progressFillElement, progress, increasing = true) {
 
 function updateRequiredRows(categoryType) {
     const requiredRows = document.getElementsByClassName('requiredRow');
-    for (let requiredRow of requiredRows) {
+    for (const requiredRow of requiredRows) {
         let nextEntity = null;
         let category = categoryType[requiredRow.id];
         if (category === undefined) {
@@ -749,7 +741,7 @@ function updateRequiredRows(categoryType) {
             if (categoryType === moduleCategories) {
                 energyStoredElement.classList.add('hiddenTask');
                 levelElement.classList.remove('hiddenTask');
-                for (let requirement of requirements) {
+                for (const requirement of requirements) {
                     const task = gameData.taskData[requirement.task];
                     if (task.level >= requirement.requirement) continue;
                     const text = requirement.task + ' level ' +
@@ -772,8 +764,8 @@ function updateRequiredRows(categoryType) {
 }
 
 function updateModuleRows() {
-    for (let key in modules) {
-        const module = modules[key];
+    for (const moduleName in modules) {
+        const module = modules[moduleName];
         const row = document.getElementById('module-row-' + module.name);
         const level = module.getLevel();
         const dataElement = row.querySelector('.level');
@@ -782,7 +774,7 @@ function updateModuleRows() {
 }
 
 function updateTaskRows() {
-    for (let key in gameData.taskData) {
+    for (const key in gameData.taskData) {
         const task = gameData.taskData[key];
         if (task instanceof GridStrength) continue;
         const row = document.getElementById('row_' + task.name);
@@ -819,7 +811,7 @@ function updateTaskRows() {
 }
 
 function updateSectorRows() {
-    for (let key in pointsOfInterest) {
+    for (const key in pointsOfInterest) {
         const pointOfInterest = pointsOfInterest[key];
         const row = document.getElementById('row_' + pointOfInterest.name);
         const domGetter = Dom.get(row);
@@ -827,15 +819,15 @@ function updateSectorRows() {
         domGetter.byClass('active').style.backgroundColor = isActive ? 'rgb(12, 101, 173)' : 'white';
         domGetter.byClass('button').classList.toggle('btn-dark', !isActive);
         domGetter.byClass('button').classList.toggle('btn-warning', isActive);
-        domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescriptionExcept(EffectType.Danger);
+        domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescription();
         domGetter.byClass('danger').textContent = pointOfInterest.getEffect(EffectType.Danger);
     }
 }
 
 function updateHeaderRows() {
-    document.querySelectorAll('.level3 .maxLevel').forEach(function (maxLevelElement) {
+    for (const maxLevelElement of document.querySelectorAll('.level3 .maxLevel')) {
         maxLevelElement.classList.toggle('hidden', gameData.rebirthOneCount === 0);
-    });
+    }
 }
 
 function updateAttributeRows() {
@@ -963,10 +955,10 @@ function getRemainingGridStrength() {
 }
 
 function hideEntities() {
-    for (let key in gameData.requirements) {
+    for (const key in gameData.requirements) {
         const requirement = gameData.requirements[key];
         const completed = requirement.isCompleted();
-        for (let element of requirement.elements) {
+        for (const element of requirement.elements) {
             if (completed) {
                 element.classList.remove('hidden');
             } else {
@@ -1049,11 +1041,7 @@ function calculateGridLoad() {
                 gridLoad += task.getGridLoad();
         }
     }
-    //No 'property' or 'misc' defined atm
-    //gridLoad += gameData.currentPointOfInterest.getGridLoad();
-    //for (let misc of gameData.currentMisc) {
-    //    gridLoad += misc.getGridLoad();
-    //}
+
     return gridLoad;
 }
 
@@ -1095,7 +1083,7 @@ function formatValue(dataElement, value, config = {}) {
     // TODO render full number + unit into dataElement.title
     dataElement.value = String(value);
 
-    function toString(value) {
+    const toString = (value) => {
         if (Number.isInteger(value)) {
             return value.toFixed(0);
         } else if (Math.abs(value) < 1) {
@@ -1103,7 +1091,7 @@ function formatValue(dataElement, value, config = {}) {
         } else {
             return value.toPrecision(3);
         }
-    }
+    };
 
     const defaultConfig = {
         prefixes: magnitudes,
@@ -1200,7 +1188,7 @@ function toggleSciFiMode(force = undefined) {
 
 function setBackground(background) {
     const body = document.getElementById('body');
-    body.classList.forEach(function (cssClass, index, classList) {
+    body.classList.forEach((cssClass, index, classList) => {
         if (cssClass.startsWith('background-')) {
             classList.remove(cssClass);
         }
@@ -1237,34 +1225,34 @@ function rebirthReset() {
 }
 
 function setPermanentUnlocksAndResetData() {
-    for (let taskName in gameData.taskData) {
+    for (const taskName in gameData.taskData) {
         const task = gameData.taskData[taskName];
         task.updateMaxLevelAndReset();
     }
 
-    for (let battleName in gameData.battleData) {
+    for (const battleName in gameData.battleData) {
         const battle = gameData.battleData[battleName];
         battle.updateMaxLevelAndReset();
     }
 
-    for (let key in gameData.requirements) {
+    for (const key in gameData.requirements) {
         const requirement = gameData.requirements[key];
         if (requirement.completed && permanentUnlocks.includes(key)) continue;
         requirement.completed = false;
     }
 
-    for (let key in modules) {
+    for (const key in modules) {
         const module = modules[key];
         module.updateMaxLevel();
     }
 }
 
 function resetMaxLevels() {
-    for (let taskName in gameData.taskData) {
+    for (const taskName in gameData.taskData) {
         const task = gameData.taskData[taskName];
         task.maxLevel = 0;
     }
-    for (let battleName in gameData.battleData) {
+    for (const battleName in gameData.battleData) {
         const battle = gameData.battleData[battleName];
         battle.maxLevel = 0;
     }
@@ -1290,23 +1278,26 @@ function isPlaying() {
 }
 
 function assignMethods() {
-    for (let key in gameData.battleData) {
+    for (const key in gameData.battleData) {
         let battle = gameData.battleData[key];
         battle.baseData = battleBaseData[battle.name];
         battle = Object.assign(new Battle(battleBaseData[battle.name]), battle);
         gameData.battleData[key] = battle;
     }
 
-    for (let key in gameData.requirements) {
+    for (const key in gameData.requirements) {
         let requirement = gameData.requirements[key];
         switch (requirement.type) {
-            case 'task':
+            case 'TaskRequirement':
                 requirement = Object.assign(new TaskRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
-            case 'gridStrength':
+            case 'GridStrengthRequirement':
                 requirement = Object.assign(new GridStrengthRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
-            case 'age':
+            case 'AgeRequirement':
+                requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement);
+                break;
+            case 'ResearchRequirement':
                 requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
         }
@@ -1324,7 +1315,7 @@ function assignMethods() {
 }
 
 function replaceSaveDict(dict, saveDict) {
-    for (let key in dict) {
+    for (const key in dict) {
         if (dict === gameData.taskData && (dict[key] instanceof Job || dict[key] instanceof GridStrength)) {
             assignAndReplaceSavedTaskObject(dict[key], saveDict);
         } else if (dict === gameData.requirements) {
@@ -1337,7 +1328,7 @@ function replaceSaveDict(dict, saveDict) {
         }
     }
 
-    for (let key in saveDict) {
+    for (const key in saveDict) {
         if (!(key in dict)) {
             delete saveDict[key];
         }
@@ -1363,14 +1354,14 @@ function updateModuleSavaData(saveData) {
     if (saveData.moduleSaveData === undefined) {
         saveData.moduleSaveData = {};
     }
-    for (let id in modules) {
+    for (const id in modules) {
         const module = modules[id];
         saveData.moduleSaveData[id] = module.getSaveData();
     }
 }
 
 function assignDictFromSaveData(dict, saveData) {
-    for (let id in dict) {
+    for (const id in dict) {
         const object = dict[id];
         if (saveData !== undefined && id in saveData) {
             object.loadSaveData(saveData[id]);
@@ -1388,13 +1379,13 @@ function loadGameData() {
         replaceSaveDict(gameData.taskData, gameDataSave.taskData);
         replaceSaveDict(gameData.battleData, gameDataSave.battleData);
 
-        for (let id in gameDataSave.currentOperations) {
+        for (const id in gameDataSave.currentOperations) {
             gameDataSave.currentOperations[id] = moduleOperations[id];
         }
-        for (let id in gameDataSave.currentModules) {
+        for (const id in gameDataSave.currentModules) {
             //Migrate "current" modules before replacing save data, currentModules should probably be just strings in future.
             const override = modules[id];
-            for (let component of override.components) {
+            for (const component of override.components) {
                 const saved = gameDataSave.currentModules[id].components.find((element) => element.name === component.name);
                 if (saved.currentOperation === null || saved.currentOperation === undefined) continue;
                 if (moduleOperations.hasOwnProperty(saved.currentOperation.name)) {
@@ -1462,19 +1453,19 @@ const visibleTooltips = [];
 function initTooltips() {
     const tooltipTriggerElements = document.querySelectorAll('[title]');
     const tooltipConfig = {container: 'body', trigger: 'hover'};
-    tooltipTriggerElements.forEach(function (tooltipTriggerElement) {
+    for (const tooltipTriggerElement of tooltipTriggerElements) {
         // noinspection JSUnresolvedReference
         new bootstrap.Tooltip(tooltipTriggerElement, tooltipConfig);
-        tooltipTriggerElement.addEventListener('show.bs.tooltip', function () {
+        tooltipTriggerElement.addEventListener('show.bs.tooltip', () => {
             visibleTooltips.push(tooltipTriggerElement);
         });
-        tooltipTriggerElement.addEventListener('hide.bs.tooltip', function () {
+        tooltipTriggerElement.addEventListener('hide.bs.tooltip', () => {
             let indexOf = visibleTooltips.indexOf(tooltipTriggerElement);
             if (indexOf !== -1) {
                 visibleTooltips.splice(indexOf);
             }
         });
-    });
+    }
 }
 
 /**
@@ -1487,7 +1478,7 @@ function setStationName(newStationName) {
         gameData.stationName = emptyStationName;
     }
     Dom.get().byId('nameDisplay').textContent = gameData.stationName;
-    for (let stationNameInput of Dom.get().allByClass('stationNameInput')) {
+    for (const stationNameInput of Dom.get().allByClass('stationNameInput')) {
         stationNameInput.value = newStationName;
     }
     saveGameData();
@@ -1496,14 +1487,14 @@ function setStationName(newStationName) {
 function initStationName() {
     setStationName(gameData.stationName);
     const stationNameDisplayElement = document.getElementById('nameDisplay');
-    stationNameDisplayElement.addEventListener('click', function (event) {
+    stationNameDisplayElement.addEventListener('click', (event) => {
         event.preventDefault();
 
         setTab(tabButtons.settings, 'settings');
     });
-    for (let stationNameInput of Dom.get().allByClass('stationNameInput')) {
+    for (const stationNameInput of Dom.get().allByClass('stationNameInput')) {
         stationNameInput.placeholder = emptyStationName;
-        stationNameInput.addEventListener('input', function (event) {
+        stationNameInput.addEventListener('input', (event) => {
             setStationName(event.target.value);
         });
     }
@@ -1554,11 +1545,35 @@ function displayLoaded() {
     document.getElementById('main').classList.add('ready');
 }
 
+function assignNames(data) {
+    for (const [key, val] of Object.entries(data)) {
+        val.name = key;
+        val.id = 'row_' + key;
+    }
+}
+
+function initConfigNames() {
+    for (const [key, module] of Object.entries(moduleOperations)) {
+        module.name = key;
+        module.baseData.name = key;
+    }
+
+    assignNames(attributes);
+    assignNames(moduleComponents);
+    assignNames(modules);
+    assignNames(moduleCategories);
+    assignNames(battleBaseData);
+    assignNames(sectors);
+    assignNames(pointsOfInterest);
+}
 
 function init() {
     // During the setup a lot of functions are called that trigger an auto save. To not save various times,
     // saving is skipped until the game is actually under player control.
     skipGameDataSave = true;
+
+    initConfigNames();
+
     createModulesUI(moduleCategories, 'jobTable');
     createSectorsUI(sectors, 'sectorTable');
     createModuleQuickTaskDisplay();
@@ -1568,7 +1583,7 @@ function init() {
     initSidebar();
 
     //direct ref assignment - taskData could be replaced
-    for (let entityData of Object.values(moduleOperations)) {
+    for (const entityData of Object.values(moduleOperations)) {
         entityData.id = 'row_' + entityData.name;
         gameData.taskData[entityData.name] = entityData;
     }
@@ -1580,7 +1595,7 @@ function init() {
     gameData.requirements = createRequirements(getTaskElement, getPointOfInterestElement);
 
     tempData['requirements'] = {};
-    for (let key in gameData.requirements) {
+    for (const key in gameData.requirements) {
         tempData['requirements'][key] = gameData.requirements[key];
     }
 
@@ -1593,7 +1608,7 @@ function init() {
     addMultipliers();
 
     //Init and enable/disable modules
-    for (let id in modules) {
+    for (const id in modules) {
         const module = modules[id];
         module.init();
     }

@@ -55,7 +55,7 @@ class Modifier {
      *
      * @return {ModifierDefinition[]}
      */
-    static getActiveModifiers(){
+    static getActiveModifiers() {
         return gameData.currentPointOfInterest.modifiers;
     }
 
@@ -64,10 +64,11 @@ class Modifier {
      * @param {ModifierDefinition} modifier
      * @return {string}
      */
-    static getDescription(modifier){
-        return modifier.modifies.map(function (effectHolder) {
-            return effectHolder.title;
-        }).join(', ') + '\n' + modifier.from.description + ' \u2B9E ' /* Shows: ⮞ */ + modifier.to.description;
+    static getDescription(modifier) {
+        return modifier.modifies
+                .map((effectHolder) => effectHolder.title)
+                .join(', ') + '\n'
+            + modifier.from.description + ' \u2B9E ' /* Shows: ⮞ */ + modifier.to.description;
     }
 }
 
@@ -111,15 +112,11 @@ class Effect {
 
         const base = additiveTypes
             .map(Effect.#getSingleTotalValue)
-            .reduce(function (prev, cur) {
-                return prev + cur;
-            }, 0);
+            .reduce((prev, cur) => prev + cur, 0);
 
         const factor = factorTypes
             .map(Effect.#getSingleTotalValue)
-            .reduce(function (prev, cur) {
-                return prev * cur;
-            }, 1);
+            .reduce((prev, cur) => prev * cur, 1);
 
         if (additiveTypes.length === 0) {
             // No base/additives --> directly return the factor to prevent faulty multiplication with 0.
@@ -148,7 +145,7 @@ class Effect {
         return effectType.getDefaultValue();
     }
 
-    static #getActualEffectType(holder, effect, modifiers, ) {
+    static #getActualEffectType(holder, effect, modifiers,) {
         let actualEffectType = effect.effectType;
         // Apply modifiers to find the actual effect type
         for (const modifier of modifiers) {
@@ -174,7 +171,7 @@ class Effect {
     static getDescription(holder, effects, level) {
         const modifiers = Modifier.getActiveModifiers();
 
-        return effects.map(function (effect) {
+        return effects.map((effect) => {
             const actualEffectType = Effect.#getActualEffectType(holder, effect, modifiers);
             return actualEffectType.operator +
                 Effect.#calculateEffectValue(actualEffectType, effect.baseValue, level).toFixed(2) +
@@ -191,10 +188,13 @@ class Effect {
      * @return {string}
      */
     static getDescriptionExcept(holder, effects, level, effectException) {
-        return Effect.getDescription(holder, effects.filter(function (effect) {
-            return effect.effectType !== effectException;
-        }), level);
+        return Effect.getDescription(
+            holder,
+            effects.filter((effect) => effect.effectType !== effectException),
+            level
+        );
     }
+
     /**
      *
      * @param {EffectType} effectType

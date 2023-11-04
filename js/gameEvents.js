@@ -98,7 +98,7 @@ class GameEvent {
             if (payload === null) {
                 valid = false;
             } else {
-                valid = Object.keys(this._payloadDefinition).every(function (key) {
+                valid = Object.keys(this._payloadDefinition).every((key) => {
                     if (!payload.hasOwnProperty(key)) {
                         return false;
                     }
@@ -108,7 +108,7 @@ class GameEvent {
                     }
 
                     return typeof payload[key] === this._payloadDefinition[key];
-                }, this);
+                });
             }
         }
 

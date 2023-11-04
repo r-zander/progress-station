@@ -38,21 +38,21 @@ function initDeath() {
 function initGameOver() {
     let modalElement = document.getElementById('gameOverModal');
     const modal = new bootstrap.Modal(modalElement);
-    GameEvents.GameOver.subscribe(function (payload) {
+    GameEvents.GameOver.subscribe( (payload) => {
         modal.show();
 
         modalElement.classList.toggle('win', payload.bossDefeated);
         modalElement.classList.toggle('loss', !payload.bossDefeated);
     });
 
-    window.resetAfterGameOver = function () {
+    window.resetAfterGameOver = () => {
         // TODO thing about what actually to do. This is just a fail-safe
         if (confirm('This is going to delete all your progress. Continue?')) {
             resetGameData();
         }
     };
 
-    window.restartAfterGameOver = function () {
+    window.restartAfterGameOver = () => {
         modal.hide();
         rebirthOne();
     };

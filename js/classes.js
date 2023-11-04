@@ -157,25 +157,9 @@ class Job extends Task {
     }
 }
 
-class Skill extends Task {
-    constructor(baseData) {
-        super(baseData);
-    }
-
-    /**
-     * @return {boolean}
-     */
-    isActive() {
-        return gameData.currentSkill === this;
-    }
-
-    collectEffects() {
-        super.collectEffects();
-    }
-}
-
 class Sector {
     constructor(baseData) {
+        this.type = this.constructor.name;
         this.baseData = baseData;
         this.name = baseData.name;
         this.title = prepareTitle(baseData.title);
@@ -189,10 +173,10 @@ class Sector {
  */
 class PointOfInterest {
     constructor(baseData) {
+        this.type = this.constructor.name;
         this.baseData = baseData;
         this.name = baseData.name;
         this.title = prepareTitle(baseData.title);
-        this.expenseMultipliers = [];
         /** @var {ModifierDefinition[]} */
         this.modifiers = baseData.modifiers;
     }
@@ -228,19 +212,8 @@ class PointOfInterest {
      * @return {string}
      */
     getEffectDescription() {
-        return Effect.getDescription(this, this.baseData.effects, 1);
-    }
-
-    /**
-     * @param effectTypeException
-     * @return {string}
-     */
-    getEffectDescriptionExcept(effectTypeException) {
-        return Effect.getDescriptionExcept(this, this.baseData.effects, 1, effectTypeException);
-    }
-
-    getGridLoad() {
-        return applyMultipliers(this.baseData.expense, this.expenseMultipliers);
+        // Danger is displayed in a separate column
+        return Effect.getDescriptionExcept(this, this.baseData.effects, 1, EffectType.Danger);
     }
 }
 
@@ -251,6 +224,7 @@ class Module {
     name;
 
     constructor(baseData) {
+        this.type = this.constructor.name;
         this.data = baseData;
         this.title = prepareTitle(baseData.title);
         this.components = baseData.components;
@@ -312,9 +286,7 @@ class Module {
     }
 
     getLevel() {
-        return this.components.reduce(function (levelSum, component) {
-            return levelSum + component.getOperationLevels();
-        }, 0);
+        return this.components.reduce((levelSum, component) => levelSum + component.getOperationLevels(), 0);
     }
 
     propagateMaxLevel() {
@@ -339,6 +311,7 @@ class ModuleComponent {
      * @param {{title: string, operations: ModuleOperation[]}} baseData
      */
     constructor(baseData) {
+        this.type = this.constructor.name;
         this.title = prepareTitle(baseData.title);
         this.operations = baseData.operations;
         this.currentOperation = this.operations[0];
@@ -448,7 +421,7 @@ class Requirement {
 
 class TaskRequirement extends Requirement {
     constructor(elements, requirements) {
-        super('task', elements, requirements);
+        super('TaskRequirement', elements, requirements);
     }
 
     getCondition(requirement) {
@@ -458,7 +431,7 @@ class TaskRequirement extends Requirement {
 
 class GridStrengthRequirement extends Requirement {
     constructor(elements, requirements) {
-        super('gridStrength', elements, requirements);
+        super('GridStrengthRequirement', elements, requirements);
     }
 
     getCondition(requirement) {
@@ -468,7 +441,7 @@ class GridStrengthRequirement extends Requirement {
 
 class AgeRequirement extends Requirement {
     constructor(elements, requirements) {
-        super('age', elements, requirements);
+        super('AgeRequirement', elements, requirements);
     }
 
     getCondition(requirement) {
@@ -478,7 +451,7 @@ class AgeRequirement extends Requirement {
 
 class ResearchRequirement extends Requirement {
     constructor(elements, requirements) {
-        super('research', elements, requirements);
+        super('ResearchRequirement', elements, requirements);
     }
 
     getCondition(requirement) {
