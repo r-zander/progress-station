@@ -4,7 +4,7 @@
  * @typedef {Object} GameData
  * @property {Object} taskData
  * @property {Object} battleData
- * @property {Object} requirements
+ * @property {Object} [requirements]
  *
  * @property {number} population
  *
@@ -131,6 +131,7 @@ function getGameSpeed(ignoreDeath = false) {
 
 function hideAllTooltips() {
     visibleTooltips.forEach(function (tooltipTriggerElement) {
+        // noinspection JSUnresolvedReference
         bootstrap.Tooltip.getInstance(tooltipTriggerElement).hide();
     });
 }
@@ -195,7 +196,7 @@ function createEntity(data, entity) {
 
 function createRequiredRow(categoryName) {
     const requiredRow = Dom.new.fromTemplate('level4RequiredTemplate');
-    requiredRow.classList.add('requiredRow', removeSpaces(categoryName));
+    requiredRow.classList.add('requiredRow', categoryName);
     requiredRow.id = categoryName;
     return requiredRow;
 }
@@ -271,7 +272,7 @@ function createModulesUI(categoryDefinition, domId) {
         const level1Element = Dom.new.fromTemplate('level1Template');
 
         const category = categoryDefinition[categoryName];
-        level1Element.classList.add(removeSpaces(categoryName));
+        level1Element.classList.add(categoryName);
 
         const level1DomGetter = Dom.get(level1Element);
         level1DomGetter.byClass('category').textContent = categoryName;
@@ -1064,29 +1065,6 @@ function daysToYears(days) {
     return Math.floor(days / 365);
 }
 
-function getCategoryFromEntityName(categoryType, entityName) {
-    for (let categoryName in categoryType) {
-        const category = categoryType[categoryName];
-        if (category.includes(entityName)) {
-            return category;
-        }
-    }
-}
-
-function getKeyOfLowestValueFromDict(dict) {
-    const values = Object.values(dict);
-
-    values.sort(function (a, b) {
-        return a - b;
-    });
-
-    for (let key in dict) {
-        if (dict[key] === values[0]) {
-            return key;
-        }
-    }
-}
-
 function yearsToDays(years) {
     return years * 365;
 }
@@ -1176,50 +1154,6 @@ function formatValue(dataElement, value, config = {}) {
     dataElement.textContent = prefix + toString(scaled);
 }
 
-/**
- *
- * @param {number} value
- * @param {{prefixes?: string[], unit?: string, forceSign?: boolean}} config
- * @return {string}
- */
-function format(value, config = {}) {
-    const defaultConfig = {
-        prefixes: magnitudes,
-        unit: '',
-        forceSign: false,
-    };
-    config = Object.assign({}, defaultConfig, config);
-
-    // what tier? (determines SI symbol)
-    const tier = Math.log10(Math.abs(value)) / 3 | 0;
-
-    let prefix = '';
-    if (config.forceSign) {
-        if (Math.abs(value) <= 0.001) {
-            prefix = '±';
-        } else if (value > 0) {
-            prefix = '+';
-        }
-    }
-
-    // get suffix and determine scale
-    let suffix = config.prefixes[tier];
-    if (typeof config.unit === 'string' && config.unit.length > 0) {
-        suffix = ' ' + suffix + config.unit;
-    }
-
-    if (tier === 0) {
-        return prefix + value.toFixed(0) + suffix;
-    }
-    const scale = Math.pow(10, tier * 3);
-
-    // scale the number
-    const scaled = value / scale;
-
-    // format number and add suffix
-    return prefix + scaled.toPrecision(3) + suffix;
-}
-
 function getTaskElement(taskName) {
     const task = gameData.taskData[taskName];
     if (task == null) {
@@ -1246,10 +1180,6 @@ function getPointOfInterestElement(name) {
 
     const pointOfInterest = pointsOfInterest[name];
     return document.getElementById(pointOfInterest.id);
-}
-
-function getElementsByClass(className) {
-    return document.getElementsByClassName(removeSpaces(className));
 }
 
 function toggleLightDarkMode(force = undefined) {
@@ -1280,11 +1210,6 @@ function setBackground(background) {
     document.querySelector(`.background-${background} > input[type="radio"]`).checked = true;
     gameData.settings.background = background;
     saveGameData();
-}
-
-// TODO remove this function, it's an anti-pattern
-function removeSpaces(string) {
-    return string.replace(/ /g, '');
 }
 
 function resetBattle(name) {
@@ -1538,6 +1463,7 @@ function initTooltips() {
     const tooltipTriggerElements = document.querySelectorAll('[title]');
     const tooltipConfig = {container: 'body', trigger: 'hover'};
     tooltipTriggerElements.forEach(function (tooltipTriggerElement) {
+        // noinspection JSUnresolvedReference
         new bootstrap.Tooltip(tooltipTriggerElement, tooltipConfig);
         tooltipTriggerElement.addEventListener('show.bs.tooltip', function () {
             visibleTooltips.push(tooltipTriggerElement);
@@ -1585,8 +1511,6 @@ function initStationName() {
 
 function setDefaultGameDataValues() {
     setDefaultCurrentValues();
-
-    gameData.storedEnergy = 0;
 }
 
 function setDefaultCurrentValues() {
@@ -1653,7 +1577,7 @@ function init() {
 
     setDefaultCurrentValues();
 
-    gameData.requirements = createRequirements(getElementsByClass, getTaskElement, getPointOfInterestElement);
+    gameData.requirements = createRequirements(getTaskElement, getPointOfInterestElement);
 
     tempData['requirements'] = {};
     for (let key in gameData.requirements) {

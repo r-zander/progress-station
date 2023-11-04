@@ -223,21 +223,21 @@ const layerData = [
 
 const lastLayerData = new LayerData('#000000');
 
-function createRequirements(getElementsByClass, getTaskElement, getItemElement) {
+function createRequirements(getTaskElement, getItemElement) {
     return {
         /*
         //Other
-        'Arcane energy': new TaskRequirement(getElementsByClass('Arcane energy'), [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),
-        'Dark magic': new EvilRequirement(getElementsByClass('Dark magic'), [{requirement: 1}]),
+        'Arcane energy': new TaskRequirement(Dom.get().allByClass('arcaneEnergy'), [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),
+        'Dark magic': new EvilRequirement(Dom.get().allByClass('darkMagic'), [{requirement: 1}]),
         'Shop': new StoredEnergyRequirement([Dom.get().byId('locationTabButton')], [{requirement: gameData.itemData['Tent'].getGridLoad() * 50}]),
         'Rebirth tab': new AgeRequirement([Dom.get().byId('rebirthTabButton')], [{requirement: 25}]),
         'Rebirth note 1': new AgeRequirement([Dom.get().byId('rebirthNote1')], [{requirement: 45}]),
         'Rebirth note 2': new AgeRequirement([Dom.get().byId('rebirthNote2')], [{requirement: 65}]),
         'Rebirth note 3': new AgeRequirement([Dom.get().byId('rebirthNote3')], [{requirement: 200}]),
         'Evil info': new EvilRequirement([Dom.get().byId('evilInfo')], [{requirement: 1}]),
-        'Time warping info': new TaskRequirement(getElementsByClass('timeWarping'), [{task: 'Mage', requirement: 10}]),
+        'Time warping info': new TaskRequirement(Dom.get().allByClass('timeWarping'), [{task: 'Mage', requirement: 10}]),
         'Automation': new AgeRequirement([Dom.get().byId('automation')], [{requirement: 20}]),
-        'Quick task display': new AgeRequirement(getElementsByClass('quickTaskDisplay'), [{requirement: 20}]),
+        'Quick task display': new AgeRequirement(Dom.get().allByClass('quickTaskDisplay'), [{requirement: 20}]),
         */
 
         //Common generators
