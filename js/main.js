@@ -52,7 +52,7 @@ let gameData = {
     currentBattle: null,
 
     stationName: stationNameGenerator.generate(),
-    selectedTab: 'jobs',
+    selectedTab: 'modules',
     settings: {
         darkMode: true,
         sciFiMode: true,
@@ -76,12 +76,12 @@ const attributeBalanceEntries = [];
 const gridLoadBalanceEntries = [];
 
 const tabButtons = {
-    'jobs': document.getElementById('jobsTabButton'),
-    'location': document.getElementById('locationTabButton'),
-    'rebirth': document.getElementById('rebirthTabButton'),
-    'battle': document.getElementById('battleTabButton'),
-    'attributes': document.getElementById('attributesTabButton'),
-    'settings': document.getElementById('settingsTabButton'),
+    modules: document.getElementById('modulesTabButton'),
+    location: document.getElementById('locationTabButton'),
+    captainsLog: document.getElementById('captainsLogTabButton'),
+    battle: document.getElementById('battleTabButton'),
+    attributes: document.getElementById('attributesTabButton'),
+    settings: document.getElementById('settingsTabButton'),
 };
 
 function getBaseLog(x, y) {
@@ -133,18 +133,18 @@ function hideAllTooltips() {
     }
 }
 
-function setTab(element, selectedTab) {
-    const tabs = Array.prototype.slice.call(document.getElementsByClassName('tab'));
+function setTab(selectedTab) {
+    const tabs = document.getElementsByClassName('tab');
     for (const tab of tabs) {
         tab.style.display = 'none';
     }
     document.getElementById(selectedTab).style.display = 'block';
 
-    const tabButtons = document.getElementsByClassName('tabButton');
-    for (const tabButton of tabButtons) {
+    const tabButtonElements = document.getElementsByClassName('tabButton');
+    for (const tabButton of tabButtonElements) {
         tabButton.classList.remove('active');
     }
-    element.classList.add('active');
+    tabButtons[selectedTab].classList.add('active');
     gameData.selectedTab = selectedTab;
     saveGameData();
 
@@ -1218,7 +1218,7 @@ function rebirthTwo() {
 }
 
 function rebirthReset() {
-    setTab(tabButtons.jobs, 'jobs');
+    setTab('modules');
 
     setDefaultGameDataValues();
     setPermanentUnlocksAndResetData();
@@ -1490,7 +1490,7 @@ function initStationName() {
     stationNameDisplayElement.addEventListener('click', (event) => {
         event.preventDefault();
 
-        setTab(tabButtons.settings, 'settings');
+        setTab('settings');
     });
     for (const stationNameInput of Dom.get().allByClass('stationNameInput')) {
         stationNameInput.placeholder = emptyStationName;
@@ -1574,7 +1574,7 @@ function init() {
 
     initConfigNames();
 
-    createModulesUI(moduleCategories, 'jobTable');
+    createModulesUI(moduleCategories, 'modulesTable');
     createSectorsUI(sectors, 'sectorTable');
     createModuleQuickTaskDisplay();
 
@@ -1614,9 +1614,9 @@ function init() {
     }
 
     if (tabButtons.hasOwnProperty(gameData.selectedTab)) {
-        setTab(tabButtons[gameData.selectedTab], gameData.selectedTab);
+        setTab(gameData.selectedTab);
     } else {
-        setTab(tabButtons.jobs, 'jobs');
+        setTab('modules');
     }
     initTooltips();
     initStationName();

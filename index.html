@@ -70,8 +70,7 @@
                 </p>
             </div>
         </div>
-        <div id="attributesDisplay" class="row justify-content-center"
-             onclick="setTab(tabButtons.attributes, 'attributes');">
+        <div id="attributesDisplay" class="row justify-content-center" onclick="setTab('attributes');">
             <div class="col primary-stat">
                 <img src="img/icons/population.svg" class="icon" alt="Population Icon"/>
                 <span class="label" style="color: rgb(46, 148, 231)">Population</span>
@@ -123,7 +122,7 @@
                 </div>
             </div>
             <nav class="mt-3 d-flex flex-column gap-3">
-                <button id="jobsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'jobs');">
+                <button id="modulesTabButton" class="tabButton panel p-3" onClick="setTab('modules');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Modules</h3>
 
@@ -151,17 +150,9 @@
                     </template>
                     <slot id="modulesQuickTaskDisplay"></slot>
                 </button>
-                <button id="locationTabButton" class="tabButton panel p-3" onClick="setTab(this, 'location');">
+                <button id="battleTabButton" class="tabButton panel p-3 hidden" onClick="setTab('battle');">
                     <!--suppress HtmlUnknownTag -->
-                    <h3>Location</h3>
-                </button>
-                <button id="rebirthTabButton" class="tabButton panel p-3" onClick="setTab(this, 'rebirth');">
-                    <!--suppress HtmlUnknownTag -->
-                    <h3>Captain's Log</h3>
-                </button>
-                <button id="battleTabButton" class="tabButton panel p-3 hidden" onClick="setTab(this, 'battleTab');">
-                    <!--suppress HtmlUnknownTag -->
-                    <h3>Boss Battle</h3>
+                    <h3>Battle</h3>
                     <!--suppress HtmlUnknownTag -->
                     <div class="quickTaskDisplay mt-2">
                         <div class="progress battle progressBar" role="progressbar" aria-label="Task"
@@ -173,11 +164,19 @@
                         </div>
                     </div>
                 </button>
-                <button id="attributesTabButton" class="tabButton panel p-3" onClick="setTab(this, 'attributes');">
+                <button id="locationTabButton" class="tabButton panel p-3" onClick="setTab('location');">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Location</h3>
+                </button>
+                <button id="captainsLogTabButton" class="tabButton panel p-3" onClick="setTab('captainsLog');">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Captain's Log</h3>
+                </button>
+                <button id="attributesTabButton" class="tabButton panel p-3" onClick="setTab('attributes');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Attributes</h3>
                 </button>
-                <button id="settingsTabButton" class="tabButton panel p-3" onClick="setTab(this, 'settings');">
+                <button id="settingsTabButton" class="tabButton panel p-3" onClick="setTab('settings');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Settings</h3>
                 </button>
@@ -330,19 +329,15 @@
                 </tr>
             </template>
 
-            <div id="jobs" class="tab p-3">
-                <slot id="jobTable"></slot>
-            </div>
-
-            <div id="skills" class="tab p-3">
-                <slot id="skillTable"></slot>
+            <div id="modules" class="tab p-3">
+                <slot id="modulesTable"></slot>
             </div>
 
             <div id="location" class="tab p-3">
                 <slot id="sectorTable"></slot>
             </div>
 
-            <div id="rebirth" class="tab p-3">
+            <div id="captainsLog" class="tab p-3">
                 <ul>
                     <li>
                         You stumble across a strange looking amulet on your 25th birthday. It does not look like
@@ -365,7 +360,7 @@
                         <p class="mt-2 help-text">
                             By touching the eyeball, you will be reborn and have to restart life again, losing all your
                             levels and stored energy.
-                            However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to:
+                            However, you will gain <b>xp multipliers</b> for your modules and skills equivalent to:
                             <b>1 + the max level of the skill or job / 10.</b>
                             This means you will learn everything again much more quickly than you did in your previous
                             life.
@@ -399,7 +394,7 @@
                 </ul>
             </div>
 
-            <div id="battleTab" class="tab p-3 overflow-hidden">
+            <div id="battle" class="tab p-3 overflow-hidden">
                 <p class="help-text">Encounter</p>
                 <h2 id="battleName" class="mb-1">Destroyer</h2>
                 <div id="battleProgressBar" class="progress battle progressBar w-100 mt-3" role="progressbar" hidden

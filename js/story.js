@@ -28,9 +28,9 @@ function initDeath() {
     window.startBossBattle = function () {
         modal.hide();
         tabButtons.battle.classList.remove('hidden');
-        setTab(tabButtons.battle, 'battleTab');
         resetBattle('Destroyer');
         startBattle('Destroyer');
+        setTab('battle');
         unpause();
     };
 }
