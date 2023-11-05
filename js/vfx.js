@@ -213,7 +213,7 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
     const direction = taskInfo.type === 'Battle' ? 'left' : 'right';
     let taskProgressBar;
     if (taskInfo.type === 'Battle') {
-        taskProgressBar = getBattleElement(taskInfo.name);
+        taskProgressBar = getBattleElement(taskInfo.name).querySelector('.progressBar');
     } else if (taskInfo.type === 'GridStrength') {
         taskProgressBar = document.getElementById('energyDisplay').querySelector('.energy-fill')
     } else {
@@ -229,6 +229,7 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
 
     // Doesn't have a quick display
     if (taskInfo.type === 'GridStrength')  return;
+    if (taskInfo.type === 'Battle')  return; // TODO
 
     ParticleSystem.onetimeSplash(quickTaskProgressBar, numberOfParticles, direction);
     VFX.flash(quickTaskProgressBar);

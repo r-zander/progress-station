@@ -66,10 +66,6 @@ function createAttributeDescriptions(attribute) {
 
 const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100});
 
-const battleBaseData = {
-    Destroyer: {title: 'The Destroyer', maxXp: 500, maxLayers: 5, progressBarId: 'battleProgressBar', layerLabel: 'Tentacles layer'},
-};
-
 const moduleOperations = {
     Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 400, gridLoad: 1}),
     Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 50, gridLoad: 1}),
@@ -118,6 +114,38 @@ const moduleCategories = {
     Military: [modules.WeaponBay],
 };
 
+/*
+ *           100_000
+ *         1_000_000
+ *         7_500_000
+ *        40_000_000
+ *       150_000_000
+ * 1_000_000_000_000
+ */
+
+const factions = {
+    NovaFlies: {title: 'Nova Flies', maxXp: 20},
+    Astrogoblins: {title: 'Astrogoblins', maxXp: 50},
+    CometCrawlers: {title: 'Comet Crawlers', maxXp: 100},
+    SpacePirates: {title: 'Space Pirates', maxXp: 1_000},
+    ThunderDragon: {title: 'Thunder Dragon', maxXp: 100_000},
+    AstralSharks: {title: 'Astral Sharks', maxXp: 750_000},
+
+    Destroyer: {title: 'The Destroyer', maxXp: 500},
+};
+
+const battles = {
+    Astrogoblins10: new Battle({title: 'Wimpy', maxLevel: 10, faction: factions.Astrogoblins, effects: [{effectType: EffectType.Danger, baseValue: 10}], rewards: [{effectType: EffectType.Research, baseValue: 2}] }),
+    CometCrawlers10: new Battle({title: 'Handful of', maxLevel: 10, faction: factions.CometCrawlers, effects: [{effectType: EffectType.Danger, baseValue: 20}], rewards: [{effectType: EffectType.Growth, baseValue: 2}] }),
+    Astrogoblins20: new Battle({title: 'Courageous', maxLevel: 20, faction: factions.Astrogoblins, effects: [{effectType: EffectType.Danger, baseValue: 50}], rewards: [{effectType: EffectType.Military, baseValue: 2}] }),
+    SpacePirates10: new Battle({title: 'Roaming', maxLevel: 10, faction: factions.SpacePirates, effects: [{effectType: EffectType.Danger, baseValue: 100}], rewards: [{effectType: EffectType.Military, baseValue: 5}] }),
+    ThunderDragon10: new Battle({title: 'Decrepit', maxLevel: 10, faction: factions.ThunderDragon, effects: [{effectType: EffectType.Danger, baseValue: 200}], rewards: [{effectType: EffectType.Research, baseValue: 5}] }),
+    AstralSharks10: new Battle({title: 'Single', maxLevel: 10, faction: factions.AstralSharks, effects: [{effectType: EffectType.Danger, baseValue: 500}], rewards: [{effectType: EffectType.ResearchFactor, baseValue: 1.5}] }),
+    NovaFlies200: new Battle({title: 'Enormous swarm', maxLevel: 200, faction: factions.NovaFlies, effects: [{effectType: EffectType.Danger, baseValue: 300}], rewards: [{effectType: EffectType.Growth, baseValue: 20}] }),
+
+    Destroyer: new BossBattle({title: '', maxLevel: 5, faction: factions.Destroyer, effects: [{effectType: EffectType.Danger, baseValue: Number.POSITIVE_INFINITY}], rewards: [], progressBarId: 'battleProgressBar', layerLabel: 'Tentacles layer'}),
+};
+
 const pointsOfInterest = {
     FunkySector: new PointOfInterest({
         title: 'Funky Sector',
@@ -164,8 +192,13 @@ const tooltips = {
     Steel: 'Steel text',
     Garbage: 'Garbage text',
 
-    'Concentration': 'Improve your learning speed through practising intense concentration activities.',
-    'Productivity': 'Learn to procrastinate less at work and receive more job experience per day.',
+    NovaFlies: 'Similar to earth\'s long lost fireflies these bugs are glowing on their own. Experiencing their gigantic numbers and blinding brightness quickly explains the name.',
+    Astrogoblins: '',
+    CometCrawlers: '',
+    SpacePirates: '',
+    ThunderDragon: '',
+    AstralSharks: '',
+    Destroyer: '',
 
     'FunkySector': 'Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.',
 

@@ -19,6 +19,7 @@
  * @property {Object<string, ModuleOperation>} currentOperations
  * @property {PointOfInterest} currentPointOfInterest
  * @property {Battle} currentBattle
+ * @property {Battle[]} currentBattles
  *
  * @property {string} stationName
  * @property {string} selectedTab
@@ -50,6 +51,7 @@ let gameData = {
     currentOperations: {},
     currentPointOfInterest: null,
     currentBattle: null,
+    currentBattles: {},
 
     stationName: stationNameGenerator.generate(),
     selectedTab: 'modules',
@@ -79,7 +81,7 @@ const tabButtons = {
     modules: document.getElementById('modulesTabButton'),
     location: document.getElementById('locationTabButton'),
     captainsLog: document.getElementById('captainsLogTabButton'),
-    battle: document.getElementById('battleTabButton'),
+    battles: document.getElementById('battleTabButton'),
     attributes: document.getElementById('attributesTabButton'),
     settings: document.getElementById('settingsTabButton'),
 };
@@ -175,22 +177,6 @@ function setBattle(name) {
     nameElement.textContent = gameData.currentBattle.name;
 }
 
-function createData(data, baseData) {
-    for (const key in baseData) {
-        const entity = baseData[key];
-        createEntity(data, entity);
-    }
-}
-
-function createEntity(data, entity) {
-    if ('maxLayers' in entity) {
-        data[entity.name] = new Battle(entity);
-    } else if ('energyGeneration' in entity) {
-        data[entity.name] = new ModuleOperation(entity);
-    }
-    data[entity.name].id = 'row_' + entity.name;
-}
-
 function createRequiredRow(categoryName) {
     const requiredRow = Dom.new.fromTemplate('level4RequiredTemplate');
     requiredRow.classList.add('requiredRow', categoryName);
@@ -231,7 +217,6 @@ function createModuleLevel3Elements(categoryName, module) {
         const level3DomGetter = Dom.get(level3Element);
 
         level3DomGetter.byClass('name').textContent = component.title;
-        level3DomGetter.byClass('skipSkill').style.display = 'none';
 
         const level4Slot = level3DomGetter.byClass('level4');
         level4Slot.append(...createModuleLevel4Elements(categoryName, component));
@@ -287,12 +272,11 @@ function createModulesUI(categoryDefinition, domId) {
 
 /**
  *
- * @param {string} domId
  * @param {PointOfInterest[]} category
  * @param {string} categoryName
  * @return {HTMLElement[]}
  */
-function createLevel4Elements(domId, category, categoryName) {
+function createLevel4Elements( category, categoryName) {
     const level4Elements = [];
     for (const pointOfInterest of category) {
         const level4Element = Dom.new.fromTemplate('level4PointOfInterestTemplate');
@@ -318,7 +302,7 @@ function createLevel4Elements(domId, category, categoryName) {
 }
 
 function createLevel3Element(domId, category, categoryName, categoryIndex) {
-    let level3Element = Dom.new.fromTemplate('level3PointOfInterestTemplate');
+    const level3Element = Dom.new.fromTemplate('level3PointOfInterestTemplate');
 
     level3Element.classList.add(categoryName);
     level3Element.classList.remove('ps-3');
@@ -332,7 +316,7 @@ function createLevel3Element(domId, category, categoryName, categoryIndex) {
 
     /** @type {HTMLElement} */
     const level4Slot = level3DomGetter.byClass('level4');
-    level4Slot.append(...createLevel4Elements(domId, category.pointsOfInterest, categoryName));
+    level4Slot.append(...createLevel4Elements(category.pointsOfInterest, categoryName));
     return level3Element;
 }
 
@@ -349,6 +333,77 @@ function createSectorsUI(categoryDefinition, domId) {
     }
 
     slot.replaceWith(...level3Elements);
+}
+
+/**
+ *
+ * @param {Battle[]} category
+ * @param {string} categoryName
+ * @return {HTMLElement[]}
+ */
+function createLevel4BattleElements( category, categoryName) {
+    const level4Elements = [];
+    for (const battle of category) {
+        const level4Element = Dom.new.fromTemplate('level4BattleTemplate');
+        const level4DomGetter = Dom.get(level4Element);
+        level4DomGetter.byClass('name').textContent = battle.title;
+        const descriptionElement = level4DomGetter.byClass('descriptionTooltip');
+        descriptionElement.ariaLabel = battle.title;
+        descriptionElement.title = tooltips[battle.faction.name];
+        level4Element.id = 'row_' + battle.name;
+        level4DomGetter.byClass('rewards').textContent = battle.getRewardsDescription();
+        level4DomGetter.byClass('progressBar').addEventListener('click', () => {
+            battle.toggle();
+        });
+        level4DomGetter.byClass('radio').addEventListener('click', () => {
+            battle.toggle();
+        });
+
+        level4Elements.push(level4Element);
+    }
+
+    level4Elements.push(createRequiredRow(categoryName));
+    return level4Elements;
+}
+
+function createUnfinishedBattlesUI() {
+    const level3Element = Dom.new.fromTemplate('level3BattleTemplate');
+
+    level3Element.id = 'unfinishedBattles';
+    level3Element.classList.remove('ps-3');
+    //     level3Element.classList.remove('mt-2');
+
+    const level3DomGetter = Dom.get(level3Element);
+    level3DomGetter.byClass('name').textContent = 'Battles';
+    level3Element.querySelector('.header-row').style.backgroundColor = headerRowColors['Military grade'];
+
+    /** @type {HTMLElement} */
+    const level4Slot = level3DomGetter.byClass('level4');
+    level4Slot.append(...createLevel4BattleElements(Object.values(battles), 'unfinishedBattles'));
+
+    return level3Element;
+}
+
+function createFinishedBattlesUI() {
+    const level3Element = Dom.new.fromTemplate('level3BattleTemplate');
+
+    level3Element.id = 'finishedBattles';
+    level3Element.classList.remove('ps-3');
+
+    const level3DomGetter = Dom.get(level3Element);
+    level3DomGetter.byClass('name').textContent = 'Completed Battles';
+    level3Element.querySelector('.header-row').style.backgroundColor = headerRowColors['Common generators'];
+
+    /** @type {HTMLElement} */
+    const level4Slot = level3DomGetter.byClass('level4');
+
+    return level3Element;
+}
+
+function createBattlesUI(categoryDefinition, domId) {
+    const slot = Dom.get().byId(domId);
+
+    slot.replaceWith( createUnfinishedBattlesUI()/*, createFinishedBattlesUI()*/);
 }
 
 function createModuleQuickTaskDisplay() {
@@ -637,13 +692,13 @@ function setBattleProgress(currentTask, progressBar) {
     }
 
     Dom.get().byId('battleName').textContent = currentTask.title;
-    Dom.get(progressBar).byClass('name').textContent = currentTask.baseData.layerLabel + ' ' + (currentTask.maxLayers - currentTask.level);
+    Dom.get(progressBar).byClass('name').textContent = currentTask.baseData.layerLabel + ' ' + (currentTask.maxLevel - currentTask.level);
 
     const progressBarFill = Dom.get(progressBar).byClass('progressFill');
     setProgress(progressBarFill, 1 - (currentTask.xp / currentTask.getMaxXp()), false);
     progressBarFill.style.backgroundColor = layerData[currentTask.level].color;
 
-    if (currentTask.level < currentTask.maxLayers - 1 &&
+    if (currentTask.level < currentTask.maxLevel - 1 &&
         currentTask.level < layerData.length - 1
     ) {
         Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = layerData[currentTask.level + 1].color;
@@ -777,17 +832,18 @@ function updateTaskRows() {
     for (const key in gameData.taskData) {
         const task = gameData.taskData[key];
         if (task instanceof GridStrength) continue;
-        const row = document.getElementById('row_' + task.name);
-        formatValue(row.querySelector('.level > data'), task.level, {keepNumber: true});
-        formatValue(row.querySelector('.xpGain > data'), task.getXpGain());
-        formatValue(row.querySelector('.xpLeft > data'), task.getXpLeft());
+        const row = Dom.get().byId('row_' + task.name);
+        const domGetter = Dom.get(row);
+        formatValue(domGetter.bySelector('.level > data'), task.level, {keepNumber: true});
+        formatValue(domGetter.bySelector('.xpGain > data'), task.getXpGain());
+        formatValue(domGetter.bySelector('.xpLeft > data'), task.getXpLeft());
 
-        let maxLevel = row.querySelector('.maxLevel > data');
+        let maxLevel = domGetter.bySelector('.maxLevel > data');
         formatValue(maxLevel, task.maxLevel, {keepNumber: true});
         maxLevel = maxLevel.parentElement;
         gameData.rebirthOneCount > 0 ? maxLevel.classList.remove('hidden') : maxLevel.classList.add('hidden');
 
-        const progressFill = row.getElementsByClassName('progressFill')[0];
+        const progressFill = domGetter.byClass('progressFill');
         setProgress(progressFill, task.xp / task.getMaxXp());
         if (task instanceof ModuleOperation && gameData.currentOperations.hasOwnProperty(task.name)) {
             progressFill.classList.add('current');
@@ -795,32 +851,43 @@ function updateTaskRows() {
             progressFill.classList.remove('current');
         }
 
-        const valueElement = row.getElementsByClassName('value')[0];
-        valueElement.getElementsByClassName('energy-generated')[0].style.display = task instanceof Job ? 'block' : 'none';
-        //TODO 'Skill' feature leftovers
-        valueElement.getElementsByClassName('effect')[0].style.display = 'none';
-        const skipSkillElement = row.getElementsByClassName('skipSkill')[0];
-        skipSkillElement.style.display = 'none';
+        domGetter.byClass('effect').textContent = task.getEffectDescription();
+    }
+}
 
-        if (task instanceof Job) {
-            valueElement.getElementsByClassName('energy-generated')[0].textContent = task.getEffectDescription();
-        } else {
-            valueElement.getElementsByClassName('effect')[0].textContent = task.getEffectDescription();
-        }
+function updateBattleRows() {
+    for (const key in battles) {
+        /** @type {Battle} */
+        const battle = battles[key];
+        const row = Dom.get().byId('row_' + battle.name);
+        const domGetter = Dom.get(row);
+
+        formatValue(domGetter.bySelector('.level > data'), (battle.maxLevel - battle.level), {keepNumber: true});
+        formatValue(domGetter.bySelector('.xpGain > data'), battle.getXpGain());
+        formatValue(domGetter.bySelector('.xpLeft > data'), battle.getXpLeft());
+
+        const progressFill = domGetter.byClass('progressFill');
+        setProgress(progressFill, battle.xp / battle.getMaxXp());
+
+        const isActive = battle.isActive();
+        progressFill.classList.toggle('current', isActive);
+        domGetter.byClass('active').style.backgroundColor = isActive ? headerRowColors['Military grade'] : 'white';
+        formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
     }
 }
 
 function updateSectorRows() {
     for (const key in pointsOfInterest) {
+        /** @type {PointOfInterest} */
         const pointOfInterest = pointsOfInterest[key];
-        const row = document.getElementById('row_' + pointOfInterest.name);
+        const row = Dom.get().byId('row_' + pointOfInterest.name);
         const domGetter = Dom.get(row);
-        const isActive = pointOfInterest === gameData.currentPointOfInterest;
+        const isActive = pointOfInterest.isActive();
         domGetter.byClass('active').style.backgroundColor = isActive ? 'rgb(12, 101, 173)' : 'white';
         domGetter.byClass('button').classList.toggle('btn-dark', !isActive);
         domGetter.byClass('button').classList.toggle('btn-warning', isActive);
         domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescription();
-        domGetter.byClass('danger').textContent = pointOfInterest.getEffect(EffectType.Danger);
+        formatValue(domGetter.bySelector('.danger > data'), pointOfInterest.getEffect(EffectType.Danger));
     }
 }
 
@@ -975,31 +1042,17 @@ function updateBodyClasses() {
 
 function doTasks() {
     const modules = gameData.currentModules;
-    if (modules !== null) {
-        for (const moduleName in modules) {
-            const module = modules[moduleName];
-            module.do();
-        }
+    for (const moduleName in modules) {
+        const module = modules[moduleName];
+        module.do();
     }
 
-    /*
-    const tasks = gameData.currentOperations;
-    if (tasks !== null){
-        for (const taskName in tasks){
-            const task = tasks[taskName];
-            if(task != null)
-                task.do();
-        }
-    }*/
+    for (const battleName in gameData.currentBattles) {
+        const battle = battles[battleName];
+        battle.do();
+    }
 
-    // Legacy
-    doTask(gameData.currentBattle);
-    doTask(gridStrength);
-}
-
-function doTask(task) {
-    if (task == null) return;
-    task.do();
+    gridStrength.do();
 }
 
 function getEnergyGeneration() {
@@ -1143,21 +1196,25 @@ function formatValue(dataElement, value, config = {}) {
 }
 
 function getTaskElement(taskName) {
-    const task = gameData.taskData[taskName];
-    if (task == null) {
+    if (!gameData.taskData.hasOwnProperty(taskName)){
         console.log('Task not found in data: ' + taskName);
         return;
     }
+    const task = gameData.taskData[taskName];
     return document.getElementById(task.id);
 }
 
 function getBattleElement(taskName) {
-    const task = gameData.battleData[taskName];
-    if (task == null) {
+    if (!gameData.battleData.hasOwnProperty(taskName)){
         console.log('Battle not found in data: ' + taskName);
         return;
     }
-    return document.getElementById(task.baseData.progressBarId);
+    const battle = gameData.battleData[taskName];
+    if (battle instanceof BossBattle) {
+        return document.getElementById(battle.baseData.progressBarId);
+    }
+
+    return Dom.get().byId('row_' + battle.name);
 }
 
 function getPointOfInterestElement(name) {
@@ -1278,13 +1335,6 @@ function isPlaying() {
 }
 
 function assignMethods() {
-    for (const key in gameData.battleData) {
-        let battle = gameData.battleData[key];
-        battle.baseData = battleBaseData[battle.name];
-        battle = Object.assign(new Battle(battleBaseData[battle.name]), battle);
-        gameData.battleData[key] = battle;
-    }
-
     for (const key in gameData.requirements) {
         let requirement = gameData.requirements[key];
         switch (requirement.type) {
@@ -1396,6 +1446,16 @@ function loadGameData() {
             gameDataSave.currentModules[id] = modules[id];
         }
 
+        for (const key in gameDataSave.battleData) {
+            let battle = gameDataSave.battleData[key];
+            delete battle.baseData;
+            battle = Object.assign(battles[battle.name], battle);
+            gameDataSave.battleData[key] = battle;
+        }
+        for (const id in gameDataSave.currentBattles) {
+            gameDataSave.currentBattles[id] = gameDataSave.battleData[id];
+        }
+
         gameData = gameDataSave;
     } else {
         GameEvents.NewGameStarted.trigger(undefined);
@@ -1407,6 +1467,7 @@ function loadGameData() {
 function updateUI() {
     updateTaskRows();
     updateModuleRows();
+    updateBattleRows();
     updateSectorRows();
     updateRequiredRows(moduleCategories);
     updateRequiredRows(sectors);
@@ -1510,7 +1571,7 @@ function setDefaultCurrentValues() {
     gameData.currentOperations = {};
 
     for (const module of defaultModules) {
-        module.setEnabled(false);
+        module.setEnabled(true);
     }
 }
 
@@ -1555,16 +1616,16 @@ function assignNames(data) {
 function initConfigNames() {
     for (const [key, module] of Object.entries(moduleOperations)) {
         module.name = key;
-        module.baseData.name = key;
     }
 
     assignNames(attributes);
     assignNames(moduleComponents);
     assignNames(modules);
     assignNames(moduleCategories);
-    assignNames(battleBaseData);
-    assignNames(sectors);
+    assignNames(factions);
+    assignNames(battles);
     assignNames(pointsOfInterest);
+    assignNames(sectors);
 }
 
 function init() {
@@ -1576,6 +1637,7 @@ function init() {
 
     createModulesUI(moduleCategories, 'modulesTable');
     createSectorsUI(sectors, 'sectorTable');
+    createBattlesUI(battles, 'battlesTable');
     createModuleQuickTaskDisplay();
 
     adjustLayout();
@@ -1587,7 +1649,7 @@ function init() {
         entityData.id = 'row_' + entityData.name;
         gameData.taskData[entityData.name] = entityData;
     }
-    createData(gameData.battleData, battleBaseData);
+    gameData.battleData = battles;
     gameData.taskData[gridStrength.name] = gridStrength;
 
     setDefaultCurrentValues();

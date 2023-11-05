@@ -121,7 +121,7 @@
                     </div>
                 </div>
             </div>
-            <nav class="mt-3 d-flex flex-column gap-3">
+            <nav class="mt-3 d-flex flex-column gap-1">
                 <button id="modulesTabButton" class="tabButton panel p-3" onClick="setTab('modules');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Modules</h3>
@@ -150,11 +150,11 @@
                     </template>
                     <slot id="modulesQuickTaskDisplay"></slot>
                 </button>
-                <button id="battleTabButton" class="tabButton panel p-3 hidden" onClick="setTab('battle');">
+                <button id="battleTabButton" class="tabButton panel p-3" onClick="setTab('battles');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Battle</h3>
                     <!--suppress HtmlUnknownTag -->
-                    <div class="quickTaskDisplay mt-2">
+                    <div class="quickTaskDisplay mt-2 hidden">
                         <div class="progress battle progressBar" role="progressbar" aria-label="Task"
                              aria-valuenow="0"
                              aria-valuemin="0" aria-valuemax="100">
@@ -232,11 +232,31 @@
                             <th>Xp/Cycle</th>
                             <th>Xp left</th>
                             <th class="maxLevel">Max level</th>
-                            <th class="skipSkill">Skip</th>
                         </tr>
                         </thead>
                         <tbody class="level4">
                             <!-- repeat level 4 row -->
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <template id="level3BattleTemplate">
+                <div class="table-container ps-3 mt-2">
+                    <table class="table mb-0">
+                        <thead class="level3">
+                        <tr class="header-row">
+                            <th class="name">Battles</th>
+                            <th>Engaged</th>
+                            <th>Level</th>
+                            <th>Xp/Cycle</th>
+                            <th>Xp left</th>
+                            <th>Danger</th>
+                            <th>Reward</th>
+                        </tr>
+                        </thead>
+                        <tbody class="level4">
+                        <!-- repeat level 4 row -->
                         </tbody>
                     </table>
                 </div>
@@ -274,11 +294,8 @@
                     <td class="level">
                         <data value="53">53</data>
                     </td>
-                    <td class="value">
-                        <div class="effect">x1.13 Industry</div>
-                        <div class="energy-generated">
-                            <data value="259">259W</data>
-                        </div>
+                    <td class="effect">
+                        x1.13 Industry
                     </td>
                     <td class="xpGain">
                         <data value="1600" data-unit="k">1.6</data>
@@ -289,9 +306,39 @@
                     <td class="maxLevel">
                         <data value="124">124</data>
                     </td>
-                    <td class="skipSkill">
-                        <!--suppress HtmlFormInputWithoutLabel -->
-                        <input class="checkbox" type="checkbox"/>
+                </tr>
+            </template>
+
+            <template id="level4BattleTemplate">
+                <tr>
+                    <td>
+                        <div class="progress battle progressBar descriptionTooltip" role="progressbar" aria-label="Task"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Learn something about astrogoblins."
+                             data-bs-placement="right">
+                            <div class="progressBackground progress-background"></div>
+                            <div class="progressFill progress-bar progress-bar-striped" style="width: 54%"></div>
+                            <div class="progress-text name px-2">Wimpy Astrogoblins</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="radio">
+                            <div class="active"></div>
+                        </div>
+                    </td>
+                    <td class="level">
+                        <data value="53">53</data>
+                    </td>
+                    <td class="xpGain">
+                        <data value="1600" data-unit="k">1.6</data>
+                    </td>
+                    <td class="xpLeft">
+                        <data value="4550" data-unit="k">45.5</data>
+                    </td>
+                    <td class="danger">
+                        <data value="200">200</data>
+                    </td>
+                    <td class="rewards">
+                        +2.0 Research
                     </td>
                 </tr>
             </template>
@@ -311,7 +358,9 @@
                     </td>
                     <td class="effect"></td>
                     <td class="modifier"></td>
-                    <td class="danger"></td>
+                    <td class="danger">
+                        <data value="200">200</data>
+                    </td>
                 </tr>
             </template>
 
@@ -331,6 +380,22 @@
 
             <div id="modules" class="tab p-3">
                 <slot id="modulesTable"></slot>
+            </div>
+
+            <div id="battles" class="tab p-3 overflow-hidden">
+                <!--<p class="help-text">Encounter</p>
+                <h2 id="battleName" class="mb-1">Destroyer</h2>
+                <div id="battleProgressBar" class="progress battle progressBar w-100 mt-3" role="progressbar" hidden
+                     aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progressBackground progress-background"></div>
+                    <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
+                    <div class="progress-text name px-2">Battle</div>
+                </div>
+                <div class="mt-5 clearfix">
+                    <button class="btn btn-sm btn-light float-end" onclick="concedeBattle();">Concede</button>
+                </div>-->
+
+                <slot id="battlesTable"></slot>
             </div>
 
             <div id="location" class="tab p-3">
@@ -392,20 +457,6 @@
                         </button>
                     </li>
                 </ul>
-            </div>
-
-            <div id="battle" class="tab p-3 overflow-hidden">
-                <p class="help-text">Encounter</p>
-                <h2 id="battleName" class="mb-1">Destroyer</h2>
-                <div id="battleProgressBar" class="progress battle progressBar w-100 mt-3" role="progressbar" hidden
-                     aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                    <div class="progressBackground progress-background"></div>
-                    <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
-                    <div class="progress-text name px-2">Battle</div>
-                </div>
-                <div class="mt-5 clearfix">
-                    <button class="btn btn-sm btn-light float-end" onclick="concedeBattle();">Concede</button>
-                </div>
             </div>
 
             <div id="attributes" class="tab p-3">

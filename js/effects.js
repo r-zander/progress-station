@@ -56,6 +56,9 @@ class Modifier {
      * @return {ModifierDefinition[]}
      */
     static getActiveModifiers() {
+        if (gameData.currentPointOfInterest === null) {
+            return [];
+        }
         return gameData.currentPointOfInterest.modifiers;
     }
 
@@ -82,12 +85,14 @@ class Effect {
      */
     static #getSingleTotalValue(effectType) {
         let result = effectType.getDefaultValue();
-        const tasks = gameData.currentOperations;
-        for (const taskName in tasks) {
-            const task = tasks[taskName];
-            if (task != null) {
-                result = effectType.combine(result, task.getEffect(effectType));
-            }
+        for (const key in gameData.currentOperations) {
+            const operation = gameData.currentOperations[key];
+            result = effectType.combine(result, operation.getEffect(effectType));
+        }
+
+        for (const key in gameData.currentBattles) {
+            const battle = gameData.currentBattles[key];
+            result = effectType.combine(result, battle.getEffect(effectType));
         }
 
         result = effectType.combine(result, gameData.currentPointOfInterest.getEffect(effectType));

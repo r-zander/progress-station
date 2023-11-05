@@ -105,7 +105,7 @@ class Task {
         if (this.level > previousLevel) {
             GameEvents.TaskLevelChanged.trigger({
                 type: this.type,
-                name: this.baseData.name,
+                name: this.name,
                 previousLevel: previousLevel,
                 nextLevel: this.level,
             });
@@ -227,6 +227,7 @@ class Module {
         this.type = this.constructor.name;
         this.data = baseData;
         this.title = prepareTitle(baseData.title);
+        /** @var {ModuleComponent[]} */
         this.components = baseData.components;
         this.maxLevel = 0;
     }
