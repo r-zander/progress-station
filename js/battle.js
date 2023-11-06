@@ -43,8 +43,15 @@ class Battle extends LayeredTask {
         this.faction = baseData.faction;
         this.title = prepareTitle(this.title + ' ' + this.faction.title);
         this.description = this.faction.description;
-        /** @var {EffectDefinition[]} */
-        this.rewards = baseData.rewards;
+    }
+
+    collectEffects() {
+        super.collectEffects();
+        this.xpMultipliers.push(attributes.military.getValue);
+    }
+
+    getMaxLevelMultiplier() {
+        return 1;
     }
 
     isActive(){
@@ -76,12 +83,20 @@ class Battle extends LayeredTask {
      * @param {EffectType} effectType
      * @returns {number}
      */
+    getReward(effectType) {
+        return Effect.getValue(this, effectType, this.baseData.rewards, 1);
+    }
+
+    /**
+     * @param {EffectType} effectType
+     * @returns {number}
+     */
     getEffect(effectType) {
         return Effect.getValue(this, effectType, this.baseData.effects, 1);
     }
 
     getRewardsDescription(){
-        return Effect.getDescription(this, this.rewards, 1);
+        return Effect.getDescription(this, this.baseData.rewards, 1);
     }
 }
 

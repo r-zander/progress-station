@@ -67,7 +67,15 @@ let skipGameDataSave = false;
 
 /**
  *
- * @type {{element: HTMLElement, effectType: EffectType, taskOrItem: EffectsHolder, isActive: function(): boolean}[]}
+ * @type {
+ * {
+ *   element: HTMLElement,
+ *   effectType: EffectType,
+ *   getEffect: function(EffectType): number,
+ *   getEffects: function(): EffectDefinition[],
+ *   isActive: function(): boolean
+ * }[]
+ * }
  */
 const attributeBalanceEntries = [];
 
@@ -484,13 +492,14 @@ function createAttributeRow(attribute) {
 /**
  *
  * @param {HTMLElement} balanceElement
- * @param {EffectsHolder} effectsHolder
+ * @param {function(EffectType): number} getEffectFn
+ * @param {function(): EffectDefinition[]} getEffectsFn
  * @param {EffectType} effectType
  * @param {string} name
  * @param {function():boolean} isActiveFn
  */
-function createAttributeBalanceEntry(balanceElement, effectsHolder, effectType, name, isActiveFn) {
-    const affectsEffectType = effectsHolder.getEffects()
+function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, effectType, name, isActiveFn) {
+    const affectsEffectType = getEffectsFn()
         .find((effect) => effect.effectType === effectType) !== undefined;
     if (!affectsEffectType) return;
 
@@ -501,7 +510,7 @@ function createAttributeBalanceEntry(balanceElement, effectsHolder, effectType, 
     attributeBalanceEntries.push({
         element: balanceEntryElement,
         effectType: effectType,
-        taskOrItem: effectsHolder,
+        getEffect: getEffectFn,
         isActive: isActiveFn,
     });
     balanceElement.append(balanceEntryElement);
@@ -532,7 +541,11 @@ function createAttributeBalance(rowElement, effectTypes) {
             const module = modules[moduleName];
             for (const component of module.components) {
                 for (const operation of component.operations) {
-                    createAttributeBalanceEntry(balanceElement, operation, effectType,
+                    createAttributeBalanceEntry(
+                        balanceElement,
+                        operation.getEffect.bind(operation),
+                        operation.getEffects.bind(operation),
+                        effectType,
                         module.title + ' ' + component.title + ': ' + operation.title,
                         () => gameData.currentOperations.hasOwnProperty(operation.name)
                     );
@@ -540,9 +553,34 @@ function createAttributeBalance(rowElement, effectTypes) {
             }
         }
 
+        for (const key in battles) {
+            /** @type {Battle} */
+            const battle = battles[key];
+            createAttributeBalanceEntry(
+                balanceElement,
+                battle.getReward.bind(battle),
+                () => battle.baseData.rewards,
+                effectType,
+                'Defeated ' + battle.title,
+                battle.isDone.bind(battle)
+            );
+            createAttributeBalanceEntry(
+                balanceElement,
+                battle.getEffect.bind(battle),
+                battle.getEffects.bind(battle),
+                effectType,
+                'Fighting ' + battle.title,
+                () => battle.isActive() && !battle.isDone(),
+            );
+        }
+
         for (const poiName in pointsOfInterest) {
             const pointOfInterest = pointsOfInterest[poiName];
-            createAttributeBalanceEntry(balanceElement, pointOfInterest, effectType,
+            createAttributeBalanceEntry(
+                balanceElement,
+                pointOfInterest.getEffect.bind(pointOfInterest),
+                pointOfInterest.getEffects.bind(pointOfInterest),
+                effectType,
                 'Point of Interest: ' + pointOfInterest.baseData.title,
                 pointOfInterest.isActive.bind(pointOfInterest)
             );
@@ -624,7 +662,7 @@ function createAttributesUI() {
     // Military
     const militaryRow = createAttributeRow(attributes.military);
     Dom.get(militaryRow).byClass('balance').classList.remove('hidden');
-    createAttributeBalance(militaryRow, [EffectType.Military]);
+    createAttributeBalance(militaryRow, [EffectType.Military, EffectType.MilitaryFactor]);
     rows.push(militaryRow);
 
     // Population
@@ -747,6 +785,7 @@ function updateBattlesQuickDisplay() {
         }
 
         quickDisplayElement.classList.remove('hidden');
+        componentDomGetter.byClass('progressFill').classList.toggle('current', !battle.isDone());
         formatValue(
             componentDomGetter.byClass('level'),
             battle.getDisplayedLevel(),
@@ -896,7 +935,7 @@ function updateBattleRows() {
 
         formatValue(domGetter.bySelector('.level > data'), battle.getDisplayedLevel(), {keepNumber: true});
         formatValue(domGetter.bySelector('.xpGain > data'), battle.getXpGain());
-        formatValue(domGetter.bySelector('.xpLeft > data'), battle.getXpLeft());
+        formatValue(domGetter.bySelector('.xpLeft > data'), battle.isDone() ? 0 : battle.getXpLeft());
 
         setBattleProgress(domGetter.byClass('progressBar'), battle);
 
@@ -934,7 +973,7 @@ function updateAttributeRows() {
         if (balanceEntry.isActive()) {
             formatValue(
                 Dom.get(balanceEntry.element).byClass('entryValue'),
-                balanceEntry.taskOrItem.getEffect(balanceEntry.effectType)
+                balanceEntry.getEffect(balanceEntry.effectType)
             );
             balanceEntry.element.classList.remove('hidden');
         } else {

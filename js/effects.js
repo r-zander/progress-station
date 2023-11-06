@@ -91,9 +91,14 @@ class Effect {
             result = effectType.combine(result, operation.getEffect(effectType));
         }
 
-        for (const key in gameData.currentBattles) {
-            const battle = gameData.currentBattles[key];
-            result = effectType.combine(result, battle.getEffect(effectType));
+        for (const key in battles) {
+            /** @type {Battle} */
+            const battle = battles[key];
+            if (battle.isDone()) {
+                result = effectType.combine(result, battle.getReward(effectType));
+            } else if (battle.isActive()) {
+                result = effectType.combine(result, battle.getEffect(effectType));
+            }
         }
 
         result = effectType.combine(result, gameData.currentPointOfInterest.getEffect(effectType));

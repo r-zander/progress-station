@@ -384,9 +384,6 @@ class GridStrength extends Task {
         super(baseData);
     }
 
-    collectEffects() {
-    }
-
     getXpGain() {
         return applyMultipliers(getEnergyGeneration(), this.xpMultipliers);
     }

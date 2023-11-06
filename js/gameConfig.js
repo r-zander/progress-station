@@ -41,7 +41,7 @@ const attributes = {
     industry: { title: 'Industry', color: 'rgb(97, 173, 50)', icon: 'img/icons/industry.svg',
         getValue: Effect.getTotalValue.bind(this, [EffectType.Industry])},
     military: { title: 'Military', color: '#b3b3b3', icon: 'img/icons/military.svg',
-        getValue: Effect.getTotalValue.bind(this, [EffectType.Military])},
+        getValue: Effect.getTotalValue.bind(this, [EffectType.Military, EffectType.MilitaryFactor])},
     population: { title: 'Population', color: 'rgb(46, 148, 231)', icon: 'img/icons/population.svg',
         getValue: () => gameData.population },
     research: { title: 'Research', color: '#cc4ee2', icon: 'img/icons/research.svg',
@@ -380,6 +380,7 @@ function createRequirements(getTaskElement, getItemElement) {
     };
 }
 
+// TODO remove - this can easily be done in constructors
 function addMultipliers() {
     for (const taskName in gameData.taskData) {
         const task = gameData.taskData[taskName];
@@ -390,6 +391,13 @@ function addMultipliers() {
         }
 
         task.collectEffects();
+    }
+
+    for (const battleName in gameData.battleData) {
+        const battle = gameData.battleData[battleName];
+
+        battle.xpMultipliers = [];
+        battle.collectEffects();
     }
 }
 
