@@ -47,9 +47,7 @@ function initGameOver() {
 
     window.resetAfterGameOver = () => {
         // TODO thing about what actually to do. This is just a fail-safe
-        if (confirm('This is going to delete all your progress. Continue?')) {
-            resetGameData();
-        }
+        resetGameData();
     };
 
     window.restartAfterGameOver = () => {

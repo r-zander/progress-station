@@ -153,16 +153,21 @@
                 <button id="battleTabButton" class="tabButton panel p-3" onClick="setTab('battles');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Battle</h3>
-                    <!--suppress HtmlUnknownTag -->
-                    <div class="quickTaskDisplay mt-2 hidden">
-                        <div class="progress battle progressBar" role="progressbar" aria-label="Task"
-                             aria-valuenow="0"
-                             aria-valuemin="0" aria-valuemax="100">
-                            <div class="progressBackground progress-background"></div>
-                            <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
-                            <div class="progress-text name px-2">Task</div>
+                    <template id="battleQuickTaskDisplayTemplate">
+                        <div class="quickTaskDisplay mt-2">
+                            <div class="progress battle progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
+                                 aria-valuemin="0" aria-valuemax="100">
+                                <div class="progressBackground progress-background"></div>
+                                <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
+                                <div class="progress-text px-2">
+                                    <span class="name">Battle</span>
+                                    <span>lvl</span>
+                                    <data value="0" class="level">0</data>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    </template>
+                    <slot id="battlesQuickTaskDisplay"></slot>
                 </button>
                 <button id="locationTabButton" class="tabButton panel p-3" onClick="setTab('location');">
                     <!--suppress HtmlUnknownTag -->

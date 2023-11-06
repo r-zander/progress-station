@@ -1,3 +1,7 @@
+.battle > .progress-bar.current {
+    background-color: rgb(230, 57, 70);
+}
+
 #gameOverModal {
     &.win {
         .loss-only {

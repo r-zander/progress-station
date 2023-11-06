@@ -25,7 +25,13 @@
                 calc(100% - var(--corner-length)) 0,
                 100% 100%,
                 0 100%
-        )
+        );
+    }
+
+    .progress.battle {
+        > .single-particle-wrapper {
+            translate: -15px 0;
+        }
     }
 
     :not(.btn-group) > .btn {

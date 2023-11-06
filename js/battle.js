@@ -26,6 +26,13 @@ class LayeredTask extends Task {
     onDone() {
         // Default no-op
     }
+
+    /**
+     * @return {number}
+     */
+    getDisplayedLevel() {
+        return this.maxLevel - this.level;
+    }
 }
 
 class Battle extends LayeredTask {
@@ -53,6 +60,11 @@ class Battle extends LayeredTask {
     }
 
     start(){
+        if (this.isDone()) {
+            // Can't activate completed battles
+            return;
+        }
+
         gameData.currentBattles[this.name] = this;
     }
 

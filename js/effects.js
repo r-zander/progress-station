@@ -25,6 +25,7 @@ class EffectType {
     static Growth = new EffectType('+', 'Growth');
     static Industry = new EffectType('+', 'Industry');
     static Military = new EffectType('+', 'Military');
+    static MilitaryFactor = new EffectType('x', 'Military');
     static Research = new EffectType('+', 'Research');
     static ResearchFactor = new EffectType('x', 'Research');
 

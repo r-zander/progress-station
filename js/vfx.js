@@ -138,7 +138,7 @@ class ParticleSystem {
         ParticleSystem.followMouseInterval = setInterval(() => {
             let mousePos = ParticleSystem.mousePos;
             let particleElement = htmlToElement(`
-<div style="transform: rotate(${randomInt(360)}deg); top: ${mousePos.y}px; left: ${mousePos.x}px; position: absolute">
+<div style="transform: rotate(${randomInt(360)}deg); top: ${mousePos.y}px; left: ${mousePos.x}px; position: absolute" class="single-particle-wrapper">
     <div class="particle size${randomSize()}" style=""></div>
 </div>`);
             killAfterAnimation(particleElement);
@@ -157,18 +157,34 @@ class ParticleSystem {
                 return;
             }
 
-            document.querySelectorAll('.progressFill.current').forEach((element) => {
+            document.querySelectorAll(':not(.battle) > .progressFill.current').forEach((element) => {
                 // Don't spawn particles on elements that are invisible
                 if (isHidden(element)) return;
 
                 // TODO higher progress speed = more particles
                 let particleElement = htmlToElement(`
-<div style="position: absolute; transform: rotate(${randomInt(360)}deg); top: ${randomInt(element.clientHeight)}px; right: 0;">
+<div style="position: absolute; transform: rotate(${randomInt(360)}deg); top: ${randomInt(element.clientHeight)}px; right: 0;" class="single-particle-wrapper">
 <div class="particle size${randomSize()}" style=""></div>
 </div>`);
                 killAfterAnimation(particleElement);
                 element.append(particleElement);
             });
+
+            if (randomInt(100) <= 30) { // Only spawn 25% of particles
+                document.querySelectorAll('.battle > .progressFill.current').forEach((element) => {
+                    // Don't spawn particles on elements that are invisible
+                    if (isHidden(element)) return;
+
+                    const left = element.style.width;
+                    // TODO higher progress speed = more particles
+                    let particleElement = htmlToElement(`
+<div style="position: absolute; transform: rotate(${-15 + randomInt(30)}deg); top: ${randomInt(element.clientHeight)}px; left: ${left};" class="single-particle-wrapper">
+<div class="particle size${randomSize()}" style=""></div>
+</div>`);
+                    killAfterAnimation(particleElement);
+                    element.insertAdjacentElement('afterend', particleElement);
+                });
+            }
         }, 30);
     }
 
@@ -193,7 +209,7 @@ class ParticleSystem {
     static #onetimeSplash(element, numberOfParticles, styleObject) {
         for (let i = 0; i < numberOfParticles; i++) {
             let particleElement = htmlToElement(`
-<div style="position: absolute; transform: rotate(${-60 + randomInt(120)}deg); animation: fade-out 600ms ease-in-out; ${renderStyle(styleObject)}">
+<div style="position: absolute; transform: rotate(${-60 + randomInt(120)}deg); animation: fade-out 600ms ease-in-out; ${renderStyle(styleObject)}" class="single-particle-wrapper">
     <div class="particle size${randomSize(3)}" style="animation-duration: 600ms, 600ms; opacity: 0.6; scale: 0.5"></div>
 </div>`);
             killAfterAnimation(particleElement);
@@ -212,24 +228,25 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
     const numberOfParticles = 10;
     const direction = taskInfo.type === 'Battle' ? 'left' : 'right';
     let taskProgressBar;
+    let quickTaskProgressBar = undefined;
     if (taskInfo.type === 'Battle') {
         taskProgressBar = getBattleElement(taskInfo.name).querySelector('.progressBar');
+        quickTaskProgressBar = document.querySelector(`.quickTaskDisplay.${taskInfo.name} > .progressBar`);
     } else if (taskInfo.type === 'GridStrength') {
         taskProgressBar = document.getElementById('energyDisplay').querySelector('.energy-fill')
     } else {
         const taskElement = getTaskElement(taskInfo.name);
         taskProgressBar = taskElement.querySelector('.progressBar');
+        quickTaskProgressBar = document.querySelector(`.quickTaskDisplay .${taskInfo.type}.${taskInfo.name}.progressBar`);
     }
     if (isVisible(taskProgressBar)) {
         // Don't spawn particles on elements that are invisible
         ParticleSystem.onetimeSplash(taskProgressBar, numberOfParticles, direction);
         VFX.flash(taskProgressBar);
     }
-    const quickTaskProgressBar = document.querySelector(`.quickTaskDisplay .${taskInfo.type}.${taskInfo.name}.progressBar`);
 
     // Doesn't have a quick display
-    if (taskInfo.type === 'GridStrength')  return;
-    if (taskInfo.type === 'Battle')  return; // TODO
+    if (quickTaskProgressBar === undefined) return;
 
     ParticleSystem.onetimeSplash(quickTaskProgressBar, numberOfParticles, direction);
     VFX.flash(quickTaskProgressBar);

@@ -135,15 +135,65 @@ const factions = {
 };
 
 const battles = {
-    Astrogoblins10: new Battle({title: 'Wimpy', maxLevel: 10, faction: factions.Astrogoblins, effects: [{effectType: EffectType.Danger, baseValue: 10}], rewards: [{effectType: EffectType.Research, baseValue: 2}] }),
-    CometCrawlers10: new Battle({title: 'Handful of', maxLevel: 10, faction: factions.CometCrawlers, effects: [{effectType: EffectType.Danger, baseValue: 20}], rewards: [{effectType: EffectType.Growth, baseValue: 2}] }),
-    Astrogoblins20: new Battle({title: 'Courageous', maxLevel: 20, faction: factions.Astrogoblins, effects: [{effectType: EffectType.Danger, baseValue: 50}], rewards: [{effectType: EffectType.Military, baseValue: 2}] }),
-    SpacePirates10: new Battle({title: 'Roaming', maxLevel: 10, faction: factions.SpacePirates, effects: [{effectType: EffectType.Danger, baseValue: 100}], rewards: [{effectType: EffectType.Military, baseValue: 5}] }),
-    ThunderDragon10: new Battle({title: 'Decrepit', maxLevel: 10, faction: factions.ThunderDragon, effects: [{effectType: EffectType.Danger, baseValue: 200}], rewards: [{effectType: EffectType.Research, baseValue: 5}] }),
-    AstralSharks10: new Battle({title: 'Single', maxLevel: 10, faction: factions.AstralSharks, effects: [{effectType: EffectType.Danger, baseValue: 500}], rewards: [{effectType: EffectType.ResearchFactor, baseValue: 1.5}] }),
-    NovaFlies200: new Battle({title: 'Enormous swarm', maxLevel: 200, faction: factions.NovaFlies, effects: [{effectType: EffectType.Danger, baseValue: 300}], rewards: [{effectType: EffectType.Growth, baseValue: 20}] }),
+    Astrogoblins10: new Battle({
+        title: 'Wimpy',
+        maxLevel: 10,
+        faction: factions.Astrogoblins,
+        effects: [{effectType: EffectType.Danger, baseValue: 10}],
+        rewards: [{effectType: EffectType.Research, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    CometCrawlers10: new Battle({
+        title: 'Handful of',
+        maxLevel: 10,
+        faction: factions.CometCrawlers,
+        effects: [{effectType: EffectType.Danger, baseValue: 20}],
+        rewards: [{effectType: EffectType.Growth, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    Astrogoblins20: new Battle({
+        title: 'Courageous',
+        maxLevel: 20,
+        faction: factions.Astrogoblins,
+        effects: [{effectType: EffectType.Danger, baseValue: 50}],
+        rewards: [{effectType: EffectType.Military, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    SpacePirates10: new Battle({
+        title: 'Roaming',
+        maxLevel: 10,
+        faction: factions.SpacePirates,
+        effects: [{effectType: EffectType.Danger, baseValue: 100}],
+        rewards: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    ThunderDragon10: new Battle({
+        title: 'Decrepit',
+        maxLevel: 10,
+        faction: factions.ThunderDragon,
+        effects: [{effectType: EffectType.Danger, baseValue: 200}],
+        rewards: [{effectType: EffectType.Research, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    AstralSharks10: new Battle({
+        title: 'Lone',
+        maxLevel: 10,
+        faction: factions.AstralSharks,
+        effects: [{effectType: EffectType.Danger, baseValue: 500}],
+        rewards: [{effectType: EffectType.ResearchFactor, baseValue: 1.5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    NovaFlies200: new Battle({
+        title: 'Countless',
+        maxLevel: 200,
+        faction: factions.NovaFlies,
+        effects: [{effectType: EffectType.Danger, baseValue: 300}],
+        rewards: [{effectType: EffectType.Growth, baseValue: 20}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
 
-    Destroyer: new BossBattle({title: '', maxLevel: 5, faction: factions.Destroyer, effects: [{effectType: EffectType.Danger, baseValue: Number.POSITIVE_INFINITY}], rewards: [], progressBarId: 'battleProgressBar', layerLabel: 'Tentacles layer'}),
+    // Destroyer: new BossBattle({
+    //     title: '',
+    //     maxLevel: 5,
+    //     faction: factions.Destroyer,
+    //     effects: [{effectType: EffectType.Danger, baseValue: Number.POSITIVE_INFINITY}],
+    //     rewards: [],
+    //     progressBarId: 'battleProgressBar',
+    //     layerLabel: 'Tentacles layer'
+    // }),
 };
 
 const pointsOfInterest = {

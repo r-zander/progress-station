@@ -406,9 +406,9 @@ function createBattlesUI(categoryDefinition, domId) {
     slot.replaceWith( createUnfinishedBattlesUI()/*, createFinishedBattlesUI()*/);
 }
 
-function createModuleQuickTaskDisplay() {
+function createModulesQuickDisplay() {
     const slot = Dom.get().byId('modulesQuickTaskDisplay');
-    const moduleQuickTaskDisplayElements = [];
+    const quickDisplayElements = [];
     for (const moduleName in modules) {
         const module = modules[moduleName];
         const moduleQuickTaskDisplayElement = Dom.new.fromTemplate('moduleQuickTaskDisplayTemplate');
@@ -428,9 +428,25 @@ function createModuleQuickTaskDisplay() {
         }
         componentSlot.replaceWith(...componentQuickTaskDisplayElements);
 
-        moduleQuickTaskDisplayElements.push(moduleQuickTaskDisplayElement);
+        quickDisplayElements.push(moduleQuickTaskDisplayElement);
     }
-    slot.replaceWith(...moduleQuickTaskDisplayElements);
+    slot.replaceWith(...quickDisplayElements);
+}
+
+function createBattlesQuickDisplay() {
+    const slot = Dom.get().byId('battlesQuickTaskDisplay');
+    const quickDisplayElements = [];
+    for (const battleName in battles) {
+        const battle = battles[battleName];
+        const quickDisplayElement = Dom.new.fromTemplate('battleQuickTaskDisplayTemplate');
+        const componentDomGetter = Dom.get(quickDisplayElement);
+        quickDisplayElement.classList.add(battle.name);
+        componentDomGetter.byClass('name').textContent = battle.title;
+
+        quickDisplayElements.push(quickDisplayElement);
+    }
+
+    slot.replaceWith(...quickDisplayElements);
 }
 
 /**
@@ -651,7 +667,7 @@ function initSidebar() {
     });
 }
 
-function updateModuleQuickTaskDisplay() {
+function updateModulesQuickDisplay() {
     for (const moduleName in modules) {
         let container = Dom.get().bySelector('.quickTaskDisplayContainer.' + moduleName);
         if (!gameData.currentModules.hasOwnProperty(moduleName)) {
@@ -666,7 +682,7 @@ function updateModuleQuickTaskDisplay() {
             const componentDomGetter = Dom.get(containerDomGetter.bySelector('.quickTaskDisplay.' + component.name));
             let currentOperation = component.currentOperation;
             // Operation classes are never removed, but who cares
-            componentDomGetter.bySelector('.progressBar').classList.add(currentOperation.name);
+            componentDomGetter.byClass('progressBar').classList.add(currentOperation.name);
             componentDomGetter.bySelector('.name > .operation').textContent = currentOperation.title;
             formatValue(
                 componentDomGetter.bySelector('.name > .level'),
@@ -680,48 +696,64 @@ function updateModuleQuickTaskDisplay() {
 
 /**
  *
- * @param {LayeredTask} currentTask
  * @param {HTMLElement} progressBar
+ * @param {LayeredTask} battle
  */
-function setBattleProgress(currentTask, progressBar) {
-    if (currentTask.isDone()) {
+function setBattleProgress(progressBar, battle) {
+    if (battle.isDone()) {
         Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = lastLayerData.color;
         Dom.get(progressBar).byClass('progressFill').style.width = '0%';
-        Dom.get(progressBar).byClass('name').textContent = currentTask.title + ' defeated!';
+        Dom.get(progressBar).byClass('name').textContent = battle.title + ' defeated!';
         return;
     }
 
-    Dom.get().byId('battleName').textContent = currentTask.title;
-    Dom.get(progressBar).byClass('name').textContent = currentTask.baseData.layerLabel + ' ' + (currentTask.maxLevel - currentTask.level);
+    if (battle instanceof BossBattle) {
+        Dom.get().byId('battleName').textContent = battle.title;
+        Dom.get(progressBar).byClass('name').textContent = battle.baseData.layerLabel + ' ' + battle.getDisplayedLevel();
+    }
 
     const progressBarFill = Dom.get(progressBar).byClass('progressFill');
-    setProgress(progressBarFill, 1 - (currentTask.xp / currentTask.getMaxXp()), false);
-    progressBarFill.style.backgroundColor = layerData[currentTask.level].color;
+    setProgress(progressBarFill, 1 - (battle.xp / battle.getMaxXp()), false);
 
-    if (currentTask.level < currentTask.maxLevel - 1 &&
-        currentTask.level < layerData.length - 1
-    ) {
-        Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = layerData[currentTask.level + 1].color;
-    } else {
-        Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = lastLayerData.color;
+    if (battle instanceof BossBattle) {
+        progressBarFill.style.backgroundColor = layerData[battle.level].color;
+
+        if (battle.level < battle.maxLevel - 1 &&
+            battle.level < layerData.length - 1
+        ) {
+            Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = layerData[battle.level + 1].color;
+        } else {
+            Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = lastLayerData.color;
+        }
     }
 }
 
-function updateBattleQuickTaskDisplay() {
-    const currentTask = gameData.currentBattle;
-    if (currentTask === null) return;
+function updateBattlesQuickDisplay() {
+    // const currentTask = gameData.currentBattle;
+    // if (currentTask === null) return;
+    //
+    // const progressBar = document.querySelector(`.quickTaskDisplay .battle`);
+    // setBattleProgress(currentTask, progressBar);
 
-    const progressBar = document.querySelector(`.quickTaskDisplay .battle`);
-    setBattleProgress(currentTask, progressBar);
-}
 
-function updateBattleTaskDisplay() {
-    /** @type {LayeredTask} */
-    const currentTask = gameData.currentBattle;
-    if (currentTask === null) return;
+    for (const battleName in battles) {
+        /** @type {Battle} */
+        const battle = battles[battleName];
+        const quickDisplayElement = Dom.get().bySelector('#battleTabButton .quickTaskDisplay.' + battle.name);
+        const componentDomGetter = Dom.get(quickDisplayElement);
+        if (!battle.isActive()) {
+            quickDisplayElement.classList.add('hidden');
+            continue;
+        }
 
-    const progressBar = Dom.get().byId(currentTask.baseData.progressBarId);
-    setBattleProgress(currentTask, progressBar);
+        quickDisplayElement.classList.remove('hidden');
+        formatValue(
+            componentDomGetter.byClass('level'),
+            battle.getDisplayedLevel(),
+            {keepNumber: true}
+        );
+        setBattleProgress(componentDomGetter.byClass('progressBar'), battle);
+    }
 }
 
 /**
@@ -862,15 +894,15 @@ function updateBattleRows() {
         const row = Dom.get().byId('row_' + battle.name);
         const domGetter = Dom.get(row);
 
-        formatValue(domGetter.bySelector('.level > data'), (battle.maxLevel - battle.level), {keepNumber: true});
+        formatValue(domGetter.bySelector('.level > data'), battle.getDisplayedLevel(), {keepNumber: true});
         formatValue(domGetter.bySelector('.xpGain > data'), battle.getXpGain());
         formatValue(domGetter.bySelector('.xpLeft > data'), battle.getXpLeft());
 
-        const progressFill = domGetter.byClass('progressFill');
-        setProgress(progressFill, battle.xp / battle.getMaxXp());
+        setBattleProgress(domGetter.byClass('progressBar'), battle);
 
         const isActive = battle.isActive();
-        progressFill.classList.toggle('current', isActive);
+        domGetter.byClass('progressFill').classList.toggle('current', isActive);
+        domGetter.byClass('active').classList.toggle('hidden', battle.isDone());
         domGetter.byClass('active').style.backgroundColor = isActive ? headerRowColors['Military grade'] : 'white';
         formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
     }
@@ -1048,7 +1080,14 @@ function doTasks() {
     }
 
     for (const battleName in gameData.currentBattles) {
+        /** @type {Battle} */
         const battle = battles[battleName];
+        if (battle.isDone() && gameData.selectedTab === 'battles') {
+            // Quality of life - a battle is done and the player is already on the battles tab
+            // or visited it first after the battle was completed --> deactivate battle
+            battle.stop();
+        }
+
         battle.do();
     }
 
@@ -1472,9 +1511,8 @@ function updateUI() {
     updateRequiredRows(moduleCategories);
     updateRequiredRows(sectors);
     updateHeaderRows();
-    updateModuleQuickTaskDisplay();
-    updateBattleQuickTaskDisplay();
-    updateBattleTaskDisplay();
+    updateModulesQuickDisplay();
+    updateBattlesQuickDisplay();
     updateAttributeRows();
     hideEntities();
     updateText();
@@ -1489,8 +1527,11 @@ function update() {
 }
 
 function resetGameData() {
-    localStorage.clear();
-    location.reload();
+    // TODO use some nice modal
+    if (confirm('This is going to delete all your progress. Continue?')) {
+        localStorage.clear();
+        location.reload();
+    }
 }
 
 function rerollStationName() {
@@ -1638,7 +1679,8 @@ function init() {
     createModulesUI(moduleCategories, 'modulesTable');
     createSectorsUI(sectors, 'sectorTable');
     createBattlesUI(battles, 'battlesTable');
-    createModuleQuickTaskDisplay();
+    createModulesQuickDisplay();
+    createBattlesQuickDisplay();
 
     adjustLayout();
 
