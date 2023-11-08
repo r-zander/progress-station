@@ -15,11 +15,11 @@
  * @property {number} rebirthTwoCount
  * @property {number} totalDays
  *
- * @property {Object<string, Module>} currentModules
- * @property {Object<string, ModuleOperation>} currentOperations
+ * @property {Object.<string, Module>} currentModules
+ * @property {Object.<string, ModuleOperation>} currentOperations
  * @property {PointOfInterest} currentPointOfInterest
- * @property {Battle} currentBattle
- * @property {Battle[]} currentBattles
+ * //@property {Battle} currentBattle
+ * @property {Object.<string, Battle> } currentBattles
  *
  * @property {string} stationName
  * @property {string} selectedTab
@@ -50,7 +50,7 @@ let gameData = {
     currentModules: {},
     currentOperations: {},
     currentPointOfInterest: null,
-    currentBattle: null,
+    // currentBattle: null,
     currentBattles: {},
 
     stationName: stationNameGenerator.generate(),
@@ -179,11 +179,24 @@ function setPointOfInterest(name) {
     gameData.currentPointOfInterest = pointsOfInterest[name];
 }
 
-function setBattle(name) {
-    gameData.currentBattle = gameData.battleData[name];
-    const nameElement = document.getElementById('battleName');
-    nameElement.textContent = gameData.currentBattle.name;
-}
+// function setBattle(name) {
+//     gameData.currentBattle = gameData.battleData[name];
+//     const nameElement = document.getElementById('battleName');
+//     nameElement.textContent = gameData.currentBattle.name;
+// }
+//
+// function startBattle(name) {
+//     setBattle(name);
+//     const progressBar = document.getElementById('battleProgressBar');
+//     progressBar.hidden = false;
+// }
+//
+// function concedeBattle() {
+//     gameData.currentBattle = null;
+//     GameEvents.GameOver.trigger({
+//         bossDefeated: false,
+//     });
+// }
 
 function createRequiredRow(categoryName) {
     const requiredRow = Dom.new.fromTemplate('level4RequiredTemplate');
@@ -837,7 +850,7 @@ function updateBattlesQuickDisplay() {
  *
  * @param {HTMLElement} progressFillElement
  * @param {number} progress between 0.0 and 1.0
- * @param {boolean} increasing set to false if its not a progress bar but a regress bar
+ * @param {boolean} increasing set to false if it's not a progress bar but a regress bar
  */
 function setProgress(progressFillElement, progress, increasing = true) {
     // Clamp value to [0.0, 1.0]
@@ -1501,9 +1514,9 @@ function assignMethods() {
     }
 
     gameData.currentPointOfInterest = pointsOfInterest[gameData.currentPointOfInterest.name];
-    if (gameData.currentBattle !== null) {
-        startBattle(gameData.currentBattle.name);
-    }
+    // if (gameData.currentBattle !== null) {
+    //     startBattle(gameData.currentBattle.name);
+    // }
 }
 
 function replaceSaveDict(dict, saveDict) {
@@ -1718,19 +1731,6 @@ function setDefaultCurrentValues() {
     for (const module of defaultModules) {
         module.setEnabled(true);
     }
-}
-
-function startBattle(name) {
-    setBattle(name);
-    const progressBar = document.getElementById('battleProgressBar');
-    progressBar.hidden = false;
-}
-
-function concedeBattle() {
-    gameData.currentBattle = null;
-    GameEvents.GameOver.trigger({
-        bossDefeated: false,
-    });
 }
 
 function initSettings() {

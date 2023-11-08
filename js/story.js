@@ -27,10 +27,11 @@ function initDeath() {
 
     window.startBossBattle = function () {
         modal.hide();
-        tabButtons.battle.classList.remove('hidden');
-        resetBattle('Destroyer');
-        startBattle('Destroyer');
-        setTab('battle');
+        // TODO once there is a full specification for boss battle
+        // tabButtons.battles.classList.remove('hidden');
+        // resetBattle('Destroyer');
+        // startBattle('Destroyer');
+        setTab('battles');
         unpause();
     };
 }
