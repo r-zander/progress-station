@@ -284,7 +284,7 @@ function createModulesUI(categoryDefinition, domId) {
  * @param {string} categoryName
  * @return {HTMLElement[]}
  */
-function createLevel4Elements( category, categoryName) {
+function createLevel4Elements(category, categoryName) {
     const level4Elements = [];
     for (const pointOfInterest of category) {
         const level4Element = Dom.new.fromTemplate('level4PointOfInterestTemplate');
@@ -349,21 +349,21 @@ function createSectorsUI(categoryDefinition, domId) {
  * @param {string} categoryName
  * @return {HTMLElement[]}
  */
-function createLevel4BattleElements( category, categoryName) {
+function createLevel4BattleElements(category, categoryName) {
     const level4Elements = [];
     for (const battle of category) {
         const level4Element = Dom.new.fromTemplate('level4BattleTemplate');
-        const level4DomGetter = Dom.get(level4Element);
-        level4DomGetter.byClass('name').textContent = battle.title;
-        const descriptionElement = level4DomGetter.byClass('descriptionTooltip');
+        level4Element.id = 'row_' + battle.name;
+        const domGetter = Dom.get(level4Element);
+        domGetter.byClass('name').textContent = battle.title;
+        const descriptionElement = domGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = battle.title;
         descriptionElement.title = tooltips[battle.faction.name];
-        level4Element.id = 'row_' + battle.name;
-        level4DomGetter.byClass('rewards').textContent = battle.getRewardsDescription();
-        level4DomGetter.byClass('progressBar').addEventListener('click', () => {
+        domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
+        domGetter.byClass('progressBar').addEventListener('click', () => {
             battle.toggle();
         });
-        level4DomGetter.byClass('radio').addEventListener('click', () => {
+        domGetter.byClass('radio').addEventListener('click', () => {
             battle.toggle();
         });
 
@@ -381,15 +381,47 @@ function createUnfinishedBattlesUI() {
     level3Element.classList.remove('ps-3');
     //     level3Element.classList.remove('mt-2');
 
-    const level3DomGetter = Dom.get(level3Element);
-    level3DomGetter.byClass('name').textContent = 'Battles';
-    level3Element.querySelector('.header-row').style.backgroundColor = headerRowColors['Military grade'];
+    const domGetter = Dom.get(level3Element);
+    domGetter.byClass('header-row').style.backgroundColor = headerRowColors['Military grade'];
+    domGetter.byClass('name').textContent = 'Open';
 
     /** @type {HTMLElement} */
-    const level4Slot = level3DomGetter.byClass('level4');
+    const level4Slot = domGetter.byClass('level4');
     level4Slot.append(...createLevel4BattleElements(Object.values(battles), 'unfinishedBattles'));
 
     return level3Element;
+}
+
+function createLevel4FinishedBattleElements(category, categoryName) {
+    const level4Elements = [];
+    for (const battle of category) {
+        const level4Element = Dom.new.fromTemplate('level4BattleTemplate');
+        level4Element.id = 'row_done_' + battle.name;
+        level4Element.classList.add('hidden');
+        const domGetter = Dom.get(level4Element);
+        domGetter.bySelector('.progressBar .progressBackground').style.backgroundColor = lastLayerData.color;
+        domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
+        domGetter.byClass('name').textContent = battle.title;
+        const descriptionElement = domGetter.byClass('descriptionTooltip');
+        descriptionElement.ariaLabel = battle.title;
+        descriptionElement.title = tooltips[battle.faction.name];
+        domGetter.byClass('action').classList.add('hidden');
+        formatValue(
+            domGetter.bySelector('.level > data'),
+            battle.maxLevel,
+            {keepNumber: true}
+        );
+        domGetter.byClass('xpGain').classList.add('hidden');
+        domGetter.byClass('xpLeft').classList.add('hidden');
+        domGetter.byClass('danger').classList.add('hidden');
+        domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
+
+        // unshift --> battles in reverse order
+        level4Elements.unshift(level4Element);
+    }
+
+    level4Elements.push(createRequiredRow(categoryName));
+    return level4Elements;
 }
 
 function createFinishedBattlesUI() {
@@ -398,12 +430,18 @@ function createFinishedBattlesUI() {
     level3Element.id = 'finishedBattles';
     level3Element.classList.remove('ps-3');
 
-    const level3DomGetter = Dom.get(level3Element);
-    level3DomGetter.byClass('name').textContent = 'Completed Battles';
-    level3Element.querySelector('.header-row').style.backgroundColor = headerRowColors['Common generators'];
+    const domGetter = Dom.get(level3Element);
+    domGetter.byClass('header-row').style.backgroundColor = headerRowColors['Common generators'];
+    domGetter.byClass('name').textContent = 'Completed';
+    domGetter.byClass('action').classList.add('hidden');
+    domGetter.byClass('level').textContent = 'Defeated levels';
+    domGetter.byClass('xpGain').classList.add('hidden');
+    domGetter.byClass('xpLeft').classList.add('hidden');
+    domGetter.byClass('danger').classList.add('hidden');
 
     /** @type {HTMLElement} */
-    const level4Slot = level3DomGetter.byClass('level4');
+    const level4Slot = domGetter.byClass('level4');
+    level4Slot.append(...createLevel4FinishedBattleElements(Object.values(battles), 'unfinishedBattles'));
 
     return level3Element;
 }
@@ -411,7 +449,7 @@ function createFinishedBattlesUI() {
 function createBattlesUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
 
-    slot.replaceWith( createUnfinishedBattlesUI()/*, createFinishedBattlesUI()*/);
+    slot.replaceWith(createUnfinishedBattlesUI(), createFinishedBattlesUI());
 }
 
 function createModulesQuickDisplay() {
@@ -927,21 +965,46 @@ function updateTaskRows() {
 }
 
 function updateBattleRows() {
+    // Determine visibility
+    const maxBattles = maximumAvailableBattles();
+    let visibleBattles = 0;
+    const visibleFactions = {};
+
     for (const key in battles) {
         /** @type {Battle} */
         const battle = battles[key];
         const row = Dom.get().byId('row_' + battle.name);
-        const domGetter = Dom.get(row);
 
+        if (battle.isDone()) {
+            row.classList.add('hidden');
+            Dom.get().byId('row_done_' + battle.name).classList.remove('hidden');
+            continue;
+        }
+
+        if (visibleBattles >= maxBattles) {
+            row.classList.add('hidden');
+            continue;
+        }
+
+        if (visibleFactions.hasOwnProperty(battle.baseData.faction.name)) {
+            row.classList.add('hidden');
+            continue;
+        }
+
+        visibleBattles++;
+        visibleFactions[battle.baseData.faction.name] = true;
+
+        row.classList.remove('hidden');
+
+        const domGetter = Dom.get(row);
         formatValue(domGetter.bySelector('.level > data'), battle.getDisplayedLevel(), {keepNumber: true});
         formatValue(domGetter.bySelector('.xpGain > data'), battle.getXpGain());
-        formatValue(domGetter.bySelector('.xpLeft > data'), battle.isDone() ? 0 : battle.getXpLeft());
+        formatValue(domGetter.bySelector('.xpLeft > data'), battle.getXpLeft());
 
         setBattleProgress(domGetter.byClass('progressBar'), battle);
 
         const isActive = battle.isActive();
         domGetter.byClass('progressFill').classList.toggle('current', isActive);
-        domGetter.byClass('active').classList.toggle('hidden', battle.isDone());
         domGetter.byClass('active').style.backgroundColor = isActive ? headerRowColors['Military grade'] : 'white';
         formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
     }
@@ -1125,6 +1188,7 @@ function doTasks() {
             // Quality of life - a battle is done and the player is already on the battles tab
             // or visited it first after the battle was completed --> deactivate battle
             battle.stop();
+            VFX.flash(Dom.get().bySelector('#row_done_' + battle.name + ' .progressBar'));
         }
 
         battle.do();
@@ -1274,7 +1338,7 @@ function formatValue(dataElement, value, config = {}) {
 }
 
 function getTaskElement(taskName) {
-    if (!gameData.taskData.hasOwnProperty(taskName)){
+    if (!gameData.taskData.hasOwnProperty(taskName)) {
         console.log('Task not found in data: ' + taskName);
         return;
     }
@@ -1283,7 +1347,7 @@ function getTaskElement(taskName) {
 }
 
 function getBattleElement(taskName) {
-    if (!gameData.battleData.hasOwnProperty(taskName)){
+    if (!gameData.battleData.hasOwnProperty(taskName)) {
         console.log('Battle not found in data: ' + taskName);
         return;
     }
@@ -1569,7 +1633,8 @@ function resetGameData() {
     // TODO use some nice modal
     if (confirm('This is going to delete all your progress. Continue?')) {
         localStorage.clear();
-        location.reload();
+        // Give localStorage time to actually clear
+        setTimeout(() => {location.reload();}, 0);
     }
 }
 

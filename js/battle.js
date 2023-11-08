@@ -116,3 +116,16 @@ class BossBattle extends Battle {
         return 'Essence of Unknown';
     }
 }
+
+class FactionLevelsDefeatedRequirement extends Requirement {
+    constructor(elements, requirements) {
+        super('FactionLevelsDefeatedRequirement', elements, requirements);
+    }
+
+    getCondition(requirement) {
+        return Object.values(battles)
+            .filter((battle) => battle.faction === requirement.faction)
+            .map((battle) => battle.level)
+            .reduce((prev, cur) => prev + cur, 0) >= requirement.requirement;
+    }
+}

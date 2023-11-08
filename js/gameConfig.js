@@ -196,6 +196,15 @@ const battles = {
     // }),
 };
 
+function maximumAvailableBattles() {
+    const research = attributes.research.getValue();
+    if (research >= 100) return 5;
+    if (research >= 50) return 4;
+    if (research >= 20) return 3;
+    if (research >= 10) return 2;
+    return 1;
+}
+
 const pointsOfInterest = {
     FunkySector: new PointOfInterest({
         title: 'Funky Sector',

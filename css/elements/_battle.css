@@ -2,6 +2,13 @@
     background-color: rgb(230, 57, 70);
 }
 
+.game-playing {
+    .battle > .progress-bar-striped.current,
+    .battle.progress:hover > .progress-bar-striped {
+        animation: 1s linear infinite progress-bar-stripes;
+    }
+}
+
 #gameOverModal {
     &.win {
         .loss-only {
