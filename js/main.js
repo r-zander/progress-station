@@ -761,7 +761,7 @@ function updateModulesQuickDisplay() {
         let container = Dom.get().bySelector('.quickTaskDisplayContainer.' + moduleName);
         if (!gameData.currentModules.hasOwnProperty(moduleName)) {
             container.classList.add('hidden');
-            return;
+            continue;
         }
 
         const module = modules[moduleName];
