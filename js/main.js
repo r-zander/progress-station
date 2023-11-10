@@ -1073,23 +1073,25 @@ function updateEnergyBar() {
     setProgress(energyDisplayElement.querySelector('.energy-fill'), gridStrength.xp / gridStrength.getMaxXp());
 }
 
-// TODO fully borked. This need to be adjusted after a working heat formula is found
 function updateHeatDisplay() {
+    const mediumHeat = 1000;
+    const maxHeat = 8000;
+
     const heat = attributes.heat.getValue();
-    let heatText = (heat * 100).toFixed(1) + '%';
+    let heatText = (heat).toFixed(0);
     let color;
-    if (heat < 0.5) {
+    if (heat < mediumHeat) {
         color = lerpColor(
             dangerColors[0],
             dangerColors[1],
-            heat / 0.5,
+            heat / mediumHeat,
             'RGB'
         ).toString('rgb');
     } else {
         color = lerpColor(
             dangerColors[1],
             dangerColors[2],
-            (heat - 0.5) / 0.5,
+            (heat - mediumHeat) / (maxHeat - mediumHeat),
             'RGB'
         ).toString('rgb');
     }
