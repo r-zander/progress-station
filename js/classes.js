@@ -358,6 +358,11 @@ class ModuleComponent {
 }
 
 class ModuleOperation extends Job {
+    collectEffects() {
+        super.collectEffects();
+        this.xpMultipliers.push(attributes.industry.getValue);
+    }
+
     setEnabled(value) {
         if (value) {
             if (!gameData.currentOperations.hasOwnProperty(this.name)) {
