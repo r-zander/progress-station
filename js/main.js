@@ -723,7 +723,7 @@ function createAttributesUI() {
     populationFormulaElement.innerHTML =
         createAttributeInlineHTML(attributes.growth) + ' - ' +
         createAttributeInlineHTML(attributes.population) + ' * 0.01 * ' +
-        createAttributeInlineHTML(attributes.heat) + '<br />&wedgeq;<data value="0" class="delta">?</data> per cycle';
+        createAttributeInlineHTML(attributes.heat) + '<br />&wedgeq; <data value="0" class="delta">?</data> per cycle';
     rows.push(populationRow);
 
     // Research
@@ -1142,9 +1142,9 @@ function updateText() {
     formatValue(Dom.get().bySelector('#attributeRows > .military .value'), military);
 
     const population = attributes.population.getValue();
-    formatValue(Dom.get().byId('populationDisplay'), population);
-    formatValue(Dom.get().bySelector('#attributeRows > .population .value'), population);
-    formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), populationDelta());
+    formatValue(Dom.get().byId('populationDisplay'), population, {forceInteger: true});
+    formatValue(Dom.get().bySelector('#attributeRows > .population .value'), population, {forceInteger: true});
+    formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), populationDelta(), {forceSign: true});
 
     const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);
@@ -1285,14 +1285,23 @@ function increaseDays() {
  *
  * @param {HTMLDataElement} dataElement
  * @param {number} value
- * @param {{prefixes?: string[], unit?: string, forceSign?: boolean, keepNumber?: boolean}} config
+ * @param {{prefixes?: string[], unit?: string, forceSign?: boolean, keepNumber?: boolean, forceInteger?: boolean}} config
  */
 function formatValue(dataElement, value, config = {}) {
     // TODO render full number + unit into dataElement.title
     dataElement.value = String(value);
 
+    const defaultConfig = {
+        prefixes: magnitudes,
+        unit: '',
+        forceSign: false,
+        keepNumber: false,
+        forceInteger: false,
+    };
+    config = Object.assign({}, defaultConfig, config);
+
     const toString = (value) => {
-        if (Number.isInteger(value)) {
+        if (config.forceInteger || Number.isInteger(value)) {
             return value.toFixed(0);
         } else if (Math.abs(value) < 1) {
             return value.toFixed(2);
@@ -1300,14 +1309,6 @@ function formatValue(dataElement, value, config = {}) {
             return value.toPrecision(3);
         }
     };
-
-    const defaultConfig = {
-        prefixes: magnitudes,
-        unit: '',
-        forceSign: false,
-        keepNumber: false,
-    };
-    config = Object.assign({}, defaultConfig, config);
 
     // what tier? (determines SI symbol)
     const tier = Math.max(0, Math.log10(Math.abs(value)) / 3 | 0);
