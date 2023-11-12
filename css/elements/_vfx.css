@@ -1,3 +1,7 @@
+.single-particle-wrapper {
+    pointer-events: none;
+}
+
 .particle {
     position: absolute;
     display: block;
