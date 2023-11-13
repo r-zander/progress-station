@@ -292,6 +292,14 @@ class DomGetter {
     bySelector(selector) {
         return this.#parent.querySelector(selector);
     }
+
+    /**
+     * @param {string} selector
+     * @returns {NodeList<HTMLElement>}
+     */
+    allBySelector(selector) {
+        return this.#parent.querySelectorAll(selector);
+    }
 }
 
 const documentDomGetter = new DomGetter(document);

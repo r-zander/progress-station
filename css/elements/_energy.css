@@ -87,3 +87,45 @@
     color: #e63946;
 }
 
+#energyGridDisplay {
+    color: white;
+
+    .ticks {
+        height: 1rem;
+    }
+
+    .tick {
+        width: 1px;
+        height: 50%;
+        background-color: currentColor;
+
+        &:nth-child(5n+1),
+        .large {
+            height: 100%;
+        }
+    }
+
+
+}
+
+#gridStrength {
+    height: 30px;
+    line-height: 30px;
+
+    .grid-strength-box {
+        height: 100%;
+        background-color: rgb(12, 101, 173);
+
+        &.in-use {
+            background-color: rgb(46, 148, 231)
+        }
+    }
+}
+
+#energyDisplay2 {
+    height: 18px;
+
+    .progress-text {
+        line-height: 18px;
+    }
+}

@@ -81,4 +81,8 @@
             --corner-length: 16px;
         }
     }
+
+    #energyDisplay2 > .energy-max {
+        margin-right: 30px;
+    }
 }

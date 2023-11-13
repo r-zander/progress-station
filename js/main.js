@@ -735,6 +735,18 @@ function createAttributesUI() {
     slot.append(...rows);
 }
 
+function createEnergyGridDisplay() {
+    const tickElementsTop = [];
+    const tickElementsBottom = [];
+    for (let i = 0; i < (5 * 8 + 1); i++) {
+        tickElementsTop.push(Dom.new.fromTemplate('tickTemplate'));
+        tickElementsBottom.push(Dom.new.fromTemplate('tickTemplate'));
+    }
+
+    Dom.get().byId('ticksTop').replaceWith(...tickElementsTop);
+    Dom.get().byId('ticksBottom').replaceWith(...tickElementsBottom);
+}
+
 /**
  * Does layout calculations Raoul's too stupid to do in pure CSS.
  */
@@ -745,6 +757,8 @@ function adjustLayout() {
 
 function cleanUpDom() {
     for (const template of document.querySelectorAll('template')) {
+        if (template.classList.contains('keep')) continue;
+
         template.remove();
     }
 }
@@ -1063,14 +1077,25 @@ function updateAttributeRows() {
 }
 
 function updateEnergyBar() {
-    //TODO Raoul: Update for Grid Strength
-    const energyDisplayElement = document.getElementById('energyDisplay');
-    updateEnergyDisplay(attributes.gridStrength.getValue(), energyDisplayElement.querySelector('.energy-generated > data'));
-    updateEnergyDisplay(getRemainingGridStrength(), energyDisplayElement.querySelector('.energy-net > data'), {forceSign: true});
-    updateEnergyDisplay(0, energyDisplayElement.querySelector('.energy-stored > data'), {unit: units.storedEnergy});
-    updateEnergyDisplay(getMaxEnergy(), energyDisplayElement.querySelector('.energy-max > data'), {unit: units.storedEnergy});
-    updateEnergyDisplay(attributes.gridLoad.getValue(), energyDisplayElement.querySelector('.energy-usage > data'));
-    setProgress(energyDisplayElement.querySelector('.energy-fill'), gridStrength.xp / gridStrength.getMaxXp());
+    const energyDisplayElement = Dom.get().byId('energyGridDisplay');
+    const domGetter = Dom.get(energyDisplayElement);
+    updateEnergyDisplay(gridStrength.getXpGain(), domGetter.bySelector('.energy-net > data'));
+    updateEnergyDisplay(gridStrength.getMaxXp(), domGetter.bySelector('.energy-max > data'));
+    const currentGridLoad = attributes.gridLoad.getValue();
+    const currentGridStrength = attributes.gridStrength.getValue();
+    formatValue(domGetter.bySelector('.gridLoad > data'), currentGridLoad, {keepNumber: true});
+    formatValue(domGetter.bySelector('.gridStrength > data'), currentGridStrength, {keepNumber: true});
+    setProgress(domGetter.byClass('progressFill'), gridStrength.xp / gridStrength.getMaxXp());
+
+    const numberOfBoxes = Dom.get().allBySelector('#gridStrength > .grid-strength-box').length;
+    for(let i = numberOfBoxes; i < currentGridStrength; i++) {
+        const gridStrengthBox = Dom.new.fromTemplate('gridStrengthBoxTemplate');
+        Dom.get().byId('gridStrength').append(gridStrengthBox);
+    }
+
+    Dom.get().allBySelector('#gridStrength > .grid-strength-box').forEach((gridStrengthBox, index) => {
+        gridStrengthBox.classList.toggle('in-use', index < currentGridLoad);
+    });
 }
 
 function updateHeatDisplay() {
@@ -1814,6 +1839,7 @@ function init() {
 
     createAttributeDescriptions(createAttributeInlineHTML);
     createAttributesUI();
+    createEnergyGridDisplay();
 
     //setCustomEffects();
     addMultipliers();
