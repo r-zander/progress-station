@@ -33,7 +33,7 @@ const attributes = {
     gridLoad: { title: 'Grid Load', color: '#2CCBFF', icon: 'img/icons/energy.svg',
         getValue: () => calculateGridLoad() },
     gridStrength: { title: 'Grid Strength', color: '#0C65AD', icon: 'img/icons/energy.svg',
-        getValue: () => 1 + gridStrength.getGridStrength() },
+        getValue: () => gridStrength.getGridStrength() },
     growth: { title: 'Growth', color: 'green', icon: 'img/icons/growth.svg',
         getValue: Effect.getTotalValue.bind(this, [EffectType.Growth])},
     heat: { title: 'Heat', color: 'rgb(245, 166, 35)', icon: 'img/icons/heat.svg',
@@ -67,6 +67,12 @@ function createAttributeDescriptions(attribute) {
 const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100});
 
 const moduleOperations = {
+    StandbyGenerator: new ModuleOperation({title: 'Standby Generator', effects: [{effectType: EffectType.Energy, baseValue: 1}], maxXp: 100, gridLoad: 0}),
+    MicroCyborgAutomat: new ModuleOperation({title: 'Micro Cyborg Automat', effects: [{effectType: EffectType.Growth, baseValue: 1}], maxXp: 100, gridLoad: 1}),
+    KungFuManual: new ModuleOperation({title: 'Kung Fu manual', effects: [{effectType: EffectType.Military, baseValue: 1}], maxXp: 100, gridLoad: 1}),
+    PocketLaboratory: new ModuleOperation({title: 'Pocket Laboratory', effects: [{effectType: EffectType.Research, baseValue: 1}], maxXp: 100, gridLoad: 1}),
+    '4dPrinter': new ModuleOperation({title: '4D Printer', effects: [{effectType: EffectType.Industry, baseValue: 1}], maxXp: 100, gridLoad: 1}),
+
     Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 400, gridLoad: 1}),
     Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 50, gridLoad: 1}),
     Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 100, gridLoad: 1}),
@@ -85,33 +91,52 @@ const moduleOperations = {
 };
 
 const moduleComponents = {
-    Fuel: new ModuleComponent({title: 'Fuel', operations: [moduleOperations.Garbage, moduleOperations.Diesel]}),
-    Products: new ModuleComponent({title: 'Products', operations: [moduleOperations.Plastics, moduleOperations.Steel]}),
-    Replication: new ModuleComponent({title: 'Replication', operations: [moduleOperations.QuantumReplicator, moduleOperations.BioGenesisChamber, moduleOperations.NanoFertilityDrones]}),
-    Living: new ModuleComponent({title: 'Living', operations: [moduleOperations.HoloCommunityHub, moduleOperations.TemporalBreedingPods]}),
-    Turrets: new ModuleComponent({title: 'Turrets', operations: [moduleOperations.BallisticTurrets, moduleOperations.LaserTurrets]}),
-    Squads: new ModuleComponent({title: 'Squads', operations: [moduleOperations.FighterSquadron, moduleOperations.EliteForce]}),
+    RescueCapsule: new ModuleComponent({
+        title: 'Rescue Capsule',
+        operations: [moduleOperations.StandbyGenerator, moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual, moduleOperations.PocketLaboratory, moduleOperations['4dPrinter']],
+    }),
+    Fuel: new ModuleComponent({
+        title: 'Fuel',
+        operations: [moduleOperations.Garbage, moduleOperations.Diesel],
+    }),
+    Products: new ModuleComponent({
+        title: 'Products',
+        operations: [moduleOperations.Plastics, moduleOperations.Steel],
+    }),
+    Replication: new ModuleComponent({
+        title: 'Replication',
+        operations: [moduleOperations.QuantumReplicator, moduleOperations.BioGenesisChamber, moduleOperations.NanoFertilityDrones],
+    }),
+    Living: new ModuleComponent({
+        title: 'Living',
+        operations: [moduleOperations.HoloCommunityHub, moduleOperations.TemporalBreedingPods],
+    }),
+    Turrets: new ModuleComponent({
+        title: 'Turrets',
+        operations: [moduleOperations.BallisticTurrets, moduleOperations.LaserTurrets],
+    }),
+    Squads: new ModuleComponent({
+        title: 'Squads',
+        operations: [moduleOperations.FighterSquadron, moduleOperations.EliteForce],
+    }),
 };
 
 const modules = {
-    Furnace: new Module({title: 'Furnace', components: [moduleComponents.Fuel, moduleComponents.Products]}),
-    Hive: new Module({title: 'Hive', components: [moduleComponents.Replication, moduleComponents.Living]}),
+    ISASM: new Module({title: 'I.S.A.S.M', components: [moduleComponents.RescueCapsule]}),
+    Furnace: new Module({title: 'Furnace Module', components: [moduleComponents.Fuel, moduleComponents.Products]}),
+    Hive: new Module({title: 'Hive Module', components: [moduleComponents.Replication, moduleComponents.Living]}),
     WeaponBay: new Module({title: 'Weapon Bay', components: [moduleComponents.Turrets, moduleComponents.Squads]}),
 };
 
 const defaultModules = [
-    modules.Furnace
+    modules.ISASM
 ];
 
-/*
 const moduleCategories = {
-    Fundamentals: new ModuleCategory ({name: 'Fundamentals', headerRowColor: '#55A630', modules: [modules.Furnace]})
-}*/
-
-const moduleCategories = {
-    Fundamentals: [modules.Furnace],
-    Population: [modules.Hive],
-    Military: [modules.WeaponBay],
+    EmergencySupplies: new ModuleCategory({title: 'Emergency Supplies', color: '#4A4E69', modules: [modules.ISASM]}),
+    Fundamentals: new ModuleCategory({title: 'Fundamentals', color: '#55A630', modules: [modules.Furnace]}),
+    Population: new ModuleCategory({title: 'Population', color: '#219EBC', modules: [modules.Hive]}),
+    Military: new ModuleCategory({title: 'Military', color: '#E63946', modules: [modules.WeaponBay]}),
 };
 
 /*
@@ -235,6 +260,7 @@ const permanentUnlocks = ['Scheduling', 'Shop', 'Automation', 'Quick task displa
 const headerRowColors = {
     'Common generators': '#55A630',
     'Military grade': '#E63946',
+    'EmergencySupplies': '#4A4E69',
     'Fundamentals': '#4A4E69',
     'Combat': '#FF704D',
     'Magic': '#875F9A',
@@ -259,10 +285,13 @@ const tooltips = {
     AstralSharks: '',
     Destroyer: '',
 
-    'FunkySector': 'Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.',
+    FunkySector: 'Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.',
 
 
-    'VideoGameLand': 'A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly.',
+    VideoGameLand: 'A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly.',
+
+    ISASM: 'Indestructible Space Adventurer Survival Module',
+    RescueCapsule: 'A small pod, big enough to house a single person. Ideal to escape from the station as a last resort.',
 
     "Quantum Replicator": "Introducing the 'Quantum Replicator'—the ultimate solution for population growth! This futuristic device uses quantum technology to duplicate individuals, allowing you to rapidly expand your population. With each activation, watch as your society flourishes and thrives. Just remember to keep track of the originals, or you might end up with an army of duplicates!",
     "Bio-Genesis Chamber": "Step into the 'Bio-Genesis Chamber,' where life finds a new beginning! This advanced technology can create life forms from scratch, jump-starting your population growth. Simply input the genetic code and environmental parameters, and within moments, you'll have a thriving population ready to build a bright future. Handle with care; creating life is a profound responsibility!",
@@ -294,8 +323,19 @@ const layerData = [
 
 const lastLayerData = new LayerData('#000000');
 
+/**
+ *
+ * @param {function(string): HTMLElement} getTaskElement
+ * @param {function(string): HTMLElement} getItemElement
+ * @return {Record.<string, Requirement>}
+ */
 function createRequirements(getTaskElement, getItemElement) {
     return {
+        'MicroCyborgAutomat': new AttributeRequirement([getTaskElement('MicroCyborgAutomat')], [{attribute: attributes.gridStrength, requirement: 1}]),
+        'KungFuManual': new AttributeRequirement([getTaskElement('KungFuManual')], [{attribute: attributes.gridStrength, requirement: 1}]),
+        'PocketLaboratory': new AttributeRequirement([getTaskElement('PocketLaboratory')], [{attribute: attributes.gridStrength, requirement: 1}]),
+        '4dPrinter': new AttributeRequirement([getTaskElement('4dPrinter')], [{attribute: attributes.gridStrength, requirement: 1}]),
+
         /*
         //Other
         'Arcane energy': new TaskRequirement(Dom.get().allByClass('arcaneEnergy'), [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),
@@ -364,7 +404,7 @@ function createRequirements(getTaskElement, getItemElement) {
         'Demon\'s wealth': new EvilRequirement([getTaskElement('Demon\'s wealth')], [{requirement: 500}]),
 */
         //Properties
-        FunkySector: new GridStrengthRequirement([getItemElement('FunkySector')], [{requirement: 0}]),
+        // FunkySector: new GridStrengthRequirement([getItemElement('FunkySector')], [{requirement: 0}]),
         /*
         'Tent': new StoredEnergyRequirement([getPointOfInterestElement('Tent')], [{requirement: 0}]),
         'Wooden hut': new StoredEnergyRequirement([getPointOfInterestElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getGridLoad() * 100}]),
@@ -375,8 +415,8 @@ function createRequirements(getTaskElement, getItemElement) {
         'Grand palace': new StoredEnergyRequirement([getPointOfInterestElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getGridLoad() * 100}]),
 */
         //Misc
-        VideoGameLand: new GridStrengthRequirement([getItemElement('VideoGameLand')], [{requirement: 0}]),
-        Gurkenland: new GridStrengthRequirement([getItemElement('Gurkenland')], [{requirement: 0}]),
+        // VideoGameLand: new GridStrengthRequirement([getItemElement('VideoGameLand')], [{requirement: 0}]),
+        // Gurkenland: new GridStrengthRequirement([getItemElement('Gurkenland')], [{requirement: 0}]),
         /*
         'Dumbbells': new StoredEnergyRequirement([getPointOfInterestElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getGridLoad() * 100}]),
         'Personal squire': new StoredEnergyRequirement([getPointOfInterestElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getGridLoad() * 100}]),

@@ -125,12 +125,10 @@ class Task {
 class Job extends Task {
     constructor(baseData) {
         super(baseData);
-        this.energyGenerationMultipliers = [];
     }
 
     collectEffects() {
         super.collectEffects();
-        this.energyGenerationMultipliers.push(this.getLevelMultiplier.bind(this));
         //this.energyGenerationMultipliers.push(getBoundTaskEffect('Demon\'s wealth'));
         //this.xpMultipliers.push(getBoundTaskEffect('Productivity'));
         //this.xpMultipliers.push(getBoundItemEffect('Personal squire'));
@@ -140,18 +138,16 @@ class Job extends Task {
         super.do();
     }
 
+    /**
+     * @return {number}
+     */
     getLevelMultiplier() {
         return 1 + Math.log10(this.level + 1);
     }
 
-    getEnergyMultiplier() {
-        return this.getEffect(EffectType.EnergyFactor);
-    }
-
-    getEnergyGeneration() {
-        return applyMultipliers(this.getEffect(EffectType.Energy), this.energyGenerationMultipliers);
-    }
-
+    /**
+     * @return {number}
+     */
     getGridLoad() {
         return this.baseData.gridLoad === undefined ? 0 : this.baseData.gridLoad;
     }
@@ -217,10 +213,24 @@ class PointOfInterest {
     }
 }
 
-class Module {
+class ModuleCategory {
+    /** @var {string} */
+    name;
+
     /**
-     * @var {string}
+     *
+     * @param {{title: string, modules: Module[], color: string}} baseData
      */
+    constructor(baseData) {
+        this.type = this.constructor.name;
+        this.title = prepareTitle(baseData.title);
+        this.modules = baseData.modules;
+        this.color = baseData.color;
+    }
+}
+
+class Module {
+    /** @var {string} */
     name;
 
     constructor(baseData) {
@@ -304,6 +314,12 @@ class Module {
             this.maxLevel = currentLevel;
         }
         this.propagateMaxLevel();
+    }
+
+    getGridLoad() {
+        return this.components.reduce(
+            (gridLoadSum, component) => gridLoadSum + component.currentOperation.getGridLoad(),
+            0);
     }
 }
 
@@ -437,16 +453,6 @@ class TaskRequirement extends Requirement {
     }
 }
 
-class GridStrengthRequirement extends Requirement {
-    constructor(elements, requirements) {
-        super('GridStrengthRequirement', elements, requirements);
-    }
-
-    getCondition(requirement) {
-        return gridStrength.getGridStrength() >= requirement.requirement;
-    }
-}
-
 class AgeRequirement extends Requirement {
     constructor(elements, requirements) {
         super('AgeRequirement', elements, requirements);
@@ -457,12 +463,20 @@ class AgeRequirement extends Requirement {
     }
 }
 
-class ResearchRequirement extends Requirement {
+class AttributeRequirement extends Requirement {
+    /**
+     *
+     * @param {HTMLElement[]} elements
+     * @param {{attribute: AttributeDefinition, requirement: number}[]} requirements
+     */
     constructor(elements, requirements) {
-        super('ResearchRequirement', elements, requirements);
+        super('AttributeRequirement', elements, requirements);
     }
 
+    /**
+     * @param {{attribute: AttributeDefinition, requirement: number}} requirement
+     */
     getCondition(requirement) {
-        return attributes.research.getValue() >= requirement.requirement;
+        return requirement.attribute.getValue() >= requirement.requirement;
     }
 }

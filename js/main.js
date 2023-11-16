@@ -211,16 +211,21 @@ function createModuleLevel4Elements(categoryName, component) {
 
     for (const operation of operations) {
         const level4Element = Dom.new.fromTemplate('level4TaskTemplate');
-        const level4DomGetter = Dom.get(level4Element);
+        level4Element.id = 'row_' + operation.name;
 
+        const level4DomGetter = Dom.get(level4Element);
         level4DomGetter.byClass('name').textContent = operation.title;
         const descriptionElement = level4DomGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = operation.title;
-        descriptionElement.title = tooltips[operation.title];
-        level4Element.id = 'row_' + operation.name;
+        if (tooltips.hasOwnProperty(operation.name)) {
+            descriptionElement.title = tooltips[operation.name];
+        } else {
+            descriptionElement.removeAttribute('title');
+        }
         level4DomGetter.byClass('progressBar').addEventListener('click', () => {
             component.setActiveOperation(operation);
         });
+        formatValue(level4DomGetter.bySelector('.gridLoad > data'), operation.getGridLoad());
 
         level4Elements.push(level4Element);
     }
@@ -237,8 +242,13 @@ function createModuleLevel3Elements(categoryName, module) {
         const level3Element = Dom.new.fromTemplate('level3TaskTemplate');
         const level3DomGetter = Dom.get(level3Element);
 
-        level3DomGetter.byClass('name').textContent = component.title;
-
+        const nameCell = level3DomGetter.byClass('name');
+        nameCell.textContent = component.title;
+        if (tooltips.hasOwnProperty(component.name)) {
+            nameCell.title = tooltips[component.name];
+        } else {
+            nameCell.removeAttribute('title');
+        }
         const level4Slot = level3DomGetter.byClass('level4');
         level4Slot.append(...createModuleLevel4Elements(categoryName, component));
 
@@ -248,14 +258,26 @@ function createModuleLevel3Elements(categoryName, module) {
     return level3Elements;
 }
 
+/**
+ *
+ * @param {string} categoryName
+ * @param {ModuleCategory} category
+ * @return {HTMLElement[]}
+ */
 function createModuleLevel2Elements(categoryName, category) {
     const level2Elements = [];
 
-    for (const module of category) {
+    for (const module of category.modules) {
         const level2Element = Dom.new.fromTemplate('level2Template');
         const level2DomGetter = Dom.get(level2Element);
-        level2Element.id = 'module-row-' + module.name;
-        level2DomGetter.byClass('name').textContent = module.title + ' Module';
+        level2Element.id = 'module_row_' + module.name;
+        const nameCell = level2DomGetter.byClass('name');
+        nameCell.textContent = module.title;
+        if (tooltips.hasOwnProperty(module.name)) {
+            nameCell.title = tooltips[module.name];
+        } else {
+            nameCell.removeAttribute('title');
+        }
         module.setToggleButton(level2DomGetter.byClass('form-check-input'));
 
         const level3Slot = level2DomGetter.byId('level3');
@@ -274,13 +296,19 @@ function createModulesUI(categoryDefinition, domId) {
     for (const categoryName in categoryDefinition) {
         const level1Element = Dom.new.fromTemplate('level1Template');
 
+        /** @var {ModuleCategory} */
         const category = categoryDefinition[categoryName];
         level1Element.classList.add(categoryName);
 
         const level1DomGetter = Dom.get(level1Element);
-        level1DomGetter.byClass('category').textContent = categoryName;
-        level1DomGetter.byClass('value').textContent = '';
-        level1DomGetter.byClass('level1-header').style.backgroundColor = headerRowColors[categoryName];
+        const categoryCell = level1DomGetter.byClass('category');
+        categoryCell.textContent = category.title;
+        if (tooltips.hasOwnProperty(categoryName)) {
+            categoryCell.title = tooltips[categoryName];
+        } else {
+            categoryCell.removeAttribute('title');
+        }
+        level1DomGetter.byClass('level1-header').style.backgroundColor = category.color;
 
         const level2Slot = level1DomGetter.byId('level2');
         level2Slot.replaceWith(...createModuleLevel2Elements(categoryName, category));
@@ -956,11 +984,13 @@ function updateRequiredRows(categoryType) {
 
 function updateModuleRows() {
     for (const moduleName in modules) {
+        /** @var {Module} */
         const module = modules[moduleName];
-        const row = document.getElementById('module-row-' + module.name);
+        const row = document.getElementById('module_row_' + module.name);
         const level = module.getLevel();
         const dataElement = row.querySelector('.level');
         formatValue(dataElement, level);
+        formatValue(Dom.get(row).byClass('gridLoad'), module.getGridLoad());
     }
 }
 
@@ -1238,27 +1268,7 @@ function doTasks() {
 }
 
 function getEnergyGeneration() {
-    let energy = 0;
-    const tasks = gameData.currentOperations;
-    if (tasks !== null) {
-        for (const taskName in tasks) {
-            const task = tasks[taskName];
-            if (task != null) {
-                energy += task.getEnergyGeneration();
-            }
-        }
-        for (const taskName in tasks) {
-            const task = tasks[taskName];
-            if (task != null) {
-                const multiplier = task.getEnergyMultiplier();
-                if (multiplier !== 1 && energy === 0) {
-                    energy = 1;
-                }
-                energy *= multiplier;
-            }
-        }
-    }
-    return energy;
+    return Effect.getTotalValue([EffectType.Energy, EffectType.EnergyFactor]);
 }
 
 function getMaxEnergy() {
@@ -1381,7 +1391,7 @@ function formatValue(dataElement, value, config = {}) {
 function getTaskElement(taskName) {
     if (!gameData.taskData.hasOwnProperty(taskName)) {
         console.log('Task not found in data: ' + taskName);
-        return;
+        return null;
     }
     const task = gameData.taskData[taskName];
     return document.getElementById(task.id);
@@ -1524,14 +1534,11 @@ function assignMethods() {
             case 'TaskRequirement':
                 requirement = Object.assign(new TaskRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
-            case 'GridStrengthRequirement':
-                requirement = Object.assign(new GridStrengthRequirement(requirement.elements, requirement.requirements), requirement);
-                break;
             case 'AgeRequirement':
                 requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
-            case 'ResearchRequirement':
-                requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement);
+            case 'AttributeRequirement':
+                requirement = Object.assign(new AttributeRequirement(requirement.elements, requirement.requirements), requirement);
                 break;
         }
 
@@ -1673,7 +1680,7 @@ function update() {
 function resetGameData() {
     // TODO use some nice modal
     if (confirm('This is going to delete all your progress. Continue?')) {
-        localStorage.clear();
+        localStorage.removeItem('gameDataSave');
         // Give localStorage time to actually clear
         setTimeout(() => {location.reload();}, 0);
     }
