@@ -10,26 +10,101 @@
  * @property {function(): number} getValue - retrieves the current value for this attribute
  */
 
+/**
+ * @typedef {Object} FactionDefinition
+ * @property {string} title
+ * @property {string} [description]
+ * @property {number} maxXp
+ */
+
+/**
+ * Super class for just about anything in the game.
+ * If it has a constructor, it should probably extend Entity.
+ */
+class Entity {
+    /**
+     * @readonly
+     * @var {string}
+     */
+    name;
+
+    /**
+     * @readonly
+     * @var {string}
+     */
+    type;
+
+    /**
+     * @param {string} title
+     * @param {string|undefined} description
+     */
+    constructor(title, description) {
+        this.type = this.constructor.name;
+        this.title = prepareTitle(title);
+        this.description = description;
+    }
+}
 
 /**
  * @implements EffectsHolder
  */
-class Task {
+class Task extends Entity {
+    /**
+     * @param {{
+     *     title: string,
+     *     description?: string,
+     *     maxXp: number,
+     *     effects: EffectDefinition[],
+     * }} baseData
+     */
     constructor(baseData) {
-        this.type = this.constructor.name;
-        this.name = baseData.name;
+        super(baseData.title, baseData.description);
+
         this.baseData = baseData;
-        this.title = prepareTitle(baseData.title);
         this.level = 0;
         this.maxLevel = 0;
         this.xp = 0;
         this.xpMultipliers = [];
     }
 
-    assignSaveData(saveData) {
-        this.level = saveData.level;
-        this.maxLevel = saveData.maxLevel;
-        this.xp = saveData.xp;
+    /**
+     * @param {{
+     *     level: number,
+     *     maxLevel: number,
+     *     xp: number,
+     * }} savedValues
+     */
+    loadData(savedValues){
+        validateParameter(savedValues, {
+            level: JsTypes.Number,
+            maxLevel: JsTypes.Number,
+            xp: JsTypes.Number,
+        });
+        this.savedValues = savedValues;
+    }
+
+    get level(){
+        return this.savedValues.level;
+    }
+
+    set level(level) {
+        this.savedValues.level = level;
+    }
+
+    get maxLevel(){
+        return this.savedValues.level;
+    }
+
+    set maxLevel(maxLevel) {
+        this.savedValues.maxLevel = maxLevel;
+    }
+
+    get xp(){
+        return this.savedValues.xp;
+    }
+
+    set xp(level) {
+        this.savedValues.xp = xp;
     }
 
     do() {
@@ -122,59 +197,56 @@ class Task {
     }
 }
 
-class Job extends Task {
-    constructor(baseData) {
-        super(baseData);
-    }
-
-    collectEffects() {
-        super.collectEffects();
-        //this.energyGenerationMultipliers.push(getBoundTaskEffect('Demon\'s wealth'));
-        //this.xpMultipliers.push(getBoundTaskEffect('Productivity'));
-        //this.xpMultipliers.push(getBoundItemEffect('Personal squire'));
-    }
-
-    do() {
-        super.do();
-    }
-
+class Sector extends Entity {
     /**
-     * @return {number}
+     * @param {{
+     *     title: string,
+     *     description?: string,
+     *     color: string,
+     *     pointsOfInterest: PointOfInterest[]
+     * }} baseData
      */
-    getLevelMultiplier() {
-        return 1 + Math.log10(this.level + 1);
-    }
-
-    /**
-     * @return {number}
-     */
-    getGridLoad() {
-        return this.baseData.gridLoad === undefined ? 0 : this.baseData.gridLoad;
-    }
-}
-
-class Sector {
     constructor(baseData) {
-        this.type = this.constructor.name;
+        super(baseData.title, baseData.description);
+
         this.baseData = baseData;
-        this.name = baseData.name;
-        this.title = prepareTitle(baseData.title);
-        /** @var {PointOfInterest[]} */
+        this.color = baseData.color;
         this.pointsOfInterest = baseData.pointsOfInterest;
+    }
+
+    /**
+     * @param {undefined} savedValues
+     */
+    loadData(savedValues){
+        validateParameter(savedValues, 'undefined');
     }
 }
 
 /**
  * @implements EffectsHolder
  */
-class PointOfInterest {
+class PointOfInterest extends Entity {
+    /**
+     *
+     * @param {{
+     *     title: string,
+     *     description?: string,
+     *     effects: EffectDefinition[],
+     *     modifiers: ModifierDefinition[],
+     * }} baseData
+     */
     constructor(baseData) {
-        this.type = this.constructor.name;
+        super(baseData.title, baseData.description);
+
         this.baseData = baseData;
-        this.name = baseData.name;
-        this.title = prepareTitle(baseData.title);
-        /** @var {ModifierDefinition[]} */
         this.modifiers = baseData.modifiers;
+    }
+
+    /**
+     * @param {undefined} savedValues
+     */
+    loadData(savedValues){
+        validateParameter(savedValues, 'undefined');
     }
 
     /**
@@ -213,35 +285,69 @@ class PointOfInterest {
     }
 }
 
-class ModuleCategory {
-    /** @var {string} */
-    name;
+class ModuleCategory extends Entity {
 
     /**
      *
-     * @param {{title: string, modules: Module[], color: string}} baseData
+     * @param {{
+     *     title: string,
+     *     description?: string,
+     *     color: string
+     *     modules: Module[],
+     * }} baseData
      */
     constructor(baseData) {
-        this.type = this.constructor.name;
-        this.title = prepareTitle(baseData.title);
+        super(baseData.title, baseData.description);
+
         this.modules = baseData.modules;
         this.color = baseData.color;
     }
+
+    /**
+     * @param {undefined} savedValues
+     */
+    loadData(savedValues){
+        validateParameter(savedValues, 'undefined');
+    }
 }
 
-class Module {
-    /** @var {string} */
-    name;
+class Module extends Entity {
 
+    /**
+     *
+     * @param {{
+     *     title: string,
+     *     description?: string,
+     *     components: ModuleComponent[],
+     * }} baseData
+     */
     constructor(baseData) {
-        this.type = this.constructor.name;
+        super(baseData.title, baseData.description);
+
         this.data = baseData;
-        this.title = prepareTitle(baseData.title);
-        /** @var {ModuleComponent[]} */
         this.components = baseData.components;
         this.maxLevel = 0;
     }
 
+    /**
+     * @param {{
+     *     maxLevel: number,
+     * }} savedValues
+     */
+    loadData(savedValues){
+        validateParameter(savedValues, {maxLevel: JsTypes.Number});
+        this.savedValues = savedValues;
+    }
+
+    get maxLevel() {
+        return this.savedValues.maxLevel;
+    }
+
+    set maxLevel(maxLevel) {
+        this.savedValues.maxLevel = maxLevel;
+    }
+
+    // TODO remove
     getSaveData() {
         return {maxLevel: this.maxLevel};
     }
@@ -323,15 +429,27 @@ class Module {
     }
 }
 
-class ModuleComponent {
+class ModuleComponent extends Entity {
+
     /**
-     * @param {{title: string, operations: ModuleOperation[]}} baseData
+     * @param {{
+     *     title: string,
+     *     description?: string,
+     *     operations: ModuleOperation[]
+     * }} baseData
      */
     constructor(baseData) {
-        this.type = this.constructor.name;
-        this.title = prepareTitle(baseData.title);
+        super(baseData.title, baseData.description);
+
         this.operations = baseData.operations;
         this.currentOperation = this.operations[0];
+    }
+
+    /**
+     * @param {undefined} savedValues
+     */
+    loadData(savedValues){
+        validateParameter(savedValues, JsTypes.Undefined);
     }
 
     do() {
@@ -373,7 +491,20 @@ class ModuleComponent {
     }
 }
 
-class ModuleOperation extends Job {
+class ModuleOperation extends Task {
+    /**
+     * @param {{
+     *     title: string,
+     *     description?: string,
+     *     maxXp: number,
+     *     gridLoad: number,
+     *     effects: EffectDefinition[]
+     * }} baseData
+     */
+    constructor(baseData) {
+        super(baseData);
+    }
+
     collectEffects() {
         super.collectEffects();
         this.xpMultipliers.push(attributes.industry.getValue);
@@ -395,8 +526,22 @@ class ModuleOperation extends Job {
         this.setEnabled(!this.enabled);
     }
 
+    /**
+     * @return {number}
+     */
+    getLevelMultiplier() {
+        return 1 + Math.log10(this.level + 1);
+    }
+
     getMaxLevelMultiplier() {
         return 1 + this.maxLevel / 100;
+    }
+
+    /**
+     * @return {number}
+     */
+    getGridLoad() {
+        return this.baseData.gridLoad === undefined ? 0 : this.baseData.gridLoad;
     }
 }
 

@@ -47,6 +47,9 @@ let gameData = {
     rebirthTwoCount: 0,
     totalDays: 365 * 14,
 
+    // TODO --> new Set
+    // TODO on save: persist set.values
+    // TODO on load: new Set(values)
     currentModules: {},
     currentOperations: {},
     currentPointOfInterest: null,
@@ -217,8 +220,8 @@ function createModuleLevel4Elements(categoryName, component) {
         level4DomGetter.byClass('name').textContent = operation.title;
         const descriptionElement = level4DomGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = operation.title;
-        if (tooltips.hasOwnProperty(operation.name)) {
-            descriptionElement.title = tooltips[operation.name];
+        if (isDefined(operation.description)) {
+            descriptionElement.title = operation.description;
         } else {
             descriptionElement.removeAttribute('title');
         }
@@ -244,8 +247,8 @@ function createModuleLevel3Elements(categoryName, module) {
 
         const nameCell = level3DomGetter.byClass('name');
         nameCell.textContent = component.title;
-        if (tooltips.hasOwnProperty(component.name)) {
-            nameCell.title = tooltips[component.name];
+        if (isDefined(component.description)) {
+            nameCell.title = component.description;
         } else {
             nameCell.removeAttribute('title');
         }
@@ -273,8 +276,8 @@ function createModuleLevel2Elements(categoryName, category) {
         level2Element.id = 'module_row_' + module.name;
         const nameCell = level2DomGetter.byClass('name');
         nameCell.textContent = module.title;
-        if (tooltips.hasOwnProperty(module.name)) {
-            nameCell.title = tooltips[module.name];
+        if (isDefined(module.description)) {
+            nameCell.title = module.description;
         } else {
             nameCell.removeAttribute('title');
         }
@@ -303,8 +306,8 @@ function createModulesUI(categoryDefinition, domId) {
         const level1DomGetter = Dom.get(level1Element);
         const categoryCell = level1DomGetter.byClass('category');
         categoryCell.textContent = category.title;
-        if (tooltips.hasOwnProperty(categoryName)) {
-            categoryCell.title = tooltips[categoryName];
+        if (isDefined(category.description)) {
+            categoryCell.title = category.description;
         } else {
             categoryCell.removeAttribute('title');
         }
@@ -325,16 +328,21 @@ function createModulesUI(categoryDefinition, domId) {
  * @param {string} categoryName
  * @return {HTMLElement[]}
  */
-function createLevel4Elements(category, categoryName) {
+function createLevel4SectorElements(category, categoryName) {
     const level4Elements = [];
     for (const pointOfInterest of category) {
         const level4Element = Dom.new.fromTemplate('level4PointOfInterestTemplate');
+        level4Element.id = 'row_' + pointOfInterest.name;
+
         const level4DomGetter = Dom.get(level4Element);
         level4DomGetter.byClass('name').textContent = pointOfInterest.title;
         const descriptionElement = level4DomGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = pointOfInterest.title;
-        descriptionElement.title = tooltips[pointOfInterest.name];
-        level4Element.id = 'row_' + pointOfInterest.name;
+        if (isDefined(pointOfInterest.description)) {
+            descriptionElement.title = pointOfInterest.description;
+        } else {
+            descriptionElement.removeAttribute('title');
+        }
         level4DomGetter.byClass('modifier').innerHTML = pointOfInterest.modifiers.map(Modifier.getDescription).join(',\n');
         level4DomGetter.byClass('button').addEventListener('click', () => {
             setPointOfInterest(pointOfInterest.name);
@@ -350,7 +358,15 @@ function createLevel4Elements(category, categoryName) {
     return level4Elements;
 }
 
-function createLevel3Element(domId, category, categoryName, categoryIndex) {
+/**
+ *
+ * @param {string} domId
+ * @param {Sector} category
+ * @param {string} categoryName
+ * @param {number} categoryIndex
+ * @return {*}
+ */
+function createLevel3SectorElement(domId, category, categoryName, categoryIndex) {
     const level3Element = Dom.new.fromTemplate('level3PointOfInterestTemplate');
 
     level3Element.classList.add(categoryName);
@@ -360,17 +376,25 @@ function createLevel3Element(domId, category, categoryName, categoryIndex) {
     }
 
     const level3DomGetter = Dom.get(level3Element);
-    level3DomGetter.byClass('name').textContent = category.title;
-    level3Element.querySelector('.header-row').style.backgroundColor = headerRowColors[categoryName];
+    level3DomGetter.byClass('header-row').style.backgroundColor = category.color;
+    const nameCell = level3DomGetter.byClass('name');
+    nameCell.textContent = category.title;
+    if (isDefined(category.description)) {
+        nameCell.title = category.description;
+    } else {
+        nameCell.removeAttribute('title');
+    }
 
     /** @type {HTMLElement} */
     const level4Slot = level3DomGetter.byClass('level4');
-    level4Slot.append(...createLevel4Elements(category.pointsOfInterest, categoryName));
+    level4Slot.append(...createLevel4SectorElements(category.pointsOfInterest, categoryName));
     return level3Element;
 }
 
 /**
  * Due to styling reasons, the two rendered levels are actually level 3 + 4 - don't get confused.
+ * @param {Object.<string, Sector>} categoryDefinition
+ * @param {string} domId
  */
 function createSectorsUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
@@ -378,7 +402,7 @@ function createSectorsUI(categoryDefinition, domId) {
 
     for (const categoryName in categoryDefinition) {
         const category = categoryDefinition[categoryName];
-        level3Elements.push(createLevel3Element(domId, category, categoryName, level3Elements.length));
+        level3Elements.push(createLevel3SectorElement(domId, category, categoryName, level3Elements.length));
     }
 
     slot.replaceWith(...level3Elements);
@@ -399,7 +423,7 @@ function createLevel4BattleElements(category, categoryName) {
         domGetter.byClass('name').textContent = battle.title;
         const descriptionElement = domGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = battle.title;
-        descriptionElement.title = tooltips[battle.faction.name];
+        descriptionElement.title = battle.faction.description;
         domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
         domGetter.byClass('progressBar').addEventListener('click', () => {
             battle.toggle();
@@ -423,7 +447,7 @@ function createUnfinishedBattlesUI() {
     //     level3Element.classList.remove('mt-2');
 
     const domGetter = Dom.get(level3Element);
-    domGetter.byClass('header-row').style.backgroundColor = headerRowColors['Military grade'];
+    domGetter.byClass('header-row').style.backgroundColor = colorPalette.TomatoRed;
     domGetter.byClass('name').textContent = 'Open';
 
     /** @type {HTMLElement} */
@@ -433,6 +457,12 @@ function createUnfinishedBattlesUI() {
     return level3Element;
 }
 
+/**
+ *
+ * @param {Battle[]} category
+ * @param {string} categoryName
+ * @return {HTMLElement[]}
+ */
 function createLevel4FinishedBattleElements(category, categoryName) {
     const level4Elements = [];
     for (const battle of category) {
@@ -445,7 +475,11 @@ function createLevel4FinishedBattleElements(category, categoryName) {
         domGetter.byClass('name').textContent = battle.title;
         const descriptionElement = domGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = battle.title;
-        descriptionElement.title = tooltips[battle.faction.name];
+        if (isDefined(battle.description)) {
+            descriptionElement.title = battle.description;
+        } else {
+            descriptionElement.removeAttribute('title');
+        }
         domGetter.byClass('action').classList.add('hidden');
         formatValue(
             domGetter.bySelector('.level > data'),
@@ -472,7 +506,7 @@ function createFinishedBattlesUI() {
     level3Element.classList.remove('ps-3');
 
     const domGetter = Dom.get(level3Element);
-    domGetter.byClass('header-row').style.backgroundColor = headerRowColors['Common generators'];
+    domGetter.byClass('header-row').style.backgroundColor = colorPalette.EasyGreen;
     domGetter.byClass('name').textContent = 'Completed';
     domGetter.byClass('action').classList.add('hidden');
     domGetter.byClass('level').textContent = 'Defeated levels';
@@ -1062,7 +1096,7 @@ function updateBattleRows() {
 
         const isActive = battle.isActive();
         domGetter.byClass('progressFill').classList.toggle('current', isActive);
-        domGetter.byClass('active').style.backgroundColor = isActive ? headerRowColors['Military grade'] : 'white';
+        domGetter.byClass('active').style.backgroundColor = isActive ? colorPalette.TomatoRed :colorPalette.White;
         formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
     }
 }
@@ -1554,31 +1588,10 @@ function assignMethods() {
     // }
 }
 
-function replaceSaveDict(dict, saveDict) {
-    for (const key in dict) {
-        if (dict === gameData.taskData && (dict[key] instanceof Job || dict[key] instanceof GridStrength)) {
-            assignAndReplaceSavedTaskObject(dict[key], saveDict);
-        } else if (dict === gameData.requirements) {
-            if (!(key in saveDict)) {
-                saveDict[key] = dict[key];
-            }
-            if (saveDict[key].type !== tempData['requirements'][key].type) {
-                saveDict[key] = tempData['requirements'][key];
-            }
-        }
-    }
-
-    for (const key in saveDict) {
-        if (!(key in dict)) {
-            delete saveDict[key];
-        }
-    }
-}
-
 function assignAndReplaceSavedTaskObject(object, saveDict) {
     const key = object.name;
     if (key in saveDict) {
-        object.assignSaveData(saveDict[key]);
+        object.loadData(saveDict[key]);
     }
     saveDict[key] = object;
 }
@@ -1604,7 +1617,28 @@ function assignDictFromSaveData(dict, saveData) {
     for (const id in dict) {
         const object = dict[id];
         if (saveData !== undefined && id in saveData) {
-            object.loadSaveData(saveData[id]);
+            object.loadData(saveData[id]);
+        }
+    }
+}
+
+function replaceSaveDict(dict, saveDict) {
+    for (const key in dict) {
+        if (dict === gameData.taskData && (dict[key] instanceof ModuleOperation || dict[key] instanceof GridStrength)) {
+            assignAndReplaceSavedTaskObject(dict[key], saveDict);
+        } else if (dict === gameData.requirements) {
+            if (!(key in saveDict)) {
+                saveDict[key] = dict[key];
+            }
+            if (saveDict[key].type !== tempData['requirements'][key].type) {
+                saveDict[key] = tempData['requirements'][key];
+            }
+        }
+    }
+
+    for (const key in saveDict) {
+        if (!(key in dict)) {
+            delete saveDict[key];
         }
     }
 }

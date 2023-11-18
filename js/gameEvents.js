@@ -88,34 +88,7 @@ class GameEvent {
     }
 
     _validatePayload(payload) {
-        let valid = false;
-        if (typeof this._payloadDefinition === 'undefined') {
-            valid = typeof payload === 'undefined';
-        }
-        if (typeof this._payloadDefinition === 'string') {
-            valid = typeof payload === this._payloadDefinition;
-        } else if (typeof this._payloadDefinition === 'object') {
-            if (payload === null) {
-                valid = false;
-            } else {
-                valid = Object.keys(this._payloadDefinition).every((key) => {
-                    if (!payload.hasOwnProperty(key)) {
-                        return false;
-                    }
-
-                    if (!this._payloadDefinition.hasOwnProperty(key)) {
-                        return false;
-                    }
-
-                    return typeof payload[key] === this._payloadDefinition[key];
-                });
-            }
-        }
-
-        if (!valid) {
-            console.log('GameEvent, Payload, PayloadDefintion', this, payload, this._payloadDefinition);
-            throw new TypeError('Provided payload does not match the payload definition of event.');
-        }
+        validateParameter(payload, this._payloadDefinition);
     }
 
     _warnEmptyListeners(event) {
@@ -130,13 +103,13 @@ class GameEvent {
 const GameEvents = {
     NewGameStarted: new GameEvent(undefined),
     TaskLevelChanged: new GameEvent({
-        type: 'string',
-        name: 'string',
-        previousLevel: 'number',
-        nextLevel: 'number'
+        type: JsTypes.String,
+        name: JsTypes.String,
+        previousLevel: JsTypes.Number,
+        nextLevel: JsTypes.Number
     }, false),
     Death: new GameEvent(undefined),
     GameOver: new GameEvent({
-        bossDefeated: 'boolean',
+        bossDefeated: JsTypes.Boolean,
     }),
 };

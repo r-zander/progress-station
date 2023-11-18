@@ -5,9 +5,18 @@ class LayerData {
 }
 
 class LayeredTask extends Task {
+    /**
+     * @param {{
+     *     title: string,
+     *     description?: string,
+     *     maxXp: number,
+     *     effects: EffectDefinition[],
+     *     maxLevel: number,
+     * }} baseData
+     */
     constructor(baseData) {
         super(baseData);
-        this.maxLevel = this.baseData.maxLevel;
+        this.maxLevel = baseData.maxLevel;
     }
 
     do() {
@@ -36,13 +45,27 @@ class LayeredTask extends Task {
 }
 
 class Battle extends LayeredTask {
+    /**
+     *
+     * @param {{
+     *     title: string,
+     *     maxLevel: number,
+     *     faction: FactionDefinition,
+     *     effects: EffectDefinition[],
+     *     rewards: EffectDefinition[],
+     * }} baseData
+     */
     constructor(baseData) {
-        baseData.maxXp = baseData.faction.maxXp;
-        super(baseData);
+        super({
+            title: baseData.title + ' ' + baseData.faction.title,
+            description: baseData.faction.description,
+            maxXp: baseData.faction.maxXp,
+            effects: baseData.effects,
+            maxLevel: baseData.maxLevel,
+        });
 
         this.faction = baseData.faction;
-        this.title = prepareTitle(this.title + ' ' + this.faction.title);
-        this.description = this.faction.description;
+        this.rewards = baseData.rewards;
     }
 
     collectEffects() {
@@ -84,7 +107,7 @@ class Battle extends LayeredTask {
      * @returns {number}
      */
     getReward(effectType) {
-        return Effect.getValue(this, effectType, this.baseData.rewards, 1);
+        return Effect.getValue(this, effectType, this.rewards, 1);
     }
 
     /**
@@ -96,7 +119,7 @@ class Battle extends LayeredTask {
     }
 
     getRewardsDescription(){
-        return Effect.getDescription(this, this.baseData.rewards, 1);
+        return Effect.getDescription(this, this.rewards, 1);
     }
 }
 
