@@ -18,6 +18,12 @@
  */
 
 /**
+ * Saved Values that do not (yet) contain any values.
+ * These are implemented to enforce a schema that all entities are able to load and save data.
+ * @typedef {Object} EmptySavedValues
+ */
+
+/**
  * Super class for just about anything in the game.
  * If it has a constructor, it should probably extend Entity.
  */
@@ -26,13 +32,21 @@ class Entity {
      * @readonly
      * @var {string}
      */
-    name;
+    #name;
 
     /**
      * @readonly
      * @var {string}
      */
     type;
+
+    /**
+     * @readonly
+     * @var {string}
+     */
+    id;
+
+
 
     /**
      * @param {string} title
@@ -43,7 +57,32 @@ class Entity {
         this.title = prepareTitle(title);
         this.description = description;
     }
+
+    get name(){
+        return this.#name;
+    }
+
+    set name(name) {
+        if (isDefined(this.#name)) {
+            throw TypeError(this.type + '.name already set to "' + this.#name + '". Attempted override name: "' + name + '".');
+        }
+
+        this.#name = name;
+        this.id = 'row_' + this.type + name;
+    }
+
+    loadData(savedValues){
+        // Abstract method that needs to be implemented by each sub class
+        throw new TypeError('loadData not implemented by ' + this.constructor.name);
+    }
 }
+
+/**
+ * @typedef {Object} TaskSavedValues
+ * @property {number} level
+ * @property {number} maxLevel
+ * @property {number} xp
+ */
 
 /**
  * @implements EffectsHolder
@@ -68,11 +107,7 @@ class Task extends Entity {
     }
 
     /**
-     * @param {{
-     *     level: number,
-     *     maxLevel: number,
-     *     xp: number,
-     * }} savedValues
+     * @param {TaskSavedValues} savedValues
      */
     loadData(savedValues){
         validateParameter(savedValues, {
@@ -81,6 +116,18 @@ class Task extends Entity {
             xp: JsTypes.Number,
         });
         this.savedValues = savedValues;
+    }
+
+    /**
+     *
+     * @return {TaskSavedValues}
+     */
+    static newSavedValues() {
+        return {
+            level: 0,
+            maxLevel: 0,
+            xp: 0,
+        };
     }
 
     get level(){
@@ -197,91 +244,22 @@ class Task extends Entity {
     }
 }
 
-class Sector extends Entity {
-    /**
-     * @param {{
-     *     title: string,
-     *     description?: string,
-     *     color: string,
-     *     pointsOfInterest: PointOfInterest[]
-     * }} baseData
-     */
+class GridStrength extends Task {
     constructor(baseData) {
-        super(baseData.title, baseData.description);
-
-        this.baseData = baseData;
-        this.color = baseData.color;
-        this.pointsOfInterest = baseData.pointsOfInterest;
+        super(baseData);
     }
 
-    /**
-     * @param {undefined} savedValues
-     */
-    loadData(savedValues){
-        validateParameter(savedValues, 'undefined');
-    }
-}
-
-/**
- * @implements EffectsHolder
- */
-class PointOfInterest extends Entity {
-    /**
-     *
-     * @param {{
-     *     title: string,
-     *     description?: string,
-     *     effects: EffectDefinition[],
-     *     modifiers: ModifierDefinition[],
-     * }} baseData
-     */
-    constructor(baseData) {
-        super(baseData.title, baseData.description);
-
-        this.baseData = baseData;
-        this.modifiers = baseData.modifiers;
+    getXpGain() {
+        return applyMultipliers(getEnergyGeneration(), this.xpMultipliers);
     }
 
-    /**
-     * @param {undefined} savedValues
-     */
-    loadData(savedValues){
-        validateParameter(savedValues, 'undefined');
+    getGridStrength() {
+        return this.level;
     }
 
-    /**
-     * @return {boolean}
-     */
-    isActive() {
-        return gameData.currentPointOfInterest === this;
-    }
-
-    collectEffects() {
-        //this.expenseMultipliers.push(getBoundTaskEffect('Bargaining'));
-        //this.expenseMultipliers.push(getBoundTaskEffect('Intimidation'));
-    }
-
-    /**
-     * @returns {EffectDefinition[]}
-     */
-    getEffects() {
-        return this.baseData.effects;
-    }
-
-    /**
-     * @param {EffectType} effectType
-     * @returns {number}
-     */
-    getEffect(effectType) {
-        return Effect.getValue(this, effectType, this.baseData.effects, 1);
-    }
-
-    /**
-     * @return {string}
-     */
-    getEffectDescription() {
-        // Danger is displayed in a separate column
-        return Effect.getDescriptionExcept(this, this.baseData.effects, 1, EffectType.Danger);
+    getMaxXp() {
+        // TODO not final, but works somewhat okay
+        return Math.round(this.baseData.maxXp * Math.pow(Math.E, this.level * 2));
     }
 }
 
@@ -304,12 +282,24 @@ class ModuleCategory extends Entity {
     }
 
     /**
-     * @param {undefined} savedValues
+     * @param {EmptySavedValues} savedValues
      */
     loadData(savedValues){
-        validateParameter(savedValues, 'undefined');
+        validateParameter(savedValues, {}, this);
+    }
+
+    /**
+     * @return {EmptySavedValues}
+     */
+    static newSavedValues() {
+        return {};
     }
 }
+
+/**
+ * @typedef {Object} ModuleSavedValues
+ * @property {number} maxLevel
+ */
 
 class Module extends Entity {
 
@@ -330,13 +320,20 @@ class Module extends Entity {
     }
 
     /**
-     * @param {{
-     *     maxLevel: number,
-     * }} savedValues
+     * @param {ModuleSavedValues} savedValues
      */
     loadData(savedValues){
-        validateParameter(savedValues, {maxLevel: JsTypes.Number});
+        validateParameter(savedValues, {maxLevel: JsTypes.Number}, this);
         this.savedValues = savedValues;
+    }
+
+    /**
+     * @return {ModuleSavedValues}
+     */
+    static newSavedValues() {
+        return {
+            maxLevel: 0,
+        };
     }
 
     get maxLevel() {
@@ -363,6 +360,7 @@ class Module extends Entity {
         }
     }
 
+    // TODO remove - this goes against the UI | Logic pattern
     /**
      *
      * @param {HTMLInputElement} button
@@ -446,10 +444,17 @@ class ModuleComponent extends Entity {
     }
 
     /**
-     * @param {undefined} savedValues
+     * @param {EmptySavedValues} savedValues
      */
     loadData(savedValues){
-        validateParameter(savedValues, JsTypes.Undefined);
+        validateParameter(savedValues, {}, this);
+    }
+
+    /**
+     * @return {EmptySavedValues}
+     */
+    static newSavedValues() {
+        return {};
     }
 
     do() {
@@ -459,13 +464,13 @@ class ModuleComponent extends Entity {
     }
 
     setEnabled(value) {
-        if (!value) {
-            for (const operation of this.operations) {
-                operation.setEnabled(false);
-            }
-        } else {
+        if (value) {
             if (this.currentOperation !== null) {
                 this.currentOperation.setEnabled(value);
+            }
+        } else {
+            for (const operation of this.operations) {
+                operation.setEnabled(false);
             }
         }
 
@@ -545,22 +550,105 @@ class ModuleOperation extends Task {
     }
 }
 
-class GridStrength extends Task {
+class Sector extends Entity {
+    /**
+     * @param {{
+     *     title: string,
+     *     description?: string,
+     *     color: string,
+     *     pointsOfInterest: PointOfInterest[]
+     * }} baseData
+     */
     constructor(baseData) {
-        super(baseData);
+        super(baseData.title, baseData.description);
+
+        this.baseData = baseData;
+        this.color = baseData.color;
+        this.pointsOfInterest = baseData.pointsOfInterest;
     }
 
-    getXpGain() {
-        return applyMultipliers(getEnergyGeneration(), this.xpMultipliers);
+    /**
+     * @param {EmptySavedValues} savedValues
+     */
+    loadData(savedValues){
+        validateParameter(savedValues, {}, this);
     }
 
-    getGridStrength() {
-        return this.level;
+    /**
+     * @return {EmptySavedValues}
+     */
+    static newSavedValues() {
+        return {};
+    }
+}
+
+/**
+ * @implements EffectsHolder
+ */
+class PointOfInterest extends Entity {
+    /**
+     *
+     * @param {{
+     *     title: string,
+     *     description?: string,
+     *     effects: EffectDefinition[],
+     *     modifiers: ModifierDefinition[],
+     * }} baseData
+     */
+    constructor(baseData) {
+        super(baseData.title, baseData.description);
+
+        this.baseData = baseData;
+        this.modifiers = baseData.modifiers;
     }
 
-    getMaxXp() {
-        // TODO not final, but works somewhat okay
-        return Math.round(this.baseData.maxXp * Math.pow(Math.E, this.level * 2));
+    /**
+     * @param {EmptySavedValues} savedValues
+     */
+    loadData(savedValues){
+        validateParameter(savedValues, {}, this);
+    }
+
+    /**
+     * @return {EmptySavedValues}
+     */
+    static newSavedValues() {
+        return {};
+    }
+
+    /**
+     * @return {boolean}
+     */
+    isActive() {
+        return gameData.currentPointOfInterest === this;
+    }
+
+    collectEffects() {
+        //this.expenseMultipliers.push(getBoundTaskEffect('Bargaining'));
+        //this.expenseMultipliers.push(getBoundTaskEffect('Intimidation'));
+    }
+
+    /**
+     * @returns {EffectDefinition[]}
+     */
+    getEffects() {
+        return this.baseData.effects;
+    }
+
+    /**
+     * @param {EffectType} effectType
+     * @returns {number}
+     */
+    getEffect(effectType) {
+        return Effect.getValue(this, effectType, this.baseData.effects, 1);
+    }
+
+    /**
+     * @return {string}
+     */
+    getEffectDescription() {
+        // Danger is displayed in a separate column
+        return Effect.getDescriptionExcept(this, this.baseData.effects, 1, EffectType.Danger);
     }
 }
 

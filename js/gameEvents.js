@@ -88,7 +88,7 @@ class GameEvent {
     }
 
     _validatePayload(payload) {
-        validateParameter(payload, this._payloadDefinition);
+        validateParameter(payload, this._payloadDefinition, this);
     }
 
     _warnEmptyListeners(event) {

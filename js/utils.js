@@ -246,7 +246,7 @@ const JsTypes = {
     Object: 'object',
 };
 
-function validateParameter(parameter, definition, context) {
+function validateParameter(parameter, definition, context, ) {
     let valid = false;
     if (typeof definition === JsTypes.Undefined) {
         valid = typeof parameter === JsTypes.Undefined;
