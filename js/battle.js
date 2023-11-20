@@ -126,6 +126,24 @@ class Battle extends LayeredTask {
 }
 
 class BossBattle extends Battle {
+    /**
+     *
+     * @param {{
+     *     title: string,
+     *     maxLevel: number,
+     *     faction: FactionDefinition,
+     *     effects: EffectDefinition[],
+     *     rewards: EffectDefinition[],
+     *     progressBarId: string,
+     *     layerLabel: string,
+     * }} baseData
+     */
+    constructor(baseData) {
+        super(baseData);
+        this.progressBarId = baseData.progressBarId;
+        this.layerLabel = baseData.layerLabel;
+    }
+
     increaseXp(ignoreDeath = true) {
         super.increaseXp(ignoreDeath);
     }

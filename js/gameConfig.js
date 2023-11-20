@@ -508,48 +508,27 @@ function createRequirements(getTaskElement, getItemElement) {
     };
 }
 
-// TODO remove - this can easily be done in constructors
-function addMultipliers() {
-    for (const taskName in gameData.taskData) {
-        const task = gameData.taskData[taskName];
-
-        task.xpMultipliers = [];
-        if (task instanceof ModuleOperation) {
-            task.energyGenerationMultipliers = [];
-        }
-
-        task.collectEffects();
-    }
-
-    for (const battleName in gameData.battleData) {
-        const battle = gameData.battleData[battleName];
-
-        battle.xpMultipliers = [];
-        battle.collectEffects();
-    }
-}
-
 function setCustomEffects() {
-    const bargaining = gameData.taskData['Bargaining'];
-    bargaining.getEffect = function () {
-        let multiplier = 1 - getBaseLog(7, bargaining.level + 1) / 10;
-        if (multiplier < 0.1) {
-            multiplier = 0.1;
-        }
-        return multiplier;
-    };
-
-    const intimidation = gameData.taskData['Intimidation'];
-    intimidation.getEffect = function () {
-        let multiplier = 1 - getBaseLog(7, intimidation.level + 1) / 10;
-        if (multiplier < 0.1) {
-            multiplier = 0.1;
-        }
-        return multiplier;
-    };
-
-    const immortality = gameData.taskData['Immortality'];
-    immortality.getEffect = function () {
-        return 1 + getBaseLog(33, immortality.level + 1);
-    };
+    // const bargaining = gameData.taskData['Bargaining'];
+    // bargaining.getEffect = function () {
+    //     let multiplier = 1 - getBaseLog(7, bargaining.level + 1) / 10;
+    //     if (multiplier < 0.1) {
+    //         multiplier = 0.1;
+    //     }
+    //     return multiplier;
+    // };
+    //
+    // const intimidation = gameData.taskData['Intimidation'];
+    // intimidation.getEffect = function () {
+    //     let multiplier = 1 - getBaseLog(7, intimidation.level + 1) / 10;
+    //     if (multiplier < 0.1) {
+    //         multiplier = 0.1;
+    //     }
+    //     return multiplier;
+    // };
+    //
+    // const immortality = gameData.taskData['Immortality'];
+    // immortality.getEffect = function () {
+    //     return 1 + getBaseLog(33, immortality.level + 1);
+    // };
 }

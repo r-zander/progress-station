@@ -235,7 +235,7 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
     } else if (taskInfo.type === 'GridStrength') {
         taskProgressBar = document.getElementById('energyDisplay').querySelector('.energy-fill')
     } else {
-        const taskElement = getTaskElement(taskInfo.name);
+        const taskElement = getModuleOperationElement(taskInfo.name);
         taskProgressBar = taskElement.querySelector('.progressBar');
         quickTaskProgressBar = document.querySelector(`.quickTaskDisplay .${taskInfo.type}.${taskInfo.name}.progressBar`);
     }

@@ -12,6 +12,7 @@
 
 /**
  * @typedef {Object} FactionDefinition
+ * @property {string} [name]
  * @property {string} title
  * @property {string} [description]
  * @property {number} maxXp
@@ -68,7 +69,7 @@ class Entity {
         }
 
         this.#name = name;
-        this.id = 'row_' + this.type + name;
+        this.id = 'row_' + this.type + '_' + name;
     }
 
     loadData(savedValues){
@@ -101,6 +102,8 @@ class Task extends Entity {
 
         this.baseData = baseData;
         this.xpMultipliers = [];
+        // TODO necessary? rename
+        this.collectEffects();
     }
 
     /**
@@ -147,7 +150,7 @@ class Task extends Entity {
         return this.savedValues.xp;
     }
 
-    set xp(level) {
+    set xp(xp) {
         this.savedValues.xp = xp;
     }
 
@@ -250,6 +253,9 @@ class GridStrength extends Task {
         return applyMultipliers(getEnergyGeneration(), this.xpMultipliers);
     }
 
+    /**
+     * @return {number}
+     */
     getGridStrength() {
         return this.level;
     }
@@ -504,6 +510,7 @@ class ModuleOperation extends Task {
      */
     constructor(baseData) {
         super(baseData);
+        this.gridLoad = baseData.gridLoad;
     }
 
     collectEffects() {
@@ -528,6 +535,13 @@ class ModuleOperation extends Task {
     }
 
     /**
+     * @return {boolean}
+     */
+    isActive(){
+        return gameData.currentOperations.hasOwnProperty(this.name);
+    }
+
+    /**
      * @return {number}
      */
     getLevelMultiplier() {
@@ -542,7 +556,7 @@ class ModuleOperation extends Task {
      * @return {number}
      */
     getGridLoad() {
-        return this.baseData.gridLoad === undefined ? 0 : this.baseData.gridLoad;
+        return this.gridLoad;
     }
 }
 
@@ -673,12 +687,19 @@ class Requirement {
 }
 
 class TaskRequirement extends Requirement {
+    /**
+     * @param {HTMLElement[]} elements
+     * @param {{task: Task, requirement: number}[]} requirements
+     */
     constructor(elements, requirements) {
         super('TaskRequirement', elements, requirements);
     }
 
+    /**
+     * @param {{task: Task, requirement: number}} requirement
+     */
     getCondition(requirement) {
-        return gameData.taskData[requirement.task].level >= requirement.requirement;
+        return requirement.task.level >= requirement.requirement;
     }
 }
 
@@ -694,7 +715,6 @@ class AgeRequirement extends Requirement {
 
 class AttributeRequirement extends Requirement {
     /**
-     *
      * @param {HTMLElement[]} elements
      * @param {{attribute: AttributeDefinition, requirement: number}[]} requirements
      */
