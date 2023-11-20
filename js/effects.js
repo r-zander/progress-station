@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * @typedef {Object} EffectDefinition
  * @property {EffectType} effectType
@@ -217,11 +219,3 @@ class Effect {
         return effectType.getDefaultValue() + baseValue * level;
     }
 }
-
-
-
-
-
-
-
-

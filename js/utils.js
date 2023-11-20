@@ -25,7 +25,7 @@ function isBoolean(variable) {
 }
 
 /**
- * @return whether or not the element was found and removed.
+ * @return {boolean} whether or not the element was found and removed.
  */
 function removeElement(array, element) {
     let indexOf = array.indexOf(element);
@@ -143,6 +143,7 @@ function lerp(start, stop, amt) {
     return amt * (stop - start) + start;
 }
 
+// noinspection JSValidateJSDoc
 /**
  * Blends two colors to find a third color between them. The `amount` parameter
  * specifies the amount to interpolate between the two values. 0 is equal to

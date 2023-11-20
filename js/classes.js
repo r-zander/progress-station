@@ -100,9 +100,6 @@ class Task extends Entity {
         super(baseData.title, baseData.description);
 
         this.baseData = baseData;
-        this.level = 0;
-        this.maxLevel = 0;
-        this.xp = 0;
         this.xpMultipliers = [];
     }
 
@@ -139,7 +136,7 @@ class Task extends Entity {
     }
 
     get maxLevel(){
-        return this.savedValues.level;
+        return this.savedValues.maxLevel;
     }
 
     set maxLevel(maxLevel) {
@@ -316,7 +313,6 @@ class Module extends Entity {
 
         this.data = baseData;
         this.components = baseData.components;
-        this.maxLevel = 0;
     }
 
     /**

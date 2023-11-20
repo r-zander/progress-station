@@ -1,3 +1,5 @@
+'use strict';
+
 class LayerData {
     constructor(color) {
         this.color = color;
@@ -16,7 +18,6 @@ class LayeredTask extends Task {
      */
     constructor(baseData) {
         super(baseData);
-        this.maxLevel = baseData.maxLevel;
     }
 
     do() {
@@ -61,6 +62,7 @@ class Battle extends LayeredTask {
             description: baseData.faction.description,
             maxXp: baseData.faction.maxXp,
             effects: baseData.effects,
+            // TODO maxLevel needs to go into savedValues
             maxLevel: baseData.maxLevel,
         });
 

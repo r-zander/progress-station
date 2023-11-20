@@ -1,11 +1,5 @@
 'use strict';
 
-/**
- * Not a const as it can be overridden when loading a save game.
- *
- */
-let gameData = new GameData();
-
 class GameData {
     /**
      * @var {{
@@ -111,28 +105,37 @@ class GameData {
     }
 
     initSavedValues() {
+        this.savedValues = {};
+        // TODO generify?
         this.savedValues.gridStrength = GridStrength.newSavedValues();
 
+        this.savedValues.moduleCategories = {};
         for (let key in moduleCategories){
             this.savedValues.moduleCategories[key] = ModuleCategory.newSavedValues();
         }
+        this.savedValues.modules = {};
         for (let key in modules){
             this.savedValues.modules[key] = Module.newSavedValues();
         }
+        this.savedValues.moduleComponents = {};
         for (let key in moduleComponents){
             this.savedValues.moduleComponents[key] = ModuleComponent.newSavedValues();
         }
+        this.savedValues.moduleOperations = {};
         for (let key in moduleOperations){
             this.savedValues.moduleOperations[key] = ModuleOperation.newSavedValues();
         }
 
+        this.savedValues.battles = {};
         for (let key in battles){
             this.savedValues.battles[key] = Battle.newSavedValues();
         }
 
+        this.savedValues.sectors = {};
         for (let key in sectors){
             this.savedValues.sectors[key] = Sector.newSavedValues();
         }
+        this.savedValues.pointsOfInterest = {};
         for (let key in pointsOfInterest){
             this.savedValues.pointsOfInterest[key] = PointOfInterest.newSavedValues();
         }
@@ -148,57 +151,175 @@ class GameData {
         this.currentBattles = {};
     }
 
+    /**
+     * @return {boolean} true if there was a save game. false if not (aka new game)
+     */
     tryLoading() {
         const localStorageItem = localStorage.getItem('gameDataSave');
-        if (localStorageItem === null) {
-            // No save game found --> nothing to load
-            GameEvents.NewGameStarted.trigger(undefined);
-            return;
+        let saveGameFound = localStorageItem !== null;
+        if (saveGameFound) {
+            const gameDataSave = JSON.parse(localStorageItem);
+            _.merge(this, gameDataSave);
         }
 
-        const gameDataSave = JSON.parse(localStorageItem);
+        // TODO generify?
+        gridStrength.loadData(this.savedValues.gridStrength);
 
-        // TODO continue here - get rid of all those ASSIGN... and ...SAVEDICT functions
+        for (let key in moduleCategories){
+            moduleCategories[key].loadData(this.savedValues.moduleCategories[key]);
+        }
+        for (let key in modules){
+            modules[key].loadData(this.savedValues.modules[key]);
+        }
+        for (let key in moduleComponents){
+            moduleComponents[key].loadData(this.savedValues.moduleComponents[key]);
+        }
+        for (let key in moduleOperations){
+            moduleOperations[key].loadData(this.savedValues.moduleOperations[key]);
+        }
+
+        for (let key in battles){
+            battles[key].loadData(this.savedValues.battles[key]);
+        }
+
+        for (let key in sectors){
+            sectors[key].loadData(this.savedValues.sectors[key]);
+        }
+        for (let key in pointsOfInterest){
+            pointsOfInterest[key].loadData(this.savedValues.pointsOfInterest[key]);
+        }
+        // TODO
+        //      check Module hierarchy activation
+
+
         // if (gameDataSave !== null) {
-            assignDictFromSaveData(modules, gameDataSave.moduleSaveData);
-            replaceSaveDict(gameData, gameDataSave);
-            replaceSaveDict(gameData.requirements, gameDataSave.requirements);
-            replaceSaveDict(gameData.taskData, gameDataSave.taskData);
-            replaceSaveDict(gameData.battleData, gameDataSave.battleData);
-
-            for (const id in gameDataSave.currentOperations) {
-                gameDataSave.currentOperations[id] = moduleOperations[id];
-            }
-            for (const id in gameDataSave.currentModules) {
-                //Migrate "current" modules before replacing save data, currentModules should probably be just strings in future.
-                const override = modules[id];
-                for (const component of override.components) {
-                    const saved = gameDataSave.currentModules[id].components.find((element) => element.name === component.name);
-                    if (saved.currentOperation === null || saved.currentOperation === undefined) continue;
-                    if (moduleOperations.hasOwnProperty(saved.currentOperation.name)) {
-                        component.currentMode = moduleOperations[saved.currentOperation.name];
-                    }
-                }
-                modules[id].setEnabled(true);
-                gameDataSave.currentModules[id] = modules[id];
-            }
-
-            for (const key in gameDataSave.battleData) {
-                let battle = gameDataSave.battleData[key];
-                delete battle.baseData;
-                battle = Object.assign(battles[battle.name], battle);
-                gameDataSave.battleData[key] = battle;
-            }
-            for (const id in gameDataSave.currentBattles) {
-                gameDataSave.currentBattles[id] = gameDataSave.battleData[id];
-            }
-
-            gameData = gameDataSave;
+        //     assignDictFromSaveData(modules, gameDataSave.moduleSaveData);
+        //     replaceSaveDict(gameData, gameDataSave);
+        //     replaceSaveDict(gameData.requirements, gameDataSave.requirements);
+        //     replaceSaveDict(gameData.taskData, gameDataSave.taskData);
+        //     replaceSaveDict(gameData.battleData, gameDataSave.battleData);
+        //
+        //     for (const id in gameDataSave.currentOperations) {
+        //         gameDataSave.currentOperations[id] = moduleOperations[id];
+        //     }
+        //     for (const id in gameDataSave.currentModules) {
+        //         //Migrate "current" modules before replacing save data, currentModules should probably be just strings in future.
+        //         const override = modules[id];
+        //         for (const component of override.components) {
+        //             const saved = gameDataSave.currentModules[id].components.find((element) => element.name === component.name);
+        //             if (saved.currentOperation === null || saved.currentOperation === undefined) continue;
+        //             if (moduleOperations.hasOwnProperty(saved.currentOperation.name)) {
+        //                 component.currentMode = moduleOperations[saved.currentOperation.name];
+        //             }
+        //         }
+        //         modules[id].setEnabled(true);
+        //         gameDataSave.currentModules[id] = modules[id];
+        //     }
+        //
+        //     for (const key in gameDataSave.battleData) {
+        //         let battle = gameDataSave.battleData[key];
+        //         delete battle.baseData;
+        //         battle = Object.assign(battles[battle.name], battle);
+        //         gameDataSave.battleData[key] = battle;
+        //     }
+        //     for (const id in gameDataSave.currentBattles) {
+        //         gameDataSave.currentBattles[id] = gameDataSave.battleData[id];
+        //     }
+        //
+        //     gameData = gameDataSave;
         // } else {
         //     GameEvents.NewGameStarted.trigger(undefined);
         // }
 
-        assignMethods();
+        // assignMethods();
+
+        return saveGameFound;
+    }
+}
+
+const gameData = new GameData();
+
+
+function assignMethods() {
+    for (const key in gameData.requirements) {
+        let requirement = gameData.requirements[key];
+        switch (requirement.type) {
+            case 'TaskRequirement':
+                requirement = Object.assign(new TaskRequirement(requirement.elements, requirement.requirements), requirement);
+                break;
+            case 'AgeRequirement':
+                requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement);
+                break;
+            case 'AttributeRequirement':
+                requirement = Object.assign(new AttributeRequirement(requirement.elements, requirement.requirements), requirement);
+                break;
+        }
+
+        const tempRequirement = tempData['requirements'][key];
+        requirement.elements = tempRequirement.elements;
+        requirement.requirements = tempRequirement.requirements;
+        gameData.requirements[key] = requirement;
+    }
+
+    gameData.currentPointOfInterest = pointsOfInterest[gameData.currentPointOfInterest.name];
+    // if (gameData.currentBattle !== null) {
+    //     startBattle(gameData.currentBattle.name);
+    // }
+}
+
+function assignAndReplaceSavedTaskObject(object, saveDict) {
+    const key = object.name;
+    if (key in saveDict) {
+        object.loadData(saveDict[key]);
+    }
+    saveDict[key] = object;
+}
+
+// TODO move into GameData class
+function saveGameData() {
+    if (skipGameDataSave) return;
+
+    updateModuleSavaData(gameData);
+    localStorage.setItem('gameDataSave', JSON.stringify(gameData));
+}
+
+function updateModuleSavaData(saveData) {
+    if (saveData.moduleSaveData === undefined) {
+        saveData.moduleSaveData = {};
+    }
+    for (const id in modules) {
+        const module = modules[id];
+        saveData.moduleSaveData[id] = module.getSaveData();
+    }
+}
+
+function assignDictFromSaveData(dict, saveData) {
+    for (const id in dict) {
+        const object = dict[id];
+        if (saveData !== undefined && id in saveData) {
+            object.loadData(saveData[id]);
+        }
+    }
+}
+
+function replaceSaveDict(dict, saveDict) {
+    for (const key in dict) {
+        if (dict === gameData.taskData && (dict[key] instanceof ModuleOperation || dict[key] instanceof GridStrength)) {
+            assignAndReplaceSavedTaskObject(dict[key], saveDict);
+        } else if (dict === gameData.requirements) {
+            if (!(key in saveDict)) {
+                saveDict[key] = dict[key];
+            }
+            if (saveDict[key].type !== tempData['requirements'][key].type) {
+                saveDict[key] = tempData['requirements'][key];
+            }
+        }
+    }
+
+    for (const key in saveDict) {
+        if (!(key in dict)) {
+            delete saveDict[key];
+        }
     }
 }
 
@@ -809,7 +930,7 @@ function createAttributeBalance(rowElement, effectTypes) {
             createAttributeBalanceEntry(
                 balanceElement,
                 battle.getReward.bind(battle),
-                () => battle.baseData.rewards,
+                () => battle.rewards,
                 effectType,
                 'Defeated ' + battle.title,
                 battle.isDone.bind(battle)
@@ -1698,88 +1819,6 @@ function isPlaying() {
     return !gameData.paused && isAlive();
 }
 
-function assignMethods() {
-    for (const key in gameData.requirements) {
-        let requirement = gameData.requirements[key];
-        switch (requirement.type) {
-            case 'TaskRequirement':
-                requirement = Object.assign(new TaskRequirement(requirement.elements, requirement.requirements), requirement);
-                break;
-            case 'AgeRequirement':
-                requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement);
-                break;
-            case 'AttributeRequirement':
-                requirement = Object.assign(new AttributeRequirement(requirement.elements, requirement.requirements), requirement);
-                break;
-        }
-
-        const tempRequirement = tempData['requirements'][key];
-        requirement.elements = tempRequirement.elements;
-        requirement.requirements = tempRequirement.requirements;
-        gameData.requirements[key] = requirement;
-    }
-
-    gameData.currentPointOfInterest = pointsOfInterest[gameData.currentPointOfInterest.name];
-    // if (gameData.currentBattle !== null) {
-    //     startBattle(gameData.currentBattle.name);
-    // }
-}
-
-function assignAndReplaceSavedTaskObject(object, saveDict) {
-    const key = object.name;
-    if (key in saveDict) {
-        object.loadData(saveDict[key]);
-    }
-    saveDict[key] = object;
-}
-
-function saveGameData() {
-    if (skipGameDataSave) return;
-
-    updateModuleSavaData(gameData);
-    localStorage.setItem('gameDataSave', JSON.stringify(gameData));
-}
-
-function updateModuleSavaData(saveData) {
-    if (saveData.moduleSaveData === undefined) {
-        saveData.moduleSaveData = {};
-    }
-    for (const id in modules) {
-        const module = modules[id];
-        saveData.moduleSaveData[id] = module.getSaveData();
-    }
-}
-
-function assignDictFromSaveData(dict, saveData) {
-    for (const id in dict) {
-        const object = dict[id];
-        if (saveData !== undefined && id in saveData) {
-            object.loadData(saveData[id]);
-        }
-    }
-}
-
-function replaceSaveDict(dict, saveDict) {
-    for (const key in dict) {
-        if (dict === gameData.taskData && (dict[key] instanceof ModuleOperation || dict[key] instanceof GridStrength)) {
-            assignAndReplaceSavedTaskObject(dict[key], saveDict);
-        } else if (dict === gameData.requirements) {
-            if (!(key in saveDict)) {
-                saveDict[key] = dict[key];
-            }
-            if (saveDict[key].type !== tempData['requirements'][key].type) {
-                saveDict[key] = tempData['requirements'][key];
-            }
-        }
-    }
-
-    for (const key in saveDict) {
-        if (!(key in dict)) {
-            delete saveDict[key];
-        }
-    }
-}
-
 function updateUI() {
     updateTaskRows();
     updateModuleRows();
@@ -1940,15 +1979,20 @@ function init() {
     // gameData.taskData[gridStrength.name] = gridStrength;
 
     // TODO questionable
-    resetGameDataCurrentValues();
+// resetGameDataCurrentValues();
     // gameData.requirements = createRequirements(getTaskElement, getPointOfInterestElement);
     //
     // tempData['requirements'] = {};
     // for (const key in gameData.requirements) {
     //     tempData['requirements'][key] = gameData.requirements[key];
     // }
-    initGameData();
-    loadGameData();
+// initGameData();
+// loadGameData();
+
+    const saveGameFound = gameData.tryLoading();
+    if (saveGameFound === false) {
+        GameEvents.NewGameStarted.trigger(undefined);
+    }
 
     createModulesUI(moduleCategories, 'modulesTable');
     createSectorsUI(sectors, 'sectorTable');

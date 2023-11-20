@@ -79,6 +79,9 @@ function createAttributeDescriptions(printAttribute) {
 
 const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100});
 
+/**
+ * @type {Object.<string, ModuleOperation>}
+ */
 const moduleOperations = {
     StandbyGenerator: new ModuleOperation({
         title: 'Standby Generator', maxXp: 100, gridLoad: 0,
@@ -165,6 +168,9 @@ const moduleOperations = {
     }),
 };
 
+/**
+ * @type {Object.<string, ModuleComponent>}
+ */
 const moduleComponents = {
     RescueCapsule: new ModuleComponent({
         title: 'Rescue Capsule',
@@ -197,6 +203,9 @@ const moduleComponents = {
     }),
 };
 
+/**
+ * @type {Object.<string, Module>}
+ */
 const modules = {
     ISASM: new Module({
         title: 'I.S.A.S.M',
@@ -224,6 +233,9 @@ const defaultModules = [
     modules.ISASM
 ];
 
+/**
+ * @type {Object.<string, ModuleCategory>}
+ */
 const moduleCategories = {
     EmergencySupplies: new ModuleCategory({title: 'Emergency Supplies', color: colorPalette.DepressionPurple, modules: [modules.ISASM]}),
     Fundamentals: new ModuleCategory({title: 'Fundamentals', color: colorPalette.EasyGreen, modules: [modules.Furnace]}),
@@ -269,6 +281,9 @@ const factions = {
     },
 };
 
+/**
+ * @type {Object.<string, Battle>}
+ */
 const battles = {
     Astrogoblins10: new Battle({
         title: 'Wimpy',
@@ -340,6 +355,9 @@ function maximumAvailableBattles() {
     return 1;
 }
 
+/**
+ * @type {Object.<string, PointOfInterest>}
+ */
 const pointsOfInterest = {
     FunkySector: new PointOfInterest({
         title: 'Funky Sector',
@@ -361,6 +379,9 @@ const pointsOfInterest = {
     }),
 };
 
+/**
+ * @type {Object.<string, Sector>}
+ */
 const sectors = {
     DanceSector: new Sector({ title: 'Dance Sector', color: '#C71585', pointsOfInterest: [pointsOfInterest.FunkySector] }),
     NerdSector: new Sector({ title: 'Nerd Sector', color: '#219EBC', pointsOfInterest: [pointsOfInterest.VideoGameLand, pointsOfInterest.Gurkenland] }),
