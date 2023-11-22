@@ -376,16 +376,16 @@ class Module extends Entity {
         this.setEnabled(this.toggleButton.checked);
     }
 
+    /**
+     *
+     * @param {boolean} value
+     */
     setEnabled(value) {
         this.toggleButton.checked = value;
         if (value) {
-            if (!gameData.currentModules.hasOwnProperty(this.name)) {
-                gameData.currentModules[this.name] = this;
-            }
+            gameData.currentModules.add(this.name);
         } else {
-            if (gameData.currentModules.hasOwnProperty(this.name)) {
-                delete gameData.currentModules [this.name];
-            }
+            gameData.currentModules.delete(this.name);
         }
 
         for (const component of this.components) {
@@ -399,7 +399,7 @@ class Module extends Entity {
 
     init() {
         this.propagateMaxLevel();
-        this.setEnabled(gameData.currentModules.hasOwnProperty(this.name));
+        this.setEnabled(gameData.currentModules.has(this.name));
     }
 
     getLevel() {
@@ -630,7 +630,7 @@ class PointOfInterest extends Entity {
      * @return {boolean}
      */
     isActive() {
-        return gameData.currentPointOfInterest === this;
+        return gameData.currentPointOfInterest === this.name;
     }
 
     collectEffects() {

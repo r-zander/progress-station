@@ -13,11 +13,12 @@ class LayeredTask extends Task {
      *     description?: string,
      *     maxXp: number,
      *     effects: EffectDefinition[],
-     *     maxLevel: number,
+     *     targetLevel: number,
      * }} baseData
      */
     constructor(baseData) {
         super(baseData);
+        this.targetLevel = baseData.targetLevel;
     }
 
     do() {
@@ -30,7 +31,7 @@ class LayeredTask extends Task {
     }
 
     isDone() {
-        return this.level >= this.maxLevel;
+        return this.level >= this.targetLevel;
     }
 
     onDone() {
@@ -41,7 +42,7 @@ class LayeredTask extends Task {
      * @return {number}
      */
     getDisplayedLevel() {
-        return this.maxLevel - this.level;
+        return this.targetLevel - this.level;
     }
 }
 
@@ -50,7 +51,7 @@ class Battle extends LayeredTask {
      *
      * @param {{
      *     title: string,
-     *     maxLevel: number,
+     *     targetLevel: number,
      *     faction: FactionDefinition,
      *     effects: EffectDefinition[],
      *     rewards: EffectDefinition[],
@@ -62,8 +63,7 @@ class Battle extends LayeredTask {
             description: baseData.faction.description,
             maxXp: baseData.faction.maxXp,
             effects: baseData.effects,
-            // TODO maxLevel needs to go into savedValues
-            maxLevel: baseData.maxLevel,
+            targetLevel: baseData.targetLevel,
         });
 
         this.faction = baseData.faction;

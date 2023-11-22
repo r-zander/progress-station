@@ -52,18 +52,22 @@ class GameData {
     // TODO on save: persist set.values
     // TODO on load: new Set(values)
     /**
+     * Names of active modules.
      *
-     * @var {Object.<string, Module>}
+     * @var {Set.<string>}
      */
     currentModules;
 
     /**
-     * @var {Object.<string, ModuleOperation>}
+     * Names of active module operations.
+     * @var {Set.<string>}
      */
     currentOperations;
 
     /**
-     * @var {PointOfInterest}
+     * Name of the current point of interest.
+     *
+     * @var {string}
      */
     currentPointOfInterest;
 
@@ -72,7 +76,9 @@ class GameData {
      */
 
     /**
-     * @var {Object.<string, Battle>}
+     * Names of engaged battles.
+     *
+     * @var {Set.<string>}
      */
     currentBattles;
 
@@ -142,13 +148,13 @@ class GameData {
     }
 
     resetCurrentValues() {
-        this.currentModules = {};
+        this.currentModules = new Set();
         for (const module of defaultModules) {
-            this.currentModules[module.name] = module;
+            this.currentModules.add(module.name);
         }
         this.currentPointOfInterest = defaultPointOfInterest;
-        this.currentOperations = {};
-        this.currentBattles = {};
+        this.currentOperations = new Set();
+        this.currentBattles = new Set();
     }
 
     /**
@@ -441,7 +447,7 @@ function setPointOfInterest(name) {
         return;
     }
 
-    gameData.currentPointOfInterest = pointsOfInterest[name];
+    gameData.currentPointOfInterest = name;
 }
 
 // function setBattle(name) {
@@ -685,7 +691,11 @@ function createLevel4BattleElements(category, categoryName) {
         domGetter.byClass('name').textContent = battle.title;
         const descriptionElement = domGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = battle.title;
-        descriptionElement.title = battle.faction.description;
+        if (isDefined(battle.description)) {
+            descriptionElement.title = battle.description;
+        } else {
+            descriptionElement.removeAttribute('title');
+        }
         domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
         domGetter.byClass('progressBar').addEventListener('click', () => {
             battle.toggle();
@@ -1098,7 +1108,7 @@ function initSidebar() {
 function updateModulesQuickDisplay() {
     for (const moduleName in modules) {
         let container = Dom.get().bySelector('.quickTaskDisplayContainer.' + moduleName);
-        if (!gameData.currentModules.hasOwnProperty(moduleName)) {
+        if (!gameData.currentModules.has(moduleName)) {
             container.classList.add('hidden');
             continue;
         }
@@ -1538,14 +1548,12 @@ function updateBodyClasses() {
 }
 
 function doTasks() {
-    const modules = gameData.currentModules;
-    for (const moduleName in modules) {
+    for (const moduleName of gameData.currentModules) {
         const module = modules[moduleName];
         module.do();
     }
 
-    for (const battleName in gameData.currentBattles) {
-        /** @type {Battle} */
+    for (const battleName of gameData.currentBattles) {
         const battle = battles[battleName];
         if (battle.isDone() && gameData.selectedTab === 'battles') {
             // Quality of life - a battle is done and the player is already on the battles tab
@@ -1907,7 +1915,7 @@ function setStationName(newStationName) {
     for (const stationNameInput of Dom.get().allByClass('stationNameInput')) {
         stationNameInput.value = newStationName;
     }
-    saveGameData();
+    // saveGameData();
 }
 
 function initStationName() {
@@ -2041,7 +2049,6 @@ function init() {
 
     update();
     setInterval(update, 1000 / updateSpeed);
-    // TODO RE-ENABLE!!!!
     // setInterval(saveGameData, 3000);
 }
 

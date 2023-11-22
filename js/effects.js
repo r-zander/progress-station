@@ -59,10 +59,7 @@ class Modifier {
      * @return {ModifierDefinition[]}
      */
     static getActiveModifiers() {
-        if (gameData.currentPointOfInterest === null) {
-            return [];
-        }
-        return gameData.currentPointOfInterest.modifiers;
+        return pointsOfInterest[gameData.currentPointOfInterest].modifiers;
     }
 
     /**
@@ -103,7 +100,7 @@ class Effect {
             }
         }
 
-        result = effectType.combine(result, gameData.currentPointOfInterest.getEffect(effectType));
+        result = effectType.combine(result, pointsOfInterest[gameData.currentPointOfInterest].getEffect(effectType));
 
         return result;
     }
