@@ -1,340 +1,9 @@
 'use strict';
 
-class GameData {
-    /**
-     * @var {{
-     *     gridStrength: TaskSavedValues,
-     *
-     *     moduleCategories: Object.<string, EmptySavedValues>,
-     *     modules: Object.<string, ModuleSavedValues>,
-     *     moduleComponents: Object.<string, EmptySavedValues>,
-     *     moduleOperations: Object.<string, TaskSavedValues>,
-     *
-     *     battles: Object.<string, TaskSavedValues>,
-     *
-     *     sectors: Object.<string, EmptySavedValues>,
-     *     pointsOfInterest: Object.<string, EmptySavedValues>,
-     * }}
-     */
-    savedValues;
-
-    /**
-     * @var {number}
-     */
-    population= 1;
-
-    /**
-     * @var {boolean}
-     */
-    paused= true;
-
-    /**
-     * @var {number}
-     */
-    days= 365 * 14;
-
-    /**
-     * @var {number}
-     */
-    totalDays = 365 * 14;
-
-    /**
-     * @var {number}
-     */
-    rebirthOneCount= 0;
-
-    /**
-     * @var {number}
-     */
-    rebirthTwoCount = 0;
-
-    // TODO --> new Set
-    // TODO on save: persist set.values
-    // TODO on load: new Set(values)
-    /**
-     * Names of active modules.
-     *
-     * @var {Set.<string>}
-     */
-    currentModules;
-
-    /**
-     * Names of active module operations.
-     * @var {Set.<string>}
-     */
-    currentOperations;
-
-    /**
-     * Name of the current point of interest.
-     *
-     * @var {string}
-     */
-    currentPointOfInterest;
-
-    /**
-     * //@var {Battle} currentBattle
-     */
-
-    /**
-     * Names of engaged battles.
-     *
-     * @var {Set.<string>}
-     */
-    currentBattles;
-
-    /**
-     * @var {string}
-     */
-    stationName = stationNameGenerator.generate();
-
-    /**
-     * @var {string}
-     */
-    selectedTab = 'modules';
-
-    /**
-     * @var {{
-     *     darkMode: boolean,
-     *     sciFiMode: boolean,
-     *     background: string,
-     * }}
-     */
-    settings = {
-        darkMode: undefined,
-        sciFiMode: true,
-        background: 'space',
-    };
-
-    constructor() {
-        this.initSavedValues();
-        this.resetCurrentValues();
-    }
-
-    initSavedValues() {
-        this.savedValues = {};
-        // TODO generify?
-        this.savedValues.gridStrength = GridStrength.newSavedValues();
-
-        this.savedValues.moduleCategories = {};
-        for (let key in moduleCategories){
-            this.savedValues.moduleCategories[key] = ModuleCategory.newSavedValues();
-        }
-        this.savedValues.modules = {};
-        for (let key in modules){
-            this.savedValues.modules[key] = Module.newSavedValues();
-        }
-        this.savedValues.moduleComponents = {};
-        for (let key in moduleComponents){
-            this.savedValues.moduleComponents[key] = ModuleComponent.newSavedValues();
-        }
-        this.savedValues.moduleOperations = {};
-        for (let key in moduleOperations){
-            this.savedValues.moduleOperations[key] = ModuleOperation.newSavedValues();
-        }
-
-        this.savedValues.battles = {};
-        for (let key in battles){
-            this.savedValues.battles[key] = Battle.newSavedValues();
-        }
-
-        this.savedValues.sectors = {};
-        for (let key in sectors){
-            this.savedValues.sectors[key] = Sector.newSavedValues();
-        }
-        this.savedValues.pointsOfInterest = {};
-        for (let key in pointsOfInterest){
-            this.savedValues.pointsOfInterest[key] = PointOfInterest.newSavedValues();
-        }
-    }
-
-    resetCurrentValues() {
-        this.currentModules = new Set();
-        for (const module of defaultModules) {
-            this.currentModules.add(module.name);
-        }
-        this.currentPointOfInterest = defaultPointOfInterest;
-        this.currentOperations = new Set();
-        this.currentBattles = new Set();
-    }
-
-    /**
-     * @return {boolean} true if there was a save game. false if not (aka new game)
-     */
-    tryLoading() {
-        const localStorageItem = localStorage.getItem('gameDataSave');
-        let saveGameFound = localStorageItem !== null;
-        if (saveGameFound) {
-            const gameDataSave = JSON.parse(localStorageItem);
-            // noinspection JSUnresolvedReference
-            _.merge(this, gameDataSave);
-        }
-
-        // TODO generify?
-        gridStrength.loadData(this.savedValues.gridStrength);
-
-        for (let key in moduleCategories){
-            moduleCategories[key].loadData(this.savedValues.moduleCategories[key]);
-        }
-        for (let key in modules){
-            modules[key].loadData(this.savedValues.modules[key]);
-        }
-        for (let key in moduleComponents){
-            moduleComponents[key].loadData(this.savedValues.moduleComponents[key]);
-        }
-        for (let key in moduleOperations){
-            moduleOperations[key].loadData(this.savedValues.moduleOperations[key]);
-        }
-
-        for (let key in battles){
-            battles[key].loadData(this.savedValues.battles[key]);
-        }
-
-        for (let key in sectors){
-            sectors[key].loadData(this.savedValues.sectors[key]);
-        }
-        for (let key in pointsOfInterest){
-            pointsOfInterest[key].loadData(this.savedValues.pointsOfInterest[key]);
-        }
-        // TODO
-        //      check Module hierarchy activation
-
-
-        // if (gameDataSave !== null) {
-        //     assignDictFromSaveData(modules, gameDataSave.moduleSaveData);
-        //     replaceSaveDict(gameData, gameDataSave);
-        //     replaceSaveDict(gameData.requirements, gameDataSave.requirements);
-        //     replaceSaveDict(gameData.taskData, gameDataSave.taskData);
-        //     replaceSaveDict(gameData.battleData, gameDataSave.battleData);
-        //
-        //     for (const id in gameDataSave.currentOperations) {
-        //         gameDataSave.currentOperations[id] = moduleOperations[id];
-        //     }
-        //     for (const id in gameDataSave.currentModules) {
-        //         //Migrate "current" modules before replacing save data, currentModules should probably be just strings in future.
-        //         const override = modules[id];
-        //         for (const component of override.components) {
-        //             const saved = gameDataSave.currentModules[id].components.find((element) => element.name === component.name);
-        //             if (saved.currentOperation === null || saved.currentOperation === undefined) continue;
-        //             if (moduleOperations.hasOwnProperty(saved.currentOperation.name)) {
-        //                 component.currentMode = moduleOperations[saved.currentOperation.name];
-        //             }
-        //         }
-        //         modules[id].setEnabled(true);
-        //         gameDataSave.currentModules[id] = modules[id];
-        //     }
-        //
-        //     for (const key in gameDataSave.battleData) {
-        //         let battle = gameDataSave.battleData[key];
-        //         delete battle.baseData;
-        //         battle = Object.assign(battles[battle.name], battle);
-        //         gameDataSave.battleData[key] = battle;
-        //     }
-        //     for (const id in gameDataSave.currentBattles) {
-        //         gameDataSave.currentBattles[id] = gameDataSave.battleData[id];
-        //     }
-        //
-        //     gameData = gameDataSave;
-        // } else {
-        //     GameEvents.NewGameStarted.trigger(undefined);
-        // }
-
-        // assignMethods();
-
-        return saveGameFound;
-    }
-}
-
 /**
  * @type {GameData}
  */
 let gameData ;
-
-
-// function assignMethods() {
-//     for (const key in gameData.requirements) {
-//         let requirement = gameData.requirements[key];
-//         switch (requirement.type) {
-//             case 'TaskRequirement':
-//                 requirement = Object.assign(new TaskRequirement(requirement.elements, requirement.requirements), requirement);
-//                 break;
-//             case 'AgeRequirement':
-//                 requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement);
-//                 break;
-//             case 'AttributeRequirement':
-//                 requirement = Object.assign(new AttributeRequirement(requirement.elements, requirement.requirements), requirement);
-//                 break;
-//         }
-//
-//         const tempRequirement = tempData['requirements'][key];
-//         requirement.elements = tempRequirement.elements;
-//         requirement.requirements = tempRequirement.requirements;
-//         gameData.requirements[key] = requirement;
-//     }
-//
-//     gameData.currentPointOfInterest = pointsOfInterest[gameData.currentPointOfInterest.name];
-//     // if (gameData.currentBattle !== null) {
-//     //     startBattle(gameData.currentBattle.name);
-//     // }
-// }
-
-function assignAndReplaceSavedTaskObject(object, saveDict) {
-    const key = object.name;
-    if (key in saveDict) {
-        object.loadData(saveDict[key]);
-    }
-    saveDict[key] = object;
-}
-
-// TODO move into GameData class
-function saveGameData() {
-    if (skipGameDataSave) return;
-
-    updateModuleSavaData(gameData);
-    localStorage.setItem('gameDataSave', JSON.stringify(gameData));
-}
-
-function updateModuleSavaData(saveData) {
-    if (saveData.moduleSaveData === undefined) {
-        saveData.moduleSaveData = {};
-    }
-    for (const id in modules) {
-        const module = modules[id];
-        saveData.moduleSaveData[id] = module.getSaveData();
-    }
-}
-
-function assignDictFromSaveData(dict, saveData) {
-    for (const id in dict) {
-        const object = dict[id];
-        if (saveData !== undefined && id in saveData) {
-            object.loadData(saveData[id]);
-        }
-    }
-}
-
-// function replaceSaveDict(dict, saveDict) {
-//     for (const key in dict) {
-//         if (dict === gameData.taskData && (dict[key] instanceof ModuleOperation || dict[key] instanceof GridStrength)) {
-//             assignAndReplaceSavedTaskObject(dict[key], saveDict);
-//         } else if (dict === gameData.requirements) {
-//             if (!(key in saveDict)) {
-//                 saveDict[key] = dict[key];
-//             }
-//             if (saveDict[key].type !== tempData['requirements'][key].type) {
-//                 saveDict[key] = tempData['requirements'][key];
-//             }
-//         }
-//     }
-//
-//     for (const key in saveDict) {
-//         if (!(key in dict)) {
-//             delete saveDict[key];
-//         }
-//     }
-// }
-
-const tempData = {};
-let skipGameDataSave = false;
 
 /**
  *
@@ -379,7 +48,6 @@ function applySpeed(value, ignoreDeath = false) {
     return value * getGameSpeed(ignoreDeath) / updateSpeed;
 }
 
-// TODO Need to review formula + application in populationDelta()
 function calculateHeat() {
     const danger = attributes.danger.getValue();
     const military = attributes.military.getValue();
@@ -427,7 +95,7 @@ function setTab(selectedTab) {
     }
     tabButtons[selectedTab].classList.add('active');
     gameData.selectedTab = selectedTab;
-    saveGameData();
+    gameData.save();
 
     hideAllTooltips();
 }
@@ -447,7 +115,7 @@ function setPointOfInterest(name) {
         return;
     }
 
-    gameData.currentPointOfInterest = name;
+    gameData.activeEntities.pointOfInterest = name;
 }
 
 // function setBattle(name) {
@@ -494,7 +162,8 @@ function createModuleLevel4Elements(categoryName, component) {
             descriptionElement.removeAttribute('title');
         }
         level4DomGetter.byClass('progressBar').addEventListener('click', () => {
-            component.setActiveOperation(operation);
+            component.setSelectedOperation(operation);
+            operation.setActive(true);
         });
         formatValue(level4DomGetter.bySelector('.gridLoad > data'), operation.getGridLoad());
 
@@ -549,7 +218,12 @@ function createModuleLevel2Elements(categoryName, category) {
         } else {
             nameCell.removeAttribute('title');
         }
-        module.setToggleButton(level2DomGetter.byClass('form-check-input'));
+        /** @var {HTMLInputElement} */
+        const switchElement = level2DomGetter.byClass('moduleActivationSwitch');
+        switchElement.addEventListener('click', module.onActivationSwitchClicked.bind(module, switchElement));
+        switchElement.id = 'switch_' + module.name;
+        switchElement.checked = module.isActive();
+        level2DomGetter.byClass('moduleActivationLabel').for = switchElement.id;
 
         const level3Slot = level2DomGetter.byId('level3');
         level3Slot.replaceWith(...createModuleLevel3Elements(categoryName, module));
@@ -967,7 +641,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                 pointOfInterest.getEffect.bind(pointOfInterest),
                 pointOfInterest.getEffects.bind(pointOfInterest),
                 effectType,
-                'Point of Interest: ' + pointOfInterest.baseData.title,
+                'Point of Interest: ' + pointOfInterest.title,
                 pointOfInterest.isActive.bind(pointOfInterest)
             );
         }
@@ -995,7 +669,7 @@ function createGridLoadBalance(rowElement) {
                 gridLoadBalanceEntries.push({
                     element: balanceEntryElement,
                     taskOrItem: operation,
-                    isActive: () => gameData.currentOperations.hasOwnProperty(operation.name),
+                    isActive: operation.isActive.bind(operation),
                 });
                 balanceElement.append(balanceEntryElement);
             }
@@ -1106,19 +780,19 @@ function initSidebar() {
 }
 
 function updateModulesQuickDisplay() {
-    for (const moduleName in modules) {
-        let container = Dom.get().bySelector('.quickTaskDisplayContainer.' + moduleName);
-        if (!gameData.currentModules.has(moduleName)) {
+    for (const key in modules) {
+        const module = modules[key];
+        let container = Dom.get().bySelector('.quickTaskDisplayContainer.' + module.name);
+        if (!module.isActive()) {
             container.classList.add('hidden');
             continue;
         }
 
-        const module = modules[moduleName];
         container.classList.remove('hidden');
         const containerDomGetter = Dom.get(container);
         for (const component of module.components) {
             const componentDomGetter = Dom.get(containerDomGetter.bySelector('.quickTaskDisplay.' + component.name));
-            let currentOperation = component.currentOperation;
+            let currentOperation = component.getSelectedOperation();
             // Operation classes are never removed, but who cares
             componentDomGetter.byClass('progressBar').classList.add(currentOperation.name);
             componentDomGetter.bySelector('.name > .operation').textContent = currentOperation.title;
@@ -1167,13 +841,6 @@ function setBattleProgress(progressBar, battle) {
 }
 
 function updateBattlesQuickDisplay() {
-    // const currentTask = gameData.currentBattle;
-    // if (currentTask === null) return;
-    //
-    // const progressBar = document.querySelector(`.quickTaskDisplay .battle`);
-    // setBattleProgress(currentTask, progressBar);
-
-
     for (const battleName in battles) {
         /** @type {Battle} */
         const battle = battles[battleName];
@@ -1548,12 +1215,12 @@ function updateBodyClasses() {
 }
 
 function doTasks() {
-    for (const moduleName of gameData.currentModules) {
-        const module = modules[moduleName];
-        module.do();
+    for (const key of gameData.activeEntities.operations) {
+        const operation = moduleOperations[key];
+        operation.do();
     }
 
-    for (const battleName of gameData.currentBattles) {
+    for (const battleName of gameData.activeEntities.battles) {
         const battle = battles[battleName];
         if (battle.isDone() && gameData.selectedTab === 'battles') {
             // Quality of life - a battle is done and the player is already on the battles tab
@@ -1579,13 +1246,9 @@ function getMaxEnergy() {
 function calculateGridLoad() {
     let gridLoad = 0;
 
-    const tasks = gameData.currentOperations;
-    if (tasks !== null) {
-        for (const taskName in tasks) {
-            const task = tasks[taskName];
-            if (task != null)
-                gridLoad += task.getGridLoad();
-        }
+    for (const key of gameData.activeEntities.operations) {
+        const task = moduleOperations[key];
+        gridLoad += task.getGridLoad();
     }
 
     return gridLoad;
@@ -1728,13 +1391,13 @@ function toggleLightDarkMode(force = undefined) {
         gameData.settings.darkMode = force;
     }
     document.documentElement.dataset['bsTheme'] = gameData.settings.darkMode ? 'dark' : 'light';
-    saveGameData();
+    gameData.save();
 }
 
 function toggleSciFiMode(force = undefined) {
     const body = document.getElementById('body');
     gameData.settings.sciFiMode = body.classList.toggle('sci-fi', force);
-    saveGameData();
+    gameData.save();
 }
 
 function setBackground(background) {
@@ -1748,7 +1411,7 @@ function setBackground(background) {
     body.classList.add('background-' + background);
     document.querySelector(`.background-${background} > input[type="radio"]`).checked = true;
     gameData.settings.background = background;
-    saveGameData();
+    gameData.save();
 }
 
 function resetBattle(name) {
@@ -1771,7 +1434,7 @@ function rebirthTwo() {
 function rebirthReset() {
     setTab('modules');
 
-    setDefaultGameDataValues();
+    gameData.resetCurrentValues();
     setPermanentUnlocksAndResetData();
 }
 
@@ -1857,29 +1520,8 @@ function update() {
     updateUI();
 }
 
-function resetGameData() {
-    // TODO use some nice modal
-    if (confirm('This is going to delete all your progress. Continue?')) {
-        localStorage.removeItem('gameDataSave');
-        // Give localStorage time to actually clear
-        setTimeout(() => {location.reload();}, 0);
-    }
-}
-
 function rerollStationName() {
     setStationName(stationNameGenerator.generate());
-}
-
-function importGameData() {
-    const importExportBox = document.getElementById('importExportBox');
-    // saveGameData();
-    localStorage.setItem('gameDataSave', window.atob(importExportBox.value));
-    location.reload();
-}
-
-function exportGameData() {
-    const importExportBox = document.getElementById('importExportBox');
-    importExportBox.value = window.btoa(JSON.stringify(gameData));
 }
 
 const visibleTooltips = [];
@@ -1934,10 +1576,6 @@ function initStationName() {
     }
 }
 
-function setDefaultGameDataValues() {
-    gameData.resetCurrentValues();
-}
-
 function initSettings() {
     const background = gameData.settings.background;
     if (isString(background)) {
@@ -1976,29 +1614,17 @@ function initConfigNames() {
 }
 
 function init() {
-    // During the setup a lot of functions are called that trigger an auto save. To not save various times,
-    // saving is skipped until the game is actually under player control.
-    skipGameDataSave = true;
+
 
     initConfigNames();
-    // //direct ref assignment - taskData could be replaced
-    // for (const entityData of Object.values(moduleOperations)) {
-    //     gameData.taskData[entityData.name] = entityData;
-    // }
-    // gameData.battleData = battles;
-    // gameData.taskData[gridStrength.name] = gridStrength;
 
     gameData = new GameData();
-    // TODO questionable
-// resetGameDataCurrentValues();
-    // gameData.requirements = createRequirements(getTaskElement, getPointOfInterestElement);
-    //
-    // tempData['requirements'] = {};
-    // for (const key in gameData.requirements) {
-    //     tempData['requirements'][key] = gameData.requirements[key];
-    // }
-// initGameData();
-// loadGameData();
+    /*
+     * During the setup a lot of functions are called that trigger an auto save.
+     * To not save various times, saving is skipped until the game is actually
+     * under player control.
+     */
+    gameData.skipSave = true;
 
     const saveGameFound = gameData.tryLoading();
     if (saveGameFound === false) {
@@ -2012,13 +1638,7 @@ function init() {
     createBattlesQuickDisplay();
 
     adjustLayout();
-
     initSidebar();
-
-
-
-
-
 
 
     createAttributeDescriptions(createAttributeInlineHTML);
@@ -2026,12 +1646,6 @@ function init() {
     createEnergyGridDisplay();
 
     //setCustomEffects();
-
-    //Init and enable/disable modules
-    for (const id in modules) {
-        const module = modules[id];
-        module.init();
-    }
 
     if (tabButtons.hasOwnProperty(gameData.selectedTab)) {
         setTab(gameData.selectedTab);
@@ -2044,12 +1658,12 @@ function init() {
 
     cleanUpDom();
 
-    skipGameDataSave = false;
+    gameData.skipSave = false;
     displayLoaded();
 
     update();
     setInterval(update, 1000 / updateSpeed);
-    // setInterval(saveGameData, 3000);
+    setInterval(gameData.save.bind(gameData), 3000);
 }
 
 init();

@@ -80,7 +80,7 @@ class Battle extends LayeredTask {
     }
 
     isActive(){
-        return gameData.currentBattles.hasOwnProperty(this.name);
+        return gameData.activeEntities.battles.has(this.name);
     }
 
     toggle(){
@@ -97,11 +97,11 @@ class Battle extends LayeredTask {
             return;
         }
 
-        gameData.currentBattles[this.name] = this;
+        gameData.activeEntities.battles.add(this.name);
     }
 
     stop(){
-        delete gameData.currentBattles[this.name];
+        gameData.activeEntities.battles.delete(this.name);
     }
 
     /**
@@ -117,7 +117,7 @@ class Battle extends LayeredTask {
      * @returns {number}
      */
     getEffect(effectType) {
-        return Effect.getValue(this, effectType, this.baseData.effects, 1);
+        return Effect.getValue(this, effectType, this.effects, 1);
     }
 
     getRewardsDescription(){

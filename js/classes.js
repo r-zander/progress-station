@@ -72,9 +72,9 @@ class Entity {
         this.id = 'row_' + this.type + '_' + name;
     }
 
-    loadData(savedValues){
+    loadValues(savedValues){
         // Abstract method that needs to be implemented by each sub class
-        throw new TypeError('loadData not implemented by ' + this.constructor.name);
+        throw new TypeError('loadValues not implemented by ' + this.constructor.name);
     }
 }
 
@@ -100,7 +100,8 @@ class Task extends Entity {
     constructor(baseData) {
         super(baseData.title, baseData.description);
 
-        this.baseData = baseData;
+        this.maxXp = baseData.maxXp;
+        this.effects = baseData.effects;
         this.xpMultipliers = [];
         // TODO necessary? rename
         this.collectEffects();
@@ -109,7 +110,7 @@ class Task extends Entity {
     /**
      * @param {TaskSavedValues} savedValues
      */
-    loadData(savedValues){
+    loadValues(savedValues){
         validateParameter(savedValues, {
             level: JsTypes.Number,
             maxLevel: JsTypes.Number,
@@ -159,7 +160,7 @@ class Task extends Entity {
     }
 
     getMaxXp() {
-        return Math.round(this.baseData.maxXp * (this.level + 1) * Math.pow(1.01, this.level));
+        return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.01, this.level));
     }
 
     getXpLeft() {
@@ -184,7 +185,7 @@ class Task extends Entity {
      * @returns {EffectDefinition[]}
      */
     getEffects() {
-        return this.baseData.effects;
+        return this.effects;
     }
 
     getMaxLevelMultiplier() {
@@ -200,14 +201,14 @@ class Task extends Entity {
      * @returns {number}
      */
     getEffect(effectType) {
-        return Effect.getValue(this, effectType, this.baseData.effects, this.level);
+        return Effect.getValue(this, effectType, this.effects, this.level);
     }
 
     /**
      * @return {string}
      */
     getEffectDescription() {
-        return Effect.getDescription(this, this.baseData.effects, this.level);
+        return Effect.getDescription(this, this.effects, this.level);
     }
 
     increaseXp(ignoreDeath = false) {
@@ -262,7 +263,7 @@ class GridStrength extends Task {
 
     getMaxXp() {
         // TODO not final, but works somewhat okay
-        return Math.round(this.baseData.maxXp * Math.pow(Math.E, this.level * 2));
+        return Math.round(this.maxXp * Math.pow(Math.E, this.level * 2));
     }
 }
 
@@ -287,7 +288,7 @@ class ModuleCategory extends Entity {
     /**
      * @param {EmptySavedValues} savedValues
      */
-    loadData(savedValues){
+    loadValues(savedValues){
         validateParameter(savedValues, {}, this);
     }
 
@@ -324,9 +325,10 @@ class Module extends Entity {
     /**
      * @param {ModuleSavedValues} savedValues
      */
-    loadData(savedValues){
+    loadValues(savedValues){
         validateParameter(savedValues, {maxLevel: JsTypes.Number}, this);
         this.savedValues = savedValues;
+        this.propagateMaxLevel();
     }
 
     /**
@@ -338,68 +340,44 @@ class Module extends Entity {
         };
     }
 
+    /**
+     * @return {boolean}
+     */
+    isActive() {
+        return gameData.activeEntities.modules.has(this.name);
+    }
+
+    /**
+     *
+     * @param {boolean} active
+     */
+    setActive(active) {
+        if (active) {
+            gameData.activeEntities.modules.add(this.name);
+        } else {
+            gameData.activeEntities.modules.delete(this.name);
+        }
+
+        for (const component of this.components) {
+            component.getSelectedOperation().setActive(active);
+        }
+    }
+
     get maxLevel() {
         return this.savedValues.maxLevel;
     }
 
     set maxLevel(maxLevel) {
         this.savedValues.maxLevel = maxLevel;
-    }
-
-    // TODO remove
-    getSaveData() {
-        return {maxLevel: this.maxLevel};
-    }
-
-    loadSaveData(saveData) {
-        this.maxLevel = saveData.maxLevel;
         this.propagateMaxLevel();
-    }
-
-    do() {
-        for (const component of this.components) {
-            component.do();
-        }
-    }
-
-    // TODO remove - this goes against the UI | Logic pattern
-    /**
-     *
-     * @param {HTMLInputElement} button
-     */
-    setToggleButton(button) {
-        this.toggleButton = button;
-        button.addEventListener('click', this.onToggleButton.bind(this));
-    }
-
-    onToggleButton() {
-        this.setEnabled(this.toggleButton.checked);
     }
 
     /**
      *
-     * @param {boolean} value
+     * @param {HTMLInputElement} switchElement
      */
-    setEnabled(value) {
-        this.toggleButton.checked = value;
-        if (value) {
-            gameData.currentModules.add(this.name);
-        } else {
-            gameData.currentModules.delete(this.name);
-        }
-
-        for (const component of this.components) {
-            component.setEnabled(value);
-        }
-    }
-
-    toggleEnabled() {
-        this.setEnabled(!this.toggleButton.checked);
-    }
-
-    init() {
-        this.propagateMaxLevel();
-        this.setEnabled(gameData.currentModules.has(this.name));
+    onActivationSwitchClicked(switchElement) {
+        this.setActive(switchElement.checked);
     }
 
     getLevel() {
@@ -419,12 +397,11 @@ class Module extends Entity {
         if (currentLevel > this.maxLevel) {
             this.maxLevel = currentLevel;
         }
-        this.propagateMaxLevel();
     }
 
     getGridLoad() {
         return this.components.reduce(
-            (gridLoadSum, component) => gridLoadSum + component.currentOperation.getGridLoad(),
+            (gridLoadSum, component) => gridLoadSum + component.getSelectedOperation().getGridLoad(),
             0);
     }
 }
@@ -442,13 +419,14 @@ class ModuleComponent extends Entity {
         super(baseData.title, baseData.description);
 
         this.operations = baseData.operations;
-        this.currentOperation = this.operations[0];
+        // TODO include in save game
+        this.selectedOperation = this.operations[0];
     }
 
     /**
      * @param {EmptySavedValues} savedValues
      */
-    loadData(savedValues){
+    loadValues(savedValues){
         validateParameter(savedValues, {}, this);
     }
 
@@ -459,34 +437,25 @@ class ModuleComponent extends Entity {
         return {};
     }
 
-    do() {
-        if (this.currentOperation instanceof ModuleOperation) {
-            this.currentOperation.do();
-        }
+    /**
+     * @param {boolean} active
+     */
+    setActive(active){
+        this.selectedOperation.setActive(active);
     }
 
-    setEnabled(value) {
-        if (value) {
-            if (this.currentOperation !== null) {
-                this.currentOperation.setEnabled(value);
-            }
-        } else {
-            for (const operation of this.operations) {
-                operation.setEnabled(false);
-            }
-        }
-
+    /**
+     * @return {ModuleOperation}
+     */
+    getSelectedOperation() {
+        return this.selectedOperation;
     }
 
-    setActiveOperation(newOperation) {
-        if (this.currentOperation === newOperation) return;
-
-        for (const operation of this.operations) {
-            if (operation === newOperation) {
-                this.currentOperation = operation;
-            }
-            operation.setEnabled(operation === newOperation);
-        }
+    /**
+     * @param {ModuleOperation} operation
+     */
+    setSelectedOperation(operation) {
+        this.selectedOperation = operation;
     }
 
     getOperationLevels() {
@@ -518,27 +487,22 @@ class ModuleOperation extends Task {
         this.xpMultipliers.push(attributes.industry.getValue);
     }
 
-    setEnabled(value) {
-        if (value) {
-            if (!gameData.currentOperations.hasOwnProperty(this.name)) {
-                gameData.currentOperations[this.name] = this;
-            }
+    /**
+     * @param {boolean} active
+     */
+    setActive(active) {
+        if (active) {
+            gameData.activeEntities.operations.add(this.name);
         } else {
-            if (gameData.currentOperations.hasOwnProperty(this.name)) {
-                delete gameData.currentOperations[this.name];
-            }
+            gameData.activeEntities.operations.delete(this.name);
         }
-    }
-
-    toggleEnabled() {
-        this.setEnabled(!this.enabled);
     }
 
     /**
      * @return {boolean}
      */
     isActive(){
-        return gameData.currentOperations.hasOwnProperty(this.name);
+        return gameData.activeEntities.operations.has(this.name);
     }
 
     /**
@@ -572,7 +536,6 @@ class Sector extends Entity {
     constructor(baseData) {
         super(baseData.title, baseData.description);
 
-        this.baseData = baseData;
         this.color = baseData.color;
         this.pointsOfInterest = baseData.pointsOfInterest;
     }
@@ -580,7 +543,7 @@ class Sector extends Entity {
     /**
      * @param {EmptySavedValues} savedValues
      */
-    loadData(savedValues){
+    loadValues(savedValues){
         validateParameter(savedValues, {}, this);
     }
 
@@ -608,14 +571,14 @@ class PointOfInterest extends Entity {
     constructor(baseData) {
         super(baseData.title, baseData.description);
 
-        this.baseData = baseData;
+        this.effects = baseData.effects;
         this.modifiers = baseData.modifiers;
     }
 
     /**
      * @param {EmptySavedValues} savedValues
      */
-    loadData(savedValues){
+    loadValues(savedValues){
         validateParameter(savedValues, {}, this);
     }
 
@@ -630,7 +593,7 @@ class PointOfInterest extends Entity {
      * @return {boolean}
      */
     isActive() {
-        return gameData.currentPointOfInterest === this.name;
+        return gameData.activeEntities.pointOfInterest === this.name;
     }
 
     collectEffects() {
@@ -642,7 +605,7 @@ class PointOfInterest extends Entity {
      * @returns {EffectDefinition[]}
      */
     getEffects() {
-        return this.baseData.effects;
+        return this.effects;
     }
 
     /**
@@ -650,7 +613,7 @@ class PointOfInterest extends Entity {
      * @returns {number}
      */
     getEffect(effectType) {
-        return Effect.getValue(this, effectType, this.baseData.effects, 1);
+        return Effect.getValue(this, effectType, this.effects, 1);
     }
 
     /**
@@ -658,7 +621,7 @@ class PointOfInterest extends Entity {
      */
     getEffectDescription() {
         // Danger is displayed in a separate column
-        return Effect.getDescriptionExcept(this, this.baseData.effects, 1, EffectType.Danger);
+        return Effect.getDescriptionExcept(this, this.effects, 1, EffectType.Danger);
     }
 }
 

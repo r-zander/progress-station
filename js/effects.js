@@ -59,7 +59,7 @@ class Modifier {
      * @return {ModifierDefinition[]}
      */
     static getActiveModifiers() {
-        return pointsOfInterest[gameData.currentPointOfInterest].modifiers;
+        return pointsOfInterest[gameData.activeEntities.pointOfInterest].modifiers;
     }
 
     /**
@@ -85,8 +85,8 @@ class Effect {
      */
     static #getSingleTotalValue(effectType) {
         let result = effectType.getDefaultValue();
-        for (const key in gameData.currentOperations) {
-            const operation = gameData.currentOperations[key];
+        for (const key of gameData.activeEntities.operations) {
+            const operation = moduleOperations[key];
             result = effectType.combine(result, operation.getEffect(effectType));
         }
 
@@ -100,7 +100,7 @@ class Effect {
             }
         }
 
-        result = effectType.combine(result, pointsOfInterest[gameData.currentPointOfInterest].getEffect(effectType));
+        result = effectType.combine(result, pointsOfInterest[gameData.activeEntities.pointOfInterest].getEffect(effectType));
 
         return result;
     }

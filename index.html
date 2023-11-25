@@ -258,8 +258,8 @@
                         </div>
                         <div>
                             <div class="form-check form-switch form-check-reverse">
-                                <input class="form-check-input" type="checkbox" role="switch" id="switch1" checked>
-                                <label class="form-check-label" for="switch1">Active</label>
+                                <input class="form-check-input moduleActivationSwitch" type="checkbox" role="switch" id="switch1" checked>
+                                <label class="form-check-label moduleActivationLabel" for="switch1">Active</label>
                             </div>
                         </div>
                         <div class="ms-auto">
@@ -581,8 +581,8 @@
                         <textarea id="importExportBox" class="form-control" rows="3"></textarea>
 
                         <div class="mt-3 float-end">
-                            <button class="btn btn-light py-1" onClick="importGameData();">Import</button>
-                            <button class="btn btn-light py-1" onClick="exportGameData();">Export</button>
+                            <button class="btn btn-light py-1" onClick="gameData.import();">Import</button>
+                            <button class="btn btn-light py-1" onClick="gameData.export();">Export</button>
                         </div>
                     </div>
                 </div>
@@ -667,7 +667,7 @@
                 <div class="row mt-3">
                     <div class="col-sm-2 col-form-label">Hard reset game</div>
                     <div class="col-sm-10">
-                        <button class="btn btn-danger py-1" onClick="resetGameData();">Reset</button>
+                        <button class="btn btn-danger py-1" onClick="gameData.reset();">Reset</button>
                     </div>
                 </div>
             </div>
@@ -776,6 +776,7 @@
 <script type="text/javascript" src="js/nameGenerator.dictionary.lighthearted.js"></script>
 <script type="text/javascript" src="js/nameGenerator.js"></script>
 <script type="text/javascript" src="js/story.js"></script>
+<script type="text/javascript" src="js/gameData.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/vfx.js"></script>
 </body>
