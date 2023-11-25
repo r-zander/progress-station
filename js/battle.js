@@ -1,3 +1,5 @@
+'use strict';
+
 class LayerData {
     constructor(color) {
         this.color = color;
@@ -5,9 +7,18 @@ class LayerData {
 }
 
 class LayeredTask extends Task {
+    /**
+     * @param {{
+     *     title: string,
+     *     description?: string,
+     *     maxXp: number,
+     *     effects: EffectDefinition[],
+     *     targetLevel: number,
+     * }} baseData
+     */
     constructor(baseData) {
         super(baseData);
-        this.maxLevel = this.baseData.maxLevel;
+        this.targetLevel = baseData.targetLevel;
     }
 
     do() {
@@ -20,7 +31,7 @@ class LayeredTask extends Task {
     }
 
     isDone() {
-        return this.level >= this.maxLevel;
+        return this.level >= this.targetLevel;
     }
 
     onDone() {
@@ -31,18 +42,32 @@ class LayeredTask extends Task {
      * @return {number}
      */
     getDisplayedLevel() {
-        return this.maxLevel - this.level;
+        return this.targetLevel - this.level;
     }
 }
 
 class Battle extends LayeredTask {
+    /**
+     *
+     * @param {{
+     *     title: string,
+     *     targetLevel: number,
+     *     faction: FactionDefinition,
+     *     effects: EffectDefinition[],
+     *     rewards: EffectDefinition[],
+     * }} baseData
+     */
     constructor(baseData) {
-        baseData.maxXp = baseData.faction.maxXp;
-        super(baseData);
+        super({
+            title: baseData.title + ' ' + baseData.faction.title,
+            description: baseData.faction.description,
+            maxXp: baseData.faction.maxXp,
+            effects: baseData.effects,
+            targetLevel: baseData.targetLevel,
+        });
 
         this.faction = baseData.faction;
-        this.title = prepareTitle(this.title + ' ' + this.faction.title);
-        this.description = this.faction.description;
+        this.rewards = baseData.rewards;
     }
 
     collectEffects() {
@@ -55,7 +80,7 @@ class Battle extends LayeredTask {
     }
 
     isActive(){
-        return gameData.currentBattles.hasOwnProperty(this.name);
+        return gameData.activeEntities.battles.has(this.name);
     }
 
     toggle(){
@@ -72,11 +97,11 @@ class Battle extends LayeredTask {
             return;
         }
 
-        gameData.currentBattles[this.name] = this;
+        gameData.activeEntities.battles.add(this.name);
     }
 
     stop(){
-        delete gameData.currentBattles[this.name];
+        gameData.activeEntities.battles.delete(this.name);
     }
 
     /**
@@ -84,7 +109,7 @@ class Battle extends LayeredTask {
      * @returns {number}
      */
     getReward(effectType) {
-        return Effect.getValue(this, effectType, this.baseData.rewards, 1);
+        return Effect.getValue(this, effectType, this.rewards, 1);
     }
 
     /**
@@ -92,15 +117,33 @@ class Battle extends LayeredTask {
      * @returns {number}
      */
     getEffect(effectType) {
-        return Effect.getValue(this, effectType, this.baseData.effects, 1);
+        return Effect.getValue(this, effectType, this.effects, 1);
     }
 
     getRewardsDescription(){
-        return Effect.getDescription(this, this.baseData.rewards, 1);
+        return Effect.getDescription(this, this.rewards, 1);
     }
 }
 
 class BossBattle extends Battle {
+    /**
+     *
+     * @param {{
+     *     title: string,
+     *     maxLevel: number,
+     *     faction: FactionDefinition,
+     *     effects: EffectDefinition[],
+     *     rewards: EffectDefinition[],
+     *     progressBarId: string,
+     *     layerLabel: string,
+     * }} baseData
+     */
+    constructor(baseData) {
+        super(baseData);
+        this.progressBarId = baseData.progressBarId;
+        this.layerLabel = baseData.layerLabel;
+    }
+
     increaseXp(ignoreDeath = true) {
         super.increaseXp(ignoreDeath);
     }

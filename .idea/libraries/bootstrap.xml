@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="bootstrap" type="javaScript">
+    <properties>
+      <option name="frameworkName" value="&lt;Custom&gt;" />
+      <option name="frameworkVersion" value="5.3.1" />
+      <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/vendor/bootstrap-5.3.1" />
+      </sourceFilesUrls>
+    </properties>
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/vendor/bootstrap-5.3.1" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,69 +1,9 @@
 'use strict';
 
 /**
- * @typedef {Object} GameData
- * @property {Object} taskData
- * @property {Object} battleData
- * @property {Object} [requirements]
- *
- * @property {number} population
- *
- * @property {boolean} paused
- *
- * @property {number} days
- * @property {number} rebirthOneCount
- * @property {number} rebirthTwoCount
- * @property {number} totalDays
- *
- * @property {Object.<string, Module>} currentModules
- * @property {Object.<string, ModuleOperation>} currentOperations
- * @property {PointOfInterest} currentPointOfInterest
- * //@property {Battle} currentBattle
- * @property {Object.<string, Battle> } currentBattles
- *
- * @property {string} stationName
- * @property {string} selectedTab
- * @property {Object} settings
- * @property {boolean} settings.darkMode
- * @property {boolean} settings.sciFiMode
- * @property {string} settings.background
- */
-
-/**
- * Not a const as it can be overridden when loading a save game.
- *
  * @type {GameData}
  */
-let gameData = {
-    taskData: {},
-    battleData: {},
-
-    population: 0,
-
-    paused: true,
-
-    days: 365 * 14,
-    rebirthOneCount: 0,
-    rebirthTwoCount: 0,
-    totalDays: 365 * 14,
-
-    currentModules: {},
-    currentOperations: {},
-    currentPointOfInterest: null,
-    // currentBattle: null,
-    currentBattles: {},
-
-    stationName: stationNameGenerator.generate(),
-    selectedTab: 'modules',
-    settings: {
-        darkMode: true,
-        sciFiMode: true,
-        background: 'space',
-    }
-};
-
-const tempData = {};
-let skipGameDataSave = false;
+let gameData ;
 
 /**
  *
@@ -108,7 +48,6 @@ function applySpeed(value, ignoreDeath = false) {
     return value * getGameSpeed(ignoreDeath) / updateSpeed;
 }
 
-// TODO Need to review formula + application in populationDelta()
 function calculateHeat() {
     const danger = attributes.danger.getValue();
     const military = attributes.military.getValue();
@@ -156,7 +95,7 @@ function setTab(selectedTab) {
     }
     tabButtons[selectedTab].classList.add('active');
     gameData.selectedTab = selectedTab;
-    saveGameData();
+    gameData.save();
 
     hideAllTooltips();
 }
@@ -176,7 +115,7 @@ function setPointOfInterest(name) {
         return;
     }
 
-    gameData.currentPointOfInterest = pointsOfInterest[name];
+    gameData.activeEntities.pointOfInterest = name;
 }
 
 // function setBattle(name) {
@@ -211,19 +150,20 @@ function createModuleLevel4Elements(categoryName, component) {
 
     for (const operation of operations) {
         const level4Element = Dom.new.fromTemplate('level4TaskTemplate');
-        level4Element.id = 'row_' + operation.name;
+        level4Element.id = operation.id;
 
         const level4DomGetter = Dom.get(level4Element);
         level4DomGetter.byClass('name').textContent = operation.title;
         const descriptionElement = level4DomGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = operation.title;
-        if (tooltips.hasOwnProperty(operation.name)) {
-            descriptionElement.title = tooltips[operation.name];
+        if (isDefined(operation.description)) {
+            descriptionElement.title = operation.description;
         } else {
             descriptionElement.removeAttribute('title');
         }
         level4DomGetter.byClass('progressBar').addEventListener('click', () => {
-            component.setActiveOperation(operation);
+            component.setSelectedOperation(operation);
+            operation.setActive(true);
         });
         formatValue(level4DomGetter.bySelector('.gridLoad > data'), operation.getGridLoad());
 
@@ -244,8 +184,8 @@ function createModuleLevel3Elements(categoryName, module) {
 
         const nameCell = level3DomGetter.byClass('name');
         nameCell.textContent = component.title;
-        if (tooltips.hasOwnProperty(component.name)) {
-            nameCell.title = tooltips[component.name];
+        if (isDefined(component.description)) {
+            nameCell.title = component.description;
         } else {
             nameCell.removeAttribute('title');
         }
@@ -273,12 +213,17 @@ function createModuleLevel2Elements(categoryName, category) {
         level2Element.id = 'module_row_' + module.name;
         const nameCell = level2DomGetter.byClass('name');
         nameCell.textContent = module.title;
-        if (tooltips.hasOwnProperty(module.name)) {
-            nameCell.title = tooltips[module.name];
+        if (isDefined(module.description)) {
+            nameCell.title = module.description;
         } else {
             nameCell.removeAttribute('title');
         }
-        module.setToggleButton(level2DomGetter.byClass('form-check-input'));
+        /** @var {HTMLInputElement} */
+        const switchElement = level2DomGetter.byClass('moduleActivationSwitch');
+        switchElement.addEventListener('click', module.onActivationSwitchClicked.bind(module, switchElement));
+        switchElement.id = 'switch_' + module.name;
+        switchElement.checked = module.isActive();
+        level2DomGetter.byClass('moduleActivationLabel').for = switchElement.id;
 
         const level3Slot = level2DomGetter.byId('level3');
         level3Slot.replaceWith(...createModuleLevel3Elements(categoryName, module));
@@ -303,8 +248,8 @@ function createModulesUI(categoryDefinition, domId) {
         const level1DomGetter = Dom.get(level1Element);
         const categoryCell = level1DomGetter.byClass('category');
         categoryCell.textContent = category.title;
-        if (tooltips.hasOwnProperty(categoryName)) {
-            categoryCell.title = tooltips[categoryName];
+        if (isDefined(category.description)) {
+            categoryCell.title = category.description;
         } else {
             categoryCell.removeAttribute('title');
         }
@@ -325,16 +270,21 @@ function createModulesUI(categoryDefinition, domId) {
  * @param {string} categoryName
  * @return {HTMLElement[]}
  */
-function createLevel4Elements(category, categoryName) {
+function createLevel4SectorElements(category, categoryName) {
     const level4Elements = [];
     for (const pointOfInterest of category) {
         const level4Element = Dom.new.fromTemplate('level4PointOfInterestTemplate');
+        level4Element.id = 'row_' + pointOfInterest.name;
+
         const level4DomGetter = Dom.get(level4Element);
         level4DomGetter.byClass('name').textContent = pointOfInterest.title;
         const descriptionElement = level4DomGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = pointOfInterest.title;
-        descriptionElement.title = tooltips[pointOfInterest.name];
-        level4Element.id = 'row_' + pointOfInterest.name;
+        if (isDefined(pointOfInterest.description)) {
+            descriptionElement.title = pointOfInterest.description;
+        } else {
+            descriptionElement.removeAttribute('title');
+        }
         level4DomGetter.byClass('modifier').innerHTML = pointOfInterest.modifiers.map(Modifier.getDescription).join(',\n');
         level4DomGetter.byClass('button').addEventListener('click', () => {
             setPointOfInterest(pointOfInterest.name);
@@ -350,7 +300,15 @@ function createLevel4Elements(category, categoryName) {
     return level4Elements;
 }
 
-function createLevel3Element(domId, category, categoryName, categoryIndex) {
+/**
+ *
+ * @param {string} domId
+ * @param {Sector} category
+ * @param {string} categoryName
+ * @param {number} categoryIndex
+ * @return {*}
+ */
+function createLevel3SectorElement(domId, category, categoryName, categoryIndex) {
     const level3Element = Dom.new.fromTemplate('level3PointOfInterestTemplate');
 
     level3Element.classList.add(categoryName);
@@ -360,17 +318,25 @@ function createLevel3Element(domId, category, categoryName, categoryIndex) {
     }
 
     const level3DomGetter = Dom.get(level3Element);
-    level3DomGetter.byClass('name').textContent = category.title;
-    level3Element.querySelector('.header-row').style.backgroundColor = headerRowColors[categoryName];
+    level3DomGetter.byClass('header-row').style.backgroundColor = category.color;
+    const nameCell = level3DomGetter.byClass('name');
+    nameCell.textContent = category.title;
+    if (isDefined(category.description)) {
+        nameCell.title = category.description;
+    } else {
+        nameCell.removeAttribute('title');
+    }
 
     /** @type {HTMLElement} */
     const level4Slot = level3DomGetter.byClass('level4');
-    level4Slot.append(...createLevel4Elements(category.pointsOfInterest, categoryName));
+    level4Slot.append(...createLevel4SectorElements(category.pointsOfInterest, categoryName));
     return level3Element;
 }
 
 /**
  * Due to styling reasons, the two rendered levels are actually level 3 + 4 - don't get confused.
+ * @param {Object.<string, Sector>} categoryDefinition
+ * @param {string} domId
  */
 function createSectorsUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
@@ -378,7 +344,7 @@ function createSectorsUI(categoryDefinition, domId) {
 
     for (const categoryName in categoryDefinition) {
         const category = categoryDefinition[categoryName];
-        level3Elements.push(createLevel3Element(domId, category, categoryName, level3Elements.length));
+        level3Elements.push(createLevel3SectorElement(domId, category, categoryName, level3Elements.length));
     }
 
     slot.replaceWith(...level3Elements);
@@ -399,7 +365,11 @@ function createLevel4BattleElements(category, categoryName) {
         domGetter.byClass('name').textContent = battle.title;
         const descriptionElement = domGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = battle.title;
-        descriptionElement.title = tooltips[battle.faction.name];
+        if (isDefined(battle.description)) {
+            descriptionElement.title = battle.description;
+        } else {
+            descriptionElement.removeAttribute('title');
+        }
         domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
         domGetter.byClass('progressBar').addEventListener('click', () => {
             battle.toggle();
@@ -423,7 +393,7 @@ function createUnfinishedBattlesUI() {
     //     level3Element.classList.remove('mt-2');
 
     const domGetter = Dom.get(level3Element);
-    domGetter.byClass('header-row').style.backgroundColor = headerRowColors['Military grade'];
+    domGetter.byClass('header-row').style.backgroundColor = colorPalette.TomatoRed;
     domGetter.byClass('name').textContent = 'Open';
 
     /** @type {HTMLElement} */
@@ -433,6 +403,12 @@ function createUnfinishedBattlesUI() {
     return level3Element;
 }
 
+/**
+ *
+ * @param {Battle[]} category
+ * @param {string} categoryName
+ * @return {HTMLElement[]}
+ */
 function createLevel4FinishedBattleElements(category, categoryName) {
     const level4Elements = [];
     for (const battle of category) {
@@ -445,7 +421,11 @@ function createLevel4FinishedBattleElements(category, categoryName) {
         domGetter.byClass('name').textContent = battle.title;
         const descriptionElement = domGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = battle.title;
-        descriptionElement.title = tooltips[battle.faction.name];
+        if (isDefined(battle.description)) {
+            descriptionElement.title = battle.description;
+        } else {
+            descriptionElement.removeAttribute('title');
+        }
         domGetter.byClass('action').classList.add('hidden');
         formatValue(
             domGetter.bySelector('.level > data'),
@@ -472,7 +452,7 @@ function createFinishedBattlesUI() {
     level3Element.classList.remove('ps-3');
 
     const domGetter = Dom.get(level3Element);
-    domGetter.byClass('header-row').style.backgroundColor = headerRowColors['Common generators'];
+    domGetter.byClass('header-row').style.backgroundColor = colorPalette.EasyGreen;
     domGetter.byClass('name').textContent = 'Completed';
     domGetter.byClass('action').classList.add('hidden');
     domGetter.byClass('level').textContent = 'Defeated levels';
@@ -590,6 +570,7 @@ function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, 
         element: balanceEntryElement,
         effectType: effectType,
         getEffect: getEffectFn,
+        getEffects: getEffectsFn,
         isActive: isActiveFn,
     });
     balanceElement.append(balanceEntryElement);
@@ -626,7 +607,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                         operation.getEffects.bind(operation),
                         effectType,
                         module.title + ' ' + component.title + ': ' + operation.title,
-                        () => gameData.currentOperations.hasOwnProperty(operation.name)
+                        operation.isActive.bind(operation),
                     );
                 }
             }
@@ -638,7 +619,7 @@ function createAttributeBalance(rowElement, effectTypes) {
             createAttributeBalanceEntry(
                 balanceElement,
                 battle.getReward.bind(battle),
-                () => battle.baseData.rewards,
+                () => battle.rewards,
                 effectType,
                 'Defeated ' + battle.title,
                 battle.isDone.bind(battle)
@@ -660,7 +641,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                 pointOfInterest.getEffect.bind(pointOfInterest),
                 pointOfInterest.getEffects.bind(pointOfInterest),
                 effectType,
-                'Point of Interest: ' + pointOfInterest.baseData.title,
+                'Point of Interest: ' + pointOfInterest.title,
                 pointOfInterest.isActive.bind(pointOfInterest)
             );
         }
@@ -688,7 +669,7 @@ function createGridLoadBalance(rowElement) {
                 gridLoadBalanceEntries.push({
                     element: balanceEntryElement,
                     taskOrItem: operation,
-                    isActive: () => gameData.currentOperations.hasOwnProperty(operation.name),
+                    isActive: operation.isActive.bind(operation),
                 });
                 balanceElement.append(balanceEntryElement);
             }
@@ -799,19 +780,19 @@ function initSidebar() {
 }
 
 function updateModulesQuickDisplay() {
-    for (const moduleName in modules) {
-        let container = Dom.get().bySelector('.quickTaskDisplayContainer.' + moduleName);
-        if (!gameData.currentModules.hasOwnProperty(moduleName)) {
+    for (const key in modules) {
+        const module = modules[key];
+        let container = Dom.get().bySelector('.quickTaskDisplayContainer.' + module.name);
+        if (!module.isActive()) {
             container.classList.add('hidden');
             continue;
         }
 
-        const module = modules[moduleName];
         container.classList.remove('hidden');
         const containerDomGetter = Dom.get(container);
         for (const component of module.components) {
             const componentDomGetter = Dom.get(containerDomGetter.bySelector('.quickTaskDisplay.' + component.name));
-            let currentOperation = component.currentOperation;
+            let currentOperation = component.getSelectedOperation();
             // Operation classes are never removed, but who cares
             componentDomGetter.byClass('progressBar').classList.add(currentOperation.name);
             componentDomGetter.bySelector('.name > .operation').textContent = currentOperation.title;
@@ -840,7 +821,7 @@ function setBattleProgress(progressBar, battle) {
 
     if (battle instanceof BossBattle) {
         Dom.get().byId('battleName').textContent = battle.title;
-        Dom.get(progressBar).byClass('name').textContent = battle.baseData.layerLabel + ' ' + battle.getDisplayedLevel();
+        Dom.get(progressBar).byClass('name').textContent = battle.layerLabel + ' ' + battle.getDisplayedLevel();
     }
 
     const progressBarFill = Dom.get(progressBar).byClass('progressFill');
@@ -860,13 +841,6 @@ function setBattleProgress(progressBar, battle) {
 }
 
 function updateBattlesQuickDisplay() {
-    // const currentTask = gameData.currentBattle;
-    // if (currentTask === null) return;
-    //
-    // const progressBar = document.querySelector(`.quickTaskDisplay .battle`);
-    // setBattleProgress(currentTask, progressBar);
-
-
     for (const battleName in battles) {
         /** @type {Battle} */
         const battle = battles[battleName];
@@ -914,73 +888,73 @@ function setProgress(progressFillElement, progress, increasing = true) {
     }
 }
 
-function updateRequiredRows(categoryType) {
-    const requiredRows = document.getElementsByClassName('requiredRow');
-    for (const requiredRow of requiredRows) {
-        let nextEntity = null;
-        let category = categoryType[requiredRow.id];
-        if (category === undefined) {
-            continue;
-        }
-        for (let i = 0; i < category.length; i++) {
-            let candidate = category[i];
-            if (i >= category.length - 1) break;
-            let requirements = gameData.requirements[candidate.name];
-            if (requirements && i === 0) {
-                if (!requirements.isCompleted()) {
-                    nextEntity = candidate;
-                    break;
-                }
-            }
-
-            const nextIndex = i + 1;
-            if (nextIndex >= category.length) {
-                break;
-            }
-            candidate = category[nextIndex];
-            let nextEntityRequirements = gameData.requirements[candidate.name];
-
-            if (!nextEntityRequirements.isCompleted()) {
-                nextEntity = candidate;
-                break;
-            }
-        }
-
-        if (nextEntity == null) {
-            requiredRow.classList.add('hiddenTask');
-        } else {
-            requiredRow.classList.remove('hiddenTask');
-            const requirementObject = gameData.requirements[nextEntity.name];
-            let requirements = requirementObject.requirements;
-
-            const energyStoredElement = requiredRow.getElementsByClassName('energy-stored')[0];
-            const levelElement = requiredRow.getElementsByClassName('levels')[0];
-
-            let finalText = [];
-            if (categoryType === moduleCategories) {
-                energyStoredElement.classList.add('hiddenTask');
-                levelElement.classList.remove('hiddenTask');
-                for (const requirement of requirements) {
-                    const task = gameData.taskData[requirement.task];
-                    if (task.level >= requirement.requirement) continue;
-                    const text = requirement.task + ' level ' +
-                        '<data value="' + task.level + '">' + task.level + '</data>' + '/' +
-                        '<data value="' + requirement.requirement + '">' + requirement.requirement + '</data>';
-                    finalText.push(text);
-                }
-                levelElement.innerHTML = finalText.join(', ');
-            } else if (categoryType === sectors) {
-                levelElement.classList.add('hiddenTask');
-                energyStoredElement.classList.remove('hiddenTask');
-                updateEnergyDisplay(
-                    requirements[0].requirement,
-                    energyStoredElement.getElementsByTagName('data')[0],
-                    {unit: units.storedEnergy}
-                );
-            }
-        }
-    }
-}
+// function updateRequiredRows(categoryType) {
+//     const requiredRows = document.getElementsByClassName('requiredRow');
+//     for (const requiredRow of requiredRows) {
+//         let nextEntity = null;
+//         let category = categoryType[requiredRow.id];
+//         if (category === undefined) {
+//             continue;
+//         }
+//         for (let i = 0; i < category.length; i++) {
+//             let candidate = category[i];
+//             if (i >= category.length - 1) break;
+//             let requirements = gameData.requirements[candidate.name];
+//             if (requirements && i === 0) {
+//                 if (!requirements.isCompleted()) {
+//                     nextEntity = candidate;
+//                     break;
+//                 }
+//             }
+//
+//             const nextIndex = i + 1;
+//             if (nextIndex >= category.length) {
+//                 break;
+//             }
+//             candidate = category[nextIndex];
+//             let nextEntityRequirements = gameData.requirements[candidate.name];
+//
+//             if (!nextEntityRequirements.isCompleted()) {
+//                 nextEntity = candidate;
+//                 break;
+//             }
+//         }
+//
+//         if (nextEntity == null) {
+//             requiredRow.classList.add('hiddenTask');
+//         } else {
+//             requiredRow.classList.remove('hiddenTask');
+//             const requirementObject = gameData.requirements[nextEntity.name];
+//             let requirements = requirementObject.requirements;
+//
+//             const energyStoredElement = requiredRow.getElementsByClassName('energy-stored')[0];
+//             const levelElement = requiredRow.getElementsByClassName('levels')[0];
+//
+//             let finalText = [];
+//             if (categoryType === moduleCategories) {
+//                 energyStoredElement.classList.add('hiddenTask');
+//                 levelElement.classList.remove('hiddenTask');
+//                 for (const requirement of requirements) {
+//                     const task = gameData.taskData[requirement.task];
+//                     if (task.level >= requirement.requirement) continue;
+//                     const text = requirement.task + ' level ' +
+//                         '<data value="' + task.level + '">' + task.level + '</data>' + '/' +
+//                         '<data value="' + requirement.requirement + '">' + requirement.requirement + '</data>';
+//                     finalText.push(text);
+//                 }
+//                 levelElement.innerHTML = finalText.join(', ');
+//             } else if (categoryType === sectors) {
+//                 levelElement.classList.add('hiddenTask');
+//                 energyStoredElement.classList.remove('hiddenTask');
+//                 updateEnergyDisplay(
+//                     requirements[0].requirement,
+//                     energyStoredElement.getElementsByTagName('data')[0],
+//                     {unit: units.storedEnergy}
+//                 );
+//             }
+//         }
+//     }
+// }
 
 function updateModuleRows() {
     for (const moduleName in modules) {
@@ -995,29 +969,24 @@ function updateModuleRows() {
 }
 
 function updateTaskRows() {
-    for (const key in gameData.taskData) {
-        const task = gameData.taskData[key];
-        if (task instanceof GridStrength) continue;
-        const row = Dom.get().byId('row_' + task.name);
+    for (const key in moduleOperations) {
+        const operation = moduleOperations[key];
+        const row = Dom.get().byId(operation.id);
         const domGetter = Dom.get(row);
-        formatValue(domGetter.bySelector('.level > data'), task.level, {keepNumber: true});
-        formatValue(domGetter.bySelector('.xpGain > data'), task.getXpGain());
-        formatValue(domGetter.bySelector('.xpLeft > data'), task.getXpLeft());
+        formatValue(domGetter.bySelector('.level > data'), operation.level, {keepNumber: true});
+        formatValue(domGetter.bySelector('.xpGain > data'), operation.getXpGain());
+        formatValue(domGetter.bySelector('.xpLeft > data'), operation.getXpLeft());
 
         let maxLevel = domGetter.bySelector('.maxLevel > data');
-        formatValue(maxLevel, task.maxLevel, {keepNumber: true});
+        formatValue(maxLevel, operation.maxLevel, {keepNumber: true});
         maxLevel = maxLevel.parentElement;
         gameData.rebirthOneCount > 0 ? maxLevel.classList.remove('hidden') : maxLevel.classList.add('hidden');
 
         const progressFill = domGetter.byClass('progressFill');
-        setProgress(progressFill, task.xp / task.getMaxXp());
-        if (task instanceof ModuleOperation && gameData.currentOperations.hasOwnProperty(task.name)) {
-            progressFill.classList.add('current');
-        } else {
-            progressFill.classList.remove('current');
-        }
+        setProgress(progressFill, operation.xp / operation.getMaxXp());
+        progressFill.classList.toggle('current', operation.isActive());
 
-        domGetter.byClass('effect').textContent = task.getEffectDescription();
+        domGetter.byClass('effect').textContent = operation.getEffectDescription();
     }
 }
 
@@ -1043,13 +1012,13 @@ function updateBattleRows() {
             continue;
         }
 
-        if (visibleFactions.hasOwnProperty(battle.baseData.faction.name)) {
+        if (visibleFactions.hasOwnProperty(battle.faction.name)) {
             row.classList.add('hidden');
             continue;
         }
 
         visibleBattles++;
-        visibleFactions[battle.baseData.faction.name] = true;
+        visibleFactions[battle.faction.name] = true;
 
         row.classList.remove('hidden');
 
@@ -1062,7 +1031,7 @@ function updateBattleRows() {
 
         const isActive = battle.isActive();
         domGetter.byClass('progressFill').classList.toggle('current', isActive);
-        domGetter.byClass('active').style.backgroundColor = isActive ? headerRowColors['Military grade'] : 'white';
+        domGetter.byClass('active').style.backgroundColor = isActive ? colorPalette.TomatoRed :colorPalette.White;
         formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
     }
 }
@@ -1226,17 +1195,18 @@ function getRemainingGridStrength() {
 }
 
 function hideEntities() {
-    for (const key in gameData.requirements) {
-        const requirement = gameData.requirements[key];
-        const completed = requirement.isCompleted();
-        for (const element of requirement.elements) {
-            if (completed) {
-                element.classList.remove('hidden');
-            } else {
-                element.classList.add('hidden');
-            }
-        }
-    }
+    // TODO this needs to work with the new requirements
+    // for (const key in gameData.requirements) {
+    //     const requirement = gameData.requirements[key];
+    //     const completed = requirement.isCompleted();
+    //     for (const element of requirement.elements) {
+    //         if (completed) {
+    //             element.classList.remove('hidden');
+    //         } else {
+    //             element.classList.add('hidden');
+    //         }
+    //     }
+    // }
 }
 
 function updateBodyClasses() {
@@ -1245,14 +1215,12 @@ function updateBodyClasses() {
 }
 
 function doTasks() {
-    const modules = gameData.currentModules;
-    for (const moduleName in modules) {
-        const module = modules[moduleName];
-        module.do();
+    for (const key of gameData.activeEntities.operations) {
+        const operation = moduleOperations[key];
+        operation.do();
     }
 
-    for (const battleName in gameData.currentBattles) {
-        /** @type {Battle} */
+    for (const battleName of gameData.activeEntities.battles) {
         const battle = battles[battleName];
         if (battle.isDone() && gameData.selectedTab === 'battles') {
             // Quality of life - a battle is done and the player is already on the battles tab
@@ -1278,20 +1246,16 @@ function getMaxEnergy() {
 function calculateGridLoad() {
     let gridLoad = 0;
 
-    const tasks = gameData.currentOperations;
-    if (tasks !== null) {
-        for (const taskName in tasks) {
-            const task = tasks[taskName];
-            if (task != null)
-                gridLoad += task.getGridLoad();
-        }
+    for (const key of gameData.activeEntities.operations) {
+        const task = moduleOperations[key];
+        gridLoad += task.getGridLoad();
     }
 
     return gridLoad;
 }
 
 function goBlackout() {
-    setDefaultCurrentValues();
+   gameData.resetCurrentValues();
 }
 
 function daysToYears(days) {
@@ -1388,23 +1352,23 @@ function formatValue(dataElement, value, config = {}) {
     dataElement.textContent = prefix + toString(scaled);
 }
 
-function getTaskElement(taskName) {
-    if (!gameData.taskData.hasOwnProperty(taskName)) {
-        console.log('Task not found in data: ' + taskName);
+function getModuleOperationElement(operationName) {
+    if (!moduleOperations.hasOwnProperty(operationName)) {
+        console.log('ModuleOperation not found in data: ' + operationName);
         return null;
     }
-    const task = gameData.taskData[taskName];
+    const task = moduleOperations[operationName];
     return document.getElementById(task.id);
 }
 
 function getBattleElement(taskName) {
-    if (!gameData.battleData.hasOwnProperty(taskName)) {
+    if (!battles.hasOwnProperty(taskName)) {
         console.log('Battle not found in data: ' + taskName);
         return;
     }
-    const battle = gameData.battleData[taskName];
+    const battle = battles[taskName];
     if (battle instanceof BossBattle) {
-        return document.getElementById(battle.baseData.progressBarId);
+        return document.getElementById(battle.progressBarId);
     }
 
     return Dom.get().byId('row_' + battle.name);
@@ -1427,13 +1391,13 @@ function toggleLightDarkMode(force = undefined) {
         gameData.settings.darkMode = force;
     }
     document.documentElement.dataset['bsTheme'] = gameData.settings.darkMode ? 'dark' : 'light';
-    saveGameData();
+    gameData.save();
 }
 
 function toggleSciFiMode(force = undefined) {
     const body = document.getElementById('body');
     gameData.settings.sciFiMode = body.classList.toggle('sci-fi', force);
-    saveGameData();
+    gameData.save();
 }
 
 function setBackground(background) {
@@ -1447,11 +1411,11 @@ function setBackground(background) {
     body.classList.add('background-' + background);
     document.querySelector(`.background-${background} > input[type="radio"]`).checked = true;
     gameData.settings.background = background;
-    saveGameData();
+    gameData.save();
 }
 
 function resetBattle(name) {
-    const battle = gameData.battleData[name];
+    const battle = battles[name];
     battle.level = 0;
     battle.xp = 0;
 }
@@ -1470,26 +1434,29 @@ function rebirthTwo() {
 function rebirthReset() {
     setTab('modules');
 
-    setDefaultGameDataValues();
+    gameData.resetCurrentValues();
     setPermanentUnlocksAndResetData();
 }
 
 function setPermanentUnlocksAndResetData() {
-    for (const taskName in gameData.taskData) {
-        const task = gameData.taskData[taskName];
-        task.updateMaxLevelAndReset();
+    for (const key in moduleOperations) {
+        const operation = moduleOperations[key];
+        operation.updateMaxLevelAndReset();
     }
 
-    for (const battleName in gameData.battleData) {
-        const battle = gameData.battleData[battleName];
+    gridStrength.updateMaxLevelAndReset();
+
+    for (const key in battles) {
+        const battle = battles[key];
         battle.updateMaxLevelAndReset();
     }
 
-    for (const key in gameData.requirements) {
-        const requirement = gameData.requirements[key];
-        if (requirement.completed && permanentUnlocks.includes(key)) continue;
-        requirement.completed = false;
-    }
+    // TODO rework
+    // for (const key in gameData.requirements) {
+    //     const requirement = gameData.requirements[key];
+    //     if (requirement.completed && permanentUnlocks.includes(key)) continue;
+    //     requirement.completed = false;
+    // }
 
     for (const key in modules) {
         const module = modules[key];
@@ -1498,12 +1465,15 @@ function setPermanentUnlocksAndResetData() {
 }
 
 function resetMaxLevels() {
-    for (const taskName in gameData.taskData) {
-        const task = gameData.taskData[taskName];
-        task.maxLevel = 0;
+    for (const key in moduleOperations) {
+        const operation = moduleOperations[key];
+        operation.maxLevel = 0;
     }
-    for (const battleName in gameData.battleData) {
-        const battle = gameData.battleData[battleName];
+
+    gridStrength.maxLevel = 0;
+
+    for (const key in battles) {
+        const battle = battles[key];
         battle.maxLevel = 0;
     }
 }
@@ -1527,140 +1497,13 @@ function isPlaying() {
     return !gameData.paused && isAlive();
 }
 
-function assignMethods() {
-    for (const key in gameData.requirements) {
-        let requirement = gameData.requirements[key];
-        switch (requirement.type) {
-            case 'TaskRequirement':
-                requirement = Object.assign(new TaskRequirement(requirement.elements, requirement.requirements), requirement);
-                break;
-            case 'AgeRequirement':
-                requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement);
-                break;
-            case 'AttributeRequirement':
-                requirement = Object.assign(new AttributeRequirement(requirement.elements, requirement.requirements), requirement);
-                break;
-        }
-
-        const tempRequirement = tempData['requirements'][key];
-        requirement.elements = tempRequirement.elements;
-        requirement.requirements = tempRequirement.requirements;
-        gameData.requirements[key] = requirement;
-    }
-
-    gameData.currentPointOfInterest = pointsOfInterest[gameData.currentPointOfInterest.name];
-    // if (gameData.currentBattle !== null) {
-    //     startBattle(gameData.currentBattle.name);
-    // }
-}
-
-function replaceSaveDict(dict, saveDict) {
-    for (const key in dict) {
-        if (dict === gameData.taskData && (dict[key] instanceof Job || dict[key] instanceof GridStrength)) {
-            assignAndReplaceSavedTaskObject(dict[key], saveDict);
-        } else if (dict === gameData.requirements) {
-            if (!(key in saveDict)) {
-                saveDict[key] = dict[key];
-            }
-            if (saveDict[key].type !== tempData['requirements'][key].type) {
-                saveDict[key] = tempData['requirements'][key];
-            }
-        }
-    }
-
-    for (const key in saveDict) {
-        if (!(key in dict)) {
-            delete saveDict[key];
-        }
-    }
-}
-
-function assignAndReplaceSavedTaskObject(object, saveDict) {
-    const key = object.name;
-    if (key in saveDict) {
-        object.assignSaveData(saveDict[key]);
-    }
-    saveDict[key] = object;
-}
-
-function saveGameData() {
-    if (skipGameDataSave) return;
-
-    updateModuleSavaData(gameData);
-    localStorage.setItem('gameDataSave', JSON.stringify(gameData));
-}
-
-function updateModuleSavaData(saveData) {
-    if (saveData.moduleSaveData === undefined) {
-        saveData.moduleSaveData = {};
-    }
-    for (const id in modules) {
-        const module = modules[id];
-        saveData.moduleSaveData[id] = module.getSaveData();
-    }
-}
-
-function assignDictFromSaveData(dict, saveData) {
-    for (const id in dict) {
-        const object = dict[id];
-        if (saveData !== undefined && id in saveData) {
-            object.loadSaveData(saveData[id]);
-        }
-    }
-}
-
-function loadGameData() {
-    const gameDataSave = JSON.parse(localStorage.getItem('gameDataSave'));
-
-    if (gameDataSave !== null) {
-        assignDictFromSaveData(modules, gameDataSave.moduleSaveData);
-        replaceSaveDict(gameData, gameDataSave);
-        replaceSaveDict(gameData.requirements, gameDataSave.requirements);
-        replaceSaveDict(gameData.taskData, gameDataSave.taskData);
-        replaceSaveDict(gameData.battleData, gameDataSave.battleData);
-
-        for (const id in gameDataSave.currentOperations) {
-            gameDataSave.currentOperations[id] = moduleOperations[id];
-        }
-        for (const id in gameDataSave.currentModules) {
-            //Migrate "current" modules before replacing save data, currentModules should probably be just strings in future.
-            const override = modules[id];
-            for (const component of override.components) {
-                const saved = gameDataSave.currentModules[id].components.find((element) => element.name === component.name);
-                if (saved.currentOperation === null || saved.currentOperation === undefined) continue;
-                if (moduleOperations.hasOwnProperty(saved.currentOperation.name)) {
-                    component.currentMode = moduleOperations[saved.currentOperation.name];
-                }
-            }
-            modules[id].setEnabled(true);
-            gameDataSave.currentModules[id] = modules[id];
-        }
-
-        for (const key in gameDataSave.battleData) {
-            let battle = gameDataSave.battleData[key];
-            delete battle.baseData;
-            battle = Object.assign(battles[battle.name], battle);
-            gameDataSave.battleData[key] = battle;
-        }
-        for (const id in gameDataSave.currentBattles) {
-            gameDataSave.currentBattles[id] = gameDataSave.battleData[id];
-        }
-
-        gameData = gameDataSave;
-    } else {
-        GameEvents.NewGameStarted.trigger(undefined);
-    }
-
-    assignMethods();
-}
-
 function updateUI() {
     updateTaskRows();
     updateModuleRows();
     updateBattleRows();
     updateSectorRows();
-    updateRequiredRows(moduleCategories);
-    updateRequiredRows(sectors);
+    // updateRequiredRows(moduleCategories);
+    // updateRequiredRows(sectors);
     updateHeaderRows();
     updateModulesQuickDisplay();
     updateBattlesQuickDisplay();
@@ -1677,29 +1520,8 @@ function update() {
     updateUI();
 }
 
-function resetGameData() {
-    // TODO use some nice modal
-    if (confirm('This is going to delete all your progress. Continue?')) {
-        localStorage.removeItem('gameDataSave');
-        // Give localStorage time to actually clear
-        setTimeout(() => {location.reload();}, 0);
-    }
-}
-
 function rerollStationName() {
     setStationName(stationNameGenerator.generate());
-}
-
-function importGameData() {
-    const importExportBox = document.getElementById('importExportBox');
-    gameData = JSON.parse(window.atob(importExportBox.value));
-    saveGameData();
-    location.reload();
-}
-
-function exportGameData() {
-    const importExportBox = document.getElementById('importExportBox');
-    importExportBox.value = window.btoa(JSON.stringify(gameData));
 }
 
 const visibleTooltips = [];
@@ -1735,7 +1557,7 @@ function setStationName(newStationName) {
     for (const stationNameInput of Dom.get().allByClass('stationNameInput')) {
         stationNameInput.value = newStationName;
     }
-    saveGameData();
+    // saveGameData();
 }
 
 function initStationName() {
@@ -1751,20 +1573,6 @@ function initStationName() {
         stationNameInput.addEventListener('input', (event) => {
             setStationName(event.target.value);
         });
-    }
-}
-
-function setDefaultGameDataValues() {
-    setDefaultCurrentValues();
-}
-
-function setDefaultCurrentValues() {
-    gameData.currentPointOfInterest = defaultPointOfInterest;
-    gameData.currentModules = {};
-    gameData.currentOperations = {};
-
-    for (const module of defaultModules) {
-        module.setEnabled(true);
     }
 }
 
@@ -1789,19 +1597,16 @@ function displayLoaded() {
 function assignNames(data) {
     for (const [key, val] of Object.entries(data)) {
         val.name = key;
-        val.id = 'row_' + key;
     }
 }
 
 function initConfigNames() {
-    for (const [key, module] of Object.entries(moduleOperations)) {
-        module.name = key;
-    }
-
+    gridStrength.name = 'gridStrength';
     assignNames(attributes);
-    assignNames(moduleComponents);
-    assignNames(modules);
     assignNames(moduleCategories);
+    assignNames(modules);
+    assignNames(moduleComponents);
+    assignNames(moduleOperations);
     assignNames(factions);
     assignNames(battles);
     assignNames(pointsOfInterest);
@@ -1809,11 +1614,22 @@ function initConfigNames() {
 }
 
 function init() {
-    // During the setup a lot of functions are called that trigger an auto save. To not save various times,
-    // saving is skipped until the game is actually under player control.
-    skipGameDataSave = true;
+
 
     initConfigNames();
+
+    gameData = new GameData();
+    /*
+     * During the setup a lot of functions are called that trigger an auto save.
+     * To not save various times, saving is skipped until the game is actually
+     * under player control.
+     */
+    gameData.skipSave = true;
+
+    const saveGameFound = gameData.tryLoading();
+    if (saveGameFound === false) {
+        GameEvents.NewGameStarted.trigger(undefined);
+    }
 
     createModulesUI(moduleCategories, 'modulesTable');
     createSectorsUI(sectors, 'sectorTable');
@@ -1822,40 +1638,14 @@ function init() {
     createBattlesQuickDisplay();
 
     adjustLayout();
-
     initSidebar();
 
-    //direct ref assignment - taskData could be replaced
-    for (const entityData of Object.values(moduleOperations)) {
-        entityData.id = 'row_' + entityData.name;
-        gameData.taskData[entityData.name] = entityData;
-    }
-    gameData.battleData = battles;
-    gameData.taskData[gridStrength.name] = gridStrength;
-
-    setDefaultCurrentValues();
-
-    gameData.requirements = createRequirements(getTaskElement, getPointOfInterestElement);
-
-    tempData['requirements'] = {};
-    for (const key in gameData.requirements) {
-        tempData['requirements'][key] = gameData.requirements[key];
-    }
-
-    loadGameData();
 
     createAttributeDescriptions(createAttributeInlineHTML);
     createAttributesUI();
     createEnergyGridDisplay();
 
     //setCustomEffects();
-    addMultipliers();
-
-    //Init and enable/disable modules
-    for (const id in modules) {
-        const module = modules[id];
-        module.init();
-    }
 
     if (tabButtons.hasOwnProperty(gameData.selectedTab)) {
         setTab(gameData.selectedTab);
@@ -1868,12 +1658,12 @@ function init() {
 
     cleanUpDom();
 
-    skipGameDataSave = false;
+    gameData.skipSave = false;
     displayLoaded();
 
     update();
     setInterval(update, 1000 / updateSpeed);
-    setInterval(saveGameData, 3000);
+    setInterval(gameData.save.bind(gameData), 3000);
 }
 
 init();

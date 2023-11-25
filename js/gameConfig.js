@@ -23,6 +23,19 @@ const units = {
     storedEnergy: 'Wh'
 };
 
+const colorPalette = {
+    EasyGreen: '#55A630',
+    HappyBlue: '#219EBC',
+    TomatoRed: '#E63946',
+    DepressionPurple: '#4A4E69',
+    // 'Fundamentals': '#4A4E69',
+    // 'Combat': '#FF704D',
+    // 'Magic': '#875F9A',
+    // 'Dark magic': '#73000F',
+    // 'Misc': '#B56576',
+    White: '#FFFFFF',
+};
+
 /**
  * @type {Object.<string, AttributeDefinition>}
  */
@@ -34,7 +47,7 @@ const attributes = {
         getValue: () => calculateGridLoad() },
     gridStrength: { title: 'Grid Strength', color: '#0C65AD', icon: 'img/icons/energy.svg',
         getValue: () => gridStrength.getGridStrength() },
-    growth: { title: 'Growth', color: 'green', icon: 'img/icons/growth.svg',
+    growth: { title: 'Growth', color: '#008000', icon: 'img/icons/growth.svg',
         getValue: Effect.getTotalValue.bind(this, [EffectType.Growth])},
     heat: { title: 'Heat', color: 'rgb(245, 166, 35)', icon: 'img/icons/heat.svg',
         getValue: () => calculateHeat() },
@@ -50,49 +63,118 @@ const attributes = {
 
 /**
  *
- * @param {function(AttributeDefinition): string} attribute renders the provided attribute nicely.
+ * @param {function(AttributeDefinition): string} printAttribute renders the provided attribute nicely.
  */
-function createAttributeDescriptions(attribute) {
-    attributes.danger.description = 'Increases ' + attribute(attributes.heat) + '.';
-    attributes.gridLoad.description = 'Amount of ' + attribute(attributes.gridStrength) + ' currently assigned.';
+function createAttributeDescriptions(printAttribute) {
+    attributes.danger.description = 'Increases ' + printAttribute(attributes.heat) + '.';
+    attributes.gridLoad.description = 'Amount of ' + printAttribute(attributes.gridStrength) + ' currently assigned.';
     attributes.gridStrength.description = 'Limits the number of concurrently active operations.';
-    attributes.growth.description = 'Increases ' + attribute(attributes.population) + '.';
-    attributes.heat.description = 'Reduces ' + attribute(attributes.population) + '.';
+    attributes.growth.description = 'Increases ' + printAttribute(attributes.population) + '.';
+    attributes.heat.description = 'Reduces ' + printAttribute(attributes.population) + '.';
     attributes.industry.description = 'Speeds up operations progress.';
-    attributes.military.description = 'Counteracts ' + attribute(attributes.danger) + '.';
+    attributes.military.description = 'Counteracts ' + printAttribute(attributes.danger) + '.';
     attributes.population.description = 'Affects all work speed.';
     attributes.research.description = 'Unlocks new knowledge.';
 }
 
 const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100});
 
+/**
+ * @type {Object.<string, ModuleOperation>}
+ */
 const moduleOperations = {
-    StandbyGenerator: new ModuleOperation({title: 'Standby Generator', effects: [{effectType: EffectType.Energy, baseValue: 1}], maxXp: 100, gridLoad: 0}),
-    MicroCyborgAutomat: new ModuleOperation({title: 'Micro Cyborg Automat', effects: [{effectType: EffectType.Growth, baseValue: 1}], maxXp: 100, gridLoad: 1}),
-    KungFuManual: new ModuleOperation({title: 'Kung Fu manual', effects: [{effectType: EffectType.Military, baseValue: 1}], maxXp: 100, gridLoad: 1}),
-    PocketLaboratory: new ModuleOperation({title: 'Pocket Laboratory', effects: [{effectType: EffectType.Research, baseValue: 1}], maxXp: 100, gridLoad: 1}),
-    '4dPrinter': new ModuleOperation({title: '4D Printer', effects: [{effectType: EffectType.Industry, baseValue: 1}], maxXp: 100, gridLoad: 1}),
+    StandbyGenerator: new ModuleOperation({
+        title: 'Standby Generator', maxXp: 100, gridLoad: 0,
+        effects: [{effectType: EffectType.Energy, baseValue: 1}],
+    }),
+    MicroCyborgAutomat: new ModuleOperation({
+        title: 'Micro Cyborg Automat', maxXp: 100, gridLoad: 1,
+        effects: [{effectType: EffectType.Growth, baseValue: 1}],
+    }),
+    KungFuManual: new ModuleOperation({
+        title: 'Kung Fu manual', maxXp: 100, gridLoad: 1,
+        effects: [{effectType: EffectType.Military, baseValue: 1}]}),
+    PocketLaboratory: new ModuleOperation({
+        title: 'Pocket Laboratory', maxXp: 100, gridLoad: 1,
+        effects: [{effectType: EffectType.Research, baseValue: 1}]}),
+    '4dPrinter': new ModuleOperation({
+        title: '4D Printer', maxXp: 100, gridLoad: 1,
+        effects: [{effectType: EffectType.Industry, baseValue: 1}]}),
 
-    Garbage: new ModuleOperation({title: 'Garbage', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 400, gridLoad: 1}),
-    Diesel: new ModuleOperation({title: 'Diesel', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 50, gridLoad: 1}),
-    Plastics: new ModuleOperation({title: 'Plastics', effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}], maxXp: 100, gridLoad: 1}),
-    Steel: new ModuleOperation({title: 'Steel', effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.EnergyFactor, baseValue: 5}], maxXp: 200, gridLoad: 1}),
+    Garbage: new ModuleOperation({
+        title: 'Garbage', maxXp: 400, gridLoad: 1,
+        description: 'Garbage text.',
+        effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}],
+    }),
+    Diesel: new ModuleOperation({
+        title: 'Diesel', maxXp: 50, gridLoad: 1,
+        description: 'Diesel text.',
+        effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}],
+    }),
+    Plastics: new ModuleOperation({
+        title: 'Plastics', maxXp: 100, gridLoad: 1,
+        description: 'Plastics text.',
+        effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}],
+    }),
+    Steel: new ModuleOperation({
+        title: 'Steel', maxXp: 200, gridLoad: 1,
+        description: 'Steel text.',
+        effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.EnergyFactor, baseValue: 5}],
+    }),
+
     //Population
-    QuantumReplicator: new ModuleOperation({title: 'Quantum Replicator', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
-    BioGenesisChamber: new ModuleOperation({title: 'Bio-Genesis Chamber', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
-    NanoFertilityDrones: new ModuleOperation({title: 'Nano-Fertility Drones', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
-    HoloCommunityHub: new ModuleOperation({title: 'Holo-Community Hub', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
-    TemporalBreedingPods: new ModuleOperation({title: 'Temporal Breeding Pods', effects: [{effectType: EffectType.Growth, baseValue: 5}], maxXp: 400, gridLoad: 1}),
+    QuantumReplicator: new ModuleOperation({
+        title: 'Quantum Replicator', maxXp: 400, gridLoad: 1,
+        description: 'Introducing the \'Quantum Replicator\'—the ultimate solution for population growth! This futuristic device uses quantum technology to duplicate individuals, allowing you to rapidly expand your population. With each activation, watch as your society flourishes and thrives. Just remember to keep track of the originals, or you might end up with an army of duplicates!',
+        effects: [{effectType: EffectType.Growth, baseValue: 5}],
+    }),
+    BioGenesisChamber: new ModuleOperation({
+        title: 'Bio-Genesis Chamber', maxXp: 400, gridLoad: 1,
+        description: "Step into the 'Bio-Genesis Chamber,' where life finds a new beginning! This advanced technology can create life forms from scratch, jump-starting your population growth. Simply input the genetic code and environmental parameters, and within moments, you'll have a thriving population ready to build a bright future. Handle with care; creating life is a profound responsibility!",
+        effects: [{effectType: EffectType.Growth, baseValue: 5}],
+    }),
+    NanoFertilityDrones: new ModuleOperation({
+        title: 'Nano-Fertility Drones', maxXp: 400, gridLoad: 1,
+        description: "Meet the 'Nano-Fertility Drones'—tiny, intelligent machines on a mission to boost your population! These nanobots are programmed to enhance fertility rates, making reproduction more efficient than ever before. Whether you're on a distant planet or in a post-apocalyptic world, these drones ensure your population will grow and thrive against all odds.",
+        effects: [{effectType: EffectType.Growth, baseValue: 5}],
+    }),
+    HoloCommunityHub: new ModuleOperation({
+        title: 'Holo-Community Hub', maxXp: 400, gridLoad: 1,
+        description: "Create a sense of unity with the 'Holo-Community Hub'! This holographic hub provides a virtual meeting space for your population, regardless of physical distance. As individuals gather in the virtual world, they form stronger bonds, leading to increased cooperation, higher birth rates, and a sense of belonging. Just be prepared for some quirky virtual avatars!",
+        effects: [{effectType: EffectType.Growth, baseValue: 5}],
+    }),
+    TemporalBreedingPods: new ModuleOperation({
+        title: 'Temporal Breeding Pods', maxXp: 400, gridLoad: 1,
+        description: "Venture into the temporal realm with 'Temporal Breeding Pods'! These extraordinary chambers manipulate time itself to accelerate the aging process. Individuals placed inside age rapidly, allowing for generations to be born and raised in a fraction of the time. Witness your population skyrocket as you harness the mysteries of time travel!",
+        effects: [{effectType: EffectType.Growth, baseValue: 5}],
+    }),
+
     //Military
-    BallisticTurrets: new ModuleOperation({title: 'Ballistic Turrets', effects: [{effectType: EffectType.Military, baseValue: 2}], maxXp: 100, gridLoad: 1}),
-    LaserTurrets: new ModuleOperation({title: 'Laser Turrets', effects: [{effectType: EffectType.Military, baseValue: 5}], maxXp: 400, gridLoad: 1}),
-    FighterSquadron: new ModuleOperation({title: 'Fighter Squadron', effects: [{effectType: EffectType.Military, baseValue: 3}], maxXp: 150, gridLoad: 1}),
-    EliteForce: new ModuleOperation({title: 'Elite Force', effects: [{effectType: EffectType.Military, baseValue: 10}], maxXp: 1000, gridLoad: 1}),
+    BallisticTurrets: new ModuleOperation({
+        title: 'Ballistic Turrets', maxXp: 100, gridLoad: 1,
+        effects: [{effectType: EffectType.Military, baseValue: 2}],
+    }),
+    LaserTurrets: new ModuleOperation({
+        title: 'Laser Turrets', maxXp: 400, gridLoad: 1,
+        effects: [{effectType: EffectType.Military, baseValue: 5}],
+    }),
+    FighterSquadron: new ModuleOperation({
+        title: 'Fighter Squadron', maxXp: 150, gridLoad: 1,
+        effects: [{effectType: EffectType.Military, baseValue: 3}],
+    }),
+    EliteForce: new ModuleOperation({
+        title: 'Elite Force', maxXp: 1000, gridLoad: 1,
+        effects: [{effectType: EffectType.Military, baseValue: 10}],
+    }),
 };
 
+/**
+ * @type {Object.<string, ModuleComponent>}
+ */
 const moduleComponents = {
     RescueCapsule: new ModuleComponent({
         title: 'Rescue Capsule',
+        description: 'A small pod, big enough to house a single person. Ideal to escape from the station as a last resort.',
         operations: [moduleOperations.StandbyGenerator, moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual, moduleOperations.PocketLaboratory, moduleOperations['4dPrinter']],
     }),
     Fuel: new ModuleComponent({
@@ -121,22 +203,44 @@ const moduleComponents = {
     }),
 };
 
+/**
+ * @type {Object.<string, Module>}
+ */
 const modules = {
-    ISASM: new Module({title: 'I.S.A.S.M', components: [moduleComponents.RescueCapsule]}),
-    Furnace: new Module({title: 'Furnace Module', components: [moduleComponents.Fuel, moduleComponents.Products]}),
-    Hive: new Module({title: 'Hive Module', components: [moduleComponents.Replication, moduleComponents.Living]}),
-    WeaponBay: new Module({title: 'Weapon Bay', components: [moduleComponents.Turrets, moduleComponents.Squads]}),
+    ISASM: new Module({
+        title: 'I.S.A.S.M',
+        description: 'Indestructible Space Adventurer Survival Module',
+        components: [moduleComponents.RescueCapsule]}
+    ),
+    Furnace: new Module({
+        title: 'Furnace Module',
+        description: '',
+        components: [moduleComponents.Fuel, moduleComponents.Products],
+    }),
+    Hive: new Module({
+        title: 'Hive Module',
+        description: '',
+        components: [moduleComponents.Replication, moduleComponents.Living],
+    }),
+    WeaponBay: new Module({
+        title: 'Weapon Bay',
+        description: '',
+        components: [moduleComponents.Turrets, moduleComponents.Squads],
+    }),
 };
 
 const defaultModules = [
     modules.ISASM
 ];
 
+/**
+ * @type {Object.<string, ModuleCategory>}
+ */
 const moduleCategories = {
-    EmergencySupplies: new ModuleCategory({title: 'Emergency Supplies', color: '#4A4E69', modules: [modules.ISASM]}),
-    Fundamentals: new ModuleCategory({title: 'Fundamentals', color: '#55A630', modules: [modules.Furnace]}),
-    Population: new ModuleCategory({title: 'Population', color: '#219EBC', modules: [modules.Hive]}),
-    Military: new ModuleCategory({title: 'Military', color: '#E63946', modules: [modules.WeaponBay]}),
+    EmergencySupplies: new ModuleCategory({title: 'Emergency Supplies', color: colorPalette.DepressionPurple, modules: [modules.ISASM]}),
+    Fundamentals: new ModuleCategory({title: 'Fundamentals', color: colorPalette.EasyGreen, modules: [modules.Furnace]}),
+    Population: new ModuleCategory({title: 'Population', color: colorPalette.HappyBlue, modules: [modules.Hive]}),
+    Military: new ModuleCategory({title: 'Military', color: colorPalette.TomatoRed, modules: [modules.WeaponBay]}),
 };
 
 /*
@@ -148,63 +252,89 @@ const moduleCategories = {
  * 1_000_000_000_000
  */
 
+/**
+ * @type {Object.<string, FactionDefinition>}
+ */
 const factions = {
-    NovaFlies: {title: 'Nova Flies', maxXp: 20},
-    Astrogoblins: {title: 'Astrogoblins', maxXp: 50},
-    CometCrawlers: {title: 'Comet Crawlers', maxXp: 100},
-    SpacePirates: {title: 'Space Pirates', maxXp: 1_000},
-    ThunderDragon: {title: 'Thunder Dragon', maxXp: 100_000},
-    AstralSharks: {title: 'Astral Sharks', maxXp: 750_000},
+    NovaFlies: {
+        title: 'Nova Flies', maxXp: 20,
+        description: 'Similar to earth\'s long lost fireflies these bugs are glowing on their own. Experiencing their gigantic numbers and blinding brightness quickly explains the name.',
+    },
+    Astrogoblins: {
+        title: 'Astrogoblins', maxXp: 50,
+        description: 'Mischievous beings that can be found in every corner of the galaxy, Astrogoblins zip around in makeshift spacecrafts, armed with primitive weapons and a liking for interstellar chaos.'
+    },
+    CometCrawlers: {
+        title: 'Comet Crawlers', maxXp: 100,
+        description: 'These beagle-sized beetles travel on the surface of comets as they are attracted by metal alloys that are unfortunately also commonly found in space stations. They will attack in large numbers if they sense one of their own being harmed.'
+    },
+    SpacePirates: {
+        title: 'Space Pirates', maxXp: 1_000,
+        description: 'Buccaneers sailing the astral seas, Space Pirates are notorious for their flashy ships, over-the-top personalities, and the relentless pursuit of rare space booty.'
+    },
+    ThunderDragon: {
+        title: 'Thunder Dragon', maxXp: 100_000,
+        description: 'Roaming the cosmic storm clouds, Thunder Dragons are colossal beings of electric energy. Lightning crackles across their scales as they soar through the galactic skies.'
+    },
+    AstralSharks: {
+        title: 'Astral Sharks', maxXp: 750_000,
+        description: 'Legends of the cosmic deep, Astral Sharks glide through space with celestial fins and stardust-infused teeth. They\'re the titans of the galactic oceans.'
+    },
 
-    Destroyer: {title: 'The Destroyer', maxXp: 500},
+    Destroyer: {
+        title: 'The Destroyer', maxXp: 500,
+    },
 };
 
+/**
+ * @type {Object.<string, Battle>}
+ */
 const battles = {
     Astrogoblins10: new Battle({
         title: 'Wimpy',
-        maxLevel: 10,
+        targetLevel: 10,
         faction: factions.Astrogoblins,
         effects: [{effectType: EffectType.Danger, baseValue: 10}],
         rewards: [{effectType: EffectType.Research, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     CometCrawlers10: new Battle({
         title: 'Handful of',
-        maxLevel: 10,
+        targetLevel: 10,
         faction: factions.CometCrawlers,
         effects: [{effectType: EffectType.Danger, baseValue: 20}],
         rewards: [{effectType: EffectType.Growth, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     Astrogoblins20: new Battle({
         title: 'Courageous',
-        maxLevel: 20,
+        targetLevel: 20,
         faction: factions.Astrogoblins,
         effects: [{effectType: EffectType.Danger, baseValue: 50}],
         rewards: [{effectType: EffectType.Military, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     SpacePirates10: new Battle({
         title: 'Roaming',
-        maxLevel: 10,
+        targetLevel: 10,
         faction: factions.SpacePirates,
         effects: [{effectType: EffectType.Danger, baseValue: 100}],
         rewards: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     ThunderDragon10: new Battle({
         title: 'Decrepit',
-        maxLevel: 10,
+        targetLevel: 10,
         faction: factions.ThunderDragon,
         effects: [{effectType: EffectType.Danger, baseValue: 200}],
         rewards: [{effectType: EffectType.Research, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     AstralSharks10: new Battle({
         title: 'Lone',
-        maxLevel: 10,
+        targetLevel: 10,
         faction: factions.AstralSharks,
         effects: [{effectType: EffectType.Danger, baseValue: 500}],
         rewards: [{effectType: EffectType.ResearchFactor, baseValue: 1.5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     NovaFlies200: new Battle({
         title: 'Countless',
-        maxLevel: 200,
+        targetLevel: 200,
         faction: factions.NovaFlies,
         effects: [{effectType: EffectType.Danger, baseValue: 300}],
         rewards: [{effectType: EffectType.Growth, baseValue: 20}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
@@ -230,87 +360,42 @@ function maximumAvailableBattles() {
     return 1;
 }
 
+/**
+ * @type {Object.<string, PointOfInterest>}
+ */
 const pointsOfInterest = {
     FunkySector: new PointOfInterest({
         title: 'Funky Sector',
+        description: '',
         effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 10}],
         modifiers: [{modifies: [moduleOperations.QuantumReplicator, moduleOperations.Diesel], from: EffectType.Growth, to: EffectType.Research}]
     }),
     VideoGameLand: new PointOfInterest({
         title: 'Video Game Land',
+        description: '',
         effects: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 25}],
         modifiers: [{modifies: [moduleOperations.BallisticTurrets, moduleOperations.LaserTurrets], from: EffectType.Military, to: EffectType.Energy}]
     }),
     Gurkenland: new PointOfInterest({
         title: 'Gurkenland',
+        description: '',
         effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 50}],
         modifiers: [{modifies: [moduleOperations.Plastics], from: EffectType.Industry, to: EffectType.Growth}, {modifies: [moduleOperations.Steel], from: EffectType.Growth, to: EffectType.Industry}]
     }),
 };
 
+/**
+ * @type {Object.<string, Sector>}
+ */
 const sectors = {
-    DanceSector: new Sector({ title: 'Dance Sector', pointsOfInterest: [pointsOfInterest.FunkySector] }),
-    NerdSector: new Sector({ title: 'Nerd Sector', pointsOfInterest: [pointsOfInterest.VideoGameLand, pointsOfInterest.Gurkenland] }),
+    // Twilight
+    DanceSector: new Sector({ title: 'Dance Sector', color: '#C71585', pointsOfInterest: [pointsOfInterest.FunkySector] }),
+    NerdSector: new Sector({ title: 'Nerd Sector', color: '#219EBC', pointsOfInterest: [pointsOfInterest.VideoGameLand, pointsOfInterest.Gurkenland] }),
 };
 
-const defaultPointOfInterest = pointsOfInterest.FunkySector;
+const defaultPointOfInterest = 'FunkySector';
 
 const permanentUnlocks = ['Scheduling', 'Shop', 'Automation', 'Quick task display'];
-
-const headerRowColors = {
-    'Common generators': '#55A630',
-    'Military grade': '#E63946',
-    'EmergencySupplies': '#4A4E69',
-    'Fundamentals': '#4A4E69',
-    'Combat': '#FF704D',
-    'Magic': '#875F9A',
-    'Dark magic': '#73000F',
-    'Misc': '#B56576',
-
-    DanceSector: '#C71585',
-    NerdSector: '#219EBC',
-};
-
-const tooltips = {
-    Diesel: 'Diesel text.',
-    Plastics: 'Plastics text.',
-    Steel: 'Steel text',
-    Garbage: 'Garbage text',
-
-    NovaFlies: 'Similar to earth\'s long lost fireflies these bugs are glowing on their own. Experiencing their gigantic numbers and blinding brightness quickly explains the name.',
-    Astrogoblins: '',
-    CometCrawlers: '',
-    SpacePirates: '',
-    ThunderDragon: '',
-    AstralSharks: '',
-    Destroyer: '',
-
-    FunkySector: 'Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.',
-
-
-    VideoGameLand: 'A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly.',
-
-    ISASM: 'Indestructible Space Adventurer Survival Module',
-    RescueCapsule: 'A small pod, big enough to house a single person. Ideal to escape from the station as a last resort.',
-
-    "Quantum Replicator": "Introducing the 'Quantum Replicator'—the ultimate solution for population growth! This futuristic device uses quantum technology to duplicate individuals, allowing you to rapidly expand your population. With each activation, watch as your society flourishes and thrives. Just remember to keep track of the originals, or you might end up with an army of duplicates!",
-    "Bio-Genesis Chamber": "Step into the 'Bio-Genesis Chamber,' where life finds a new beginning! This advanced technology can create life forms from scratch, jump-starting your population growth. Simply input the genetic code and environmental parameters, and within moments, you'll have a thriving population ready to build a bright future. Handle with care; creating life is a profound responsibility!",
-    "Neural Uplink Pods": "Elevate your society with 'Neural Uplink Pods'! These cutting-edge pods directly interface with the human brain, allowing individuals to share knowledge and experiences. As your population connects their minds, watch as they collectively become smarter, more creative, and better equipped to solve complex problems. Beware of information overload!",
-    "Nano-Fertility Drones": "Meet the 'Nano-Fertility Drones'—tiny, intelligent machines on a mission to boost your population! These nanobots are programmed to enhance fertility rates, making reproduction more efficient than ever before. Whether you're on a distant planet or in a post-apocalyptic world, these drones ensure your population will grow and thrive against all odds.",
-    "Holo-Community Hub": "Create a sense of unity with the 'Holo-Community Hub'! This holographic hub provides a virtual meeting space for your population, regardless of physical distance. As individuals gather in the virtual world, they form stronger bonds, leading to increased cooperation, higher birth rates, and a sense of belonging. Just be prepared for some quirky virtual avatars!",
-    "Temporal Breeding Pods": "Venture into the temporal realm with 'Temporal Breeding Pods'! These extraordinary chambers manipulate time itself to accelerate the aging process. Individuals placed inside age rapidly, allowing for generations to be born and raised in a fraction of the time. Witness your population skyrocket as you harness the mysteries of time travel!",
-    "Eco-Habitat Domes": "Provide a sustainable future with 'Eco-Habitat Domes'! These domes create self-contained ecosystems, perfect for expanding your population on harsh or barren planets. With carefully balanced environments, your people can thrive in these habitats, leading to rapid population growth. Just remember to recycle and maintain the delicate balance of nature!",
-    "Viral Growth Serum": "Embrace the 'Viral Growth Serum' and watch your population multiply like never before! This serum, when administered, triggers rapid cell division and reproduction. Within hours, your population will experience exponential growth. Be cautious, though—this viral boost might come with some unexpected side effects!",
-
-    "Time-Warping Goggles": "Slip on these wacky-looking goggles, and you'll be living life in the fast lane! With the power to bend space and time through forbidden techniques, these goggles accelerate your perception of reality. Suddenly, you'll be able to read a whole library in a blink, or cook a week's worth of meals in mere seconds. Just remember, time waits for no one, so use these goggles wisely, or you might find yourself aging at warp speed!",
-    "Demon's Discount Card": "Embrace your inner demon with the 'Demon's Discount Card'! This wacky tech allows you to emit a devilish aura that terrifies even the stingiest merchants. They'll be so scared, they'll practically give you their goods for free! Whether you're buying a fancy sapphire charm or a small palace, this card will have merchants begging to give you heavy discounts. Just be careful not to scare away all your friends!",
-    "Mega-Productivity Procrastinator": "Tired of procrastinating at work? Enter the 'Mega-Productivity Procrastinator'! This wacky invention will help you conquer your lazy habits and maximize your job experience per day. With a zap of its lasers and a whir of its gears, it keeps you on track, ensuring you complete tasks faster than ever before. Say goodbye to missed deadlines and hello to a more productive you!",
-    "Mana-Boosting Muffler": "Wrap yourself in the 'Mana-Boosting Muffler' for a magical experience like no other! This whimsical accessory strengthens your mana channels, turning you into a powerhouse of magical might. With every spell you cast, you'll feel the rush of energy like never before. Who needs to wait years to become a master wizard when you can become a mage sensation overnight?",
-    "Super Immortality Serum": "Seeking true immortality? Look no further than the 'Super Immortality Serum'! This bizarre elixir, brewed from ancient, forbidden techniques, will make your lifespan stretch beyond your wildest dreams. With just a drop a day, you'll watch empires rise and fall while you remain ageless. Just remember, with great immortality comes great responsibility – and a ton of birthday candles!",
-    "Dark Matter Coin Forge": "Turn your mundane coins into a dark treasure with the 'Dark Matter Coin Forge'! This eerie contraption uses dark magic to multiply the raw matter of the coins you receive from your job. Every coin that passes through it becomes a relic of pure, malevolent wealth. Watch your wealth grow as you trade in your normal coins for their eerie, otherworldly counterparts!",
-    "Wacky Thought Translator": "Unleash the power of your thoughts with the 'Wacky Thought Translator'! This peculiar device lets you jot down your wildest ideas, theories, and discoveries at the speed of thought. Say goodbye to writer's block and hello to a world of rapid learning. Whether you're a mage mastering spells or a chairman delving into immortality, this translator will keep up with your wackiest musings!",
-    "Homeless-to-Palace Portal": "Tired of freezing on the streets? Step through the 'Homeless-to-Palace Portal' and experience the ultimate upgrade! This fantastical portal instantly transports you from the lowest of lows to the grandest of palaces. It's the perfect solution for those looking to escape the misery of homelessness and bask in the lap of luxury. Just don't forget to invite your fellow beggars for a tour of your new digs!"
-};
 
 const layerData = [
     new LayerData('#ffe119'),
@@ -429,48 +514,27 @@ function createRequirements(getTaskElement, getItemElement) {
     };
 }
 
-// TODO remove - this can easily be done in constructors
-function addMultipliers() {
-    for (const taskName in gameData.taskData) {
-        const task = gameData.taskData[taskName];
-
-        task.xpMultipliers = [];
-        if (task instanceof Job) {
-            task.energyGenerationMultipliers = [];
-        }
-
-        task.collectEffects();
-    }
-
-    for (const battleName in gameData.battleData) {
-        const battle = gameData.battleData[battleName];
-
-        battle.xpMultipliers = [];
-        battle.collectEffects();
-    }
-}
-
 function setCustomEffects() {
-    const bargaining = gameData.taskData['Bargaining'];
-    bargaining.getEffect = function () {
-        let multiplier = 1 - getBaseLog(7, bargaining.level + 1) / 10;
-        if (multiplier < 0.1) {
-            multiplier = 0.1;
-        }
-        return multiplier;
-    };
-
-    const intimidation = gameData.taskData['Intimidation'];
-    intimidation.getEffect = function () {
-        let multiplier = 1 - getBaseLog(7, intimidation.level + 1) / 10;
-        if (multiplier < 0.1) {
-            multiplier = 0.1;
-        }
-        return multiplier;
-    };
-
-    const immortality = gameData.taskData['Immortality'];
-    immortality.getEffect = function () {
-        return 1 + getBaseLog(33, immortality.level + 1);
-    };
+    // const bargaining = gameData.taskData['Bargaining'];
+    // bargaining.getEffect = function () {
+    //     let multiplier = 1 - getBaseLog(7, bargaining.level + 1) / 10;
+    //     if (multiplier < 0.1) {
+    //         multiplier = 0.1;
+    //     }
+    //     return multiplier;
+    // };
+    //
+    // const intimidation = gameData.taskData['Intimidation'];
+    // intimidation.getEffect = function () {
+    //     let multiplier = 1 - getBaseLog(7, intimidation.level + 1) / 10;
+    //     if (multiplier < 0.1) {
+    //         multiplier = 0.1;
+    //     }
+    //     return multiplier;
+    // };
+    //
+    // const immortality = gameData.taskData['Immortality'];
+    // immortality.getEffect = function () {
+    //     return 1 + getBaseLog(33, immortality.level + 1);
+    // };
 }

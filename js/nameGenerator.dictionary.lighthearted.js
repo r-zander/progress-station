@@ -1,3 +1,5 @@
+'use strict';
+
 const prefixes = [
     'Algebraic', // Adventure Time
     'Alphanumeric', // Adventure Time

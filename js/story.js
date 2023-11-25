@@ -46,9 +46,9 @@ function initGameOver() {
         modalElement.classList.toggle('loss', !payload.bossDefeated);
     });
 
+    // TODO thing about what actually to do. This is just a "that's the other option"
     window.resetAfterGameOver = () => {
-        // TODO thing about what actually to do. This is just a fail-safe
-        resetGameData();
+        gameData.reset();
     };
 
     window.restartAfterGameOver = () => {

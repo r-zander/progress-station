@@ -25,7 +25,7 @@ function isBoolean(variable) {
 }
 
 /**
- * @return whether or not the element was found and removed.
+ * @return {boolean} whether or not the element was found and removed.
  */
 function removeElement(array, element) {
     let indexOf = array.indexOf(element);
@@ -143,6 +143,7 @@ function lerp(start, stop, amt) {
     return amt * (stop - start) + start;
 }
 
+// noinspection JSValidateJSDoc
 /**
  * Blends two colors to find a third color between them. The `amount` parameter
  * specifies the amount to interpolate between the two values. 0 is equal to
@@ -235,6 +236,46 @@ function lerpColor(color1, color2, amount, mode) {
  */
 function approximatelyEquals(a, b, epsilon = 128 * Number.EPSILON) {
     return Math.abs(a - b) <= epsilon;
+}
+
+const JsTypes = {
+    Undefined: 'undefined',
+    Boolean: 'boolean',
+    Number: 'number',
+    String: 'string',
+    Function: 'function',
+    Object: 'object',
+};
+
+function validateParameter(parameter, definition, context, ) {
+    let valid = false;
+    if (typeof definition === JsTypes.Undefined) {
+        valid = typeof parameter === JsTypes.Undefined;
+    }
+    if (typeof definition === JsTypes.String) {
+        valid = typeof parameter === definition;
+    } else if (typeof definition === JsTypes.Object) {
+        if (parameter === null) {
+            valid = false;
+        } else {
+            valid = Object.keys(definition).every((key) => {
+                if (!parameter.hasOwnProperty(key)) {
+                    return false;
+                }
+
+                if (!definition.hasOwnProperty(key)) {
+                    return false;
+                }
+
+                return typeof parameter[key] === definition[key];
+            });
+        }
+    }
+
+    if (!valid) {
+        console.log('Context, Payload, PayloadDefinition', context, parameter, definition);
+        throw new TypeError('Provided parameter does not match the parameter definition of ' + context.constructor.name + '.');
+    }
 }
 
 /**
