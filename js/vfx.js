@@ -1,6 +1,8 @@
 'use strict';
 
 /**
+ * Note: This method is very expensive and should not be called during updates.
+ *
  * @param {String} html representing a single element
  * @return {Element}
  */
@@ -27,7 +29,8 @@ function renderStyle(styleObject) {
 }
 
 /**
- * Note: `visibility: hidden` is considered visible for this function as its still part of the dom & layout.
+ * Note: `visibility: hidden` is considered visible for this function as it's still part of the dom & layout.
+ * Note 2: This method is very expensive and should not be called during updates.
  *
  * @param {HTMLElement} element
  * @return {boolean}
@@ -40,6 +43,7 @@ function isVisible(element) {
 
 /**
  * Note: `visibility: hidden` is considered visible for this function as its still part of the dom & layout.
+ * Note 2: This method is very expensive and should not be called during updates.
  *
  * @param {HTMLElement} element
  * @return {boolean}
@@ -227,19 +231,24 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
 
     const numberOfParticles = 10;
     const direction = taskInfo.type === 'Battle' ? 'left' : 'right';
-    let taskProgressBar;
+    let taskProgressBar = undefined;
     let quickTaskProgressBar = undefined;
     if (taskInfo.type === 'Battle') {
-        taskProgressBar = getBattleElement(taskInfo.name).querySelector('.progressBar');
+        if (gameData.selectedTab === 'battles') {
+            taskProgressBar = getBattleElement(taskInfo.name).querySelector('.progressBar');
+        }
         quickTaskProgressBar = document.querySelector(`.quickTaskDisplay.${taskInfo.name} > .progressBar`);
     } else if (taskInfo.type === 'GridStrength') {
         taskProgressBar = document.getElementById('energyDisplay').querySelector('.energy-fill')
     } else {
-        const taskElement = getModuleOperationElement(taskInfo.name);
-        taskProgressBar = taskElement.querySelector('.progressBar');
+        if (gameData.selectedTab === 'modules') {
+            const taskElement = getModuleOperationElement(taskInfo.name);
+            taskProgressBar = taskElement.querySelector('.progressBar');
+        }
         quickTaskProgressBar = document.querySelector(`.quickTaskDisplay .${taskInfo.type}.${taskInfo.name}.progressBar`);
     }
-    if (isVisible(taskProgressBar)) {
+    if (taskProgressBar !== undefined) {
+    // if (isVisible(taskProgressBar)) {
         // Don't spawn particles on elements that are invisible
         ParticleSystem.onetimeSplash(taskProgressBar, numberOfParticles, direction);
         VFX.flash(taskProgressBar);
@@ -247,6 +256,9 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
 
     // Doesn't have a quick display
     if (quickTaskProgressBar === undefined) return;
+
+    // TODO Shit's fucked
+    if (quickTaskProgressBar === null) return;
 
     ParticleSystem.onetimeSplash(quickTaskProgressBar, numberOfParticles, direction);
     VFX.flash(quickTaskProgressBar);
