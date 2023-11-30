@@ -260,7 +260,7 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
             const taskElement = getModuleOperationElement(taskInfo.name);
             taskProgressBar = taskElement.querySelector('.progressBar');
         }
-        quickTaskProgressBar = document.querySelector(`.quickTaskDisplay .${taskInfo.type}.${taskInfo.name}.progressBar`);
+        quickTaskProgressBar = document.querySelector(`.quickTaskDisplay.${taskInfo.name} .progressBar`);
     }
     if (taskProgressBar !== undefined) {
     // if (isVisible(taskProgressBar)) {
@@ -271,9 +271,6 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
 
     // Doesn't have a quick display
     if (quickTaskProgressBar === undefined) return;
-
-    // TODO Shit's fucked
-    if (quickTaskProgressBar === null) return;
 
     ParticleSystem.onetimeSplash(quickTaskProgressBar, numberOfParticles, direction);
     VFX.flash(quickTaskProgressBar);

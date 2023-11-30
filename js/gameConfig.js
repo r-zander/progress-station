@@ -98,7 +98,7 @@ const moduleOperations = {
     PocketLaboratory: new ModuleOperation({
         title: 'Pocket Laboratory', maxXp: 100, gridLoad: 1,
         effects: [{effectType: EffectType.Research, baseValue: 1}]}),
-    '4dPrinter': new ModuleOperation({
+    FourDPrinter: new ModuleOperation({
         title: '4D Printer', maxXp: 100, gridLoad: 1,
         effects: [{effectType: EffectType.Industry, baseValue: 1}]}),
 
@@ -176,7 +176,7 @@ const moduleComponents = {
     RescueCapsule: new ModuleComponent({
         title: 'Rescue Capsule',
         description: 'A small pod, big enough to house a single person. Ideal to escape from the station as a last resort.',
-        operations: [moduleOperations.StandbyGenerator, moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual, moduleOperations.PocketLaboratory, moduleOperations['4dPrinter']],
+        operations: [moduleOperations.StandbyGenerator, moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual, moduleOperations.PocketLaboratory, moduleOperations.FourDPrinter],
     }),
     Fuel: new ModuleComponent({
         title: 'Fuel',
@@ -420,7 +420,7 @@ function createRequirements(getTaskElement, getItemElement) {
         'MicroCyborgAutomat': new AttributeRequirement([getTaskElement('MicroCyborgAutomat')], [{attribute: attributes.gridStrength, requirement: 1}]),
         'KungFuManual': new AttributeRequirement([getTaskElement('KungFuManual')], [{attribute: attributes.gridStrength, requirement: 1}]),
         'PocketLaboratory': new AttributeRequirement([getTaskElement('PocketLaboratory')], [{attribute: attributes.gridStrength, requirement: 1}]),
-        '4dPrinter': new AttributeRequirement([getTaskElement('4dPrinter')], [{attribute: attributes.gridStrength, requirement: 1}]),
+        'FourDPrinter': new AttributeRequirement([getTaskElement('FourDPrinter')], [{attribute: attributes.gridStrength, requirement: 1}]),
 
         /*
         //Other

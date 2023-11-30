@@ -532,13 +532,14 @@ function createModulesQuickDisplay() {
         const componentSlot = moduleDomGetter.byId('componentsQuickTaskDisplay');
         const componentQuickTaskDisplayElements = [];
         for (const component of module.components) {
-            const componentQuickTaskDisplayElement = Dom.new.fromTemplate('componentQuickTaskDisplayTemplate');
-            const componentDomGetter = Dom.get(componentQuickTaskDisplayElement);
-            componentQuickTaskDisplayElement.classList.add(component.type, component.name);
-            componentDomGetter.byClass('progressBar').classList.add(ModuleOperation.name);
-            componentDomGetter.bySelector('.name > .component').textContent = component.title;
-
-            componentQuickTaskDisplayElements.push(componentQuickTaskDisplayElement);
+            for (const operation of component.operations) {
+                const componentQuickTaskDisplayElement = Dom.new.fromTemplate('componentQuickTaskDisplayTemplate');
+                const componentDomGetter = Dom.get(componentQuickTaskDisplayElement);
+                componentQuickTaskDisplayElement.classList.add(component.name, operation.name);
+                componentDomGetter.bySelector('.name > .component').textContent = component.title;
+                componentDomGetter.bySelector('.name > .operation').textContent = operation.title;
+                componentQuickTaskDisplayElements.push(componentQuickTaskDisplayElement);
+            }
         }
         componentSlot.replaceWith(...componentQuickTaskDisplayElements);
 
@@ -831,17 +832,23 @@ function updateModulesQuickDisplay() {
         container.classList.remove('hidden');
         const containerDomGetter = Dom.get(container);
         for (const component of module.components) {
-            const componentDomGetter = Dom.get(containerDomGetter.bySelector('.quickTaskDisplay.' + component.name));
-            let currentOperation = component.getActiveOperation();
-            // Operation classes are never removed, but who cares
-            componentDomGetter.byClass('progressBar').classList.add(currentOperation.name);
-            componentDomGetter.bySelector('.name > .operation').textContent = currentOperation.title;
-            formatValue(
-                componentDomGetter.bySelector('.name > .level'),
-                currentOperation.level,
-                {keepNumber: true},
-            );
-            setProgress(componentDomGetter.byClass('progressFill'), currentOperation.xp / currentOperation.getMaxXp());
+            for (const operation of component.operations) {
+                let quickDisplayElement = containerDomGetter.bySelector('.quickTaskDisplay.' + component.name + '.' + operation.name);
+                const componentDomGetter = Dom.get(quickDisplayElement);
+
+                if (!operation.isActive(true)) {
+                    quickDisplayElement.classList.add('hidden');
+                    continue;
+                }
+
+                quickDisplayElement.classList.remove('hidden');
+                formatValue(
+                    componentDomGetter.bySelector('.name > .level'),
+                    operation.level,
+                    {keepNumber: true},
+                );
+                setProgress(componentDomGetter.byClass('progressFill'), operation.xp / operation.getMaxXp());
+            }
         }
     }
 }
@@ -1173,7 +1180,7 @@ function updateEnergyGridBar() {
     const energyGeneratedElement = domGetter.byClass('energyGenerated');
     formatEnergyValue(gridStrength.getXpGain(), Dom.get(energyGeneratedElement).bySelector('data'), {forceSign: true});
     const energyLeftElement = domGetter.byClass('energyLeft');
-    formatEnergyValue(gridStrength.getXpLeft(),  Dom.get(energyLeftElement).bySelector('data'),);
+    formatEnergyValue(gridStrength.getXpLeft(), Dom.get(energyLeftElement).bySelector('data'));
 
     const progressFillElement = domGetter.byClass('progressFill');
     progressFillElement.classList.toggle('current', getGeneratedEnergy() > 0);
