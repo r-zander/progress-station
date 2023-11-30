@@ -129,13 +129,37 @@ function switchModuleActivation(module, switchElement) {
         return;
     }
 
-    if (module.getGridLoad() + attributes.gridLoad.getValue() > attributes.gridStrength.getValue()) {
+    const gridLoadAfterActivation = attributes.gridLoad.getValue() + module.getGridLoad();
+    if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
         VFX.highlightText(Dom.get().bySelector(`#${module.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
         switchElement.checked = false;
         return;
     }
 
     module.setActive(true);
+}
+
+/**
+ *
+ * @param {ModuleComponent} component
+ * @param {ModuleOperation} operation
+ */
+function tryActivateOperation(component, operation) {
+    if (operation.isActive(true)) {
+        // Already active, nothing to do
+        return;
+    }
+
+    const gridLoadAfterActivation = attributes.gridLoad.getValue()
+        + operation.getGridLoad()
+        - component.getActiveOperation().getGridLoad();
+    if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
+        VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
+        return;
+    }
+
+    // This needs to go through the component as it needs to disable other operations
+    component.activateOperation(operation);
 }
 
 // function setBattle(name) {
@@ -164,6 +188,12 @@ function createRequiredRow(categoryName) {
     return requiredRow;
 }
 
+/**
+ *
+ * @param {string} categoryName
+ * @param {ModuleComponent} component
+ * @returns {HTMLElement[]}
+ */
 function createModuleLevel4Elements(categoryName, component) {
     const level4Elements = [];
     const operations = component.operations;
@@ -181,10 +211,7 @@ function createModuleLevel4Elements(categoryName, component) {
         } else {
             descriptionElement.removeAttribute('title');
         }
-        level4DomGetter.byClass('progressBar').addEventListener('click', () => {
-            // This needs to go through the component as it needs to disable other operations
-            component.activateOperation(operation);
-        });
+        level4DomGetter.byClass('progressBar').addEventListener('click', tryActivateOperation.bind(this, component, operation));
         formatValue(level4DomGetter.bySelector('.gridLoad > data'), operation.getGridLoad());
 
         level4Elements.push(level4Element);
