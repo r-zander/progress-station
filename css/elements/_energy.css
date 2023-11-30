@@ -28,6 +28,11 @@
 }
 
 #gridStrength {
+    .gridLoad,
+    .gridStrength {
+        text-shadow: 1px 1px black, 1px 1px 3px black;
+    }
+
     .grid-strength-box {
         height: 100%;
         background-color: rgb(12, 101, 173);
@@ -45,5 +50,6 @@
 
     .progress-text {
         line-height: inherit;
+        white-space: nowrap;
     }
 }

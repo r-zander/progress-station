@@ -28,6 +28,31 @@
         );
     }
 
+    #energyDisplay {
+        /* Flip cut corner so it aligns with the grid bar */
+        &.progress::before,
+        .progress-bar,
+        .progress-background {
+            clip-path: polygon(
+                    0 0,
+                    100% 0,
+                    calc(100% - var(--corner-length)) 100%,
+                    0 100%
+            );
+        }
+
+        /* Elongate the last tick so it fills the cut corner */
+        + .ticks > .tick:last-child {
+            margin-top: -18px;
+            height: calc(100% + 18px);
+        }
+
+        > .energyLeft,
+        > .energyGenerated {
+            margin-right: 30px;
+        }
+    }
+
     .progress.battle {
         > .single-particle-wrapper {
             translate: -15px 0;
@@ -80,9 +105,5 @@
         &.btn-lg {
             --corner-length: 16px;
         }
-    }
-
-    #energyDisplay > .energyMax {
-        margin-right: 30px;
     }
 }

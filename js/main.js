@@ -907,6 +907,8 @@ function updateBattlesQuickDisplay() {
  * @param {HTMLElement} progressFillElement
  * @param {number} progress between 0.0 and 1.0
  * @param {boolean} increasing set to false if it's not a progress bar but a regress bar
+ *
+ * @return {number} clamped progress value.
  */
 function setProgress(progressFillElement, progress, increasing = true) {
     // Clamp value to [0.0, 1.0]
@@ -926,6 +928,8 @@ function setProgress(progressFillElement, progress, increasing = true) {
     if (parentElement !== null) {
         parentElement.ariaValueNow = (progress * 100).toFixed(1);
     }
+
+    return progress;
 }
 
 // function updateRequiredRows(categoryType) {
@@ -1115,18 +1119,46 @@ function updateAttributeRows() {
     }
 }
 
-function updateEnergyBar() {
+/**
+ *
+ * @param {number} amount
+ * @param {HTMLDataElement} dataElement
+ * @param {{prefixes?: string[], unit?: string, forceSign?: boolean}} formatConfig
+ */
+function formatEnergyValue(amount, dataElement, formatConfig = {}) {
+    formatValue(dataElement, amount, Object.assign({
+        unit: units.energy,
+        prefixes: metricPrefixes,
+    }, formatConfig));
+}
+
+function updateEnergyGridBar() {
     const energyDisplayElement = Dom.get().byId('energyGridDisplay');
     const domGetter = Dom.get(energyDisplayElement);
-    updateEnergyDisplay(gridStrength.getXpGain(), domGetter.bySelector('.energyGenerated > data'), {forceSign: true});
-    updateEnergyDisplay(gridStrength.getMaxXp(), domGetter.bySelector('.energyMax > data'));
+
     const currentGridLoad = attributes.gridLoad.getValue();
     const currentGridStrength = attributes.gridStrength.getValue();
-    formatValue(domGetter.bySelector('.gridLoad > data'), currentGridLoad, {keepNumber: true});
-    formatValue(domGetter.bySelector('.gridStrength > data'), currentGridStrength, {keepNumber: true});
-    const progressFillElement = domGetter.byClass('progressFill');
-    setProgress(progressFillElement, gridStrength.xp / gridStrength.getMaxXp());
-    progressFillElement.classList.toggle('current', getGeneratedEnergy() > 0);
+    const gridLoadElement = domGetter.byClass('gridLoad');
+    const gridStrengthElement = domGetter.byClass('gridStrength');
+    if (currentGridLoad === 0) {
+        gridLoadElement.style.left = '0';
+        gridLoadElement.style.removeProperty('translate');
+        gridLoadElement.style.removeProperty('right');
+    } else if (currentGridLoad === 1) {
+        gridLoadElement.style.left = '50%';
+        gridLoadElement.style.translate = '-50% 0';
+        gridLoadElement.style.removeProperty('right');
+    } else {
+        // Using right alignment to respect the gridStrength element
+        const rightLimit = gridStrengthElement.offsetWidth;
+        const relativeGridLoad = 100 * (1 - currentGridLoad / currentGridStrength);
+        gridLoadElement.style.right = `max(${relativeGridLoad}%, ${rightLimit}px)`;
+        gridLoadElement.style.removeProperty('translate');
+        gridLoadElement.style.removeProperty('left');
+    }
+
+    formatValue(Dom.get(gridLoadElement).bySelector('data'), currentGridLoad, {keepNumber: true});
+    formatValue(Dom.get(gridStrengthElement).bySelector('data'), currentGridStrength, {keepNumber: true});
 
     const numberOfBoxes = Dom.get().allBySelector('#gridStrength > .grid-strength-box').length;
     for (let i = numberOfBoxes; i < currentGridStrength; i++) {
@@ -1137,6 +1169,21 @@ function updateEnergyBar() {
     Dom.get().allBySelector('#gridStrength > .grid-strength-box').forEach((gridStrengthBox, index) => {
         gridStrengthBox.classList.toggle('in-use', index < currentGridLoad);
     });
+
+    const energyGeneratedElement = domGetter.byClass('energyGenerated');
+    formatEnergyValue(gridStrength.getXpGain(), Dom.get(energyGeneratedElement).bySelector('data'), {forceSign: true});
+    const energyLeftElement = domGetter.byClass('energyLeft');
+    formatEnergyValue(gridStrength.getXpLeft(),  Dom.get(energyLeftElement).bySelector('data'),);
+
+    const progressFillElement = domGetter.byClass('progressFill');
+    progressFillElement.classList.toggle('current', getGeneratedEnergy() > 0);
+    const energyProgress = setProgress(progressFillElement, gridStrength.xp / gridStrength.getMaxXp());
+
+    // Using right alignment to respect the energyLeft element
+    const relativeEnergy = 100 * (1 - energyProgress);
+    const leftLimit = energyGeneratedElement.offsetWidth + (gameData.settings.sciFiMode ? 30 : 0);
+    const rightLimit = energyLeftElement.offsetWidth;
+    energyGeneratedElement.style.right = `clamp(${rightLimit}px, ${relativeEnergy}%, calc(100% - ${leftLimit}px))`;
 }
 
 function updateHeatDisplay() {
@@ -1190,7 +1237,7 @@ function updateText() {
     formatValue(Dom.get().byId('dangerDisplay'), danger);
     formatValue(Dom.get().bySelector('#attributeRows > .danger .value'), danger);
 
-    updateEnergyBar();
+    updateEnergyGridBar();
     formatValue(Dom.get().bySelector('#attributeRows > .gridLoad .value'), attributes.gridLoad.getValue());
     formatValue(Dom.get().bySelector('#attributeRows > .gridStrength .value'), attributes.gridStrength.getValue());
     formatValue(Dom.get().bySelector('#attributeRows > .gridStrength .delta'), gridStrength.getDelta());
@@ -1217,23 +1264,6 @@ function updateText() {
     const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);
     formatValue(Dom.get().bySelector('#attributeRows > .research .value'), research);
-}
-
-/**
- *
- * @param {number} amount
- * @param {HTMLDataElement} dataElement
- * @param {{prefixes?: string[], unit?: string, forceSign?: boolean}} formatConfig
- */
-function updateEnergyDisplay(amount, dataElement, formatConfig = {}) {
-    formatValue(dataElement, amount, Object.assign({
-        unit: units.energy,
-        prefixes: metricPrefixes,
-    }, formatConfig));
-}
-
-function getRemainingGridStrength() {
-    return attributes.gridStrength.getValue() - attributes.gridLoad.getValue();
 }
 
 function hideEntities() {
