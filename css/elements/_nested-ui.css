@@ -45,6 +45,10 @@
     font-weight: 400;
 }
 
+.level2-header > .gridLoad {
+    transform-origin: right;
+}
+
 .level2-header > div:first-child {
     width: var(--main-column-width);
 }

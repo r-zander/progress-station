@@ -39,7 +39,19 @@
             </div>
         </div>
 
-        <div id="energyGridDisplay">
+        <div id="energyGridDisplay" class="d-flex flex-row">
+            <div class="d-flex flex-column">
+                <p class="grid-strength-bar d-flex align-items-center mt-3 px-2" style="background-color: grey">
+                    <img src="img/icons/grid.svg" class="icon" alt="Grid Icon" style="height: 30px;" />
+                    <span class="flex-fill ms-1">Grid</span>
+                </p>
+                <p class="energy-bar d-flex align-items-center px-2" style="background-color: grey">
+                    <img src="img/icons/energy.svg" class="icon" alt="Energy Icon"/>
+                    <span class="flex-fill ms-1">Energy</span>
+                </p>
+            </div>
+
+            <div class="flex-fill">
             <div class="ticks d-flex justify-content-between align-items-end">
                 <template id="tickTemplate"><div class="tick"></div></template>
                 <slot id="ticksTop"></slot>
@@ -48,28 +60,27 @@
             <template id="gridStrengthBoxTemplate" class="keep">
                 <div class="grid-strength-box flex-grow-1"></div>
             </template>
-            <div id="gridStrength" class="position-relative d-flex flex-row" style="gap: 3px">
+            <div id="gridStrength" class="grid-strength-bar position-relative d-flex flex-row" style="gap: 3px">
                 <!-- Maybe grey box left "Grid" + icon -->
                 <p class="gridLoad position-absolute px-2" style="left: 0">
                     <span>Load:</span>
                     <data value="0">0</data>
                 </p>
                 <p class="gridStrength position-absolute px-2" style="right: 0">
-                    <img src="img/icons/energy.svg" class="icon" alt="Energy Icon"/>
-                    <span>Grid Strength:</span>
+                    <span>Strength:</span>
                     <data value="0">0</data>
                 </p>
                 <!-- grid-strength-boxes will be appended here -->
             </div>
 
-            <div id="energyDisplay2" class="progress progressBar" style="margin-top: 3px" role="progressbar" aria-label="Energy"
+            <div id="energyDisplay" class="energy-bar progress progressBar" role="progressbar" aria-label="Energy"
                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                 <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
-                <div class="progress-text energy-net px-2">
+                <div class="progress-text energyGenerated px-2">
                     <data value="0" data-unit="W">+0</data>
                     <span>/cycle</span>
                 </div>
-                <div class="progress-text energy-max px-2 end-0">
+                <div class="progress-text energyMax px-2 end-0">
                     <data value="0" data-unit="W">+0</data>
                     <span>until increase</span>
                 </div>
@@ -78,38 +89,6 @@
             <div class="ticks d-flex justify-content-between align-items-start">
                 <slot id="ticksBottom"></slot>
             </div>
-        </div>
-
-        <div id="energyDisplay" class="detailed hidden"
-             title="Click to toggle detailed view" data-bs-placement="bottom">
-            <div class="above-energy-bar">
-                <p class="energy-generated energy-text detail">
-                    <img src="img/icons/energy.svg" class="icon" alt="Energy Icon"/>
-                    <span>Grid Strength:</span>
-                    <data value="200">200 W</data>
-                </p>
-            </div>
-            <div class="energy-bar">
-                <p class="energy-stored energy-text detail">
-                    <span>Stored:</span>
-                    <data value="800">800 Wh</data>
-                </p>
-                <div class="energy-fill" style="width: 45%">
-                    <p class="energy-net energy-text">
-                        <span>Net:</span>
-                        <data value="20">+20 W</data>
-                    </p>
-                </div>
-            </div>
-            <div class="below-energy-bar">
-                <p class="energy-usage energy-text detail">
-                    <span>Load:</span>
-                    <data value="180">180 W</data>
-                </p>
-                <p class="energy-max energy-text">
-                    <span>Max:</span>
-                    <data value="2200">2.2 kW</data>
-                </p>
             </div>
         </div>
 
@@ -262,9 +241,9 @@
                                 <label class="form-check-label moduleActivationLabel" for="switch1">Active</label>
                             </div>
                         </div>
-                        <div class="ms-auto">
+                        <div class="gridLoad ms-auto">
                             Total grid load:
-                            <data class="gridLoad" value="3">3</data>
+                            <data value="3">3</data>
                         </div>
                     </div>
 

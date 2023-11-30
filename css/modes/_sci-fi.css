@@ -82,7 +82,7 @@
         }
     }
 
-    #energyDisplay2 > .energy-max {
+    #energyDisplay > .energyMax {
         margin-right: 30px;
     }
 }

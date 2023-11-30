@@ -79,7 +79,7 @@
         translate: 0 0;
     }
     to {
-        translate: 12.5px 0;
+        translate: 12px 0;
     }
 }
 
@@ -130,4 +130,33 @@
     50% { transform: translate(0, 0) rotate(0deg); }
     75% { transform: translate(-5px, 5px) rotate(-5deg); }
     100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* subtle zoom to attention and then back */
+.flash-text-denied {
+    animation: 300ms flash-text-denied ease;
+}
+
+@keyframes flash-text-denied {
+    0% {
+        text-shadow: 0 0 0 currentColor;
+    }
+    50% {
+        color: rgb(200, 0, 0);
+        scale: 1.2;
+        opacity: 1;
+        text-shadow:
+                1px 0 0 currentColor,
+                0.540302px 0.841471px 0 currentColor,
+                -0.416147px 0.909297px 0 currentColor,
+                -0.989992px 0.14112px 0 currentColor,
+                -0.653644px -0.756802px 0 currentColor,
+                0.283662px -0.958924px 0 currentColor,
+                0.96017px -0.279415px 0 currentColor;
+    }
+    100% {
+        scale: 1;
+        opacity: 1;
+        text-shadow: 0 0 0 currentColor;
+    }
 }

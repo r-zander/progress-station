@@ -3,7 +3,7 @@
 /**
  * @type {GameData}
  */
-let gameData ;
+let gameData;
 
 /**
  *
@@ -118,6 +118,26 @@ function setPointOfInterest(name) {
     gameData.activeEntities.pointOfInterest = name;
 }
 
+/**
+ *
+ * @param {Module} module
+ * @param {HTMLInputElement} switchElement
+ */
+function switchModuleActivation(module, switchElement) {
+    if (!switchElement.checked) {
+        module.setActive(false);
+        return;
+    }
+
+    if (module.getGridLoad() + attributes.gridLoad.getValue() > attributes.gridStrength.getValue()) {
+        VFX.highlightText(Dom.get().bySelector(`#${module.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
+        switchElement.checked = false;
+        return;
+    }
+
+    module.setActive(true);
+}
+
 // function setBattle(name) {
 //     gameData.currentBattle = gameData.battleData[name];
 //     const nameElement = document.getElementById('battleName');
@@ -150,7 +170,7 @@ function createModuleLevel4Elements(categoryName, component) {
 
     for (const operation of operations) {
         const level4Element = Dom.new.fromTemplate('level4TaskTemplate');
-        level4Element.id = operation.id;
+        level4Element.id = operation.domId;
 
         const level4DomGetter = Dom.get(level4Element);
         level4DomGetter.byClass('name').textContent = operation.title;
@@ -162,8 +182,8 @@ function createModuleLevel4Elements(categoryName, component) {
             descriptionElement.removeAttribute('title');
         }
         level4DomGetter.byClass('progressBar').addEventListener('click', () => {
-            component.setSelectedOperation(operation);
-            operation.setActive(true);
+            // This needs to go through the component as it needs to disable other operations
+            component.activateOperation(operation);
         });
         formatValue(level4DomGetter.bySelector('.gridLoad > data'), operation.getGridLoad());
 
@@ -210,7 +230,7 @@ function createModuleLevel2Elements(categoryName, category) {
     for (const module of category.modules) {
         const level2Element = Dom.new.fromTemplate('level2Template');
         const level2DomGetter = Dom.get(level2Element);
-        level2Element.id = 'module_row_' + module.name;
+        level2Element.id = module.domId;
         const nameCell = level2DomGetter.byClass('name');
         nameCell.textContent = module.title;
         if (isDefined(module.description)) {
@@ -220,9 +240,9 @@ function createModuleLevel2Elements(categoryName, category) {
         }
         /** @var {HTMLInputElement} */
         const switchElement = level2DomGetter.byClass('moduleActivationSwitch');
-        switchElement.addEventListener('click', module.onActivationSwitchClicked.bind(module, switchElement));
         switchElement.id = 'switch_' + module.name;
         switchElement.checked = module.isActive();
+        switchElement.addEventListener('click', switchModuleActivation.bind(this, module, switchElement));
         level2DomGetter.byClass('moduleActivationLabel').for = switchElement.id;
 
         const level3Slot = level2DomGetter.byId('level3');
@@ -430,7 +450,7 @@ function createLevel4FinishedBattleElements(category, categoryName) {
         formatValue(
             domGetter.bySelector('.level > data'),
             battle.maxLevel,
-            {keepNumber: true}
+            {keepNumber: true},
         );
         domGetter.byClass('xpGain').classList.add('hidden');
         domGetter.byClass('xpLeft').classList.add('hidden');
@@ -622,7 +642,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                 () => battle.rewards,
                 effectType,
                 'Defeated ' + battle.title,
-                battle.isDone.bind(battle)
+                battle.isDone.bind(battle),
             );
             createAttributeBalanceEntry(
                 balanceElement,
@@ -642,7 +662,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                 pointOfInterest.getEffects.bind(pointOfInterest),
                 effectType,
                 'Point of Interest: ' + pointOfInterest.title,
-                pointOfInterest.isActive.bind(pointOfInterest)
+                pointOfInterest.isActive.bind(pointOfInterest),
             );
         }
     }
@@ -772,13 +792,6 @@ function cleanUpDom() {
     }
 }
 
-function initSidebar() {
-    const energyDisplayElement = document.querySelector('#energyDisplay');
-    energyDisplayElement.addEventListener('click', () => {
-        energyDisplayElement.classList.toggle('detailed');
-    });
-}
-
 function updateModulesQuickDisplay() {
     for (const key in modules) {
         const module = modules[key];
@@ -792,14 +805,14 @@ function updateModulesQuickDisplay() {
         const containerDomGetter = Dom.get(container);
         for (const component of module.components) {
             const componentDomGetter = Dom.get(containerDomGetter.bySelector('.quickTaskDisplay.' + component.name));
-            let currentOperation = component.getSelectedOperation();
+            let currentOperation = component.getActiveOperation();
             // Operation classes are never removed, but who cares
             componentDomGetter.byClass('progressBar').classList.add(currentOperation.name);
             componentDomGetter.bySelector('.name > .operation').textContent = currentOperation.title;
             formatValue(
                 componentDomGetter.bySelector('.name > .level'),
                 currentOperation.level,
-                {keepNumber: true}
+                {keepNumber: true},
             );
             setProgress(componentDomGetter.byClass('progressFill'), currentOperation.xp / currentOperation.getMaxXp());
         }
@@ -856,7 +869,7 @@ function updateBattlesQuickDisplay() {
         formatValue(
             componentDomGetter.byClass('level'),
             battle.getDisplayedLevel(),
-            {keepNumber: true}
+            {keepNumber: true},
         );
         setBattleProgress(componentDomGetter.byClass('progressBar'), battle);
     }
@@ -960,31 +973,31 @@ function updateModuleRows() {
     for (const moduleName in modules) {
         /** @var {Module} */
         const module = modules[moduleName];
-        const row = document.getElementById('module_row_' + module.name);
+        const row = document.getElementById(module.domId);
         const level = module.getLevel();
         const dataElement = row.querySelector('.level');
         formatValue(dataElement, level);
-        formatValue(Dom.get(row).byClass('gridLoad'), module.getGridLoad());
+        formatValue(Dom.get(row).bySelector('.gridLoad > data'), module.getGridLoad());
     }
 }
 
 function updateTaskRows() {
     for (const key in moduleOperations) {
         const operation = moduleOperations[key];
-        const row = Dom.get().byId(operation.id);
+        const row = Dom.get().byId(operation.domId);
         const domGetter = Dom.get(row);
         formatValue(domGetter.bySelector('.level > data'), operation.level, {keepNumber: true});
         formatValue(domGetter.bySelector('.xpGain > data'), operation.getXpGain());
         formatValue(domGetter.bySelector('.xpLeft > data'), operation.getXpLeft());
 
-        let maxLevel = domGetter.bySelector('.maxLevel > data');
-        formatValue(maxLevel, operation.maxLevel, {keepNumber: true});
-        maxLevel = maxLevel.parentElement;
-        gameData.rebirthOneCount > 0 ? maxLevel.classList.remove('hidden') : maxLevel.classList.add('hidden');
+        let maxLevelElement = domGetter.bySelector('.maxLevel > data');
+        formatValue(maxLevelElement, operation.maxLevel, {keepNumber: true});
+        maxLevelElement = maxLevelElement.parentElement;
+        gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove('hidden') : maxLevelElement.classList.add('hidden');
 
-        const progressFill = domGetter.byClass('progressFill');
-        setProgress(progressFill, operation.xp / operation.getMaxXp());
-        progressFill.classList.toggle('current', operation.isActive());
+        const progressFillElement = domGetter.byClass('progressFill');
+        setProgress(progressFillElement, operation.xp / operation.getMaxXp());
+        progressFillElement.classList.toggle('current', operation.isActive());
 
         domGetter.byClass('effect').textContent = operation.getEffectDescription();
     }
@@ -1031,7 +1044,7 @@ function updateBattleRows() {
 
         const isActive = battle.isActive();
         domGetter.byClass('progressFill').classList.toggle('current', isActive);
-        domGetter.byClass('active').style.backgroundColor = isActive ? colorPalette.TomatoRed :colorPalette.White;
+        domGetter.byClass('active').style.backgroundColor = isActive ? colorPalette.TomatoRed : colorPalette.White;
         formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
     }
 }
@@ -1062,7 +1075,7 @@ function updateAttributeRows() {
         if (balanceEntry.isActive()) {
             formatValue(
                 Dom.get(balanceEntry.element).byClass('entryValue'),
-                balanceEntry.getEffect(balanceEntry.effectType)
+                balanceEntry.getEffect(balanceEntry.effectType),
             );
             balanceEntry.element.classList.remove('hidden');
         } else {
@@ -1078,16 +1091,18 @@ function updateAttributeRows() {
 function updateEnergyBar() {
     const energyDisplayElement = Dom.get().byId('energyGridDisplay');
     const domGetter = Dom.get(energyDisplayElement);
-    updateEnergyDisplay(gridStrength.getXpGain(), domGetter.bySelector('.energy-net > data'));
-    updateEnergyDisplay(gridStrength.getMaxXp(), domGetter.bySelector('.energy-max > data'));
+    updateEnergyDisplay(gridStrength.getXpGain(), domGetter.bySelector('.energyGenerated > data'), {forceSign: true});
+    updateEnergyDisplay(gridStrength.getMaxXp(), domGetter.bySelector('.energyMax > data'));
     const currentGridLoad = attributes.gridLoad.getValue();
     const currentGridStrength = attributes.gridStrength.getValue();
     formatValue(domGetter.bySelector('.gridLoad > data'), currentGridLoad, {keepNumber: true});
     formatValue(domGetter.bySelector('.gridStrength > data'), currentGridStrength, {keepNumber: true});
-    setProgress(domGetter.byClass('progressFill'), gridStrength.xp / gridStrength.getMaxXp());
+    const progressFillElement = domGetter.byClass('progressFill');
+    setProgress(progressFillElement, gridStrength.xp / gridStrength.getMaxXp());
+    progressFillElement.classList.toggle('current', getGeneratedEnergy() > 0);
 
     const numberOfBoxes = Dom.get().allBySelector('#gridStrength > .grid-strength-box').length;
-    for(let i = numberOfBoxes; i < currentGridStrength; i++) {
+    for (let i = numberOfBoxes; i < currentGridStrength; i++) {
         const gridStrengthBox = Dom.new.fromTemplate('gridStrengthBoxTemplate');
         Dom.get().byId('gridStrength').append(gridStrengthBox);
     }
@@ -1109,14 +1124,14 @@ function updateHeatDisplay() {
             dangerColors[0],
             dangerColors[1],
             heat / mediumHeat,
-            'RGB'
+            'RGB',
         ).toString('rgb');
     } else {
         color = lerpColor(
             dangerColors[1],
             dangerColors[2],
             (heat - mediumHeat) / (maxHeat - mediumHeat),
-            'RGB'
+            'RGB',
         ).toString('rgb');
     }
 
@@ -1186,7 +1201,7 @@ function updateText() {
 function updateEnergyDisplay(amount, dataElement, formatConfig = {}) {
     formatValue(dataElement, amount, Object.assign({
         unit: units.energy,
-        prefixes: metricPrefixes
+        prefixes: metricPrefixes,
     }, formatConfig));
 }
 
@@ -1217,6 +1232,7 @@ function updateBodyClasses() {
 function doTasks() {
     for (const key of gameData.activeEntities.operations) {
         const operation = moduleOperations[key];
+        if (!operation.module.isActive()) continue;
         operation.do();
     }
 
@@ -1235,27 +1251,21 @@ function doTasks() {
     gridStrength.do();
 }
 
-function getEnergyGeneration() {
+function getGeneratedEnergy() {
     return Effect.getTotalValue([EffectType.Energy, EffectType.EnergyFactor]);
-}
-
-function getMaxEnergy() {
-    return gridStrength.getMaxXp();
 }
 
 function calculateGridLoad() {
     let gridLoad = 0;
 
     for (const key of gameData.activeEntities.operations) {
-        const task = moduleOperations[key];
-        gridLoad += task.getGridLoad();
+        const operation = moduleOperations[key];
+        if (!operation.module.isActive()) continue;
+
+        gridLoad += operation.getGridLoad();
     }
 
     return gridLoad;
-}
-
-function goBlackout() {
-   gameData.resetCurrentValues();
 }
 
 function daysToYears(days) {
@@ -1358,7 +1368,7 @@ function getModuleOperationElement(operationName) {
         return null;
     }
     const task = moduleOperations[operationName];
-    return document.getElementById(task.id);
+    return document.getElementById(task.domId);
 }
 
 function getBattleElement(taskName) {
@@ -1381,7 +1391,7 @@ function getPointOfInterestElement(name) {
     }
 
     const pointOfInterest = pointsOfInterest[name];
-    return document.getElementById(pointOfInterest.id);
+    return document.getElementById(pointOfInterest.domId);
 }
 
 function toggleLightDarkMode(force = undefined) {
@@ -1638,8 +1648,6 @@ function init() {
     createBattlesQuickDisplay();
 
     adjustLayout();
-    initSidebar();
-
 
     createAttributeDescriptions(createAttributeInlineHTML);
     createAttributesUI();

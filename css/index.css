@@ -7,11 +7,11 @@
 
 @import url(elements/_attributes.css);
 @import url(elements/_background.css);
+@import url(elements/_progress.css);
 @import url(elements/_navigation.css);
 @import url(elements/_station-overview.css);
 @import url(elements/_energy.css);
 @import url(elements/_nested-ui.css);
-@import url(elements/_progress.css);
 @import url(elements/_battle.css);
 @import url(elements/_settings.css);
 @import url(elements/_story-modal.css);

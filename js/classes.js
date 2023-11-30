@@ -45,7 +45,7 @@ class Entity {
      * @readonly
      * @var {string}
      */
-    id;
+    domId;
 
 
 
@@ -69,7 +69,7 @@ class Entity {
         }
 
         this.#name = name;
-        this.id = 'row_' + this.type + '_' + name;
+        this.domId = 'row_' + this.type + '_' + name;
     }
 
     loadValues(savedValues){
@@ -251,7 +251,7 @@ class GridStrength extends Task {
     }
 
     getXpGain() {
-        return applyMultipliers(getEnergyGeneration(), this.xpMultipliers);
+        return getGeneratedEnergy();
     }
 
     /**
@@ -320,6 +320,9 @@ class Module extends Entity {
 
         this.data = baseData;
         this.components = baseData.components;
+        for (const component of this.components) {
+            component.registerModule(this);
+        }
     }
 
     /**
@@ -328,7 +331,6 @@ class Module extends Entity {
     loadValues(savedValues){
         validateParameter(savedValues, {maxLevel: JsTypes.Number}, this);
         this.savedValues = savedValues;
-        this.propagateMaxLevel();
     }
 
     /**
@@ -357,10 +359,6 @@ class Module extends Entity {
         } else {
             gameData.activeEntities.modules.delete(this.name);
         }
-
-        for (const component of this.components) {
-            component.getSelectedOperation().setActive(active);
-        }
     }
 
     get maxLevel() {
@@ -369,27 +367,10 @@ class Module extends Entity {
 
     set maxLevel(maxLevel) {
         this.savedValues.maxLevel = maxLevel;
-        this.propagateMaxLevel();
-    }
-
-    /**
-     *
-     * @param {HTMLInputElement} switchElement
-     */
-    onActivationSwitchClicked(switchElement) {
-        this.setActive(switchElement.checked);
     }
 
     getLevel() {
         return this.components.reduce((levelSum, component) => levelSum + component.getOperationLevels(), 0);
-    }
-
-    propagateMaxLevel() {
-        for (const component of this.components) {
-            for (const operation of component.operations) {
-                operation.maxLevel = this.maxLevel;
-            }
-        }
     }
 
     updateMaxLevel() {
@@ -401,12 +382,15 @@ class Module extends Entity {
 
     getGridLoad() {
         return this.components.reduce(
-            (gridLoadSum, component) => gridLoadSum + component.getSelectedOperation().getGridLoad(),
+            (gridLoadSum, component) => gridLoadSum + component.getActiveOperation().getGridLoad(),
             0);
     }
 }
 
 class ModuleComponent extends Entity {
+
+    /** @var {Module} */
+    module= null;
 
     /**
      * @param {{
@@ -419,8 +403,18 @@ class ModuleComponent extends Entity {
         super(baseData.title, baseData.description);
 
         this.operations = baseData.operations;
-        // TODO include in save game
-        this.selectedOperation = this.operations[0];
+    }
+
+    /**
+     * @param {Module} module
+     */
+    registerModule(module) {
+        console.assert(this.module === null, 'Module already registered.');
+        this.module = module;
+
+        for (const operation of this.operations) {
+            operation.registerModule(module);
+        }
     }
 
     /**
@@ -428,6 +422,14 @@ class ModuleComponent extends Entity {
      */
     loadValues(savedValues){
         validateParameter(savedValues, {}, this);
+
+        this.activeOperation = this.operations.find(operation => operation.isActive(true));
+        // No operation was active yet --> fall back to first configured operation as fallback
+        if (isUndefined(this.activeOperation)) {
+            // TODO include in save game
+            this.activeOperation = this.operations[0];
+            this.activeOperation.setActive(true);
+        }
     }
 
     /**
@@ -438,24 +440,19 @@ class ModuleComponent extends Entity {
     }
 
     /**
-     * @param {boolean} active
-     */
-    setActive(active){
-        this.selectedOperation.setActive(active);
-    }
-
-    /**
      * @return {ModuleOperation}
      */
-    getSelectedOperation() {
-        return this.selectedOperation;
+    getActiveOperation() {
+        return this.activeOperation;
     }
 
     /**
      * @param {ModuleOperation} operation
      */
-    setSelectedOperation(operation) {
-        this.selectedOperation = operation;
+    activateOperation(operation) {
+        this.activeOperation.setActive(false);
+        this.activeOperation = operation;
+        this.activeOperation.setActive(true);
     }
 
     getOperationLevels() {
@@ -468,6 +465,10 @@ class ModuleComponent extends Entity {
 }
 
 class ModuleOperation extends Task {
+
+    /** @var {Module} */
+    module= null;
+
     /**
      * @param {{
      *     title: string,
@@ -482,9 +483,40 @@ class ModuleOperation extends Task {
         this.gridLoad = baseData.gridLoad;
     }
 
+    get maxLevel(){
+        return this.module.maxLevel;
+    }
+
+    set maxLevel(maxLevel) {
+        throw new TypeError('ModuleOperations only inherit the maxLevel of their modules but can not modify it.');
+    }
+
+    /**
+     * @param {Module} module
+     */
+    registerModule(module) {
+        console.assert(this.module === null, 'Module already registered.');
+        this.module = module;
+    }
+
     collectEffects() {
         super.collectEffects();
         this.xpMultipliers.push(attributes.industry.getValue);
+    }
+
+    /**
+     * @return {boolean}
+     */
+    isActive(ignoreModule = false){
+        if (ignoreModule) {
+            return gameData.activeEntities.operations.has(this.name);
+        }
+
+        if (!this.module.isActive()) {
+            return false;
+        }
+
+        return gameData.activeEntities.operations.has(this.name);
     }
 
     /**
@@ -496,13 +528,6 @@ class ModuleOperation extends Task {
         } else {
             gameData.activeEntities.operations.delete(this.name);
         }
-    }
-
-    /**
-     * @return {boolean}
-     */
-    isActive(){
-        return gameData.activeEntities.operations.has(this.name);
     }
 
     /**

@@ -112,6 +112,21 @@ class VFX {
             Dom.get().byId('pauseButton').classList.remove('shake-strong-tilt-move');
         }, 150);
     }
+
+    /**
+     * @param {HTMLElement} element
+     * @param {string} animationCssClass
+     */
+    static highlightText(element, animationCssClass, animationName) {
+        const callback = (ev) => {
+            if (ev.animationName === animationName) {
+                element.removeEventListener('animationend', callback);
+            }
+            element.classList.remove(animationCssClass);
+        };
+        element.addEventListener('animationend', callback);
+        element.classList.add(animationCssClass);
+    }
 }
 
 class ParticleSystem {
@@ -239,7 +254,7 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
         }
         quickTaskProgressBar = document.querySelector(`.quickTaskDisplay.${taskInfo.name} > .progressBar`);
     } else if (taskInfo.type === 'GridStrength') {
-        taskProgressBar = document.getElementById('energyDisplay').querySelector('.energy-fill')
+        taskProgressBar = document.getElementById('energyDisplay');
     } else {
         if (gameData.selectedTab === 'modules') {
             const taskElement = getModuleOperationElement(taskInfo.name);

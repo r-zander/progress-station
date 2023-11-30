@@ -27,6 +27,7 @@ const colorPalette = {
     EasyGreen: '#55A630',
     HappyBlue: '#219EBC',
     TomatoRed: '#E63946',
+    DangerRed: 'rgb(200, 0, 0)',
     DepressionPurple: '#4A4E69',
     // 'Fundamentals': '#4A4E69',
     // 'Combat': '#FF704D',
@@ -41,11 +42,11 @@ const colorPalette = {
  */
 // TODO render those into #attributesDisplay
 const attributes = {
-    danger: { title: 'Danger', color: 'rgb(200, 0, 0)', icon: 'img/icons/danger.svg',
+    danger: { title: 'Danger', color: colorPalette.DangerRed, icon: 'img/icons/danger.svg',
         getValue: Effect.getTotalValue.bind(this, [EffectType.Danger])},
-    gridLoad: { title: 'Grid Load', color: '#2CCBFF', icon: 'img/icons/energy.svg',
+    gridLoad: { title: 'Grid Load', color: '#2CCBFF', icon: 'img/icons/grid.svg',
         getValue: () => calculateGridLoad() },
-    gridStrength: { title: 'Grid Strength', color: '#0C65AD', icon: 'img/icons/energy.svg',
+    gridStrength: { title: 'Grid Strength', color: '#0C65AD', icon: 'img/icons/grid.svg',
         getValue: () => gridStrength.getGridStrength() },
     growth: { title: 'Growth', color: '#008000', icon: 'img/icons/growth.svg',
         getValue: Effect.getTotalValue.bind(this, [EffectType.Growth])},
