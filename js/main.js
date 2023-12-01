@@ -145,7 +145,7 @@ function switchModuleActivation(module, switchElement) {
  * @param {ModuleOperation} operation
  */
 function tryActivateOperation(component, operation) {
-    if (operation.isActive(true)) {
+    if (operation.isActive('self')) {
         // Already active, nothing to do
         return;
     }
@@ -655,7 +655,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                         operation.getEffects.bind(operation),
                         effectType,
                         module.title + ' ' + component.title + ': ' + operation.title,
-                        operation.isActive.bind(operation),
+                        operation.isActive.bind(operation, 'inHierarchy'),
                     );
                 }
             }
@@ -717,7 +717,7 @@ function createGridLoadBalance(rowElement) {
                 gridLoadBalanceEntries.push({
                     element: balanceEntryElement,
                     taskOrItem: operation,
-                    isActive: operation.isActive.bind(operation),
+                    isActive: operation.isActive.bind(operation, 'inHierarchy'),
                 });
                 balanceElement.append(balanceEntryElement);
             }
@@ -836,7 +836,7 @@ function updateModulesQuickDisplay() {
                 let quickDisplayElement = containerDomGetter.bySelector('.quickTaskDisplay.' + component.name + '.' + operation.name);
                 const componentDomGetter = Dom.get(quickDisplayElement);
 
-                if (!operation.isActive(true)) {
+                if (!operation.isActive('self')) {
                     quickDisplayElement.classList.add('hidden');
                     continue;
                 }
@@ -1012,10 +1012,18 @@ function updateModuleRows() {
         /** @var {Module} */
         const module = modules[moduleName];
         const row = document.getElementById(module.domId);
-        const level = module.getLevel();
-        const dataElement = row.querySelector('.level');
-        formatValue(dataElement, level);
-        formatValue(Dom.get(row).bySelector('.gridLoad > data'), module.getGridLoad());
+        let isActive = module.isActive();
+        row.classList.toggle('inactive', !isActive);
+
+        const domGetter = Dom.get(row);
+        let level2Header = domGetter.byClass('level2-header');
+        level2Header.classList.toggle('bg-light', isActive);
+        level2Header.classList.toggle('text-dark', isActive);
+        level2Header.classList.toggle('bg-dark', !isActive);
+        level2Header.classList.toggle('text-light', !isActive);
+
+        formatValue(domGetter.byClass('level'), module.getLevel());
+        formatValue(domGetter.bySelector('.gridLoad > data'), module.getGridLoad());
     }
 }
 
@@ -1035,7 +1043,7 @@ function updateTaskRows() {
 
         const progressFillElement = domGetter.byClass('progressFill');
         setProgress(progressFillElement, operation.xp / operation.getMaxXp());
-        progressFillElement.classList.toggle('current', operation.isActive());
+        progressFillElement.classList.toggle('current', operation.isActive('self'));
 
         domGetter.byClass('effect').textContent = operation.getEffectDescription();
     }
@@ -1296,7 +1304,7 @@ function updateBodyClasses() {
 function doTasks() {
     for (const key of gameData.activeEntities.operations) {
         const operation = moduleOperations[key];
-        if (!operation.module.isActive()) continue;
+        if (!operation.isActive('parent')) continue;
         operation.do();
     }
 
@@ -1324,7 +1332,7 @@ function calculateGridLoad() {
 
     for (const key of gameData.activeEntities.operations) {
         const operation = moduleOperations[key];
-        if (!operation.module.isActive()) continue;
+        if (!operation.isActive('parent')) continue;
 
         gridLoad += operation.getGridLoad();
     }

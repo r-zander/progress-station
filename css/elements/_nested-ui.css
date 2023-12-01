@@ -31,7 +31,17 @@
 }
 
 .level2.inactive {
-    filter: grayscale(1);
+    .progress {
+        --progress-bg-color: #575757;
+    }
+
+    .progress-bar {
+        --progress-bar-bg-color: #848484;
+    }
+
+    .progress-bar.current {
+        --progress-bar-bg-color: rgb(46, 148, 231);
+    }
 }
 
 .level2-header {

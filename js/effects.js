@@ -87,7 +87,7 @@ class Effect {
         let result = effectType.getDefaultValue();
         for (const key of gameData.activeEntities.operations) {
             const operation = moduleOperations[key];
-            if (!operation.module.isActive()) continue;
+            if (!operation.isActive('parent')) continue;
 
             result = effectType.combine(result, operation.getEffect(effectType));
         }

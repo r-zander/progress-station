@@ -47,8 +47,6 @@ class Entity {
      */
     domId;
 
-
-
     /**
      * @param {string} title
      * @param {string|undefined} description
@@ -59,7 +57,7 @@ class Entity {
         this.description = description;
     }
 
-    get name(){
+    get name() {
         return this.#name;
     }
 
@@ -72,8 +70,8 @@ class Entity {
         this.domId = 'row_' + this.type + '_' + name;
     }
 
-    loadValues(savedValues){
-        // Abstract method that needs to be implemented by each sub class
+    loadValues(savedValues) {
+        // Abstract method that needs to be implemented by each subclass
         throw new TypeError('loadValues not implemented by ' + this.constructor.name);
     }
 }
@@ -110,7 +108,7 @@ class Task extends Entity {
     /**
      * @param {TaskSavedValues} savedValues
      */
-    loadValues(savedValues){
+    loadValues(savedValues) {
         validateParameter(savedValues, {
             level: JsTypes.Number,
             maxLevel: JsTypes.Number,
@@ -131,7 +129,7 @@ class Task extends Entity {
         };
     }
 
-    get level(){
+    get level() {
         return this.savedValues.level;
     }
 
@@ -139,7 +137,7 @@ class Task extends Entity {
         this.savedValues.level = level;
     }
 
-    get maxLevel(){
+    get maxLevel() {
         return this.savedValues.maxLevel;
     }
 
@@ -147,7 +145,7 @@ class Task extends Entity {
         this.savedValues.maxLevel = maxLevel;
     }
 
-    get xp(){
+    get xp() {
         return this.savedValues.xp;
     }
 
@@ -288,7 +286,7 @@ class ModuleCategory extends Entity {
     /**
      * @param {EmptySavedValues} savedValues
      */
-    loadValues(savedValues){
+    loadValues(savedValues) {
         validateParameter(savedValues, {}, this);
     }
 
@@ -328,7 +326,7 @@ class Module extends Entity {
     /**
      * @param {ModuleSavedValues} savedValues
      */
-    loadValues(savedValues){
+    loadValues(savedValues) {
         validateParameter(savedValues, {maxLevel: JsTypes.Number}, this);
         this.savedValues = savedValues;
     }
@@ -390,7 +388,7 @@ class Module extends Entity {
 class ModuleComponent extends Entity {
 
     /** @var {Module} */
-    module= null;
+    module = null;
 
     /**
      * @param {{
@@ -420,10 +418,10 @@ class ModuleComponent extends Entity {
     /**
      * @param {EmptySavedValues} savedValues
      */
-    loadValues(savedValues){
+    loadValues(savedValues) {
         validateParameter(savedValues, {}, this);
 
-        this.activeOperation = this.operations.find(operation => operation.isActive(true));
+        this.activeOperation = this.operations.find(operation => operation.isActive('self'));
         // No operation was active yet --> fall back to first configured operation as fallback
         if (isUndefined(this.activeOperation)) {
             // TODO include in save game
@@ -467,7 +465,7 @@ class ModuleComponent extends Entity {
 class ModuleOperation extends Task {
 
     /** @var {Module} */
-    module= null;
+    module = null;
 
     /**
      * @param {{
@@ -483,7 +481,7 @@ class ModuleOperation extends Task {
         this.gridLoad = baseData.gridLoad;
     }
 
-    get maxLevel(){
+    get maxLevel() {
         return this.module.maxLevel;
     }
 
@@ -505,18 +503,18 @@ class ModuleOperation extends Task {
     }
 
     /**
+     * @param {'self'|'inHierarchy'|'parent'} scope
      * @return {boolean}
      */
-    isActive(ignoreModule = false){
-        if (ignoreModule) {
-            return gameData.activeEntities.operations.has(this.name);
+    isActive(scope) {
+        switch (scope) {
+            case 'self':
+                return gameData.activeEntities.operations.has(this.name);
+            case 'parent':
+                return this.module.isActive();
+            case 'inHierarchy':
+                return this.isActive('self') && this.isActive('parent');
         }
-
-        if (!this.module.isActive()) {
-            return false;
-        }
-
-        return gameData.activeEntities.operations.has(this.name);
     }
 
     /**
@@ -568,7 +566,7 @@ class Sector extends Entity {
     /**
      * @param {EmptySavedValues} savedValues
      */
-    loadValues(savedValues){
+    loadValues(savedValues) {
         validateParameter(savedValues, {}, this);
     }
 
@@ -603,7 +601,7 @@ class PointOfInterest extends Entity {
     /**
      * @param {EmptySavedValues} savedValues
      */
-    loadValues(savedValues){
+    loadValues(savedValues) {
         validateParameter(savedValues, {}, this);
     }
 

@@ -1,7 +1,8 @@
 .progress {
     position: relative;
     height: 30px;
-    background-color: rgb(12, 101, 173);
+    --progress-bg-color: rgb(12, 101, 173);
+    background-color: var(--progress-bg-color);
 
     /* Reset some bootstrap styling */
     overflow: visible;
@@ -24,11 +25,12 @@
 .progress-bar {
     /* Smooth out progress bar filling */
     transition: width 50ms linear;
-    background-color: rgb(46, 148, 231);
+    --progress-bar-bg-color: rgb(46, 148, 231);
+    background-color: var(--progress-bar-bg-color);
 }
 
 .progress-bar.current {
-    background-color: orange;
+    --progress-bar-bg-color: orange;
 }
 
 .game-playing {

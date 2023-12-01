@@ -86,21 +86,21 @@ const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strengt
 const moduleOperations = {
     StandbyGenerator: new ModuleOperation({
         title: 'Standby Generator', maxXp: 100, gridLoad: 0,
-        effects: [{effectType: EffectType.Energy, baseValue: 1}],
+        effects: [{effectType: EffectType.Energy, baseValue: 0.5}],
     }),
     MicroCyborgAutomat: new ModuleOperation({
         title: 'Micro Cyborg Automat', maxXp: 100, gridLoad: 1,
-        effects: [{effectType: EffectType.Growth, baseValue: 1}],
+        effects: [{effectType: EffectType.Growth, baseValue: 0.1}],
     }),
     KungFuManual: new ModuleOperation({
         title: 'Kung Fu manual', maxXp: 100, gridLoad: 1,
-        effects: [{effectType: EffectType.Military, baseValue: 1}]}),
+        effects: [{effectType: EffectType.Military, baseValue: 0.1}]}),
     PocketLaboratory: new ModuleOperation({
         title: 'Pocket Laboratory', maxXp: 100, gridLoad: 1,
-        effects: [{effectType: EffectType.Research, baseValue: 1}]}),
+        effects: [{effectType: EffectType.Research, baseValue: 0.1}]}),
     FourDPrinter: new ModuleOperation({
         title: '4D Printer', maxXp: 100, gridLoad: 1,
-        effects: [{effectType: EffectType.Industry, baseValue: 1}]}),
+        effects: [{effectType: EffectType.Industry, baseValue: 0.1}]}),
 
     Garbage: new ModuleOperation({
         title: 'Garbage', maxXp: 400, gridLoad: 1,

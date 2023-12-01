@@ -13,7 +13,7 @@
         bottom: 0;
         right: 0;
 
-        background-color: rgb(12, 101, 173);
+        background-color: var(--progress-bg-color);
     }
 
     .progress::before,
