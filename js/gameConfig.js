@@ -73,7 +73,7 @@ function createAttributeDescriptions(printAttribute) {
     attributes.growth.description = 'Increases ' + printAttribute(attributes.population) + '.';
     attributes.heat.description = 'Reduces ' + printAttribute(attributes.population) + '.';
     attributes.industry.description = 'Speeds up operations progress.';
-    attributes.military.description = 'Counteracts ' + printAttribute(attributes.danger) + '.';
+    attributes.military.description = 'Counteracts ' + printAttribute(attributes.danger) + ' and increases damage in Battles.';
     attributes.population.description = 'Affects all work speed.';
     attributes.research.description = 'Unlocks new knowledge.';
 }
@@ -91,16 +91,23 @@ const moduleOperations = {
     MicroCyborgAutomat: new ModuleOperation({
         title: 'Micro Cyborg Automat', maxXp: 100, gridLoad: 1,
         effects: [{effectType: EffectType.Growth, baseValue: 0.1}],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 1}])],
     }),
     KungFuManual: new ModuleOperation({
         title: 'Kung Fu manual', maxXp: 100, gridLoad: 1,
-        effects: [{effectType: EffectType.Military, baseValue: 0.1}]}),
+        effects: [{effectType: EffectType.Military, baseValue: 0.1}],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 1}])],
+    }),
     PocketLaboratory: new ModuleOperation({
         title: 'Pocket Laboratory', maxXp: 100, gridLoad: 1,
-        effects: [{effectType: EffectType.Research, baseValue: 0.1}]}),
+        effects: [{effectType: EffectType.Research, baseValue: 0.1}],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 1}])],
+    }),
     FourDPrinter: new ModuleOperation({
         title: '4D Printer', maxXp: 100, gridLoad: 1,
-        effects: [{effectType: EffectType.Industry, baseValue: 0.1}]}),
+        effects: [{effectType: EffectType.Industry, baseValue: 0.1}],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 1}])],
+    }),
 
     Garbage: new ModuleOperation({
         title: 'Garbage', maxXp: 400, gridLoad: 1,
@@ -238,10 +245,32 @@ const defaultModules = [
  * @type {Object.<string, ModuleCategory>}
  */
 const moduleCategories = {
-    EmergencySupplies: new ModuleCategory({title: 'Emergency Supplies', color: colorPalette.DepressionPurple, modules: [modules.ISASM]}),
-    Fundamentals: new ModuleCategory({title: 'Fundamentals', color: colorPalette.EasyGreen, modules: [modules.Furnace]}),
-    Population: new ModuleCategory({title: 'Population', color: colorPalette.HappyBlue, modules: [modules.Hive]}),
-    Military: new ModuleCategory({title: 'Military', color: colorPalette.TomatoRed, modules: [modules.WeaponBay]}),
+    EmergencySupplies: new ModuleCategory({
+        title: 'Emergency Quarters',
+        color: colorPalette.DepressionPurple,
+        modules: [modules.ISASM],
+    }),
+    Fundamentals: new ModuleCategory({
+        title: 'Fundamentals',
+        color: colorPalette.EasyGreen,
+        modules: [modules.Furnace],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 2}])],
+    }),
+    Population: new ModuleCategory({
+        title: 'Population',
+        color: colorPalette.HappyBlue,
+        modules: [modules.Hive],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 3}])],
+    }),
+    Military: new ModuleCategory({
+        title: 'Military',
+        color: colorPalette.TomatoRed,
+        modules: [modules.WeaponBay],
+        requirements: [new AttributeRequirement('playthrough', [
+            {attribute: attributes.military, requirement: 10},
+            {attribute: attributes.gridStrength, requirement: 3}
+        ])],
+    }),
 };
 
 /*
@@ -352,13 +381,24 @@ const battles = {
     // }),
 };
 
+const battleRequirements = [
+    new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 10}]),
+    new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 20}]),
+    new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 50}]),
+    new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 100}]),
+];
+
+/**
+ *
+ * @return {{limit: number, requirement: AttributeRequirement|null}}
+ */
 function maximumAvailableBattles() {
     const research = attributes.research.getValue();
-    if (research >= 100) return 5;
-    if (research >= 50) return 4;
-    if (research >= 20) return 3;
-    if (research >= 10) return 2;
-    return 1;
+    if (research >= 100) return {limit: 5, requirement: null};
+    if (research >= 50) return {limit: 4, requirement: battleRequirements[3]};
+    if (research >= 20) return {limit: 3, requirement: battleRequirements[2]};
+    if (research >= 10) return {limit: 2, requirement: battleRequirements[1]};
+    return {limit: 1, requirement: battleRequirements[0]};
 }
 
 /**
@@ -369,19 +409,20 @@ const pointsOfInterest = {
         title: 'Funky Sector',
         description: '',
         effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 10}],
-        modifiers: [{modifies: [moduleOperations.QuantumReplicator, moduleOperations.Diesel], from: EffectType.Growth, to: EffectType.Research}]
+        modifiers: [{modifies: [moduleOperations.QuantumReplicator, moduleOperations.Diesel], from: EffectType.Growth, to: EffectType.Research}],
     }),
     VideoGameLand: new PointOfInterest({
         title: 'Video Game Land',
         description: '',
         effects: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 25}],
-        modifiers: [{modifies: [moduleOperations.BallisticTurrets, moduleOperations.LaserTurrets], from: EffectType.Military, to: EffectType.Energy}]
+        modifiers: [{modifies: [moduleOperations.BallisticTurrets, moduleOperations.LaserTurrets], from: EffectType.Military, to: EffectType.Energy}],
     }),
     Gurkenland: new PointOfInterest({
         title: 'Gurkenland',
         description: '',
         effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 50}],
-        modifiers: [{modifies: [moduleOperations.Plastics], from: EffectType.Industry, to: EffectType.Growth}, {modifies: [moduleOperations.Steel], from: EffectType.Growth, to: EffectType.Industry}]
+        modifiers: [{modifies: [moduleOperations.Plastics], from: EffectType.Industry, to: EffectType.Growth}, {modifies: [moduleOperations.Steel], from: EffectType.Growth, to: EffectType.Industry}],
+        requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{faction: factions.AstralSharks, requirement: 10}])],
     }),
 };
 
@@ -390,8 +431,17 @@ const pointsOfInterest = {
  */
 const sectors = {
     // Twilight
-    DanceSector: new Sector({ title: 'Dance Sector', color: '#C71585', pointsOfInterest: [pointsOfInterest.FunkySector] }),
-    NerdSector: new Sector({ title: 'Nerd Sector', color: '#219EBC', pointsOfInterest: [pointsOfInterest.VideoGameLand, pointsOfInterest.Gurkenland] }),
+    DanceSector: new Sector({
+        title: 'Dance Sector',
+        color: '#C71585',
+        pointsOfInterest: [pointsOfInterest.FunkySector],
+    }),
+    NerdSector: new Sector({
+        title: 'Nerd Sector',
+        color: '#219EBC',
+        pointsOfInterest: [pointsOfInterest.VideoGameLand, pointsOfInterest.Gurkenland],
+        requirements: [new OperationLevelRequirement('playthrough', [{operation: moduleOperations.EliteForce, requirement: 100}])],
+    }),
 };
 
 const defaultPointOfInterest = 'FunkySector';
@@ -410,6 +460,20 @@ const layerData = [
 const lastLayerData = new LayerData('#000000');
 
 /**
+ * Requirements of arbitrary {@link HTMLElement}s in the layout.
+ * @type {*[]}
+ */
+const elementRequirements = [
+    // TODO hide gridBar and associated elements
+    new HtmlElementWithRequirement(
+        [Dom.get().byId('attributesTabButton')],
+        [new AttributeRequirement('permanent', [{
+            attribute: attributes.research,
+            requirement: 25
+        }])]),
+];
+
+/**
  *
  * @param {function(string): HTMLElement} getTaskElement
  * @param {function(string): HTMLElement} getItemElement
@@ -417,11 +481,6 @@ const lastLayerData = new LayerData('#000000');
  */
 function createRequirements(getTaskElement, getItemElement) {
     return {
-        'MicroCyborgAutomat': new AttributeRequirement([getTaskElement('MicroCyborgAutomat')], [{attribute: attributes.gridStrength, requirement: 1}]),
-        'KungFuManual': new AttributeRequirement([getTaskElement('KungFuManual')], [{attribute: attributes.gridStrength, requirement: 1}]),
-        'PocketLaboratory': new AttributeRequirement([getTaskElement('PocketLaboratory')], [{attribute: attributes.gridStrength, requirement: 1}]),
-        'FourDPrinter': new AttributeRequirement([getTaskElement('FourDPrinter')], [{attribute: attributes.gridStrength, requirement: 1}]),
-
         /*
         //Other
         'Arcane energy': new TaskRequirement(Dom.get().allByClass('arcaneEnergy'), [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),

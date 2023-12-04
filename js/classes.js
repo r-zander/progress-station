@@ -4,8 +4,8 @@
  * @typedef {Object} AttributeDefinition
  * @property {string} [name] - identifier
  * @property {string} title - displayed name of the attribute
- * @property {null|string} color - font color to display the title
- * @property {null|string} icon - path to the icon file#
+ * @property {string} color - font color to display the title
+ * @property {string} icon - path to the icon file#
  * @property {string} [description] - (HTML) description of the attribute
  * @property {function(): number} getValue - retrieves the current value for this attribute
  */
@@ -50,11 +50,14 @@ class Entity {
     /**
      * @param {string} title
      * @param {string|undefined} description
+     * @param {Requirement[]|undefined} [requirements=undefined]
      */
-    constructor(title, description) {
+    constructor(title, description, requirements = undefined) {
         this.type = this.constructor.name;
         this.title = prepareTitle(title);
         this.description = description;
+        /** @var {Requirement[]} */
+        this.requirements = requirements;
     }
 
     get name() {
@@ -73,6 +76,13 @@ class Entity {
     loadValues(savedValues) {
         // Abstract method that needs to be implemented by each subclass
         throw new TypeError('loadValues not implemented by ' + this.constructor.name);
+    }
+
+    /**
+     * @return {Requirement[]|null} Either a list of open {@link Requirement}s or `null` if there are no open requirements.
+     */
+    getUnfulfilledRequirements() {
+        return Requirement.getUnfulfilledRequirements(this.requirements);
     }
 }
 
@@ -93,10 +103,11 @@ class Task extends Entity {
      *     description?: string,
      *     maxXp: number,
      *     effects: EffectDefinition[],
+     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description);
+        super(baseData.title, baseData.description, baseData.requirements);
 
         this.maxXp = baseData.maxXp;
         this.effects = baseData.effects;
@@ -274,10 +285,11 @@ class ModuleCategory extends Entity {
      *     description?: string,
      *     color: string
      *     modules: Module[],
+     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description);
+        super(baseData.title, baseData.description, baseData.requirements);
 
         this.modules = baseData.modules;
         this.color = baseData.color;
@@ -311,10 +323,11 @@ class Module extends Entity {
      *     title: string,
      *     description?: string,
      *     components: ModuleComponent[],
+     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description);
+        super(baseData.title, baseData.description, baseData.requirements);
 
         this.data = baseData;
         this.components = baseData.components;
@@ -398,7 +411,7 @@ class ModuleComponent extends Entity {
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description);
+        super(baseData.title, baseData.description, undefined);
 
         this.operations = baseData.operations;
     }
@@ -474,6 +487,7 @@ class ModuleOperation extends Task {
      *     maxXp: number,
      *     gridLoad: number,
      *     effects: EffectDefinition[]
+     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
@@ -554,10 +568,11 @@ class Sector extends Entity {
      *     description?: string,
      *     color: string,
      *     pointsOfInterest: PointOfInterest[]
+     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description);
+        super(baseData.title, baseData.description, baseData.requirements);
 
         this.color = baseData.color;
         this.pointsOfInterest = baseData.pointsOfInterest;
@@ -589,10 +604,11 @@ class PointOfInterest extends Entity {
      *     description?: string,
      *     effects: EffectDefinition[],
      *     modifiers: ModifierDefinition[],
+     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description);
+        super(baseData.title, baseData.description, baseData.requirements);
 
         this.effects = baseData.effects;
         this.modifiers = baseData.modifiers;
@@ -649,15 +665,24 @@ class PointOfInterest extends Entity {
 }
 
 class Requirement {
-    constructor(type, elements, requirements) {
+    /**
+     *
+     * @param {string} type
+     * @param {'permanent'|'playthrough'|'update'} scope
+     * @param {*[]} requirements
+     */
+    constructor(type, scope, requirements) {
         this.type = type;
-        this.elements = elements;
         this.requirements = requirements;
         this.completed = false;
     }
 
+    /**
+     * @return {boolean}
+     */
     isCompleted() {
         if (this.completed) return true;
+
         for (const requirement of this.requirements) {
             if (!this.getCondition(requirement)) {
                 return false;
@@ -667,51 +692,159 @@ class Requirement {
         return true;
     }
 
+    /**
+     * @return {boolean}
+     */
     getCondition(requirement) {
         throw new TypeError('getCondition not implemented.');
     }
-}
 
-class TaskRequirement extends Requirement {
     /**
-     * @param {HTMLElement[]} elements
-     * @param {{task: Task, requirement: number}[]} requirements
+     * @return {string}
      */
-    constructor(elements, requirements) {
-        super('TaskRequirement', elements, requirements);
+    toHtml() {
+        return '<span class="' + this.type + '">'
+            + this.requirements
+                .filter(requirement => !this.getCondition(requirement))
+                .map(requirement => this.toHtmlInternal(requirement))
+                .join(', ')
+            + '</span>';
     }
 
     /**
-     * @param {{task: Task, requirement: number}} requirement
+     * @return {string}
+     */
+    toHtmlInternal(requirement) {
+        throw new TypeError('toHtml not implemented.');
+    }
+
+    /**
+     * @param {Requirement[]} requirements
+     * @return {Requirement[]|null} Either a list of open {@link Requirement}s or `null` if there are no open requirements.
+     */
+    static getUnfulfilledRequirements(requirements) {
+        if (isUndefined(requirements)) {
+            return null;
+        }
+
+        const openRequirements = requirements.filter(requirement => !requirement.isCompleted());
+        if (openRequirements.length === 0) {
+            return null;
+        }
+        return openRequirements;
+    }
+}
+
+class OperationLevelRequirement extends Requirement {
+    /**
+     * @param {'permanent'|'playthrough'|'update'} scope
+     * @param {{operation: ModuleOperation, requirement: number}[]} requirements
+     */
+    constructor(scope, requirements) {
+        super('OperationLevelRequirement', scope, requirements);
+    }
+
+    /**
+     * @param {{operation: ModuleOperation, requirement: number}} requirement
+     * @return {boolean}
      */
     getCondition(requirement) {
-        return requirement.task.level >= requirement.requirement;
+        return requirement.operation.level >= requirement.requirement;
+    }
+
+    /**
+     * @param {{operation: ModuleOperation, requirement: number}} requirement
+     * @return {string}
+     */
+    toHtmlInternal(requirement) {
+        return `
+<span class="name">${requirement.operation.title}</span>
+level 
+<data value="${requirement.operation.level}">${requirement.operation.level}</data> /
+<data value="${requirement.requirement}">${requirement.requirement}</data>
+`;
     }
 }
 
 class AgeRequirement extends Requirement {
-    constructor(elements, requirements) {
-        super('AgeRequirement', elements, requirements);
+    /**
+     * @param {'permanent'|'playthrough'|'update'} scope
+     * @param {{requirement: number}[]} requirements
+     */
+    constructor(scope, requirements) {
+        super('AgeRequirement', scope, requirements);
     }
 
+    /**
+     *
+     * @param {{requirement: number}} requirement
+     * @return {boolean}
+     */
     getCondition(requirement) {
         return daysToYears(gameData.days) >= requirement.requirement;
+    }
+
+    /**
+     * @param {{requirement: number}} requirement
+     * @return {string}
+     */
+    toHtmlInternal(requirement) {
+        return `
+<span class="name">IC</span>
+<data value="${daysToYears(gameData.days)}">${daysToYears(gameData.days)}</data> /
+<data value="${requirement.requirement}">${requirement.requirement}</data>
+`;
     }
 }
 
 class AttributeRequirement extends Requirement {
     /**
-     * @param {HTMLElement[]} elements
+     * @param {'permanent'|'playthrough'|'update'} scope
      * @param {{attribute: AttributeDefinition, requirement: number}[]} requirements
      */
-    constructor(elements, requirements) {
-        super('AttributeRequirement', elements, requirements);
+    constructor(scope, requirements) {
+        super('AttributeRequirement', scope, requirements);
     }
 
     /**
      * @param {{attribute: AttributeDefinition, requirement: number}} requirement
+     * @return {boolean}
      */
     getCondition(requirement) {
         return requirement.attribute.getValue() >= requirement.requirement;
+    }
+
+    /**
+     * @param {{attribute: AttributeDefinition, requirement: number}} requirement
+     * @return {string}
+     */
+    toHtmlInternal(requirement) {
+        const value = requirement.attribute.getValue();
+        // TODO format value correctly
+        return `
+<span class="name">${requirement.attribute.title}</span>
+level 
+<data value="${value}">${value.toFixed(2)}</data> /
+<data value="${requirement.requirement}">${requirement.requirement}</data>
+`;
+    }
+}
+
+class HtmlElementWithRequirement {
+    /**
+     *
+     * @param {HTMLElement[]} elements
+     * @param {Requirement[]} requirements
+     */
+    constructor(elements, requirements) {
+        this.elements = elements;
+        this.requirements = requirements;
+    }
+
+    /**
+     * @return {Requirement[]|null} Either a list of open {@link Requirement}s or `null` if there are no open requirements.
+     */
+    getUnfulfilledRequirements() {
+        return Requirement.getUnfulfilledRequirements(this.requirements);
     }
 }

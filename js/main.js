@@ -181,11 +181,16 @@ function tryActivateOperation(component, operation) {
 //     });
 // }
 
-function createRequiredRow(categoryName) {
-    const requiredRow = Dom.new.fromTemplate('level4RequiredTemplate');
-    requiredRow.classList.add('requiredRow', categoryName);
-    requiredRow.id = categoryName;
-    return requiredRow;
+/**
+ *
+ * @param {string} domId
+ * @return {HTMLElement}
+ */
+function createRequiredRow(domId) {
+    const requirementsElement = Dom.new.fromTemplate('level4RequiredTemplate');
+    requirementsElement.id = domId;
+    requirementsElement.classList.add('level4-requirements');
+    return requirementsElement;
 }
 
 /**
@@ -217,7 +222,7 @@ function createModuleLevel4Elements(categoryName, component) {
         level4Elements.push(level4Element);
     }
 
-    level4Elements.push(createRequiredRow(categoryName));
+    level4Elements.push(createRequiredRow('row_requirements_component_' + component.name));
 
     return level4Elements;
 }
@@ -251,7 +256,7 @@ function createModuleLevel3Elements(categoryName, module) {
  * @param {ModuleCategory} category
  * @return {HTMLElement[]}
  */
-function createModuleLevel2Elements(categoryName, category) {
+function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
     const level2Elements = [];
 
     for (const module of category.modules) {
@@ -278,6 +283,11 @@ function createModuleLevel2Elements(categoryName, category) {
         level2Elements.push(level2Element);
     }
 
+    const requirementsElement = Dom.new.fromTemplate('requirementsTemplate');
+    requirementsElement.id = 'row_requirements_category_' + categoryName;
+    requirementsElement.classList.add('level2-requirements');
+    requirementsSlot.replaceWith(requirementsElement);
+
     return level2Elements;
 }
 
@@ -285,12 +295,13 @@ function createModulesUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
     const level1Elements = [];
 
-    for (const categoryName in categoryDefinition) {
+    for (const key in categoryDefinition) {
         const level1Element = Dom.new.fromTemplate('level1Template');
 
         /** @var {ModuleCategory} */
-        const category = categoryDefinition[categoryName];
-        level1Element.classList.add(categoryName);
+        const category = categoryDefinition[key];
+        level1Element.id = category.domId;
+        level1Element.classList.add(category.name);
 
         const level1DomGetter = Dom.get(level1Element);
         const categoryCell = level1DomGetter.byClass('category');
@@ -303,23 +314,28 @@ function createModulesUI(categoryDefinition, domId) {
         level1DomGetter.byClass('level1-header').style.backgroundColor = category.color;
 
         const level2Slot = level1DomGetter.byId('level2');
-        level2Slot.replaceWith(...createModuleLevel2Elements(categoryName, category));
+        level2Slot.replaceWith(...createModuleLevel2Elements(category.name, category, level1DomGetter.byId('level2Requirements')));
 
         level1Elements.push(level1Element);
     }
 
     slot.replaceWith(...level1Elements);
+
+    const requirementsElement = Dom.new.fromTemplate('requirementsTemplate');
+    requirementsElement.id = 'row_requirements_moduleCategory';
+    requirementsElement.classList.add('level1-requirements');
+    Dom.get().byId('moduleCategoryRequirements').replaceWith(requirementsElement);
 }
 
 /**
  *
- * @param {PointOfInterest[]} category
- * @param {string} categoryName
+ * @param {PointOfInterest[]} pointsOfInterest
+ * @param {string} sectorName
  * @return {HTMLElement[]}
  */
-function createLevel4SectorElements(category, categoryName) {
+function createLevel4SectorElements(pointsOfInterest, sectorName) {
     const level4Elements = [];
-    for (const pointOfInterest of category) {
+    for (const pointOfInterest of pointsOfInterest) {
         const level4Element = Dom.new.fromTemplate('level4PointOfInterestTemplate');
         level4Element.id = 'row_' + pointOfInterest.name;
 
@@ -343,40 +359,36 @@ function createLevel4SectorElements(category, categoryName) {
         level4Elements.push(level4Element);
     }
 
-    level4Elements.push(createRequiredRow(categoryName));
+    level4Elements.push(createRequiredRow('row_requirements_sector_' + sectorName));
     return level4Elements;
 }
 
 /**
  *
- * @param {string} domId
- * @param {Sector} category
- * @param {string} categoryName
- * @param {number} categoryIndex
- * @return {*}
+ * @param {Sector} sector
+ * @param {string} sectorName
+ * @return {HTMLElement}
  */
-function createLevel3SectorElement(domId, category, categoryName, categoryIndex) {
+function createLevel3SectorElement(sector, sectorName) {
     const level3Element = Dom.new.fromTemplate('level3PointOfInterestTemplate');
 
-    level3Element.classList.add(categoryName);
+    level3Element.id = sector.domId;
+    level3Element.classList.add(sectorName);
     level3Element.classList.remove('ps-3');
-    if (categoryIndex === 0) {
-        level3Element.classList.remove('mt-2');
-    }
 
     const level3DomGetter = Dom.get(level3Element);
-    level3DomGetter.byClass('header-row').style.backgroundColor = category.color;
+    level3DomGetter.byClass('header-row').style.backgroundColor = sector.color;
     const nameCell = level3DomGetter.byClass('name');
-    nameCell.textContent = category.title;
-    if (isDefined(category.description)) {
-        nameCell.title = category.description;
+    nameCell.textContent = sector.title;
+    if (isDefined(sector.description)) {
+        nameCell.title = sector.description;
     } else {
         nameCell.removeAttribute('title');
     }
 
     /** @type {HTMLElement} */
     const level4Slot = level3DomGetter.byClass('level4');
-    level4Slot.append(...createLevel4SectorElements(category.pointsOfInterest, categoryName));
+    level4Slot.append(...createLevel4SectorElements(sector.pointsOfInterest, sectorName));
     return level3Element;
 }
 
@@ -389,23 +401,32 @@ function createSectorsUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
     const level3Elements = [];
 
-    for (const categoryName in categoryDefinition) {
-        const category = categoryDefinition[categoryName];
-        level3Elements.push(createLevel3SectorElement(domId, category, categoryName, level3Elements.length));
+    for (const key in categoryDefinition) {
+        const sector = categoryDefinition[key];
+        const sectorElement = createLevel3SectorElement(sector, sector.name);
+        if (level3Elements.length === 0) {
+            sectorElement.classList.remove('mt-2');
+        }
+        level3Elements.push(sectorElement);
     }
 
     slot.replaceWith(...level3Elements);
+
+    const requirementsElement = Dom.new.fromTemplate('requirementsTemplate');
+    requirementsElement.id = 'row_requirements_sector';
+    requirementsElement.classList.add('level1-requirements');
+    Dom.get().byId('sectorRequirements').replaceWith(requirementsElement);
 }
 
 /**
  *
- * @param {Battle[]} category
+ * @param {Battle[]} battles
  * @param {string} categoryName
  * @return {HTMLElement[]}
  */
-function createLevel4BattleElements(category, categoryName) {
+function createLevel4BattleElements(battles) {
     const level4Elements = [];
-    for (const battle of category) {
+    for (const battle of battles) {
         const level4Element = Dom.new.fromTemplate('level4BattleTemplate');
         level4Element.id = 'row_' + battle.name;
         const domGetter = Dom.get(level4Element);
@@ -428,7 +449,7 @@ function createLevel4BattleElements(category, categoryName) {
         level4Elements.push(level4Element);
     }
 
-    level4Elements.push(createRequiredRow(categoryName));
+    level4Elements.push(createRequiredRow('row_requirements_battle'));
     return level4Elements;
 }
 
@@ -445,20 +466,19 @@ function createUnfinishedBattlesUI() {
 
     /** @type {HTMLElement} */
     const level4Slot = domGetter.byClass('level4');
-    level4Slot.append(...createLevel4BattleElements(Object.values(battles), 'unfinishedBattles'));
+    level4Slot.append(...createLevel4BattleElements(Object.values(battles)));
 
     return level3Element;
 }
 
 /**
  *
- * @param {Battle[]} category
- * @param {string} categoryName
+ * @param {Battle[]} battles
  * @return {HTMLElement[]}
  */
-function createLevel4FinishedBattleElements(category, categoryName) {
+function createLevel4FinishedBattleElements(battles) {
     const level4Elements = [];
-    for (const battle of category) {
+    for (const battle of battles) {
         const level4Element = Dom.new.fromTemplate('level4BattleTemplate');
         level4Element.id = 'row_done_' + battle.name;
         level4Element.classList.add('hidden');
@@ -488,7 +508,6 @@ function createLevel4FinishedBattleElements(category, categoryName) {
         level4Elements.unshift(level4Element);
     }
 
-    level4Elements.push(createRequiredRow(categoryName));
     return level4Elements;
 }
 
@@ -509,7 +528,7 @@ function createFinishedBattlesUI() {
 
     /** @type {HTMLElement} */
     const level4Slot = domGetter.byClass('level4');
-    level4Slot.append(...createLevel4FinishedBattleElements(Object.values(battles), 'unfinishedBattles'));
+    level4Slot.append(...createLevel4FinishedBattleElements(Object.values(battles)));
 
     return level3Element;
 }
@@ -939,7 +958,7 @@ function setProgress(progressFillElement, progress, increasing = true) {
     return progress;
 }
 
-// function updateRequiredRows(categoryType) {
+function updateRequiredRows(categoryType) {
 //     const requiredRows = document.getElementsByClassName('requiredRow');
 //     for (const requiredRow of requiredRows) {
 //         let nextEntity = null;
@@ -1005,55 +1024,182 @@ function setProgress(progressFillElement, progress, increasing = true) {
 //             }
 //         }
 //     }
-// }
+}
+
+/**
+ * @param {Requirement[]|null} unfulfilledRequirements
+ * @param {{
+ *     hasUnfulfilledRequirements: boolean,
+ *     requirementsElement: HTMLElement,
+ *     setHtmlCache: function(string),
+ *     getHtmlCache: function(): string,
+ * }} context
+ * @return {boolean} true if the entity is available, false if not
+ */
+function updateRequirements(unfulfilledRequirements, context) {
+    // Block all following entities
+    if (context.hasUnfulfilledRequirements) {
+        return false;
+    }
+
+    if (unfulfilledRequirements !== null) {
+        // Only first requirement is shown
+        if (context.hasUnfulfilledRequirements !== true) {
+            const html = unfulfilledRequirements
+                .map(requirement => requirement.toHtml())
+                .join(', ');
+            if (html !== context.getHtmlCache()) {
+                Dom.get(context.requirementsElement).byClass('rendered').innerHTML = html;
+                context.setHtmlCache(html);
+            }
+            context.hasUnfulfilledRequirements = true;
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
+let moduleCategoryRequirementsHtmlCache = '';
+
+function updateModuleCategoryRows() {
+    const requirementsContext = {
+        hasUnfulfilledRequirements: false,
+        requirementsElement: Dom.get().byId('row_requirements_moduleCategory'),
+        setHtmlCache: (newValue) => {
+            moduleCategoryRequirementsHtmlCache = newValue;
+        },
+        getHtmlCache: () => moduleCategoryRequirementsHtmlCache,
+    };
+    for (const key in moduleCategories) {
+        const category = moduleCategories[key];
+
+        const categoryAvailable = updateRequirements(category.getUnfulfilledRequirements(), requirementsContext);
+        Dom.get().byId(category.domId).classList.toggle('hidden', !categoryAvailable);
+    }
+
+    requirementsContext.requirementsElement.classList.toggle('hidden', !requirementsContext.hasUnfulfilledRequirements);
+}
+
+const moduleRequirementsHtmlCache = {};
 
 function updateModuleRows() {
-    for (const moduleName in modules) {
-        /** @var {Module} */
-        const module = modules[moduleName];
-        const row = document.getElementById(module.domId);
-        let isActive = module.isActive();
-        row.classList.toggle('inactive', !isActive);
+    // We need to iterate on the categories to correctly scope the requirements
+    for (const key in moduleCategories) {
+        const category = moduleCategories[key];
 
-        const domGetter = Dom.get(row);
-        let level2Header = domGetter.byClass('level2-header');
-        level2Header.classList.toggle('bg-light', isActive);
-        level2Header.classList.toggle('text-dark', isActive);
-        level2Header.classList.toggle('bg-dark', !isActive);
-        level2Header.classList.toggle('text-light', !isActive);
+        const requirementsContext = {
+            hasUnfulfilledRequirements: false,
+            requirementsElement: Dom.get().byId('row_requirements_category_' + category.name),
+            setHtmlCache: (newValue) => {
+                moduleRequirementsHtmlCache[category.name] = newValue;
+            },
+            getHtmlCache: () => {
+                if (moduleRequirementsHtmlCache.hasOwnProperty(category.name)) {
+                    return moduleRequirementsHtmlCache[category.name];
+                }
 
-        formatValue(domGetter.byClass('level'), module.getLevel());
-        formatValue(domGetter.bySelector('.gridLoad > data'), module.getGridLoad());
+                return '';
+            },
+        };
+
+        for (const module of category.modules) {
+            const row = document.getElementById(module.domId);
+
+            if (!updateRequirements(module.getUnfulfilledRequirements(), requirementsContext)) {
+                row.classList.add('hidden');
+                continue;
+            }
+
+            row.classList.remove('hidden');
+            const isActive = module.isActive();
+            row.classList.toggle('inactive', !isActive);
+
+            const domGetter = Dom.get(row);
+            const level2Header = domGetter.byClass('level2-header');
+            level2Header.classList.toggle('bg-light', isActive);
+            level2Header.classList.toggle('text-dark', isActive);
+            level2Header.classList.toggle('bg-dark', !isActive);
+            level2Header.classList.toggle('text-light', !isActive);
+
+            formatValue(domGetter.byClass('level'), module.getLevel());
+            formatValue(domGetter.bySelector('.gridLoad > data'), module.getGridLoad());
+        }
+
+        requirementsContext.requirementsElement.classList.toggle('hidden', !requirementsContext.hasUnfulfilledRequirements);
     }
 }
 
-function updateTaskRows() {
-    for (const key in moduleOperations) {
-        const operation = moduleOperations[key];
-        const row = Dom.get().byId(operation.domId);
-        const domGetter = Dom.get(row);
-        formatValue(domGetter.bySelector('.level > data'), operation.level, {keepNumber: true});
-        formatValue(domGetter.bySelector('.xpGain > data'), operation.getXpGain());
-        formatValue(domGetter.bySelector('.xpLeft > data'), operation.getXpLeft());
+const moduleOperationRequirementsHtmlCache = {};
 
-        let maxLevelElement = domGetter.bySelector('.maxLevel > data');
-        formatValue(maxLevelElement, operation.maxLevel, {keepNumber: true});
-        maxLevelElement = maxLevelElement.parentElement;
-        gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove('hidden') : maxLevelElement.classList.add('hidden');
+function updateModuleOperationRows() {
+    for (const key in moduleComponents) {
+        const component = moduleComponents[key];
 
-        const progressFillElement = domGetter.byClass('progressFill');
-        setProgress(progressFillElement, operation.xp / operation.getMaxXp());
-        progressFillElement.classList.toggle('current', operation.isActive('self'));
+        const requirementsContext = {
+            hasUnfulfilledRequirements: false,
+            requirementsElement: Dom.get().byId('row_requirements_component_' + component.name),
+            setHtmlCache: (newValue) => {
+                moduleOperationRequirementsHtmlCache[component.name] = newValue;
+            },
+            getHtmlCache: () => {
+                if (moduleOperationRequirementsHtmlCache.hasOwnProperty(component.name)) {
+                    return moduleOperationRequirementsHtmlCache[component.name];
+                }
 
-        domGetter.byClass('effect').textContent = operation.getEffectDescription();
+                return '';
+            },
+        };
+
+        for (const operation of component.operations) {
+            const row = Dom.get().byId(operation.domId);
+
+            if (!updateRequirements(operation.getUnfulfilledRequirements(), requirementsContext)) {
+                row.classList.add('hidden');
+                continue;
+            }
+            row.classList.remove('hidden');
+
+            const domGetter = Dom.get(row);
+            formatValue(domGetter.bySelector('.level > data'), operation.level, {keepNumber: true});
+            formatValue(domGetter.bySelector('.xpGain > data'), operation.getXpGain());
+            formatValue(domGetter.bySelector('.xpLeft > data'), operation.getXpLeft());
+
+            let maxLevelElement = domGetter.bySelector('.maxLevel > data');
+            formatValue(maxLevelElement, operation.maxLevel, {keepNumber: true});
+            maxLevelElement = maxLevelElement.parentElement;
+            gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove('hidden') : maxLevelElement.classList.add('hidden');
+
+            const progressFillElement = domGetter.byClass('progressFill');
+            setProgress(progressFillElement, operation.xp / operation.getMaxXp());
+            progressFillElement.classList.toggle('current', operation.isActive('self'));
+
+            domGetter.byClass('effect').textContent = operation.getEffectDescription();
+        }
+
+        requirementsContext.requirementsElement.classList.toggle('hidden', !requirementsContext.hasUnfulfilledRequirements);
     }
 }
+
+let battleRequirementsHtmlCache = '';
 
 function updateBattleRows() {
     // Determine visibility
     const maxBattles = maximumAvailableBattles();
     let visibleBattles = 0;
     const visibleFactions = {};
+
+    const requirementsContext = {
+        hasUnfulfilledRequirements: false,
+        requirementsElement: Dom.get().byId('row_requirements_battle'),
+        setHtmlCache: (newValue) => {
+            battleRequirementsHtmlCache = newValue;
+        },
+        getHtmlCache: () => {
+            return battleRequirementsHtmlCache;
+        },
+    };
 
     for (const key in battles) {
         /** @type {Battle} */
@@ -1066,12 +1212,28 @@ function updateBattleRows() {
             continue;
         }
 
-        if (visibleBattles >= maxBattles) {
-            row.classList.add('hidden');
-            continue;
+        const unfulfilledRequirements = [];
+        if (visibleBattles >= maxBattles.limit) {
+            if (maxBattles.requirement === null) {
+                unfulfilledRequirements.push({
+                    toHtml: () => {
+                        return `Win open battles`;
+                    },
+                });
+            } else {
+                unfulfilledRequirements.push(maxBattles.requirement);
+            }
         }
 
         if (visibleFactions.hasOwnProperty(battle.faction.name)) {
+            unfulfilledRequirements.push({
+                toHtml: () => {
+                    return `${battle.faction.name} defeated`;
+                },
+            });
+        }
+
+        if (!updateRequirements(unfulfilledRequirements.length === 0 ? null : unfulfilledRequirements, requirementsContext)) {
             row.classList.add('hidden');
             continue;
         }
@@ -1093,21 +1255,66 @@ function updateBattleRows() {
         domGetter.byClass('active').style.backgroundColor = isActive ? colorPalette.TomatoRed : colorPalette.White;
         formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
     }
+
+    requirementsContext.requirementsElement.classList.toggle('hidden', !requirementsContext.hasUnfulfilledRequirements);
 }
 
+let sectorRequirementsHtmlCache = '';
+const pointOfInterestRequirementsHtmlCache = {};
+
 function updateSectorRows() {
-    for (const key in pointsOfInterest) {
-        /** @type {PointOfInterest} */
-        const pointOfInterest = pointsOfInterest[key];
-        const row = Dom.get().byId('row_' + pointOfInterest.name);
-        const domGetter = Dom.get(row);
-        const isActive = pointOfInterest.isActive();
-        domGetter.byClass('active').style.backgroundColor = isActive ? 'rgb(12, 101, 173)' : 'white';
-        domGetter.byClass('button').classList.toggle('btn-dark', !isActive);
-        domGetter.byClass('button').classList.toggle('btn-warning', isActive);
-        domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescription();
-        formatValue(domGetter.bySelector('.danger > data'), pointOfInterest.getEffect(EffectType.Danger));
+    const sectorRequirementsContext = {
+        hasUnfulfilledRequirements: false,
+        requirementsElement: Dom.get().byId('row_requirements_sector'),
+        setHtmlCache: (newValue) => {
+            sectorRequirementsHtmlCache = newValue;
+        },
+        getHtmlCache: () => sectorRequirementsHtmlCache,
+    };
+
+    for (const key in sectors) {
+        const sector = sectors[key];
+
+        const categoryAvailable = updateRequirements(sector.getUnfulfilledRequirements(), sectorRequirementsContext);
+        Dom.get().byId(sector.domId).classList.toggle('hidden', !categoryAvailable);
+
+        const requirementsContext = {
+            hasUnfulfilledRequirements: false,
+            requirementsElement: Dom.get().byId('row_requirements_sector_' + sector.name),
+            setHtmlCache: (newValue) => {
+                pointOfInterestRequirementsHtmlCache[sector.name] = newValue;
+            },
+            getHtmlCache: () => {
+                if (pointOfInterestRequirementsHtmlCache.hasOwnProperty(sector.name)) {
+                    return pointOfInterestRequirementsHtmlCache[sector.name];
+                }
+
+                return '';
+            },
+        };
+
+        for (const pointOfInterest of sector.pointsOfInterest) {
+            const row = Dom.get().byId('row_' + pointOfInterest.name);
+
+            if (!updateRequirements(pointOfInterest.getUnfulfilledRequirements(), requirementsContext)) {
+                row.classList.add('hidden');
+                continue;
+            }
+            row.classList.remove('hidden');
+
+            const domGetter = Dom.get(row);
+            const isActive = pointOfInterest.isActive();
+            domGetter.byClass('active').style.backgroundColor = isActive ? 'rgb(12, 101, 173)' : 'white';
+            domGetter.byClass('button').classList.toggle('btn-dark', !isActive);
+            domGetter.byClass('button').classList.toggle('btn-warning', isActive);
+            domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescription();
+            formatValue(domGetter.bySelector('.danger > data'), pointOfInterest.getEffect(EffectType.Danger));
+        }
+
+        requirementsContext.requirementsElement.classList.toggle('hidden', !requirementsContext.hasUnfulfilledRequirements);
     }
+
+    sectorRequirementsContext.requirementsElement.classList.toggle('hidden', !sectorRequirementsContext.hasUnfulfilledRequirements);
 }
 
 function updateHeaderRows() {
@@ -1580,10 +1787,13 @@ function isPlaying() {
 }
 
 function updateUI() {
-    updateTaskRows();
+    updateModuleCategoryRows();
     updateModuleRows();
+    updateModuleOperationRows();
+
     updateBattleRows();
     updateSectorRows();
+
     // updateRequiredRows(moduleCategories);
     // updateRequiredRows(sectors);
     updateHeaderRows();

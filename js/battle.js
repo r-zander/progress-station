@@ -64,6 +64,7 @@ class Battle extends LayeredTask {
             maxXp: baseData.faction.maxXp,
             effects: baseData.effects,
             targetLevel: baseData.targetLevel,
+            requirements: undefined,
         });
 
         this.faction = baseData.faction;
@@ -130,7 +131,7 @@ class BossBattle extends Battle {
      *
      * @param {{
      *     title: string,
-     *     maxLevel: number,
+     *     targetLevel: number,
      *     faction: FactionDefinition,
      *     effects: EffectDefinition[],
      *     rewards: EffectDefinition[],
@@ -161,14 +162,54 @@ class BossBattle extends Battle {
 }
 
 class FactionLevelsDefeatedRequirement extends Requirement {
-    constructor(elements, requirements) {
-        super('FactionLevelsDefeatedRequirement', elements, requirements);
+    /**
+     * @param {'permanent'|'playthrough'|'update'} scope
+     * @param {{
+     *     faction: FactionDefinition,
+     *     requirement: number
+     * }[]} requirements
+     */
+    constructor(scope, requirements) {
+        super('FactionLevelsDefeatedRequirement', scope, requirements);
     }
 
+    /**
+     * @param {{
+     *     faction: FactionDefinition,
+     *     requirement: number
+     * }} requirement
+     * @param requirement
+     * @return {boolean}
+     */
     getCondition(requirement) {
+        return this.#getDefeatedLevels(requirement.faction) >= requirement.requirement;
+    }
+
+    /**
+     * @param {FactionDefinition} faction
+     * @return {number}
+     */
+    #getDefeatedLevels(faction) {
         return Object.values(battles)
-            .filter((battle) => battle.faction === requirement.faction)
+            .filter((battle) => battle.faction === faction)
             .map((battle) => battle.level)
-            .reduce((prev, cur) => prev + cur, 0) >= requirement.requirement;
+            .reduce((prev, cur) => prev + cur, 0);
+    }
+
+    /**
+     * @param {{
+     *     faction: FactionDefinition,
+     *     requirement: number
+     * }} requirement
+     * @return {string}
+     */
+    toHtmlInternal(requirement) {
+        const defeatedLevels = this.#getDefeatedLevels(requirement.faction);
+        return `
+<span class="name">${requirement.faction.title}</span>
+level 
+<data value="${defeatedLevels}">${defeatedLevels}</data> /
+<data value="${requirement.requirement}">${requirement.requirement}</data>
+`;
     }
 }

@@ -357,6 +357,11 @@ const Dom = {
         return new DomGetter(parent);
     },
     new: {
+        /**
+         *
+         * @param {string} templateId
+         * @return {HTMLElement}
+         */
         fromTemplate: function (templateId) {
             return document.getElementById(templateId).content.firstElementChild.cloneNode(true);
         }

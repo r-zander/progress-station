@@ -221,6 +221,9 @@
                     </div>
 
                     <slot id="level2"></slot>
+                    <div class="ps-4">
+                        <slot id="level2Requirements"></slot>
+                    </div>
                 </div>
             </template>
 
@@ -406,18 +409,21 @@
                 <tr>
                     <td class="requirements help-text ps-3" colspan="100%">
                         Required:
-                        <span class="value">
-                            <span class="levels"></span>
-                            <span class="energy-stored">
-                                <data value=""></data> <span>stored energy</span>
-                            </span>
-                        </span>
+                        <span class="rendered"></span>
                     </td>
                 </tr>
             </template>
 
+            <template id="requirementsTemplate">
+                <div class="requirements help-text">
+                    Required:
+                    <span class="rendered"></span>
+                </div>
+            </template>
+
             <div id="modules" class="tab p-3">
                 <slot id="modulesTable"></slot>
+                <slot id="moduleCategoryRequirements"></slot>
             </div>
 
             <div id="battles" class="tab p-3 overflow-hidden">
@@ -438,6 +444,7 @@
 
             <div id="location" class="tab p-3">
                 <slot id="sectorTable"></slot>
+                <slot id="sectorRequirements"></slot>
             </div>
 
             <div id="captainsLog" class="tab p-3">
