@@ -25,6 +25,10 @@ const attributeBalanceEntries = [];
  */
 const gridLoadBalanceEntries = [];
 
+/**
+ *
+ * @type {Object.<string, HTMLElement>}
+ */
 const tabButtons = {
     modules: document.getElementById('modulesTabButton'),
     location: document.getElementById('locationTabButton'),
@@ -67,6 +71,17 @@ function updatePopulation() {
     gameData.population = Math.max(gameData.population, 1);
 }
 
+function getPopulationProgressSpeedMultiplier(){
+    // Random ass formula ᕕ( ᐛ )ᕗ
+    // Pop 1 = x1
+    // Pop 10 ~= x3.4
+    // Pop 100 ~= x12
+    // Pop 1000 ~= x40
+    // Pop 10000 ~= x138
+    // Pop 40000 ~= x290
+    return Math.max(1, Math.pow(Math.round(gameData.population), 1 / 1.869));
+}
+
 function getGameSpeed(ignoreDeath = false) {
     if (ignoreDeath) {
         return baseGameSpeed * +!gameData.paused;
@@ -83,6 +98,11 @@ function hideAllTooltips() {
 }
 
 function setTab(selectedTab) {
+    if (tabButtons[selectedTab].classList.contains('hidden')) {
+        // Tab is not available
+        return;
+    }
+
     const tabs = document.getElementsByClassName('tab');
     for (const tab of tabs) {
         tab.style.display = 'none';
@@ -701,8 +721,8 @@ function createAttributeBalance(rowElement, effectTypes) {
             );
         }
 
-        for (const poiName in pointsOfInterest) {
-            const pointOfInterest = pointsOfInterest[poiName];
+        for (const key in pointsOfInterest) {
+            const pointOfInterest = pointsOfInterest[key];
             createAttributeBalanceEntry(
                 balanceElement,
                 pointOfInterest.getEffect.bind(pointOfInterest),
@@ -741,6 +761,22 @@ function createGridLoadBalance(rowElement) {
                 balanceElement.append(balanceEntryElement);
             }
         }
+    }
+}
+
+function createAttributesDisplay() {
+    const attributeContainers = Dom.get().allBySelector('[data-attribute]');
+    for (/** @var {HTMLElement} */ const attributeContainer of attributeContainers) {
+        /** @var {AttributeDefinition} */
+        const attribute = attributes[attributeContainer.dataset.attribute];
+        const domGetter = Dom.get(attributeContainer);
+        attributeContainer.dataset.bsTitle = attribute.description;
+        const iconElement = domGetter.byClass('icon');
+        iconElement.src = attribute.icon;
+        iconElement.alt = attribute.title + ' icon';
+        const labelElement = domGetter.byClass('label');
+        labelElement.style.color = attribute.color;
+        labelElement.textContent = attribute.title;
     }
 }
 
@@ -1417,6 +1453,7 @@ function updateText() {
 
     const population = attributes.population.getValue();
     formatValue(Dom.get().byId('populationDisplay'), population, {forceInteger: true});
+    formatValue(Dom.get().byId('populationProgressSpeedDisplay'), getPopulationProgressSpeedMultiplier(), {});
     formatValue(Dom.get().bySelector('#attributeRows > .population .value'), population, {forceInteger: true});
     formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), populationDelta(), {forceSign: true});
 
@@ -1743,8 +1780,8 @@ function rerollStationName() {
 const visibleTooltips = [];
 
 function initTooltips() {
-    const tooltipTriggerElements = document.querySelectorAll('[title]');
-    const tooltipConfig = {container: 'body', trigger: 'hover'};
+    const tooltipTriggerElements = document.querySelectorAll('[title], [data-bs-title]');
+    const tooltipConfig = {container: 'body', trigger: 'hover', sanitize: false};
     for (const tooltipTriggerElement of tooltipTriggerElements) {
         // noinspection JSUnresolvedReference
         new bootstrap.Tooltip(tooltipTriggerElement, tooltipConfig);
@@ -1830,8 +1867,6 @@ function initConfigNames() {
 }
 
 function init() {
-
-
     initConfigNames();
 
     gameData = new GameData();
@@ -1856,6 +1891,7 @@ function init() {
     adjustLayout();
 
     createAttributeDescriptions(createAttributeInlineHTML);
+    createAttributesDisplay();
     createAttributesUI();
     createEnergyGridDisplay();
 

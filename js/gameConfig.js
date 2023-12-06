@@ -74,7 +74,7 @@ function createAttributeDescriptions(printAttribute) {
     attributes.heat.description = 'Reduces ' + printAttribute(attributes.population) + '.';
     attributes.industry.description = 'Speeds up operations progress.';
     attributes.military.description = 'Counteracts ' + printAttribute(attributes.danger) + ' and increases damage in Battles.';
-    attributes.population.description = 'Affects all work speed.';
+    attributes.population.description = 'Affects all progress speed.';
     attributes.research.description = 'Unlocks new knowledge.';
 }
 
@@ -112,49 +112,49 @@ const moduleOperations = {
     Garbage: new ModuleOperation({
         title: 'Garbage', maxXp: 400, gridLoad: 1,
         description: 'Garbage text.',
-        effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}],
+        effects: [{effectType: EffectType.Industry, baseValue: 1}, {effectType: EffectType.Energy, baseValue: 1}],
     }),
     Diesel: new ModuleOperation({
         title: 'Diesel', maxXp: 50, gridLoad: 1,
         description: 'Diesel text.',
-        effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}],
+        effects: [{effectType: EffectType.Growth, baseValue: 1}, {effectType: EffectType.Energy, baseValue: 1}],
     }),
     Plastics: new ModuleOperation({
         title: 'Plastics', maxXp: 100, gridLoad: 1,
         description: 'Plastics text.',
-        effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}],
+        effects: [{effectType: EffectType.Industry, baseValue: 1}, {effectType: EffectType.Energy, baseValue: 1}],
     }),
     Steel: new ModuleOperation({
         title: 'Steel', maxXp: 200, gridLoad: 1,
         description: 'Steel text.',
-        effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.EnergyFactor, baseValue: 5}],
+        effects: [{effectType: EffectType.Growth, baseValue: 1}, {effectType: EffectType.EnergyFactor, baseValue: 1}],
     }),
 
     //Population
     QuantumReplicator: new ModuleOperation({
         title: 'Quantum Replicator', maxXp: 400, gridLoad: 1,
         description: 'Introducing the \'Quantum Replicator\'—the ultimate solution for population growth! This futuristic device uses quantum technology to duplicate individuals, allowing you to rapidly expand your population. With each activation, watch as your society flourishes and thrives. Just remember to keep track of the originals, or you might end up with an army of duplicates!',
-        effects: [{effectType: EffectType.Growth, baseValue: 5}],
+        effects: [{effectType: EffectType.Growth, baseValue: 1}],
     }),
     BioGenesisChamber: new ModuleOperation({
         title: 'Bio-Genesis Chamber', maxXp: 400, gridLoad: 1,
         description: "Step into the 'Bio-Genesis Chamber,' where life finds a new beginning! This advanced technology can create life forms from scratch, jump-starting your population growth. Simply input the genetic code and environmental parameters, and within moments, you'll have a thriving population ready to build a bright future. Handle with care; creating life is a profound responsibility!",
-        effects: [{effectType: EffectType.Growth, baseValue: 5}],
+        effects: [{effectType: EffectType.Growth, baseValue: 1}],
     }),
     NanoFertilityDrones: new ModuleOperation({
         title: 'Nano-Fertility Drones', maxXp: 400, gridLoad: 1,
         description: "Meet the 'Nano-Fertility Drones'—tiny, intelligent machines on a mission to boost your population! These nanobots are programmed to enhance fertility rates, making reproduction more efficient than ever before. Whether you're on a distant planet or in a post-apocalyptic world, these drones ensure your population will grow and thrive against all odds.",
-        effects: [{effectType: EffectType.Growth, baseValue: 5}],
+        effects: [{effectType: EffectType.Growth, baseValue: 1}],
     }),
     HoloCommunityHub: new ModuleOperation({
         title: 'Holo-Community Hub', maxXp: 400, gridLoad: 1,
         description: "Create a sense of unity with the 'Holo-Community Hub'! This holographic hub provides a virtual meeting space for your population, regardless of physical distance. As individuals gather in the virtual world, they form stronger bonds, leading to increased cooperation, higher birth rates, and a sense of belonging. Just be prepared for some quirky virtual avatars!",
-        effects: [{effectType: EffectType.Growth, baseValue: 5}],
+        effects: [{effectType: EffectType.Growth, baseValue: 1}],
     }),
     TemporalBreedingPods: new ModuleOperation({
         title: 'Temporal Breeding Pods', maxXp: 400, gridLoad: 1,
         description: "Venture into the temporal realm with 'Temporal Breeding Pods'! These extraordinary chambers manipulate time itself to accelerate the aging process. Individuals placed inside age rapidly, allowing for generations to be born and raised in a fraction of the time. Witness your population skyrocket as you harness the mysteries of time travel!",
-        effects: [{effectType: EffectType.Growth, baseValue: 5}],
+        effects: [{effectType: EffectType.Growth, baseValue: 1}],
     }),
 
     //Military
@@ -164,7 +164,7 @@ const moduleOperations = {
     }),
     LaserTurrets: new ModuleOperation({
         title: 'Laser Turrets', maxXp: 400, gridLoad: 1,
-        effects: [{effectType: EffectType.Military, baseValue: 5}],
+        effects: [{effectType: EffectType.Military, baseValue: 1}],
     }),
     FighterSquadron: new ModuleOperation({
         title: 'Fighter Squadron', maxXp: 150, gridLoad: 1,
@@ -310,6 +310,10 @@ const factions = {
         title: 'Astral Sharks', maxXp: 750_000,
         description: 'Legends of the cosmic deep, Astral Sharks glide through space with celestial fins and stardust-infused teeth. They\'re the titans of the galactic oceans.'
     },
+    PseudoBoss: {
+        title: 'Boss', maxXp: 5_000_000,
+        description: 'You thought this game had a boss, huh? Well, not yet. In the meantime you can try to fight this bad boy. Over 9000 Danger. Is this a lot? Maybe!'
+    },
 
     Destroyer: {
         title: 'The Destroyer', maxXp: 500,
@@ -338,7 +342,7 @@ const battles = {
         title: 'Courageous',
         targetLevel: 20,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 50}],
+        effects: [{effectType: EffectType.Danger, baseValue: 10}],
         rewards: [{effectType: EffectType.Military, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     SpacePirates10: new Battle({
@@ -346,20 +350,20 @@ const battles = {
         targetLevel: 10,
         faction: factions.SpacePirates,
         effects: [{effectType: EffectType.Danger, baseValue: 100}],
-        rewards: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+        rewards: [{effectType: EffectType.Military, baseValue: 1}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     ThunderDragon10: new Battle({
         title: 'Decrepit',
         targetLevel: 10,
         faction: factions.ThunderDragon,
         effects: [{effectType: EffectType.Danger, baseValue: 200}],
-        rewards: [{effectType: EffectType.Research, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+        rewards: [{effectType: EffectType.Research, baseValue: 1}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     AstralSharks10: new Battle({
         title: 'Lone',
         targetLevel: 10,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 500}],
+        effects: [{effectType: EffectType.Danger, baseValue: 100}],
         rewards: [{effectType: EffectType.ResearchFactor, baseValue: 1.5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     NovaFlies200: new Battle({
@@ -368,6 +372,18 @@ const battles = {
         faction: factions.NovaFlies,
         effects: [{effectType: EffectType.Danger, baseValue: 300}],
         rewards: [{effectType: EffectType.Growth, baseValue: 20}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    PseudoBoss10: new Battle({
+        title: 'Pseudo',
+        targetLevel: 10,
+        faction: factions.PseudoBoss,
+        effects: [{effectType: EffectType.Danger, baseValue: 9001}],
+        rewards: [
+            {effectType: EffectType.Research, baseValue: 100},
+            {effectType: EffectType.Growth, baseValue: 100},
+            {effectType: EffectType.Industry, baseValue: 100},
+            {effectType: EffectType.Military, baseValue: 100},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
 
     // Destroyer: new BossBattle({
@@ -405,22 +421,36 @@ function maximumAvailableBattles() {
  * @type {Object.<string, PointOfInterest>}
  */
 const pointsOfInterest = {
-    FunkySector: new PointOfInterest({
-        title: 'Funky Sector',
-        description: '',
-        effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 10}],
-        modifiers: [{modifies: [moduleOperations.QuantumReplicator, moduleOperations.Diesel], from: EffectType.Growth, to: EffectType.Research}],
+    SafeZone: new PointOfInterest({
+        title: 'Safe Zone',
+        description: 'Let\'s take a breather and regroup.',
+        effects: [
+            {effectType: EffectType.Industry, baseValue: 1},
+            {effectType: EffectType.Danger, baseValue: 0}],
+        modifiers: [],
+    }),
+    StarlightEnclave: new PointOfInterest({
+        title: 'Starlight Enclave',
+        description: 'A cosmic ballet of stars creates a breathtaking celestial display. The radiant starlight powers the station. ' +
+            'Additionally, this point of interest is known for advanced stargazing technology, attracting astronomers and enthusiasts from across the galaxy.',
+        effects: [
+            {effectType: EffectType.Energy, baseValue: 10},
+            {effectType: EffectType.Growth, baseValue: 1},
+            {effectType: EffectType.ResearchFactor, baseValue: 1.5},
+            {effectType: EffectType.Danger, baseValue: 5}],
+        modifiers: [],
+        requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{faction: factions.Astrogoblins, requirement: 5}])],
     }),
     VideoGameLand: new PointOfInterest({
         title: 'Video Game Land',
         description: '',
-        effects: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 25}],
+        effects: [{effectType: EffectType.Military, baseValue: 1}, {effectType: EffectType.Danger, baseValue: 25}],
         modifiers: [{modifies: [moduleOperations.BallisticTurrets, moduleOperations.LaserTurrets], from: EffectType.Military, to: EffectType.Energy}],
     }),
     Gurkenland: new PointOfInterest({
         title: 'Gurkenland',
         description: '',
-        effects: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.Danger, baseValue: 50}],
+        effects: [{effectType: EffectType.Growth, baseValue: 1}, {effectType: EffectType.Danger, baseValue: 10}],
         modifiers: [{modifies: [moduleOperations.Plastics], from: EffectType.Industry, to: EffectType.Growth}, {modifies: [moduleOperations.Steel], from: EffectType.Growth, to: EffectType.Industry}],
         requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{faction: factions.AstralSharks, requirement: 10}])],
     }),
@@ -431,20 +461,30 @@ const pointsOfInterest = {
  */
 const sectors = {
     // Twilight
-    DanceSector: new Sector({
-        title: 'Dance Sector',
-        color: '#C71585',
-        pointsOfInterest: [pointsOfInterest.FunkySector],
+    AlphaSector: new Sector({
+        title: 'Alpha Sector',
+        color: '#ECA545',
+        pointsOfInterest: [pointsOfInterest.SafeZone, pointsOfInterest.StarlightEnclave],
     }),
-    NerdSector: new Sector({
-        title: 'Nerd Sector',
-        color: '#219EBC',
+    BetaSector: new Sector({
+        title: 'Beta Sector',
+        color: '#56BA5A',
         pointsOfInterest: [pointsOfInterest.VideoGameLand, pointsOfInterest.Gurkenland],
-        requirements: [new OperationLevelRequirement('playthrough', [{operation: moduleOperations.EliteForce, requirement: 100}])],
+        requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{faction: factions.Astrogoblins, requirement: 30}])],
+    }),
+    GammaSector: new Sector({
+        title: 'Gamma Sector',
+        color: '#1C92D0',
+        pointsOfInterest: [],
+    }),
+    DeltaSector: new Sector({
+        title: 'Delta Sector',
+        color: '#E64E4D',
+        pointsOfInterest: [],
     }),
 };
 
-const defaultPointOfInterest = 'FunkySector';
+const defaultPointOfInterest = 'SafeZone';
 
 const permanentUnlocks = ['Scheduling', 'Shop', 'Automation', 'Quick task display'];
 
@@ -464,6 +504,15 @@ const lastLayerData = new LayerData('#000000');
  * @type {HtmlElementWithRequirement[]}
  */
 const elementRequirements = [
+    new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [Dom.get().byId('battleTabButton')],
+            requirements: [new AttributeRequirement('playthrough', [{
+                attribute: attributes.military,
+                requirement: 1,
+            }])],
+            elementsToShowRequirements: []
+        }),
     new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('attributesTabButton')],

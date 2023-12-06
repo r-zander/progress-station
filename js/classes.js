@@ -166,6 +166,9 @@ class Task extends Entity {
         };
     }
 
+    /**
+     * @return {TaskSavedValues}
+     */
     getSavedValues() {
         return this.savedValues;
     }
@@ -215,9 +218,8 @@ class Task extends Entity {
 
     collectEffects() {
         this.xpMultipliers.push(this.getMaxLevelMultiplier.bind(this));
-
-        //this.populationEffectMethods.push(getBoundTaskEffect('Dark influence'));
-        //this.xpMultipliers.push(getBoundTaskEffect('Demon training'));
+        // Yey lazy functions
+        this.xpMultipliers.push(() => getPopulationProgressSpeedMultiplier());
     }
 
     /**
@@ -350,6 +352,9 @@ class ModuleCategory extends Entity {
         };
     }
 
+    /**
+     * @return {ModuleCategprySavedValues}
+     */
     getSavedValues() {
         return this.savedValues;
     }
@@ -403,6 +408,9 @@ class Module extends Entity {
         };
     }
 
+    /**
+     * @return {ModuleSavedValues}
+     */
     getSavedValues() {
         return this.savedValues;
     }
@@ -504,6 +512,9 @@ class ModuleComponent extends Entity {
         return {};
     }
 
+    /**
+     * @return {EmptySavedValues}
+     */
     getSavedValues() {
         return this.savedValues;
     }
@@ -661,6 +672,10 @@ class Sector extends Entity {
         };
     }
 
+    /**
+     *
+     * @return {SectorSavedValues}
+     */
     getSavedValues() {
         return this.savedValues;
     }
@@ -710,6 +725,9 @@ class PointOfInterest extends Entity {
         return {requirementCompleted: []};
     }
 
+    /**
+     * @return {PointOfInterestSavedValues}
+     */
     getSavedValues() {
         return this.savedValues;
     }

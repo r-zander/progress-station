@@ -16,7 +16,7 @@
 
 #attributesDisplay {
     .primary-stat {
-        & data {
+        & > data {
             display: block;
         }
     }

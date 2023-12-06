@@ -205,7 +205,7 @@ class FactionLevelsDefeatedRequirement extends Requirement {
      */
     toHtmlInternal(requirement) {
         const defeatedLevels = this.#getDefeatedLevels(requirement.faction);
-        return `
+        return `Defeated
 <span class="name">${requirement.faction.title}</span>
 level 
 <data value="${defeatedLevels}">${defeatedLevels}</data> /

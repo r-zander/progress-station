@@ -93,40 +93,49 @@
         </div>
 
         <div id="attributesDisplay" class="row justify-content-center" onclick="setTab('attributes');">
-            <div class="col primary-stat">
-                <img src="img/icons/population.svg" class="icon" alt="Population Icon"/>
-                <span class="label" style="color: rgb(46, 148, 231)">Population</span>
-                <data id="populationDisplay" value="1">?</data>
+            <div class="col primary-stat" data-attribute="population"
+                 data-bs-placement="bottom" data-bs-html="true">
+                <img src="" class="icon" alt=""/>
+                <span class="label" style=""></span>
+                <div>
+                    <data id="populationDisplay" value="1">?</data>
+                    (x<data id="populationProgressSpeedDisplay" value="1">?</data>)
+                </div>
             </div>
-            <div class="col primary-stat">
-                <img src="img/icons/industry.svg" class="icon" alt="Population Icon"/>
-                <span class="label" style="color: rgb(97, 173, 50)">Industry</span>
+            <div class="col primary-stat" data-attribute="industry"
+                 data-bs-placement="bottom" data-bs-html="true">
+                <img src="" class="icon" alt=""/>
+                <span class="label" style=""></span>
                 <data id="industryDisplay" value="1">?</data>
             </div>
-            <div class="col primary-stat">
-                <img src="img/icons/research.svg" class="icon" alt="Research Icon"/>
-                <span class="label" style="color: #cc4ee2">Research</span>
+            <div class="col primary-stat" data-attribute="research"
+                 data-bs-placement="bottom" data-bs-html="true">
+                <img src="" class="icon" alt=""/>
+                <span class="label" style=""></span>
                 <data id="researchDisplay" value="1">?</data>
             </div>
-
-            <div class="col primary-stat">
-                <img src="img/icons/growth.svg" class="icon" alt="Growth Icon"/>
-                <span class="label" style="color: green">Growth</span>
+            <div class="col primary-stat" data-attribute="growth"
+                 data-bs-placement="bottom" data-bs-html="true">
+                <img src="" class="icon" alt=""/>
+                <span class="label" style=""></span>
                 <data id="growthDisplay" value="1">?</data>
             </div>
-            <div class="col primary-stat">
-                <img src="img/icons/heat.svg" class="icon" alt="Heat Icon"/>
-                <span class="label">Heat</span>
+            <div class="col primary-stat" data-attribute="heat"
+                 data-bs-placement="bottom" data-bs-html="true">
+                <img src="" class="icon" alt=""/>
+                <span class="label" style=""></span>
                 <data id="heatDisplay" style="color: rgb(15, 105, 207)" value="1">?%</data>
             </div>
-            <div class="col primary-stat">
-                <img src="img/icons/danger.svg" class="icon" alt="Danger Icon"/>
-                <span class="label" style="color: rgb(200, 0, 0)">Danger</span>
+            <div class="col primary-stat" data-attribute="danger"
+                 data-bs-placement="bottom" data-bs-html="true">
+                <img src="" class="icon" alt=""/>
+                <span class="label" style=""></span>
                 <data id="dangerDisplay" value="1">?</data>
             </div>
-            <div class="col primary-stat">
-                <img src="img/icons/military.svg" class="icon" alt="Military Icon"/>
-                <span class="label" style="color: #b3b3b3">Military</span>
+            <div class="col primary-stat" data-attribute="military"
+                 data-bs-placement="bottom" data-bs-html="true">
+                <img src="" class="icon" alt=""/>
+                <span class="label" style=""></span>
                 <data id="militaryDisplay" value="1">?</data>
             </div>
         </div>
@@ -195,7 +204,7 @@
                     <!--suppress HtmlUnknownTag -->
                     <h3>Location</h3>
                 </button>
-                <button id="captainsLogTabButton" class="tabButton panel p-3" onClick="setTab('captainsLog');">
+                <button id="captainsLogTabButton" class="tabButton panel p-3 hidden" onClick="setTab('captainsLog');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Captain's Log</h3>
                 </button>
@@ -573,7 +582,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-3">
+                <div class="row mt-3 hidden">
                     <div class="col-sm-2 col-form-label">Light/dark mode</div>
                     <div class="col-sm-10">
                         <div class="btn-group">
@@ -583,7 +592,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-3">
+                <div class="row mt-3 hidden">
                     <div class="col-sm-2 col-form-label unstable">Sci-fi mode</div>
                     <div class="col-sm-10">
                         <div class="btn-group">
@@ -593,7 +602,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-3">
+                <div class="row mt-3 hidden">
                     <div class="col-sm-2 col-form-label unstable">Background</div>
                     <div class="col-sm-10">
                         <div class="form-check background background-simple" onclick="setBackground('simple');">
