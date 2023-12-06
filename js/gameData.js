@@ -1,6 +1,15 @@
 'use strict';
 
 class GameData {
+
+    /**
+     * Version of the save data. Lower versioned save
+     * data needs to be migrated to the current version.
+     *
+     * @type {number}
+     */
+    version = 1;
+
     /**
      * @var {string}
      */
