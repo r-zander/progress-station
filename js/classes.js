@@ -58,6 +58,20 @@ class Entity {
         this.description = description;
         /** @var {Requirement[]} */
         this.requirements = requirements;
+
+        if (Array.isArray(this.requirements)) {
+            // Use Array.prototype.forEach to a) have an index and b) capture it
+            this.requirements.forEach((requirement, index) => {
+                requirement.registerSaveAndLoad((completed) => {
+                    this.getSavedValues().requirementCompleted[index] = completed;
+                }, () => {
+                    if (isUndefined(this.getSavedValues().requirementCompleted[index])) {
+                        this.getSavedValues().requirementCompleted[index] = false;
+                    }
+                    return this.getSavedValues().requirementCompleted[index];
+                });
+            });
+        }
     }
 
     get name() {
@@ -79,6 +93,15 @@ class Entity {
     }
 
     /**
+     * @return {{
+     *     requirementCompleted: boolean[]
+     * }}
+     */
+    getSavedValues(){
+        throw new TypeError('getSavedValues not implemented by ' + this.constructor.name);
+    }
+
+    /**
      * @return {Requirement[]|null} Either a list of open {@link Requirement}s or `null` if there are no open requirements.
      */
     getUnfulfilledRequirements() {
@@ -91,6 +114,7 @@ class Entity {
  * @property {number} level
  * @property {number} maxLevel
  * @property {number} xp
+ * @property {boolean[]} requirementCompleted
  */
 
 /**
@@ -124,7 +148,8 @@ class Task extends Entity {
             level: JsTypes.Number,
             maxLevel: JsTypes.Number,
             xp: JsTypes.Number,
-        });
+            requirementCompleted: JsTypes.Array,
+        }, this);
         this.savedValues = savedValues;
     }
 
@@ -137,7 +162,12 @@ class Task extends Entity {
             level: 0,
             maxLevel: 0,
             xp: 0,
+            requirementCompleted: [],
         };
+    }
+
+    getSavedValues() {
+        return this.savedValues;
     }
 
     get level() {
@@ -276,6 +306,12 @@ class GridStrength extends Task {
     }
 }
 
+
+/**
+ * @typedef {Object} ModuleCategprySavedValues
+ * @property {boolean[]} requirementCompleted
+ */
+
 class ModuleCategory extends Entity {
 
     /**
@@ -296,23 +332,33 @@ class ModuleCategory extends Entity {
     }
 
     /**
-     * @param {EmptySavedValues} savedValues
+     * @param {ModuleCategprySavedValues} savedValues
      */
     loadValues(savedValues) {
-        validateParameter(savedValues, {}, this);
+        validateParameter(savedValues, {
+            requirementCompleted: JsTypes.Array
+        }, this);
+        this.savedValues = savedValues;
     }
 
     /**
-     * @return {EmptySavedValues}
+     * @return {ModuleCategprySavedValues}
      */
     static newSavedValues() {
-        return {};
+        return {
+            requirementCompleted: [],
+        };
+    }
+
+    getSavedValues() {
+        return this.savedValues;
     }
 }
 
 /**
  * @typedef {Object} ModuleSavedValues
  * @property {number} maxLevel
+ * @property {boolean[]} requirementCompleted
  */
 
 class Module extends Entity {
@@ -340,7 +386,10 @@ class Module extends Entity {
      * @param {ModuleSavedValues} savedValues
      */
     loadValues(savedValues) {
-        validateParameter(savedValues, {maxLevel: JsTypes.Number}, this);
+        validateParameter(savedValues, {
+            maxLevel: JsTypes.Number,
+            requirementCompleted: JsTypes.Array,
+        }, this);
         this.savedValues = savedValues;
     }
 
@@ -350,7 +399,12 @@ class Module extends Entity {
     static newSavedValues() {
         return {
             maxLevel: 0,
+            requirementCompleted: [],
         };
+    }
+
+    getSavedValues() {
+        return this.savedValues;
     }
 
     /**
@@ -448,6 +502,10 @@ class ModuleComponent extends Entity {
      */
     static newSavedValues() {
         return {};
+    }
+
+    getSavedValues() {
+        return this.savedValues;
     }
 
     /**
@@ -561,6 +619,12 @@ class ModuleOperation extends Task {
     }
 }
 
+
+/**
+ * @typedef {Object} SectorSavedValues
+ * @property {boolean[]} requirementCompleted
+ */
+
 class Sector extends Entity {
     /**
      * @param {{
@@ -579,19 +643,34 @@ class Sector extends Entity {
     }
 
     /**
-     * @param {EmptySavedValues} savedValues
+     * @param {SectorSavedValues} savedValues
      */
     loadValues(savedValues) {
-        validateParameter(savedValues, {}, this);
+        validateParameter(savedValues, {
+            requirementCompleted: JsTypes.Array
+        }, this);
+        this.savedValues = savedValues;
     }
 
     /**
-     * @return {EmptySavedValues}
+     * @return {SectorSavedValues}
      */
     static newSavedValues() {
-        return {};
+        return {
+            requirementCompleted: [],
+        };
+    }
+
+    getSavedValues() {
+        return this.savedValues;
     }
 }
+
+
+/**
+ * @typedef {Object} PointOfInterestSavedValues
+ * @property {boolean[]} requirementCompleted
+ */
 
 /**
  * @implements EffectsHolder
@@ -615,17 +694,24 @@ class PointOfInterest extends Entity {
     }
 
     /**
-     * @param {EmptySavedValues} savedValues
+     * @param {PointOfInterestSavedValues} savedValues
      */
     loadValues(savedValues) {
-        validateParameter(savedValues, {}, this);
+        validateParameter(savedValues, {
+            requirementCompleted: JsTypes.Array
+        }, this);
+        this.savedValues = savedValues;
     }
 
     /**
-     * @return {EmptySavedValues}
+     * @return {PointOfInterestSavedValues}
      */
     static newSavedValues() {
-        return {};
+        return {requirementCompleted: []};
+    }
+
+    getSavedValues() {
+        return this.savedValues;
     }
 
     /**
@@ -665,6 +751,13 @@ class PointOfInterest extends Entity {
 }
 
 class Requirement {
+    /** @var {boolean} */
+    #completed = false;
+    /** @var {function(boolean)} */
+    saveFn;
+    /** @var {function(): boolean} */
+    loadFn;
+
     /**
      *
      * @param {string} type
@@ -673,8 +766,45 @@ class Requirement {
      */
     constructor(type, scope, requirements) {
         this.type = type;
+        this.scope = scope;
         this.requirements = requirements;
-        this.completed = false;
+    }
+
+    /**
+     * @param {function(boolean)} saveFn
+     * @param {function(): boolean} loadFn
+     */
+    registerSaveAndLoad(saveFn, loadFn) {
+        this.saveFn = saveFn;
+        this.loadFn = loadFn;
+    }
+
+    set completed(completed) {
+        switch (this.scope) {
+            case 'permanent':
+                this.saveFn(completed);
+                break;
+            case 'playthrough':
+                this.#completed = completed;
+                break;
+            case 'update':
+                // discard
+                break;
+        }
+    }
+
+    /**
+     * @return {boolean}
+     */
+    get completed() {
+        switch (this.scope) {
+            case 'permanent':
+                return this.loadFn();
+            case 'playthrough':
+                return this.#completed;
+            case 'update':
+                return false;
+        }
     }
 
     /**
@@ -832,13 +962,36 @@ level
 
 class HtmlElementWithRequirement {
     /**
-     *
-     * @param {HTMLElement[]} elements
-     * @param {Requirement[]} requirements
+     * @param {{
+     *     elementsWithRequirements: HTMLElement[],
+     *     requirements: Requirement[],
+     *     elementsToShowRequirements?: HTMLElement[],
+     * }} baseData
      */
-    constructor(elements, requirements) {
-        this.elements = elements;
-        this.requirements = requirements;
+    constructor(baseData) {
+        this.elementsWithRequirements = baseData.elementsWithRequirements;
+        this.requirements = baseData.requirements;
+        this.elementsToShowRequirements = isUndefined(baseData.elementsToShowRequirements) ? [] : baseData.elementsToShowRequirements;
+
+        for (const requirement of this.requirements) {
+            if (requirement.scope === 'permanent') {
+                throw new Error('Config Error: scope: permanent is not supported within HtmlElementWithRequirement.');
+            }
+        }
+    }
+
+    /**
+     * @return {boolean}
+     */
+    isCompleted() {
+        return this.requirements.every(requirement => requirement.isCompleted());
+    }
+
+    /**
+     * @return {string}
+     */
+    toHtml() {
+        return this.requirements.map(requirement => requirement.toHtml()).join(', ');
     }
 
     /**

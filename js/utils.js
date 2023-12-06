@@ -245,6 +245,7 @@ const JsTypes = {
     String: 'string',
     Function: 'function',
     Object: 'object',
+    Array: 'array',
 };
 
 function validateParameter(parameter, definition, context, ) {
@@ -253,7 +254,11 @@ function validateParameter(parameter, definition, context, ) {
         valid = typeof parameter === JsTypes.Undefined;
     }
     if (typeof definition === JsTypes.String) {
-        valid = typeof parameter === definition;
+        if (definition === JsTypes.Array) {
+            valid = Array.isArray(parameter);
+        } else {
+            valid = typeof parameter === definition;
+        }
     } else if (typeof definition === JsTypes.Object) {
         if (parameter === null) {
             valid = false;
@@ -265,6 +270,10 @@ function validateParameter(parameter, definition, context, ) {
 
                 if (!definition.hasOwnProperty(key)) {
                     return false;
+                }
+
+                if (definition[key] === JsTypes.Array) {
+                    return Array.isArray(parameter[key]);
                 }
 
                 return typeof parameter[key] === definition[key];

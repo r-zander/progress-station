@@ -461,118 +461,30 @@ const lastLayerData = new LayerData('#000000');
 
 /**
  * Requirements of arbitrary {@link HTMLElement}s in the layout.
- * @type {*[]}
+ * @type {HtmlElementWithRequirement[]}
  */
 const elementRequirements = [
-    // TODO hide gridBar and associated elements
     new HtmlElementWithRequirement(
-        [Dom.get().byId('attributesTabButton')],
-        [new AttributeRequirement('permanent', [{
-            attribute: attributes.research,
-            requirement: 25
-        }])]),
+        {
+            elementsWithRequirements: [Dom.get().byId('attributesTabButton')],
+            requirements: [new AttributeRequirement('playthrough', [{
+                attribute: attributes.research,
+                requirement: 10,
+            }])],
+            elementsToShowRequirements: []
+        }),
+    new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [
+                Dom.get().byId('gridLabel'),
+                Dom.get().byId('gridStrength')
+            ],
+            requirements: [new AttributeRequirement('playthrough',
+                [{attribute: attributes.gridStrength, requirement: 1}]),
+            ],
+            elementsToShowRequirements: []
+        }),
 ];
-
-/**
- *
- * @param {function(string): HTMLElement} getTaskElement
- * @param {function(string): HTMLElement} getItemElement
- * @return {Record.<string, Requirement>}
- */
-function createRequirements(getTaskElement, getItemElement) {
-    return {
-        /*
-        //Other
-        'Arcane energy': new TaskRequirement(Dom.get().allByClass('arcaneEnergy'), [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),
-        'Dark magic': new EvilRequirement(Dom.get().allByClass('darkMagic'), [{requirement: 1}]),
-        'Shop': new StoredEnergyRequirement([Dom.get().byId('locationTabButton')], [{requirement: gameData.itemData['Tent'].getGridLoad() * 50}]),
-        'Rebirth tab': new AgeRequirement([Dom.get().byId('rebirthTabButton')], [{requirement: 25}]),
-        'Rebirth note 1': new AgeRequirement([Dom.get().byId('rebirthNote1')], [{requirement: 45}]),
-        'Rebirth note 2': new AgeRequirement([Dom.get().byId('rebirthNote2')], [{requirement: 65}]),
-        'Rebirth note 3': new AgeRequirement([Dom.get().byId('rebirthNote3')], [{requirement: 200}]),
-        'Evil info': new EvilRequirement([Dom.get().byId('evilInfo')], [{requirement: 1}]),
-        'Time warping info': new TaskRequirement(Dom.get().allByClass('timeWarping'), [{task: 'Mage', requirement: 10}]),
-        'Automation': new AgeRequirement([Dom.get().byId('automation')], [{requirement: 20}]),
-        'Quick task display': new AgeRequirement(Dom.get().allByClass('quickTaskDisplay'), [{requirement: 20}]),
-        */
-
-        //Common generators
-        //'Beggar': new TaskRequirement([getTaskElement('Beggar')], []),
-        //'Farmer': new TaskRequirement([getTaskElement('Farmer')], [{task: 'Beggar', requirement: 10}]),
-        /*
-        'Fisherman': new TaskRequirement([getTaskElement('Fisherman')], [{task: 'Farmer', requirement: 10}]),
-        'Miner': new TaskRequirement([getTaskElement('Miner')], [{task: 'Strength', requirement: 10}, {task: 'Fisherman', requirement: 10}]),
-        'Blacksmith': new TaskRequirement([getTaskElement('Blacksmith')], [{task: 'Strength', requirement: 30}, {task: 'Miner', requirement: 10}]),
-        'Merchant': new TaskRequirement([getTaskElement('Merchant')], [{task: 'Bargaining', requirement: 50}, {task: 'Blacksmith', requirement: 10}]),
-*/
-        //Military
-        /*
-        'Squire': new TaskRequirement([getTaskElement('Squire')], [{task: 'Strength', requirement: 5}]),
-        'Footman': new TaskRequirement([getTaskElement('Footman')], [{task: 'Strength', requirement: 20}, {task: 'Squire', requirement: 10}]),
-        'Veteran footman': new TaskRequirement([getTaskElement('Veteran footman')], [{task: 'Battle tactics', requirement: 40}, {task: 'Footman', requirement: 10}]),
-        'Knight': new TaskRequirement([getTaskElement('Knight')], [{task: 'Strength', requirement: 100}, {task: 'Veteran footman', requirement: 10}]),
-        'Veteran knight': new TaskRequirement([getTaskElement('Veteran knight')], [{task: 'Battle tactics', requirement: 150}, {task: 'Knight', requirement: 10}]),
-        'Elite knight': new TaskRequirement([getTaskElement('Elite knight')], [{task: 'Strength', requirement: 300}, {task: 'Veteran knight', requirement: 10}]),
-        'Holy knight': new TaskRequirement([getTaskElement('Holy knight')], [{task: 'Mana control', requirement: 500}, {task: 'Elite knight', requirement: 10}]),
-        'Legendary knight': new TaskRequirement([getTaskElement('Legendary knight')], [{task: 'Mana control', requirement: 1000}, {task: 'Battle tactics', requirement: 1000}, {task: 'Holy knight', requirement: 10}]),
-/*
-        //The Arcane Association
-        'Student': new TaskRequirement([getTaskElement('Student')], [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),
-        'Apprentice mage': new TaskRequirement([getTaskElement('Apprentice mage')], [{task: 'Mana control', requirement: 400}, {task: 'Student', requirement: 10}]),
-        'Mage': new TaskRequirement([getTaskElement('Mage')], [{task: 'Mana control', requirement: 700}, {task: 'Apprentice mage', requirement: 10}]),
-        'Wizard': new TaskRequirement([getTaskElement('Wizard')], [{task: 'Mana control', requirement: 1000}, {task: 'Mage', requirement: 10}]),
-        'Master wizard': new TaskRequirement([getTaskElement('Master wizard')], [{task: 'Mana control', requirement: 1500}, {task: 'Wizard', requirement: 10}]),
-        'Chairman': new TaskRequirement([getTaskElement('Chairman')], [{task: 'Mana control', requirement: 2000}, {task: 'Master wizard', requirement: 10}]),
-*/
-        //Fundamentals
-        //'Bargaining': new TaskRequirement([getTaskElement('Bargaining')], [{task: 'Concentration', requirement: 20}]),
-        /*
-        'Meditation': new TaskRequirement([getTaskElement('Meditation')], [{task: 'Concentration', requirement: 30}, {task: 'Productivity', requirement: 20}]),
-
-        //Combat
-        'Strength': new TaskRequirement([getTaskElement('Strength')], []),
-        'Battle tactics': new TaskRequirement([getTaskElement('Battle tactics')], [{task: 'Concentration', requirement: 20}]),
-        'Muscle memory': new TaskRequirement([getTaskElement('Muscle memory')], [{task: 'Concentration', requirement: 30}, {task: 'Strength', requirement: 30}]),
-
-        //Magic
-        'Mana control': new TaskRequirement([getTaskElement('Mana control')], [{task: 'Concentration', requirement: 200}, {task: 'Meditation', requirement: 200}]),
-        'Immortality': new TaskRequirement([getTaskElement('Immortality')], [{task: 'Apprentice mage', requirement: 10}]),
-        'Time warping': new TaskRequirement([getTaskElement('Time warping')], [{task: 'Mage', requirement: 10}]),
-        'Super immortality': new TaskRequirement([getTaskElement('Super immortality')], [{task: 'Chairman', requirement: 1000}]),
-
-        //Dark magic
-        'Dark influence': new EvilRequirement([getTaskElement('Dark influence')], [{requirement: 1}]),
-        'Evil control': new EvilRequirement([getTaskElement('Evil control')], [{requirement: 1}]),
-        'Intimidation': new EvilRequirement([getTaskElement('Intimidation')], [{requirement: 1}]),
-        'Demon training': new EvilRequirement([getTaskElement('Demon training')], [{requirement: 25}]),
-        'Blood meditation': new EvilRequirement([getTaskElement('Blood meditation')], [{requirement: 75}]),
-        'Demon\'s wealth': new EvilRequirement([getTaskElement('Demon\'s wealth')], [{requirement: 500}]),
-*/
-        //Properties
-        // FunkySector: new GridStrengthRequirement([getItemElement('FunkySector')], [{requirement: 0}]),
-        /*
-        'Tent': new StoredEnergyRequirement([getPointOfInterestElement('Tent')], [{requirement: 0}]),
-        'Wooden hut': new StoredEnergyRequirement([getPointOfInterestElement('Wooden hut')], [{requirement: gameData.itemData['Wooden hut'].getGridLoad() * 100}]),
-        'Cottage': new StoredEnergyRequirement([getPointOfInterestElement('Cottage')], [{requirement: gameData.itemData['Cottage'].getGridLoad() * 100}]),
-        'House': new StoredEnergyRequirement([getPointOfInterestElement('House')], [{requirement: gameData.itemData['House'].getGridLoad() * 100}]),
-        'Large house': new StoredEnergyRequirement([getPointOfInterestElement('Large house')], [{requirement: gameData.itemData['Large house'].getGridLoad() * 100}]),
-        'Small palace': new StoredEnergyRequirement([getPointOfInterestElement('Small palace')], [{requirement: gameData.itemData['Small palace'].getGridLoad() * 100}]),
-        'Grand palace': new StoredEnergyRequirement([getPointOfInterestElement('Grand palace')], [{requirement: gameData.itemData['Grand palace'].getGridLoad() * 100}]),
-*/
-        //Misc
-        // VideoGameLand: new GridStrengthRequirement([getItemElement('VideoGameLand')], [{requirement: 0}]),
-        // Gurkenland: new GridStrengthRequirement([getItemElement('Gurkenland')], [{requirement: 0}]),
-        /*
-        'Dumbbells': new StoredEnergyRequirement([getPointOfInterestElement('Dumbbells')], [{requirement: gameData.itemData['Dumbbells'].getGridLoad() * 100}]),
-        'Personal squire': new StoredEnergyRequirement([getPointOfInterestElement('Personal squire')], [{requirement: gameData.itemData['Personal squire'].getGridLoad() * 100}]),
-        'Steel longsword': new StoredEnergyRequirement([getPointOfInterestElement('Steel longsword')], [{requirement: gameData.itemData['Steel longsword'].getGridLoad() * 100}]),
-        'Butler': new StoredEnergyRequirement([getPointOfInterestElement('Butler')], [{requirement: gameData.itemData['Butler'].getGridLoad() * 100}]),
-        'Sapphire charm': new StoredEnergyRequirement([getPointOfInterestElement('Sapphire charm')], [{requirement: gameData.itemData['Sapphire charm'].getGridLoad() * 100}]),
-        'Study desk': new StoredEnergyRequirement([getPointOfInterestElement('Study desk')], [{requirement: gameData.itemData['Study desk'].getGridLoad() * 100}]),
-        'Library': new StoredEnergyRequirement([getPointOfInterestElement('Library')], [{requirement: gameData.itemData['Library'].getGridLoad() * 100}]),
-   */
-    };
-}
 
 function setCustomEffects() {
     // const bargaining = gameData.taskData['Bargaining'];

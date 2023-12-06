@@ -958,74 +958,6 @@ function setProgress(progressFillElement, progress, increasing = true) {
     return progress;
 }
 
-function updateRequiredRows(categoryType) {
-//     const requiredRows = document.getElementsByClassName('requiredRow');
-//     for (const requiredRow of requiredRows) {
-//         let nextEntity = null;
-//         let category = categoryType[requiredRow.id];
-//         if (category === undefined) {
-//             continue;
-//         }
-//         for (let i = 0; i < category.length; i++) {
-//             let candidate = category[i];
-//             if (i >= category.length - 1) break;
-//             let requirements = gameData.requirements[candidate.name];
-//             if (requirements && i === 0) {
-//                 if (!requirements.isCompleted()) {
-//                     nextEntity = candidate;
-//                     break;
-//                 }
-//             }
-//
-//             const nextIndex = i + 1;
-//             if (nextIndex >= category.length) {
-//                 break;
-//             }
-//             candidate = category[nextIndex];
-//             let nextEntityRequirements = gameData.requirements[candidate.name];
-//
-//             if (!nextEntityRequirements.isCompleted()) {
-//                 nextEntity = candidate;
-//                 break;
-//             }
-//         }
-//
-//         if (nextEntity == null) {
-//             requiredRow.classList.add('hiddenTask');
-//         } else {
-//             requiredRow.classList.remove('hiddenTask');
-//             const requirementObject = gameData.requirements[nextEntity.name];
-//             let requirements = requirementObject.requirements;
-//
-//             const energyStoredElement = requiredRow.getElementsByClassName('energy-stored')[0];
-//             const levelElement = requiredRow.getElementsByClassName('levels')[0];
-//
-//             let finalText = [];
-//             if (categoryType === moduleCategories) {
-//                 energyStoredElement.classList.add('hiddenTask');
-//                 levelElement.classList.remove('hiddenTask');
-//                 for (const requirement of requirements) {
-//                     const task = gameData.taskData[requirement.task];
-//                     if (task.level >= requirement.requirement) continue;
-//                     const text = requirement.task + ' level ' +
-//                         '<data value="' + task.level + '">' + task.level + '</data>' + '/' +
-//                         '<data value="' + requirement.requirement + '">' + requirement.requirement + '</data>';
-//                     finalText.push(text);
-//                 }
-//                 levelElement.innerHTML = finalText.join(', ');
-//             } else if (categoryType === sectors) {
-//                 levelElement.classList.add('hiddenTask');
-//                 energyStoredElement.classList.remove('hiddenTask');
-//                 updateEnergyDisplay(
-//                     requirements[0].requirement,
-//                     energyStoredElement.getElementsByTagName('data')[0],
-//                     {unit: units.storedEnergy}
-//                 );
-//             }
-//         }
-//     }
-}
-
 /**
  * @param {Requirement[]|null} unfulfilledRequirements
  * @param {{
@@ -1064,6 +996,7 @@ function updateRequirements(unfulfilledRequirements, context) {
 let moduleCategoryRequirementsHtmlCache = '';
 
 function updateModuleCategoryRows() {
+    // noinspection JSUnusedGlobalSymbols
     const requirementsContext = {
         hasUnfulfilledRequirements: false,
         requirementsElement: Dom.get().byId('row_requirements_moduleCategory'),
@@ -1089,6 +1022,7 @@ function updateModuleRows() {
     for (const key in moduleCategories) {
         const category = moduleCategories[key];
 
+        // noinspection JSUnusedGlobalSymbols
         const requirementsContext = {
             hasUnfulfilledRequirements: false,
             requirementsElement: Dom.get().byId('row_requirements_category_' + category.name),
@@ -1137,6 +1071,7 @@ function updateModuleOperationRows() {
     for (const key in moduleComponents) {
         const component = moduleComponents[key];
 
+        // noinspection JSUnusedGlobalSymbols
         const requirementsContext = {
             hasUnfulfilledRequirements: false,
             requirementsElement: Dom.get().byId('row_requirements_component_' + component.name),
@@ -1190,6 +1125,7 @@ function updateBattleRows() {
     let visibleBattles = 0;
     const visibleFactions = {};
 
+    // noinspection JSUnusedGlobalSymbols
     const requirementsContext = {
         hasUnfulfilledRequirements: false,
         requirementsElement: Dom.get().byId('row_requirements_battle'),
@@ -1263,6 +1199,7 @@ let sectorRequirementsHtmlCache = '';
 const pointOfInterestRequirementsHtmlCache = {};
 
 function updateSectorRows() {
+    // noinspection JSUnusedGlobalSymbols
     const sectorRequirementsContext = {
         hasUnfulfilledRequirements: false,
         requirementsElement: Dom.get().byId('row_requirements_sector'),
@@ -1278,6 +1215,7 @@ function updateSectorRows() {
         const categoryAvailable = updateRequirements(sector.getUnfulfilledRequirements(), sectorRequirementsContext);
         Dom.get().byId(sector.domId).classList.toggle('hidden', !categoryAvailable);
 
+        // noinspection JSUnusedGlobalSymbols
         const requirementsContext = {
             hasUnfulfilledRequirements: false,
             requirementsElement: Dom.get().byId('row_requirements_sector_' + sector.name),
@@ -1446,7 +1384,6 @@ function updateText() {
     document.getElementById('dayDisplay').textContent = String(getDay()).padStart(3, '0');
     document.getElementById('stationAge').textContent = String(daysToYears(gameData.totalDays));
     const pauseButton = document.getElementById('pauseButton');
-    // TODO could also show "Touch the eye" as third state when dead
     if (gameData.paused) {
         pauseButton.textContent = 'Play';
         pauseButton.classList.replace('btn-secondary', 'btn-primary');
@@ -1488,19 +1425,16 @@ function updateText() {
     formatValue(Dom.get().bySelector('#attributeRows > .research .value'), research);
 }
 
-function hideEntities() {
-    // TODO this needs to work with the new requirements
-    // for (const key in gameData.requirements) {
-    //     const requirement = gameData.requirements[key];
-    //     const completed = requirement.isCompleted();
-    //     for (const element of requirement.elements) {
-    //         if (completed) {
-    //             element.classList.remove('hidden');
-    //         } else {
-    //             element.classList.add('hidden');
-    //         }
-    //     }
-    // }
+function updateHtmlElementRequirements() {
+    for (const htmlElementWithRequirement of elementRequirements){
+        const completed = htmlElementWithRequirement.isCompleted();
+        for (const element of htmlElementWithRequirement.elementsWithRequirements){
+            element.classList.toggle('hidden', !completed);
+        }
+        for (const element of htmlElementWithRequirement.elementsToShowRequirements){
+            element.classList.toggle('hidden', completed);
+        }
+    }
 }
 
 function updateBodyClasses() {
@@ -1724,10 +1658,7 @@ function rebirthReset() {
     setTab('modules');
 
     gameData.resetCurrentValues();
-    setPermanentUnlocksAndResetData();
-}
 
-function setPermanentUnlocksAndResetData() {
     for (const key in moduleOperations) {
         const operation = moduleOperations[key];
         operation.updateMaxLevelAndReset();
@@ -1739,13 +1670,6 @@ function setPermanentUnlocksAndResetData() {
         const battle = battles[key];
         battle.updateMaxLevelAndReset();
     }
-
-    // TODO rework
-    // for (const key in gameData.requirements) {
-    //     const requirement = gameData.requirements[key];
-    //     if (requirement.completed && permanentUnlocks.includes(key)) continue;
-    //     requirement.completed = false;
-    // }
 
     for (const key in modules) {
         const module = modules[key];
@@ -1794,13 +1718,13 @@ function updateUI() {
     updateBattleRows();
     updateSectorRows();
 
-    // updateRequiredRows(moduleCategories);
-    // updateRequiredRows(sectors);
     updateHeaderRows();
     updateModulesQuickDisplay();
     updateBattlesQuickDisplay();
     updateAttributeRows();
-    hideEntities();
+
+    updateHtmlElementRequirements();
+
     updateText();
     updateBodyClasses();
 }
