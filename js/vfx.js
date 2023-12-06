@@ -238,7 +238,8 @@ class ParticleSystem {
 }
 
 // ParticleSystem.followMouse(true);
-ParticleSystem.followProgressBars(true);
+// TODO performance is awful for this feature rn
+ParticleSystem.followProgressBars(false);
 
 GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
     // Only show animations if the level went up
