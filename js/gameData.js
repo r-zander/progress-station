@@ -1,5 +1,7 @@
 'use strict';
 
+const localStorageKey = 'ps_gameDataSave';
+
 class GameData {
 
     /**
@@ -150,7 +152,7 @@ class GameData {
      * @return {boolean} true if there was a save game. false if not (aka new game)
      */
     tryLoading() {
-        const localStorageItem = localStorage.getItem('gameDataSave');
+        const localStorageItem = localStorage.getItem(localStorageKey);
         let saveGameFound = localStorageItem !== null;
         if (saveGameFound) {
             const gameDataSave = JSON.parse(localStorageItem);
@@ -195,13 +197,13 @@ class GameData {
     save() {
         if (this.skipSave) return;
 
-        localStorage.setItem('gameDataSave', gameData.serializeAsJson());
+        localStorage.setItem(localStorageKey, gameData.serializeAsJson());
     }
 
     reset() {
         // TODO use some nice modal
         if (confirm('This is going to delete all your progress. Continue?')) {
-            localStorage.removeItem('gameDataSave');
+            localStorage.removeItem(localStorageKey);
             // Give localStorage time to actually clear
             setTimeout(() => {location.reload();}, 0);
         }
@@ -209,7 +211,7 @@ class GameData {
 
     import() {
         const importExportBox = document.getElementById('importExportBox');
-        localStorage.setItem('gameDataSave', window.atob(importExportBox.value));
+        localStorage.setItem(localStorageKey, window.atob(importExportBox.value));
         location.reload();
     }
 

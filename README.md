@@ -32,3 +32,19 @@ Use the [HTML Preview](https://www.jetbrains.com/help/idea/editing-html-files.ht
 **Recommended Tool:** Sublime Text 3
 
 Use your favorite browser to view `index.html`
+
+### Deployment
+
+1. Include
+```html
+<script type="text/javascript" src="vendor/hacktimer-1.1.3/HackTimer.min.js"></script>
+``` 
+into index.html
+
+2. Zip everything but
+   - .git
+   - .idea
+   - name-generator.html
+   - README.md
+   - web-components.html
+3. Upload the Zip to itch.io
