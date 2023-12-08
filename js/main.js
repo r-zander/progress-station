@@ -1748,6 +1748,11 @@ function isPlaying() {
 }
 
 function updateUI() {
+    if (document.hidden) {
+        // Tab is currently not active - no need to update the UI
+        return;
+    }
+
     updateModuleCategoryRows();
     updateModuleRows();
     updateModuleOperationRows();
