@@ -573,6 +573,7 @@ function createModulesQuickDisplay() {
         for (const component of module.components) {
             for (const operation of component.operations) {
                 const componentQuickTaskDisplayElement = Dom.new.fromTemplate('componentQuickTaskDisplayTemplate');
+                componentQuickTaskDisplayElement.title = component.title + ': ' + operation.title;
                 const componentDomGetter = Dom.get(componentQuickTaskDisplayElement);
                 componentQuickTaskDisplayElement.classList.add(component.name, operation.name);
                 componentDomGetter.bySelector('.name > .component').textContent = component.title;

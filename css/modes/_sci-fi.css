@@ -28,6 +28,10 @@
         );
     }
 
+    .progress-text {
+        max-width: calc(100% - 30px);
+    }
+
     #energyDisplay {
         /* Flip cut corner so it aligns with the grid bar */
         &.progress::before,
