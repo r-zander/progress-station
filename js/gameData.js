@@ -201,11 +201,13 @@ class GameData {
     }
 
     reset() {
+        this.skipSave = true;
         // TODO use some nice modal
         if (confirm('This is going to delete all your progress. Continue?')) {
             localStorage.removeItem(localStorageKey);
-            // Give localStorage time to actually clear
-            setTimeout(() => {location.reload();}, 0);
+            location.reload();
+        } else {
+            this.skipSave = false;
         }
     }
 
