@@ -75,14 +75,15 @@ const shortAbstractWords = [
     'Fun', // Adventure Time
     'Glee',
     'Hope',
-    // 'Joy', // Adventure Time - TODO seems adult, unless correctly combined
+    // 'Joy', // Adventure Time -- REMOVED seems adult, unless correctly combined
     'Light',
+    'Love',
     'Play',
     'Quest', // Galaxy Quest
     'Quirk',
     'Rain', // Adventure Time
     'Schmutz',
-    'Toy',
+    // 'Toy', -- REMOVED seems adult
 ];
 let longAbstractWords = [
     'Adventure', // Adventure Time
@@ -90,7 +91,8 @@ let longAbstractWords = [
     'Biscuit',
     'Bliss',
     'Cats',
-    // 'Ecstasy', //  - TODO seems adult, unless correctly combined
+    // 'Ecstasy',  -- REMOVED seems adult, unless correctly combined
+    'Eternity',
     'Euphoria',
     'Euphorium',
     'Express', // Futurama
@@ -164,6 +166,7 @@ const places = [
     'Hills',
     'Home',
     'House', // Adventure Time
+    'Hut',
     'Kingdom', // Adventure Time
     'Knowhere', // Guardians of the Galaxy
     'Land', // Adventure Time
@@ -227,7 +230,7 @@ const oversizedStationTypes = [
 
 const abstractStations = [
     'Ball', // Spaceballs
-    'Bug', // Red Dwarf
+    // 'Bug', // Red Dwarf -- REMOVED as it seems to weird
     'Corps', // Guardians of the Galaxy
     'Donut', // Futurama
     'Dreamer',
@@ -256,6 +259,7 @@ const elementWords = [
     'Candy', // Adventure Time
     'Dust',
     'Fire',
+    'Hopium',
     'Ice', // Adventure Time
     'Laser',
     'Light',

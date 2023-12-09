@@ -298,6 +298,10 @@ const factions = {
         title: 'Comet Crawlers', maxXp: 100,
         description: 'These beagle-sized beetles travel on the surface of comets as they are attracted by metal alloys that are unfortunately also commonly found in space stations. They will attack in large numbers if they sense one of their own being harmed.'
     },
+    Scavengers: {
+        title: 'Scavengers', maxXp: 500,
+        description: 'Outcasts from civilizations across the galaxy, Scavengers form nomadic crews, dressed in distinctive leather attire. Masters of illicit trade and makeshift tech, they roam, seeking quick profits through heists and elusive alliances.'
+    },
     SpacePirates: {
         title: 'Space Pirates', maxXp: 1_000,
         description: 'Buccaneers sailing the astral seas, Space Pirates are notorious for their flashy ships, over-the-top personalities, and the relentless pursuit of rare space booty.'
@@ -342,15 +346,29 @@ const battles = {
         title: 'Courageous',
         targetLevel: 20,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 10}],
+        effects: [{effectType: EffectType.Danger, baseValue: 40}],
         rewards: [{effectType: EffectType.Military, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    Scavengers10: new Battle({
+        title: 'Lost',
+        targetLevel: 10,
+        faction: factions.Scavengers,
+        effects: [{effectType: EffectType.Danger, baseValue: 75}],
+        rewards: [{effectType: EffectType.Research, baseValue: 4}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     SpacePirates10: new Battle({
         title: 'Roaming',
         targetLevel: 10,
         faction: factions.SpacePirates,
         effects: [{effectType: EffectType.Danger, baseValue: 100}],
-        rewards: [{effectType: EffectType.Military, baseValue: 1}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+        rewards: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    Scavengers20: new Battle({
+        title: 'Violent',
+        targetLevel: 20,
+        faction: factions.Scavengers,
+        effects: [{effectType: EffectType.Danger, baseValue: 150}],
+        rewards: [{effectType: EffectType.Research, baseValue: 7}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     ThunderDragon10: new Battle({
         title: 'Decrepit',
@@ -359,25 +377,46 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 200}],
         rewards: [{effectType: EffectType.Research, baseValue: 1}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
+    SpacePirates20: new Battle({
+        title: 'Organized',
+        targetLevel: 20,
+        faction: factions.SpacePirates,
+        effects: [{effectType: EffectType.Danger, baseValue: 300}],
+        rewards: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
     AstralSharks10: new Battle({
         title: 'Lone',
         targetLevel: 10,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 100}],
+        effects: [{effectType: EffectType.Danger, baseValue: 500}],
         rewards: [{effectType: EffectType.ResearchFactor, baseValue: 1.5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    CometCrawlers50: new Battle({
+        title: 'Swarming',
+        targetLevel: 50,
+        faction: factions.CometCrawlers,
+        effects: [{effectType: EffectType.Danger, baseValue: 300}],
+        rewards: [{effectType: EffectType.Growth, baseValue: 15}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    Scavengers30: new Battle({
+        title: 'Insane',
+        targetLevel: 30,
+        faction: factions.Scavengers,
+        effects: [{effectType: EffectType.Danger, baseValue: 500}],
+        rewards: [{effectType: EffectType.Research, baseValue: 10}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     NovaFlies200: new Battle({
         title: 'Countless',
         targetLevel: 200,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 300}],
+        effects: [{effectType: EffectType.Danger, baseValue: 750}],
         rewards: [{effectType: EffectType.Growth, baseValue: 20}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     PseudoBoss10: new Battle({
         title: 'Pseudo',
         targetLevel: 10,
         faction: factions.PseudoBoss,
-        effects: [{effectType: EffectType.Danger, baseValue: 9001}],
+        effects: [{effectType: EffectType.Danger, baseValue: 9010}],
         rewards: [
             {effectType: EffectType.Research, baseValue: 100},
             {effectType: EffectType.Growth, baseValue: 100},
