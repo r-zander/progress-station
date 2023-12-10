@@ -373,12 +373,50 @@ const Dom = {
          */
         fromTemplate: function (templateId) {
             return document.getElementById(templateId).content.firstElementChild.cloneNode(true);
-        }
+        },
+
+        /**
+         * Note: This method is very expensive and should not be called during updates.
+         *
+         * @param {String} html representing a single element
+         * @return {HTMLElement}
+         */
+        fromHtml: function (html) {
+            let template = document.createElement('template');
+            html = html.trim(); // Never return a text node of whitespace as the result
+            template.innerHTML = html;
+            // noinspection JSValidateTypes
+            return template.content.firstChild;
+        },
     },
 
     outerHeight: function (element) {
         const styles = window.getComputedStyle(element);
         const margin = parseFloat(styles.marginTop) + parseFloat(styles.marginBottom);
         return Math.ceil(element.offsetHeight + margin);
-    }
+    },
+
+    /**
+     * Note: `visibility: hidden` is considered visible for this function as it's still part of the dom & layout.
+     * Note 2: This method is very expensive and should not be called during updates.
+     *
+     * @param {HTMLElement} element
+     * @return {boolean}
+     *
+     */
+    isVisible: function (element) {
+        // Glorious stolen jQuery logic
+        return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+    },
+
+    /**
+     * Note: `visibility: hidden` is considered visible for this function as its still part of the dom & layout.
+     * Note 2: This method is very expensive and should not be called during updates.
+     *
+     * @param {HTMLElement} element
+     * @return {boolean}
+     */
+    isHidden: function (element) {
+        return !this.isVisible(element);
+    },
 };

@@ -7,11 +7,7 @@
  * @return {Element}
  */
 function htmlToElement(html) {
-    let template = document.createElement('template');
-    html = html.trim(); // Never return a text node of whitespace as the result
-    template.innerHTML = html;
-    // noinspection JSValidateTypes
-    return template.content.firstChild;
+    return Dom.new.fromHtml(html);
 }
 
 
@@ -29,19 +25,6 @@ function renderStyle(styleObject) {
 }
 
 /**
- * Note: `visibility: hidden` is considered visible for this function as it's still part of the dom & layout.
- * Note 2: This method is very expensive and should not be called during updates.
- *
- * @param {HTMLElement} element
- * @return {boolean}
- *
- */
-function isVisible(element) {
-    // Glorious stolen jQuery logic
-    return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
-}
-
-/**
  * Note: `visibility: hidden` is considered visible for this function as its still part of the dom & layout.
  * Note 2: This method is very expensive and should not be called during updates.
  *
@@ -49,7 +32,7 @@ function isVisible(element) {
  * @return {boolean}
  */
 function isHidden(element) {
-    return !isVisible(element);
+    return Dom.isHidden(element);
 }
 
 /**
@@ -68,6 +51,7 @@ function killAfter(element, timeout) {
  * @param {number} animationCount how many animations need to end before the element is removed?
  */
 function killAfterAnimation(element, animationCount = 1) {
+    // TODO filter by animation name
     // Little construct to capture `animationsEnded` per instance
     ((animationsEnded) => {
         element.addEventListener('animationend', () => {
@@ -99,10 +83,10 @@ function randomSize(factor = 4) {
 class VFX {
     static #playButtonShakeTimeout;
 
-    static flash(element, baseColor) {
+    static flash(parent, baseColor) {
         let flashElement = htmlToElement(`<div class="flash" style="color: ${baseColor}"></div>`);
         killAfterAnimation(flashElement);
-        element.append(flashElement);
+        parent.append(flashElement);
     }
 
     static shakePlayButton() {
@@ -209,14 +193,14 @@ class ParticleSystem {
 
     /**
      *
-     * @param {HTMLElement} element
+     * @param {HTMLElement} parent
      * @param {number} numberOfParticles
      * @param {'left'|'right'} direction
      */
-    static onetimeSplash(element, numberOfParticles, direction) {
-        let height = element.clientHeight;
+    static onetimeSplash(parent, numberOfParticles, direction) {
+        let height = parent.clientHeight;
         ParticleSystem.#onetimeSplash(
-            element,
+            parent,
             numberOfParticles,
             {
                 top: () => gaussianRandomInt(0, height) + 'px',
@@ -225,27 +209,27 @@ class ParticleSystem {
         );
     }
 
-    static #onetimeSplash(element, numberOfParticles, styleObject) {
+    static #onetimeSplash(parent, numberOfParticles, styleObject) {
         for (let i = 0; i < numberOfParticles; i++) {
             let particleElement = htmlToElement(`
 <div style="position: absolute; transform: rotate(${-60 + randomInt(120)}deg); animation: fade-out 600ms ease-in-out; ${renderStyle(styleObject)}" class="single-particle-wrapper">
     <div class="particle size${randomSize(3)}" style="animation-duration: 600ms, 600ms; opacity: 0.6; scale: 0.5"></div>
 </div>`);
             killAfterAnimation(particleElement);
-            element.append(particleElement);
+            parent.append(particleElement);
         }
     }
 }
 
 // ParticleSystem.followMouse(true);
 // TODO performance is awful for this feature rn
-ParticleSystem.followProgressBars(false);
+ParticleSystem.followProgressBars(true);
 
 GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
     // Only show animations if the level went up
     if (taskInfo.previousLevel >= taskInfo.nextLevel) return;
 
-    const numberOfParticles = 10;
+    const numberOfParticles = 20;
     const direction = taskInfo.type === 'Battle' ? 'left' : 'right';
     let taskProgressBar = undefined;
     let quickTaskProgressBar = undefined;

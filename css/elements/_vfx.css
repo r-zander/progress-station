@@ -1,3 +1,33 @@
+.vfx {
+    /* position: static; */
+    pointer-events: none;
+
+    &.free {
+        display: none;
+    }
+}
+
+.splash-particle-wrapper {
+    position: absolute;
+    animation: fade-out 600ms ease-in-out;
+
+    > .particle {
+        /* TODO probably a cleaner way to manage this */
+        animation-duration: 600ms, 600ms;
+        opacity: 0.6;
+        scale: 0.5;
+    }
+}
+
+.progress-particle-wrapper {
+    position: absolute;
+    right: 0;
+}
+
+.battle-progress-particle-wrapper {
+    position: absolute;
+}
+
 .single-particle-wrapper {
     pointer-events: none;
 }

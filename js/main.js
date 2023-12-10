@@ -985,12 +985,12 @@ function setProgress(progressFillElement, progress, increasing = true) {
     } else {
         progressFillElement.style.removeProperty('transition-duration');
     }
-    progressFillElement.dataset.progress = String(progress);
+    // progressFillElement.dataset.progress = String(progress);
     progressFillElement.style.width = (progress * 100) + '%';
-    let parentElement = progressFillElement.closest('.progress');
-    if (parentElement !== null) {
-        parentElement.ariaValueNow = (progress * 100).toFixed(1);
-    }
+    // let parentElement = progressFillElement.closest('.progress');
+    // if (parentElement !== null) {
+    //     parentElement.ariaValueNow = (progress * 100).toFixed(1);
+    // }
 
     return progress;
 }
@@ -1493,6 +1493,7 @@ function doTasks() {
             // Quality of life - a battle is done and the player is already on the battles tab
             // or visited it first after the battle was completed --> deactivate battle
             battle.stop();
+            // TODO VFX should not be called, but triggered via Event
             VFX.flash(Dom.get().bySelector('#row_done_' + battle.name + ' .progressBar'));
         }
 
