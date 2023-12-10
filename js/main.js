@@ -71,7 +71,7 @@ function updatePopulation() {
     gameData.population = Math.max(gameData.population, 1);
 }
 
-function getPopulationProgressSpeedMultiplier(){
+function getPopulationProgressSpeedMultiplier() {
     // Random ass formula ᕕ( ᐛ )ᕗ
     // Pop 1 = x1
     // Pop 10 ~= x3.4
@@ -976,21 +976,23 @@ function updateBattlesQuickDisplay() {
 function setProgress(progressFillElement, progress, increasing = true) {
     // Clamp value to [0.0, 1.0]
     progress = Math.max(0.0, Math.min(progress, 1.0));
-    // Make sure to disable the transition if the progress is being reset
-    const previousProgress = parseFloat(progressFillElement.dataset.progress);
-    if ((increasing && (previousProgress - progress) >= 0.01) ||
-        (!increasing && (progress - previousProgress) >= 0.01)
-    ) {
-        progressFillElement.style.transitionDuration = '0s';
-    } else {
-        progressFillElement.style.removeProperty('transition-duration');
-    }
-    // progressFillElement.dataset.progress = String(progress);
-    progressFillElement.style.width = (progress * 100) + '%';
-    // let parentElement = progressFillElement.closest('.progress');
-    // if (parentElement !== null) {
-    //     parentElement.ariaValueNow = (progress * 100).toFixed(1);
-    // }
+    XFastdom.mutate(() => {
+        // Make sure to disable the transition if the progress is being reset
+        const previousProgress = parseFloat(progressFillElement.dataset.progress);
+        if ((increasing && (previousProgress - progress) >= 0.01) ||
+            (!increasing && (progress - previousProgress) >= 0.01)
+        ) {
+            progressFillElement.style.transitionDuration = '0s';
+        } else {
+            progressFillElement.style.removeProperty('transition-duration');
+        }
+        // progressFillElement.dataset.progress = String(progress);
+        progressFillElement.style.width = (progress * 100) + '%';
+        // let parentElement = progressFillElement.closest('.progress');
+        // if (parentElement !== null) {
+        //     parentElement.ariaValueNow = (progress * 100).toFixed(1);
+        // }
+    });
 
     return progress;
 }
@@ -1464,12 +1466,12 @@ function updateText() {
 }
 
 function updateHtmlElementRequirements() {
-    for (const htmlElementWithRequirement of elementRequirements){
+    for (const htmlElementWithRequirement of elementRequirements) {
         const completed = htmlElementWithRequirement.isCompleted();
-        for (const element of htmlElementWithRequirement.elementsWithRequirements){
+        for (const element of htmlElementWithRequirement.elementsWithRequirements) {
             element.classList.toggle('hidden', !completed);
         }
-        for (const element of htmlElementWithRequirement.elementsToShowRequirements){
+        for (const element of htmlElementWithRequirement.elementsToShowRequirements) {
             element.classList.toggle('hidden', completed);
         }
     }
