@@ -23,16 +23,7 @@ function randomSize(factor = 4) {
     return 0;
 }
 
-/**
- *
- * @param element
- * @returns {Promise.<boolean>}
- */
-function isHidden(element) {
-    return XFastdom.measure(() => {
-        return Dom.isHidden(element);
-    });
-}
+const addedCssClass = Symbol('addedCssClass');
 
 /**
  * @typedef {Object} ParticleBehavior
@@ -56,17 +47,14 @@ const FlashBehavior = {
     },
 
     prepareElement: (element, baseColor) => {
-        // XFastdom.mutate(() => {
-            if (isDefined(baseColor)) {
-                element.style.color = baseColor;
-            } else {
-                element.style.removeProperty('color');
-            }
-        // });
+        if (isDefined(baseColor)) {
+            element.style.color = baseColor;
+        } else {
+            element.style.removeProperty('color');
+        }
     },
 
     scheduleRelease: (element) => {
-        // killAfterAnimation(element);
         element.addEventListener('animationend', FlashBehavior._onAnimationEnd, {passive: true});
     },
 
@@ -97,28 +85,19 @@ const SplashParticleBehavior = {
     },
 
     prepareElement: (element, styleObject) => {
-        // for (let i = 0; i < element.style.length; i++) {
-        //     const property = element.style.item(i);
-        //     if (styleObject.hasOwnProperty(property)) {
-        //         element.style.setProperty(property, styleObject[property]);
-        //         delete styleObject[property];
-        //     }
-        // }
-        // XFastdom.mutate(() => {
-            element.style.rotate = (randomInt(120) - 60) + 'deg';
-            for (const property in styleObject) {
-                const value = styleObject[property];
-                if (isFunction(value)) {
-                    element.style.setProperty(property, value());
-                } else {
-                    element.style.setProperty(property, value);
-                }
+        element.style.rotate = (randomInt(120) - 60) + 'deg';
+        for (const property in styleObject) {
+            const value = styleObject[property];
+            if (isFunction(value)) {
+                element.style.setProperty(property, value());
+            } else {
+                element.style.setProperty(property, value);
             }
-            const childElement = element.children.item(0);
-            const cssClass = 'size' + randomSize(3);
-            childElement.classList.add(cssClass);
-            childElement.__addedCssClass = cssClass;
-        // });
+        }
+        const childElement = element.children.item(0);
+        const cssClass = 'size' + randomSize(3);
+        childElement.classList.add(cssClass);
+        childElement[addedCssClass] = cssClass;
     },
 
     scheduleRelease: (element) => {
@@ -136,13 +115,7 @@ const SplashParticleBehavior = {
             currentTarget.removeAttribute('style');
             currentTarget.classList.add('free');
             const childElement = currentTarget.children.item(0);
-            childElement.classList.remove(childElement.__addedCssClass);
-            // Remove all but the "particle" class
-            // .forEach((value, key, parent) => {
-            //     if (value === 'particle') return;
-            //
-            //     parent.remove(value);
-            // });
+            childElement.classList.remove(childElement[addedCssClass]);
         });
         currentTarget.removeEventListener('animationend', SplashParticleBehavior._onAnimationEnd);
     },
@@ -161,44 +134,45 @@ const ProgressParticleBehavior = {
     },
 
     prepareElement: (element, parentHeight) => {
-        // for (let i = 0; i < element.style.length; i++) {
-        //     const property = element.style.item(i);
-        //     if (styleObject.hasOwnProperty(property)) {
-        //         element.style.setProperty(property, styleObject[property]);
-        //         delete styleObject[property];
-        //     }
-        // }
-        // XFastdom.mutate(() => {
-            element.style.rotate = randomInt(360) + 'deg';
-            element.style.top = randomInt(parentHeight) + 'px';
-            const childElement = element.children.item(0);
-            const cssClass = 'size' + randomSize();
-            childElement.classList.add(cssClass);
-            childElement.__addedCssClass = cssClass;
-        // });
+        element.style.rotate = randomInt(360) + 'deg';
+        element.style.top = randomInt(parentHeight) + 'px';
+        const childElement = element.children.item(0);
+        const cssClass = 'size' + randomSize();
+        childElement.classList.add(cssClass);
+        childElement[addedCssClass] = cssClass;
     },
 
     scheduleRelease: (element) => {
+        // TODO there is a leak here - some elements don't start their animation, thus never end/cancel it and become stuck
+        element.addEventListener('animationstart', (event) => {
+            if (event.currentTarget.hasOwnProperty('__animationStarted')){
+                event.currentTarget.__animationStarted.push(event.animationName);
+            } else {
+                event.currentTarget.__animationStarted = [event.animationName];
+            }
+        }, {/*once: true,*/ passive: true})
         element.addEventListener('animationend', ProgressParticleBehavior._onAnimationEnd, {passive: true});
-        // element.addEventListener('animationcancel', (event) => {
-        //     switch (event.animationName) {
-        //         case 'shoot0':
-        //         case 'shoot1':
-        //         case 'shoot2':
-        //         case 'shoot3':
-        //             break;
-        //         default:
-        //             return;
-        //     }
-        //
-        //     console.log(event.animationName + ' cancelled.', event.currentTarget);
-        // }, {once: true, passive: true});
+        element.addEventListener('animationcancel', (event) => {
+            // switch (event.animationName) {
+            //     case 'shoot0':
+            //     case 'shoot1':
+            //     case 'shoot2':
+            //     case 'shoot3':
+            //         break;
+            //     default:
+            //         return;
+            // }
+            if (event.animationName === 'spin') return;
+
+            console.log(event.animationName + ' cancelled.', event.currentTarget);
+        }, {/*once: true,*/ passive: true});
     },
 
     /**
      * @param {AnimationEvent} event
      */
     _onAnimationEnd: (event) => {
+        delete event.currentTarget.__animationStarted;
         switch (event.animationName) {
             case 'shoot0':
             case 'shoot1':
@@ -206,23 +180,17 @@ const ProgressParticleBehavior = {
             case 'shoot3':
                 break;
             default:
+                console.log('Ignored animation', event.animationName);
                 return;
         }
 
-        const currentTarget = event.currentTarget;
-        XFastdom.mutate(() => {
-            // event.currentTarget.removeAttribute('style');
+        // const currentTarget = event.currentTarget;
+        XFastdom.mutate(((currentTarget) => {
             currentTarget.classList.add('free');
             const childElement = currentTarget.children.item(0);
-            childElement.classList.remove(childElement.__addedCssClass);
-            // Remove all but the "particle" class
-            // .forEach((value, key, parent) => {
-            //     if (value === 'particle') return;
-            //
-            //     parent.remove(value);
-            // });
-        });
-        currentTarget.removeEventListener('animationend', ProgressParticleBehavior._onAnimationEnd);
+            childElement.classList.remove(childElement[addedCssClass]);
+        }).bind(this, event.currentTarget));
+        event.currentTarget.removeEventListener('animationend', ProgressParticleBehavior._onAnimationEnd);
     },
 };
 
@@ -239,7 +207,6 @@ const BattleProgressParticleBehavior = {
     },
 
     /**
-     *
      * @param element
      * @param {{
      *     left: string,
@@ -247,22 +214,13 @@ const BattleProgressParticleBehavior = {
      * }} parameters
      */
     prepareElement: (element, parameters) => {
-        // for (let i = 0; i < element.style.length; i++) {
-        //     const property = element.style.item(i);
-        //     if (styleObject.hasOwnProperty(property)) {
-        //         element.style.setProperty(property, styleObject[property]);
-        //         delete styleObject[property];
-        //     }
-        // }
-        // XFastdom.mutate(() => {
-            element.style.rotate = (randomInt(30) - 15) + 'deg';
-            element.style.top = randomInt(parameters.parentHeight) + 'px';
-            element.style.left = parameters.left;
-            const childElement = element.children.item(0);
-            const cssClass = 'size' + randomSize();
-            childElement.classList.add(cssClass);
-            childElement.__addedCssClass = cssClass;
-        // });
+        element.style.rotate = (randomInt(30) - 15) + 'deg';
+        element.style.top = randomInt(parameters.parentHeight) + 'px';
+        element.style.left = parameters.left;
+        const childElement = element.children.item(0);
+        const cssClass = 'size' + randomSize();
+        childElement.classList.add(cssClass);
+        childElement[addedCssClass] = cssClass;
     },
 
     scheduleRelease: (element) => {
@@ -270,10 +228,7 @@ const BattleProgressParticleBehavior = {
     },
 
     appendElement: (parent, element) => {
-        // XFastdom.mutate(() => {
-
-            parent.insertAdjacentElement('afterend', element);
-        // });
+        parent.insertAdjacentElement('afterend', element);
     },
 
     /**
@@ -292,39 +247,17 @@ const BattleProgressParticleBehavior = {
 
         const currentTarget = event.currentTarget;
         XFastdom.mutate(() => {
-            // currentTarget.removeAttribute('style');
             currentTarget.classList.add('free');
             const childElement = currentTarget.children.item(0);
-            childElement.classList.remove(childElement.__addedCssClass);
-            // Remove all but the "particle" class
-            // .forEach((value, key, parent) => {
-            //     if (value === 'particle') return;
-            //
-            //     parent.remove(value);
-            // });
+            childElement.classList.remove(childElement[addedCssClass]);
         });
         currentTarget.removeEventListener('animationend', BattleProgressParticleBehavior._onAnimationEnd);
     },
 };
 
-
-// function killAfterAnimation(element, animationCount = 1) {
-//     // TODO filter by animation name
-//     // Little construct to capture `animationsEnded` per instance
-//     ((animationsEnded) => {
-//         element.addEventListener('animationend', () => {
-//             animationsEnded++;
-//             if (animationsEnded >= animationCount) {
-//                 element.classList.add('free');
-//             }
-//         });
-//     })(0);
-// }
-
-class Vfx {
+class VFX {
 
     /**
-     *
      * @param {HTMLElement} parent
      * @param {ParticleBehavior} behavior
      * @param {any} parameters
@@ -332,35 +265,32 @@ class Vfx {
     static #startParticle(parent, behavior, parameters) {
         XFastdom.mutate(() => {
 
-            // 1 Find unused flash element in parent
+            // Find unused particle element in parent
             let element = behavior.findFreeElement(parent);
 
-            // 2 If nothing found
+            // If nothing found ...
             if (element === null) {
-                // create new flash element
+                // ... create new flash element
                 element = behavior.createNewElement();
 
                 if (isFunction(behavior.appendElement)) {
                     behavior.appendElement(parent, element);
                 } else {
-                    // XFastdom.mutate(() => {
-                        // append to parent
-                        parent.append(element);
-                    // });
+                    // append to parent
+                    parent.append(element);
                 }
             } else {
-                // XFastdom.mutate(() => {
-                    // 3 mark as in-use
-                    element.classList.remove('free');
-                // });
+                // ... else: mark as in-use
+                element.classList.remove('free');
             }
 
-            // 4 Modify element according to parameters
+            // Modify element according to parameters
             behavior.prepareElement(element, parameters);
 
-            // 5 schedule release of element after animation is done
+            // schedule release of element after animation is done
             behavior.scheduleRelease(element);
         });
+
         // Do not return the element - the VFX is system is considered closed and internal workings should not be exposed
     }
 
@@ -372,12 +302,6 @@ class Vfx {
     static #onetimeSplash(parent, numberOfParticles, styleObject) {
         for (let i = 0; i < numberOfParticles; i++) {
             this.#startParticle(parent, SplashParticleBehavior, styleObject);
-//             let particleElement = htmlToElement(`
-// <div style=" transform: rotate(${-60 + randomInt(120)}deg);  ${renderStyle(styleObject)}" class="splash-particle-wrapper">
-//     <div class="particle size${randomSize(3)}" style="animation-duration: 600ms, 600ms; opacity: 0.6; scale: 0.5"></div>
-// </div>`);
-//             killAfterAnimation(particleElement);
-//             parent.append(particleElement);
         }
     }
 
@@ -421,91 +345,76 @@ class Vfx {
         },
     };
 
-
     static followProgressBars(enabled = true) {
         if (!enabled) {
-            cancelAnimationFrame(Vfx.progressFollow.animationFrameRequestID);
+            cancelAnimationFrame(VFX.progressFollow.animationFrameRequestID);
             return;
         }
 
         const update = (updateTime) => {
-            const timeDelta = updateTime - Vfx.progressFollow.lastUpdate;
-            Vfx.progressFollow.lastUpdate = updateTime;
+            const timeDelta = updateTime - VFX.progressFollow.lastUpdate;
+            VFX.progressFollow.lastUpdate = updateTime;
 
 
             if (!isPlaying()) {
-                Vfx.progressFollow.animationFrameRequestID = requestAnimationFrame(update);
+                VFX.progressFollow.animationFrameRequestID = requestAnimationFrame(update);
                 return;
             }
 
-            Vfx.progressFollow.general.sinceLastParticle += timeDelta;
-            if (Vfx.progressFollow.general.sinceLastParticle >= Vfx.progressFollow.general.particleDelay) {
+            VFX.progressFollow.general.sinceLastParticle += timeDelta;
+            if (VFX.progressFollow.general.sinceLastParticle >= VFX.progressFollow.general.particleDelay) {
                 let selector = '.operationQuickDisplay.progressFill.current';
                 if (gameData.selectedTab === 'modules') {
                     selector += ', .moduleOperation.progressFill.current';
                 }
                 document.querySelectorAll(selector).forEach((element) => {
-                    // Don't spawn particles on elements that are invisible
-                    // isHidden(element).then((hidden) => {
-                    //     if (hidden) return;
-
-                        // TODO higher progress speed = more particles
-                        if (Vfx.progressFollow.general.elementHeight === undefined || Vfx.progressFollow.general.elementHeight === 0) {
-                            return XFastdom.measure(() => {
-                                console.log('Measure general progress clientHeight');
-                                return element.parentElement.clientHeight;
-                            }).then((elementHeight) => {
-                                Vfx.progressFollow.general.elementHeight = elementHeight;
-                                this.#startParticle(element, ProgressParticleBehavior, elementHeight);
-                            });
-                        } else {
-                            this.#startParticle(element, ProgressParticleBehavior, Vfx.progressFollow.general.elementHeight);
-                        }
-                    // });
+                    if (VFX.progressFollow.general.elementHeight === undefined || VFX.progressFollow.general.elementHeight === 0) {
+                        return XFastdom.measure(() => {
+                            console.log('Measure general progress clientHeight');
+                            return element.parentElement.clientHeight;
+                        }).then((elementHeight) => {
+                            VFX.progressFollow.general.elementHeight = elementHeight;
+                            this.#startParticle(element, ProgressParticleBehavior, elementHeight);
+                        });
+                    } else {
+                        this.#startParticle(element, ProgressParticleBehavior, VFX.progressFollow.general.elementHeight);
+                    }
                 });
-                Vfx.progressFollow.general.sinceLastParticle = 0;
+                VFX.progressFollow.general.sinceLastParticle = 0;
             }
 
-            Vfx.progressFollow.battles.sinceLastParticle += timeDelta;
-            if (Vfx.progressFollow.battles.sinceLastParticle >= Vfx.progressFollow.battles.particleDelay) {
+            VFX.progressFollow.battles.sinceLastParticle += timeDelta;
+            if (VFX.progressFollow.battles.sinceLastParticle >= VFX.progressFollow.battles.particleDelay) {
                 let selector = '.battleQuickDisplay.progressFill.current';
                 if (gameData.selectedTab === 'battles') {
                     selector += ', .battleProgress.progressFill.current';
                 }
 
                 document.querySelectorAll(selector).forEach((element) => {
-                    // Don't spawn particles on elements that are invisible
-                    // isHidden(element).then((hidden) => {
-                    //     if (hidden) return;
-
-                        return XFastdom.measure(() => {
-                            if (Vfx.progressFollow.battles.elementHeight === undefined || Vfx.progressFollow.battles.elementHeight === 0) {
-                                console.log('Measure battle clientHeight');
-                                Vfx.progressFollow.battles.elementHeight = element.parentElement.clientHeight;
-                            }
-                            return {
-                                left: element.style.width,
-                                parentHeight: Vfx.progressFollow.battles.elementHeight,
-                            };
-                        }).then((parameters) => {
-                            // TODO higher progress speed = more particles
-                            this.#startParticle(element, BattleProgressParticleBehavior, parameters);
-                        });
-                    // });
+                    return XFastdom.measure(() => {
+                        if (VFX.progressFollow.battles.elementHeight === undefined || VFX.progressFollow.battles.elementHeight === 0) {
+                            console.log('Measure battle clientHeight');
+                            VFX.progressFollow.battles.elementHeight = element.parentElement.clientHeight;
+                        }
+                        return {
+                            left: element.style.width,
+                            parentHeight: VFX.progressFollow.battles.elementHeight,
+                        };
+                    }).then((parameters) => {
+                        this.#startParticle(element, BattleProgressParticleBehavior, parameters);
+                    });
                 });
-                Vfx.progressFollow.battles.sinceLastParticle = 0;
+                VFX.progressFollow.battles.sinceLastParticle = 0;
             }
 
-            Vfx.progressFollow.animationFrameRequestID = requestAnimationFrame(update);
+            VFX.progressFollow.animationFrameRequestID = requestAnimationFrame(update);
         };
 
-        Vfx.progressFollow.lastUpdate = performance.now();
-        Vfx.progressFollow.animationFrameRequestID = requestAnimationFrame(update);
+        VFX.progressFollow.lastUpdate = performance.now();
+        VFX.progressFollow.animationFrameRequestID = requestAnimationFrame(update);
     }
 
 }
-
-const VFX = Vfx;
 
 VFX.followProgressBars(true);
 
@@ -532,8 +441,6 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
         quickTaskProgressBar = document.querySelector(`.quickTaskDisplay.${taskInfo.name} .progressBar`);
     }
     if (taskProgressBar !== undefined) {
-        // if (isVisible(taskProgressBar)) {
-        // Don't spawn particles on elements that are invisible
         VFX.onetimeSplash(taskProgressBar, numberOfParticles, direction);
         VFX.flash(taskProgressBar);
     }
