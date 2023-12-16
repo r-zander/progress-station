@@ -10,7 +10,7 @@ jobs:
       - uses: manleydev/butler-publish-itchio-action@master
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
-          CHANNEL: windows
-          ITCH_GAME: example-project
-          ITCH_USER: username
+          CHANNEL: html5
+          ITCH_GAME: progress-station
+          ITCH_USER: kringelgames
           PACKAGE: ./
