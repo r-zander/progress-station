@@ -1648,6 +1648,22 @@ function getPointOfInterestElement(name) {
     return document.getElementById(pointOfInterest.domId);
 }
 
+/**
+ * @param {boolean} force
+ */
+function toggleVfxFollowProgressBars(force = undefined) {
+    if (force === undefined) {
+        gameData.settings.vfx.followProgressBars = !gameData.settings.vfx.followProgressBars;
+    } else {
+        gameData.settings.vfx.followProgressBars = force;
+    }
+    VFX.followProgressBars(gameData.settings.vfx.followProgressBars);
+    gameData.save();
+}
+
+/**
+ * @param {boolean} force
+ */
 function toggleLightDarkMode(force = undefined) {
     if (force === undefined) {
         gameData.settings.darkMode = !gameData.settings.darkMode;
@@ -1658,6 +1674,9 @@ function toggleLightDarkMode(force = undefined) {
     gameData.save();
 }
 
+/**
+ * @param {boolean} force
+ */
 function toggleSciFiMode(force = undefined) {
     const body = document.getElementById('body');
     gameData.settings.sciFiMode = body.classList.toggle('sci-fi', force);
@@ -1850,6 +1869,8 @@ function initSettings() {
     if (isBoolean(gameData.settings.sciFiMode)) {
         toggleSciFiMode(gameData.settings.sciFiMode);
     }
+    // gameData.settings.vfx.followProgressBars is applied in the VFX module itself - we just need to adjust the UI
+    Dom.get().byId('vfxProgressBarFollowSwitch').checked = gameData.settings.vfx.followProgressBars;
 }
 
 function displayLoaded() {

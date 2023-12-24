@@ -416,7 +416,9 @@ class VFX {
 
 }
 
-VFX.followProgressBars(true);
+if (isBoolean(gameData.settings.vfx.followProgressBars)) {
+    VFX.followProgressBars(gameData.settings.vfx.followProgressBars);
+}
 
 GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
     // Only show animations if the level went up

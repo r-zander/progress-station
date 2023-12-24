@@ -92,6 +92,9 @@ class GameData {
         darkMode: undefined,
         sciFiMode: true,
         background: 'space',
+        vfx: {
+            followProgressBars: true,
+        }
     };
 
     skipSave = false;
