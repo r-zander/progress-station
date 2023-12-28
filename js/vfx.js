@@ -140,39 +140,22 @@ const ProgressParticleBehavior = {
         const cssClass = 'size' + randomSize();
         childElement.classList.add(cssClass);
         childElement[addedCssClass] = cssClass;
+        // childElement.style.animationPlayState = 'running';
     },
 
     scheduleRelease: (element) => {
-        // TODO there is a leak here - some elements don't start their animation, thus never end/cancel it and become stuck
-        element.addEventListener('animationstart', (event) => {
-            if (event.currentTarget.hasOwnProperty('__animationStarted')){
-                event.currentTarget.__animationStarted.push(event.animationName);
-            } else {
-                event.currentTarget.__animationStarted = [event.animationName];
-            }
-        }, {/*once: true,*/ passive: true})
-        element.addEventListener('animationend', ProgressParticleBehavior._onAnimationEnd, {passive: true});
-        element.addEventListener('animationcancel', (event) => {
-            // switch (event.animationName) {
-            //     case 'shoot0':
-            //     case 'shoot1':
-            //     case 'shoot2':
-            //     case 'shoot3':
-            //         break;
-            //     default:
-            //         return;
-            // }
-            if (event.animationName === 'spin') return;
-
-            console.log(event.animationName + ' cancelled.', event.currentTarget);
-        }, {/*once: true,*/ passive: true});
+        // FIXME there was a leak here - some elements don't start their animation, thus never end/cancel it and become stuck
+        // element.addEventListener('animationend', ProgressParticleBehavior._onAnimationEnd, {passive: true});
+        setTimeout(ProgressParticleBehavior._onAnimationEnd, 800, {
+            currentTarget: element,
+            animationName: 'shoot0',
+        });
     },
 
     /**
      * @param {AnimationEvent} event
      */
     _onAnimationEnd: (event) => {
-        delete event.currentTarget.__animationStarted;
         switch (event.animationName) {
             case 'shoot0':
             case 'shoot1':
@@ -186,9 +169,10 @@ const ProgressParticleBehavior = {
 
         // const currentTarget = event.currentTarget;
         XFastdom.mutate(((currentTarget) => {
-            currentTarget.classList.add('free');
             const childElement = currentTarget.children.item(0);
             childElement.classList.remove(childElement[addedCssClass]);
+            // childElement.style.animationPlayState = 'paused';
+            currentTarget.classList.add('free');
         }).bind(this, event.currentTarget));
         event.currentTarget.removeEventListener('animationend', ProgressParticleBehavior._onAnimationEnd);
     },
@@ -199,7 +183,7 @@ const ProgressParticleBehavior = {
  */
 const BattleProgressParticleBehavior = {
     findFreeElement: (parent) => {
-        return Dom.get(parent).bySelector('.vfx.battle-progress-particle-wrapper.free');
+        return Dom.get(parent.parentElement).bySelector('.vfx.battle-progress-particle-wrapper.free');
     },
 
     createNewElement: () => {
@@ -224,7 +208,12 @@ const BattleProgressParticleBehavior = {
     },
 
     scheduleRelease: (element) => {
-        element.addEventListener('animationend', BattleProgressParticleBehavior._onAnimationEnd, {passive: true});
+        // FIXME there was a leak here - some elements don't start their animation, thus never end/cancel it and become stuck
+        // element.addEventListener('animationend', BattleProgressParticleBehavior._onAnimationEnd, {passive: true});
+        setTimeout(BattleProgressParticleBehavior._onAnimationEnd, 800, {
+            currentTarget: element,
+            animationName: 'shoot0',
+        });
     },
 
     appendElement: (parent, element) => {
@@ -263,6 +252,8 @@ class VFX {
      * @param {any} parameters
      */
     static #startParticle(parent, behavior, parameters) {
+        if (document.hidden) return;
+
         XFastdom.mutate(() => {
 
             // Find unused particle element in parent
@@ -356,7 +347,8 @@ class VFX {
             VFX.progressFollow.lastUpdate = updateTime;
 
 
-            if (!isPlaying()) {
+            if (!isPlaying() || document.hidden) {
+                // Game's paused or the tab is not visible --> no need for any VFX
                 VFX.progressFollow.animationFrameRequestID = requestAnimationFrame(update);
                 return;
             }
@@ -368,6 +360,11 @@ class VFX {
                     selector += ', .moduleOperation.progressFill.current';
                 }
                 document.querySelectorAll(selector).forEach((element) => {
+                    // Is the element itself or any parent "hidden"?
+                    if (element.closest('.hidden') !== null) {
+                        return;
+                    }
+
                     if (VFX.progressFollow.general.elementHeight === undefined || VFX.progressFollow.general.elementHeight === 0) {
                         return XFastdom.measure(() => {
                             console.log('Measure general progress clientHeight');
@@ -391,6 +388,11 @@ class VFX {
                 }
 
                 document.querySelectorAll(selector).forEach((element) => {
+                    // Is the element itself or any parent "hidden"?
+                    if (element.closest('.hidden') !== null) {
+                        return;
+                    }
+
                     return XFastdom.measure(() => {
                         if (VFX.progressFollow.battles.elementHeight === undefined || VFX.progressFollow.battles.elementHeight === 0) {
                             console.log('Measure battle clientHeight');
