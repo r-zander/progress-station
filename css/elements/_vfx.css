@@ -1,5 +1,4 @@
 .vfx {
-    /* position: static; */
     pointer-events: none;
 
     &.free {
@@ -7,12 +6,19 @@
     }
 }
 
+.particle {
+    position: absolute;
+    display: block;
+    background-color: white;
+    pointer-events: none;
+    animation: spin 600ms infinite linear, shoot0 800ms cubic-bezier(0, 0.55, 0.45, 1) forwards;
+}
+
 .splash-particle-wrapper {
     position: absolute;
     animation: fade-out 600ms ease-in-out;
 
     > .particle {
-        /* TODO probably a cleaner way to manage this */
         animation-duration: 600ms, 600ms;
         opacity: 0.6;
         scale: 0.5;
@@ -30,14 +36,6 @@
 
 .single-particle-wrapper {
     pointer-events: none;
-}
-
-.particle {
-    position: absolute;
-    display: block;
-    background-color: white;
-    pointer-events: none;
-    animation: spin 600ms infinite linear, shoot0 800ms cubic-bezier(0, 0.55, 0.45, 1) forwards;
 }
 
 .battle .particle {
@@ -177,12 +175,12 @@
         opacity: 1;
         text-shadow:
                 1px 0 0 currentColor,
-                0.540302px 0.841471px 0 currentColor,
-                -0.416147px 0.909297px 0 currentColor,
-                -0.989992px 0.14112px 0 currentColor,
-                -0.653644px -0.756802px 0 currentColor,
-                0.283662px -0.958924px 0 currentColor,
-                0.96017px -0.279415px 0 currentColor;
+                0.54px 0.84px 0 currentColor,
+                -0.42px 0.90px 0 currentColor,
+                -0.99px 0.14px 0 currentColor,
+                -0.65px -0.76px 0 currentColor,
+                0.28px -0.96px 0 currentColor,
+                0.96px -0.28px 0 currentColor;
     }
     100% {
         scale: 1;
