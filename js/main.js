@@ -71,7 +71,7 @@ function updatePopulation() {
     gameData.population = Math.max(gameData.population, 1);
 }
 
-function getPopulationProgressSpeedMultiplier(){
+function getPopulationProgressSpeedMultiplier() {
     // Random ass formula ᕕ( ᐛ )ᕗ
     // Pop 1 = x1
     // Pop 10 ~= x3.4
@@ -976,21 +976,18 @@ function updateBattlesQuickDisplay() {
 function setProgress(progressFillElement, progress, increasing = true) {
     // Clamp value to [0.0, 1.0]
     progress = Math.max(0.0, Math.min(progress, 1.0));
-    // Make sure to disable the transition if the progress is being reset
-    const previousProgress = parseFloat(progressFillElement.dataset.progress);
-    if ((increasing && (previousProgress - progress) >= 0.01) ||
-        (!increasing && (progress - previousProgress) >= 0.01)
-    ) {
-        progressFillElement.style.transitionDuration = '0s';
-    } else {
-        progressFillElement.style.removeProperty('transition-duration');
-    }
-    progressFillElement.dataset.progress = String(progress);
-    progressFillElement.style.width = (progress * 100) + '%';
-    let parentElement = progressFillElement.closest('.progress');
-    if (parentElement !== null) {
-        parentElement.ariaValueNow = (progress * 100).toFixed(1);
-    }
+    XFastdom.mutate(() => {
+        // Make sure to disable the transition if the progress is being reset
+        const previousProgress = parseFloat(progressFillElement.dataset.progress);
+        if ((increasing && (previousProgress - progress) >= 0.01) ||
+            (!increasing && (progress - previousProgress) >= 0.01)
+        ) {
+            progressFillElement.style.transitionDuration = '0s';
+        } else {
+            progressFillElement.style.removeProperty('transition-duration');
+        }
+        progressFillElement.style.width = (progress * 100) + '%';
+    });
 
     return progress;
 }
@@ -1464,12 +1461,12 @@ function updateText() {
 }
 
 function updateHtmlElementRequirements() {
-    for (const htmlElementWithRequirement of elementRequirements){
+    for (const htmlElementWithRequirement of elementRequirements) {
         const completed = htmlElementWithRequirement.isCompleted();
-        for (const element of htmlElementWithRequirement.elementsWithRequirements){
+        for (const element of htmlElementWithRequirement.elementsWithRequirements) {
             element.classList.toggle('hidden', !completed);
         }
-        for (const element of htmlElementWithRequirement.elementsToShowRequirements){
+        for (const element of htmlElementWithRequirement.elementsToShowRequirements) {
             element.classList.toggle('hidden', completed);
         }
     }
@@ -1493,6 +1490,7 @@ function doTasks() {
             // Quality of life - a battle is done and the player is already on the battles tab
             // or visited it first after the battle was completed --> deactivate battle
             battle.stop();
+            // TODO VFX should not be called, but triggered via Event
             VFX.flash(Dom.get().bySelector('#row_done_' + battle.name + ' .progressBar'));
         }
 
@@ -1645,6 +1643,22 @@ function getPointOfInterestElement(name) {
     return document.getElementById(pointOfInterest.domId);
 }
 
+/**
+ * @param {boolean} force
+ */
+function toggleVfxFollowProgressBars(force = undefined) {
+    if (force === undefined) {
+        gameData.settings.vfx.followProgressBars = !gameData.settings.vfx.followProgressBars;
+    } else {
+        gameData.settings.vfx.followProgressBars = force;
+    }
+    VFX.followProgressBars(gameData.settings.vfx.followProgressBars);
+    gameData.save();
+}
+
+/**
+ * @param {boolean} force
+ */
 function toggleLightDarkMode(force = undefined) {
     if (force === undefined) {
         gameData.settings.darkMode = !gameData.settings.darkMode;
@@ -1655,6 +1669,9 @@ function toggleLightDarkMode(force = undefined) {
     gameData.save();
 }
 
+/**
+ * @param {boolean} force
+ */
 function toggleSciFiMode(force = undefined) {
     const body = document.getElementById('body');
     gameData.settings.sciFiMode = body.classList.toggle('sci-fi', force);
@@ -1847,6 +1864,8 @@ function initSettings() {
     if (isBoolean(gameData.settings.sciFiMode)) {
         toggleSciFiMode(gameData.settings.sciFiMode);
     }
+    // gameData.settings.vfx.followProgressBars is applied in the VFX module itself - we just need to adjust the UI
+    Dom.get().byId('vfxProgressBarFollowSwitch').checked = gameData.settings.vfx.followProgressBars;
 }
 
 function displayLoaded() {
