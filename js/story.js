@@ -19,9 +19,9 @@ function initIntro() {
     };
 }
 
-function initDeath() {
-    const modal = new bootstrap.Modal(document.getElementById('deathModal'));
-    GameEvents.Death.subscribe(function () {
+function initBossAppearance() {
+    const modal = new bootstrap.Modal(document.getElementById('bossAppearanceModal'));
+    GameEvents.BossAppearance.subscribe(function () {
         modal.show();
     });
 
@@ -59,7 +59,7 @@ function initGameOver() {
 
 function initStory() {
     initIntro();
-    initDeath();
+    initBossAppearance();
     initGameOver();
 }
 

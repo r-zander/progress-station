@@ -440,8 +440,23 @@ function createSectorsUI(categoryDefinition, domId) {
 
 /**
  *
+ * @param {DomGetter} domGetter
+ * @param {Battle} battle
+ */
+function initializeBattleElement(domGetter, battle) {
+    domGetter.byClass('name').textContent = battle.title;
+    const descriptionElement = domGetter.byClass('descriptionTooltip');
+    descriptionElement.ariaLabel = battle.title;
+    if (isDefined(battle.description)) {
+        descriptionElement.title = battle.description;
+    } else {
+        descriptionElement.removeAttribute('title');
+    }
+}
+
+/**
+ *
  * @param {Battle[]} battles
- * @param {string} categoryName
  * @return {HTMLElement[]}
  */
 function createLevel4BattleElements(battles) {
@@ -450,14 +465,7 @@ function createLevel4BattleElements(battles) {
         const level4Element = Dom.new.fromTemplate('level4BattleTemplate');
         level4Element.id = 'row_' + battle.name;
         const domGetter = Dom.get(level4Element);
-        domGetter.byClass('name').textContent = battle.title;
-        const descriptionElement = domGetter.byClass('descriptionTooltip');
-        descriptionElement.ariaLabel = battle.title;
-        if (isDefined(battle.description)) {
-            descriptionElement.title = battle.description;
-        } else {
-            descriptionElement.removeAttribute('title');
-        }
+        initializeBattleElement(domGetter, battle);
         domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
         domGetter.byClass('progressBar').addEventListener('click', () => {
             battle.toggle();
@@ -487,6 +495,7 @@ function createUnfinishedBattlesUI() {
     /** @type {HTMLElement} */
     const level4Slot = domGetter.byClass('level4');
     level4Slot.append(...createLevel4BattleElements(Object.values(battles)));
+    // level4Slot.append(createBossBattleElement(bossBattle));
 
     return level3Element;
 }
@@ -503,16 +512,9 @@ function createLevel4FinishedBattleElements(battles) {
         level4Element.id = 'row_done_' + battle.name;
         level4Element.classList.add('hidden');
         const domGetter = Dom.get(level4Element);
+        initializeBattleElement(domGetter, battle);
         domGetter.bySelector('.progressBar .progressBackground').style.backgroundColor = lastLayerData.color;
         domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
-        domGetter.byClass('name').textContent = battle.title;
-        const descriptionElement = domGetter.byClass('descriptionTooltip');
-        descriptionElement.ariaLabel = battle.title;
-        if (isDefined(battle.description)) {
-            descriptionElement.title = battle.description;
-        } else {
-            descriptionElement.removeAttribute('title');
-        }
         domGetter.byClass('action').classList.add('hidden');
         formatValue(
             domGetter.bySelector('.level > data'),
@@ -915,31 +917,28 @@ function updateModulesQuickDisplay() {
  * @param {LayeredTask} battle
  */
 function setBattleProgress(progressBar, battle) {
+    const domGetter = Dom.get(progressBar);
     if (battle.isDone()) {
-        Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = lastLayerData.color;
-        Dom.get(progressBar).byClass('progressFill').style.width = '0%';
-        Dom.get(progressBar).byClass('name').textContent = battle.title + ' defeated!';
+        domGetter.byClass('progressBackground').style.backgroundColor = lastLayerData.color;
+        domGetter.byClass('progressFill').style.width = '0%';
+        domGetter.byClass('name').textContent = battle.title + ' defeated!';
         return;
     }
 
-    if (battle instanceof BossBattle) {
-        Dom.get().byId('battleName').textContent = battle.title;
-        Dom.get(progressBar).byClass('name').textContent = battle.layerLabel + ' ' + battle.getDisplayedLevel();
-    }
-
-    const progressBarFill = Dom.get(progressBar).byClass('progressFill');
+    const progressBarFill = domGetter.byClass('progressFill');
     setProgress(progressBarFill, 1 - (battle.xp / battle.getMaxXp()), false);
 
-    if (battle instanceof BossBattle) {
-        progressBarFill.style.backgroundColor = layerData[battle.level].color;
+    if (!(battle instanceof BossBattle)) {
+        return;
+    }
 
-        if (battle.level < battle.maxLevel - 1 &&
-            battle.level < layerData.length - 1
-        ) {
-            Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = layerData[battle.level + 1].color;
-        } else {
-            Dom.get(progressBar).byClass('progressBackground').style.backgroundColor = lastLayerData.color;
-        }
+    const layerLevel = battle.level % layerData.length;
+    progressBarFill.style.backgroundColor = layerData[layerLevel].color;
+    if (battle.getDisplayedLevel() === 1) {
+        domGetter.byClass('progressBackground').style.backgroundColor = lastLayerData.color;
+    } else {
+        const nextLayerLevel = (battle.level + 1) % layerData.length;
+        domGetter.byClass('progressBackground').style.backgroundColor = layerData[nextLayerLevel].color;
     }
 }
 
@@ -1530,14 +1529,14 @@ function getDay() {
 }
 
 function increaseDays() {
-    const increase = applySpeed(1);
     if (gameData.days >= getLifespan()) return;
 
+    const increase = applySpeed(1);
     gameData.days += increase;
     gameData.totalDays += increase;
 
     if (gameData.days >= getLifespan()) {
-        GameEvents.Death.trigger(undefined);
+        GameEvents.BossAppearance.trigger(undefined);
     }
 }
 

@@ -320,9 +320,19 @@ const factions = {
     },
 
     Destroyer: {
-        title: 'The Destroyer', maxXp: 500,
+        title: 'Destroyer', maxXp: 500,
     },
 };
+
+const bossBattle = new BossBattle({
+    title: 'The',
+    targetLevel: 20,
+    faction: factions.Destroyer,
+    effects: [{effectType: EffectType.Danger, baseValue: 8000}],
+    rewards: [],
+    progressBarId: 'battleProgressBar',
+    layerLabel: 'Tentacles layer',
+});
 
 /**
  * @type {Object.<string, Battle>}
@@ -342,13 +352,13 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 20}],
         rewards: [{effectType: EffectType.Growth, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
-    Astrogoblins20: new Battle({
-        title: 'Courageous',
-        targetLevel: 20,
-        faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 40}],
-        rewards: [{effectType: EffectType.Military, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
-    }),
+    // Astrogoblins20: new Battle({
+    //     title: 'Courageous',
+    //     targetLevel: 20,
+    //     faction: factions.Astrogoblins,
+    //     effects: [{effectType: EffectType.Danger, baseValue: 40}],
+    //     rewards: [{effectType: EffectType.Military, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    // }),
     Scavengers10: new Battle({
         title: 'Lost',
         targetLevel: 10,
@@ -356,20 +366,20 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 75}],
         rewards: [{effectType: EffectType.Research, baseValue: 4}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
-    SpacePirates10: new Battle({
-        title: 'Roaming',
-        targetLevel: 10,
-        faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 100}],
-        rewards: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
-    }),
-    Scavengers20: new Battle({
-        title: 'Violent',
-        targetLevel: 20,
-        faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 150}],
-        rewards: [{effectType: EffectType.Research, baseValue: 7}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
-    }),
+    // SpacePirates10: new Battle({
+    //     title: 'Roaming',
+    //     targetLevel: 10,
+    //     faction: factions.SpacePirates,
+    //     effects: [{effectType: EffectType.Danger, baseValue: 100}],
+    //     rewards: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    // }),
+    // Scavengers20: new Battle({
+    //     title: 'Violent',
+    //     targetLevel: 20,
+    //     faction: factions.Scavengers,
+    //     effects: [{effectType: EffectType.Danger, baseValue: 150}],
+    //     rewards: [{effectType: EffectType.Research, baseValue: 7}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    // }),
     ThunderDragon10: new Battle({
         title: 'Decrepit',
         targetLevel: 10,
@@ -391,20 +401,20 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 500}],
         rewards: [{effectType: EffectType.ResearchFactor, baseValue: 1.5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
-    CometCrawlers50: new Battle({
-        title: 'Swarming',
-        targetLevel: 50,
-        faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 300}],
-        rewards: [{effectType: EffectType.Growth, baseValue: 15}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
-    }),
-    Scavengers30: new Battle({
-        title: 'Insane',
-        targetLevel: 30,
-        faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 500}],
-        rewards: [{effectType: EffectType.Research, baseValue: 10}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
-    }),
+    // CometCrawlers50: new Battle({
+    //     title: 'Swarming',
+    //     targetLevel: 50,
+    //     faction: factions.CometCrawlers,
+    //     effects: [{effectType: EffectType.Danger, baseValue: 300}],
+    //     rewards: [{effectType: EffectType.Growth, baseValue: 15}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    // }),
+    // Scavengers30: new Battle({
+    //     title: 'Insane',
+    //     targetLevel: 30,
+    //     faction: factions.Scavengers,
+    //     effects: [{effectType: EffectType.Danger, baseValue: 500}],
+    //     rewards: [{effectType: EffectType.Research, baseValue: 10}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    // }),
     NovaFlies200: new Battle({
         title: 'Countless',
         targetLevel: 200,
@@ -412,28 +422,21 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 750}],
         rewards: [{effectType: EffectType.Growth, baseValue: 20}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
-    PseudoBoss10: new Battle({
-        title: 'Pseudo',
-        targetLevel: 10,
-        faction: factions.PseudoBoss,
-        effects: [{effectType: EffectType.Danger, baseValue: 9010}],
-        rewards: [
-            {effectType: EffectType.Research, baseValue: 100},
-            {effectType: EffectType.Growth, baseValue: 100},
-            {effectType: EffectType.Industry, baseValue: 100},
-            {effectType: EffectType.Military, baseValue: 100},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
-    }),
 
-    // Destroyer: new BossBattle({
-    //     title: '',
-    //     maxLevel: 5,
-    //     faction: factions.Destroyer,
-    //     effects: [{effectType: EffectType.Danger, baseValue: Number.POSITIVE_INFINITY}],
-    //     rewards: [],
-    //     progressBarId: 'battleProgressBar',
-    //     layerLabel: 'Tentacles layer'
+    // PseudoBoss10: new Battle({
+    //     title: 'Pseudo',
+    //     targetLevel: 10,
+    //     faction: factions.PseudoBoss,
+    //     effects: [{effectType: EffectType.Danger, baseValue: 9010}],
+    //     rewards: [
+    //         {effectType: EffectType.Research, baseValue: 100},
+    //         {effectType: EffectType.Growth, baseValue: 100},
+    //         {effectType: EffectType.Industry, baseValue: 100},
+    //         {effectType: EffectType.Military, baseValue: 100},
+    //         {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     // }),
+
+    Destroyer: bossBattle,
 };
 
 const battleRequirements = [
@@ -448,6 +451,9 @@ const battleRequirements = [
  * @return {{limit: number, requirement: AttributeRequirement|null}}
  */
 function maximumAvailableBattles() {
+    // TODO remove
+    return {limit: 100, requirement: null};
+
     const research = attributes.research.getValue();
     if (research >= 100) return {limit: 5, requirement: null};
     if (research >= 50) return {limit: 4, requirement: battleRequirements[3]};

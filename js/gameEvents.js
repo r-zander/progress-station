@@ -108,7 +108,7 @@ const GameEvents = {
         previousLevel: JsTypes.Number,
         nextLevel: JsTypes.Number
     }, false),
-    Death: new GameEvent(undefined),
+    BossAppearance: new GameEvent(undefined),
     GameOver: new GameEvent({
         bossDefeated: JsTypes.Boolean,
     }),
