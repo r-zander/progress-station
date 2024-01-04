@@ -416,6 +416,31 @@ class VFX {
         VFX.progressFollow.animationFrameRequestID = requestAnimationFrame(update);
     }
 
+    static #playButtonShakeTimeout;
+
+    static shakePlayButton() {
+        clearTimeout(VFX.#playButtonShakeTimeout);
+        Dom.get().byId('pauseButton').classList.add('shake-strong-tilt-move');
+        VFX.#playButtonShakeTimeout = setTimeout(() => {
+            Dom.get().byId('pauseButton').classList.remove('shake-strong-tilt-move');
+        }, 150);
+    }
+
+    /**
+     * @param {HTMLElement} element
+     * @param {string} animationCssClass
+     * @param {string} animationName
+     */
+    static highlightText(element, animationCssClass, animationName) {
+        const callback = (ev) => {
+            if (ev.animationName === animationName) {
+                element.removeEventListener('animationend', callback);
+            }
+            element.classList.remove(animationCssClass);
+        };
+        element.addEventListener('animationend', callback);
+        element.classList.add(animationCssClass);
+    }
 }
 
 if (isBoolean(gameData.settings.vfx.followProgressBars)) {
