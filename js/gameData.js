@@ -2,6 +2,57 @@
 
 const localStorageKey = 'ps_gameDataSave';
 
+/**
+ * @typedef {Object} GameState
+ * @property {string} [name] name of the game state in the gameStates dictionary
+ * @property {boolean} areTasksProgressing
+ * @property {boolean} isBossBattleProgressing
+ * @property {boolean} canChangeActivation
+ * @property {GameState[]} [validNextStates]
+ */
+
+/**
+ * @type {Object.<string, GameState>}
+ */
+const gameStates = {
+    NEW: {
+        areTasksProgressing: false,
+        isBossBattleProgressing: false,
+        canChangeActivation: false,
+    },
+    PLAYING: {
+        areTasksProgressing: true,
+        isBossBattleProgressing: false,
+        canChangeActivation: true,
+    },
+    PAUSED: {
+        areTasksProgressing: false,
+        isBossBattleProgressing: false,
+        canChangeActivation: false,
+    },
+    BOSS_FIGHT: {
+        areTasksProgressing: false,
+        isBossBattleProgressing: true,
+        canChangeActivation: true,
+    },
+    DEAD: {
+        areTasksProgressing: false,
+        isBossBattleProgressing: false,
+        canChangeActivation: false,
+    },
+    BOSS_DEFEATED: {
+        areTasksProgressing: false,
+        isBossBattleProgressing: false,
+        canChangeActivation: false,
+    },
+};
+gameStates.NEW.validNextStates = [gameStates.PLAYING];
+gameStates.PLAYING.validNextStates = [gameStates.PAUSED, gameStates.BOSS_FIGHT];
+gameStates.PAUSED.validNextStates = [gameStates.PLAYING];
+gameStates.BOSS_FIGHT.validNextStates = [gameStates.DEAD, gameStates.BOSS_DEFEATED];
+gameStates.DEAD.validNextStates = [];
+gameStates.BOSS_DEFEATED.validNextStates = [];
+
 class GameData {
 
     /**
@@ -11,6 +62,11 @@ class GameData {
      * @type {number}
      */
     version = 1;
+
+    /**
+     * @type {string}
+     */
+    stateName = gameStates.NEW.name;
 
     /**
      * @var {string}
@@ -25,17 +81,17 @@ class GameData {
     /**
      * @var {boolean}
      */
-    paused= true;
+    paused = true;
 
     /**
      * @var {number}
      */
-    population= 1;
+    population = 1;
 
     /**
      * @var {number}
      */
-    days= 365 * 14;
+    days = 365 * 14;
 
     /**
      * @var {number}
@@ -45,7 +101,7 @@ class GameData {
     /**
      * @var {number}
      */
-    rebirthOneCount= 0;
+    rebirthOneCount = 0;
 
     /**
      * @var {number}
@@ -94,7 +150,7 @@ class GameData {
         background: 'space',
         vfx: {
             followProgressBars: true,
-        }
+        },
     };
 
     skipSave = false;
@@ -110,33 +166,33 @@ class GameData {
         this.savedValues.gridStrength = GridStrength.newSavedValues();
 
         this.savedValues.moduleCategories = {};
-        for (const key in moduleCategories){
+        for (const key in moduleCategories) {
             this.savedValues.moduleCategories[key] = ModuleCategory.newSavedValues();
         }
         this.savedValues.modules = {};
-        for (const key in modules){
+        for (const key in modules) {
             this.savedValues.modules[key] = Module.newSavedValues();
         }
         this.savedValues.moduleComponents = {};
-        for (const key in moduleComponents){
+        for (const key in moduleComponents) {
             this.savedValues.moduleComponents[key] = ModuleComponent.newSavedValues();
         }
         this.savedValues.moduleOperations = {};
-        for (const key in moduleOperations){
+        for (const key in moduleOperations) {
             this.savedValues.moduleOperations[key] = ModuleOperation.newSavedValues();
         }
 
         this.savedValues.battles = {};
-        for (const key in battles){
+        for (const key in battles) {
             this.savedValues.battles[key] = Battle.newSavedValues();
         }
 
         this.savedValues.sectors = {};
-        for (const key in sectors){
+        for (const key in sectors) {
             this.savedValues.sectors[key] = Sector.newSavedValues();
         }
         this.savedValues.pointsOfInterest = {};
-        for (const key in pointsOfInterest){
+        for (const key in pointsOfInterest) {
             this.savedValues.pointsOfInterest[key] = PointOfInterest.newSavedValues();
         }
     }
@@ -170,27 +226,27 @@ class GameData {
         gridStrength.loadValues(this.savedValues.gridStrength);
 
         // Inverse order of hierarchy during loading --> allows for data propagation
-        for (const key in moduleOperations){
+        for (const key in moduleOperations) {
             moduleOperations[key].loadValues(this.savedValues.moduleOperations[key]);
         }
-        for (const key in moduleComponents){
+        for (const key in moduleComponents) {
             moduleComponents[key].loadValues(this.savedValues.moduleComponents[key]);
         }
-        for (const key in modules){
+        for (const key in modules) {
             modules[key].loadValues(this.savedValues.modules[key]);
         }
-        for (const key in moduleCategories){
+        for (const key in moduleCategories) {
             moduleCategories[key].loadValues(this.savedValues.moduleCategories[key]);
         }
 
-        for (const key in battles){
+        for (const key in battles) {
             battles[key].loadValues(this.savedValues.battles[key]);
         }
 
-        for (const key in sectors){
+        for (const key in sectors) {
             sectors[key].loadValues(this.savedValues.sectors[key]);
         }
-        for (const key in pointsOfInterest){
+        for (const key in pointsOfInterest) {
             pointsOfInterest[key].loadValues(this.savedValues.pointsOfInterest[key]);
         }
 
@@ -223,6 +279,34 @@ class GameData {
     export() {
         const importExportBox = document.getElementById('importExportBox');
         importExportBox.value = window.btoa(gameData.serializeAsJson());
+    }
+
+    get state(){
+        return gameStates[this.stateName];
+    }
+
+    /**
+     * @param {GameState} newState
+     */
+    set state(newState){
+        this.transitionState(newState);
+    }
+
+    /**
+     * @param {GameState} newState
+     */
+    transitionState(newState) {
+        // Validate transition
+        if (!this.state.validNextStates.includes(newState)) {
+            throw new Error('Invalide state transition from ' + this.state.name + ' to ' + newState.name);
+        }
+
+        this.stateName = newState.name;
+
+        GameEvents.GameStateChanged.trigger({
+            previousState: this.stateName,
+            newState: newState.name,
+        });
     }
 
     /**

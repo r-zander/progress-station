@@ -145,15 +145,16 @@ class BossBattle extends Battle {
         this.layerLabel = baseData.layerLabel;
     }
 
-    increaseXp(ignoreDeath = true) {
-        super.increaseXp(ignoreDeath);
+    /**
+     * @return {boolean}
+     */
+    isProgressing(){
+        return gameData.state.isBossBattleProgressing;
     }
 
     onDone() {
         super.onDone();
-        GameEvents.GameOver.trigger({
-            bossDefeated: true,
-        });
+        gameData.transitionState(gameStates.BOSS_DEFEATED);
     }
 
     getRewardsDescription(){

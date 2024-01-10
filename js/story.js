@@ -1,7 +1,7 @@
 'use strict';
 
 function initIntro() {
-    const modal = new bootstrap.Modal( document.getElementById('storyIntro'));
+    const modal = new bootstrap.Modal(document.getElementById('storyIntro'));
 
     const rerollNameButton = Dom.get().byId('rerollName');
     rerollNameButton.addEventListener('click', function (event) {
@@ -15,7 +15,7 @@ function initIntro() {
 
     window.finishIntro = function () {
         modal.hide();
-        unpause();
+        gameData.transitionState(gameStates.PLAYING);
     };
 }
 
@@ -32,18 +32,27 @@ function initBossAppearance() {
         // resetBattle('Destroyer');
         // startBattle('Destroyer');
         setTab('battles');
-        unpause();
+        gameData.transitionState(gameStates.PLAYING);
     };
 }
 
 function initGameOver() {
     let modalElement = document.getElementById('gameOverModal');
     const modal = new bootstrap.Modal(modalElement);
-    GameEvents.GameOver.subscribe( (payload) => {
+    GameEvents.GameStateChanged.subscribe((payload) => {
+        let bossDefeated;
+        if (payload.newState === gameStates.BOSS_DEFEATED) {
+            bossDefeated = true;
+        } else if (payload.newState === gameStates.DEAD) {
+            bossDefeated = false;
+        } else {
+            return;
+        }
+
         modal.show();
 
-        modalElement.classList.toggle('win', payload.bossDefeated);
-        modalElement.classList.toggle('loss', !payload.bossDefeated);
+        modalElement.classList.toggle('win', bossDefeated);
+        modalElement.classList.toggle('loss', !bossDefeated);
     });
 
     // TODO thing about what actually to do. This is just a "that's the other option"

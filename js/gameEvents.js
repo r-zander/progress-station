@@ -102,6 +102,10 @@ class GameEvent {
 
 const GameEvents = {
     NewGameStarted: new GameEvent(undefined),
+    GameStateChanged: new GameEvent({
+        previousState: JsTypes.String,
+        newState: JsTypes.String,
+    }),
     TaskLevelChanged: new GameEvent({
         type: JsTypes.String,
         name: JsTypes.String,

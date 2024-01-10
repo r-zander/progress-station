@@ -347,7 +347,7 @@ class VFX {
             VFX.progressFollow.lastUpdate = updateTime;
 
 
-            if (!isPlaying() || document.hidden) {
+            if (gameData.state === gameStates.PAUSED || document.hidden) {
                 // Game's paused or the tab is not visible --> no need for any VFX
                 VFX.progressFollow.animationFrameRequestID = requestAnimationFrame(update);
                 return;

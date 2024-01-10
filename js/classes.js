@@ -197,7 +197,16 @@ class Task extends Entity {
         this.savedValues.xp = xp;
     }
 
+    /**
+     * @return {boolean}
+     */
+    isProgressing(){
+        return gameData.state.areTasksProgressing;
+    }
+
     do() {
+        if (!this.isProgressing()) return;
+
         this.increaseXp();
     }
 
@@ -252,8 +261,8 @@ class Task extends Entity {
         return Effect.getDescription(this, this.effects, this.level);
     }
 
-    increaseXp(ignoreDeath = false) {
-        this.xp += applySpeed(this.getXpGain(), ignoreDeath);
+    increaseXp() {
+        this.xp += applySpeed(this.getXpGain());
         if (this.xp >= this.getMaxXp()) {
             this.levelUp();
         }

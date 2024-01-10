@@ -48,8 +48,8 @@ function applyMultipliers(value, multipliers) {
     return Math.round(value * finalMultiplier);
 }
 
-function applySpeed(value, ignoreDeath = false) {
-    return value * getGameSpeed(ignoreDeath) / updateSpeed;
+function applySpeed(value) {
+    return value * getGameSpeed() / updateSpeed;
 }
 
 function calculateHeat() {
@@ -82,12 +82,8 @@ function getPopulationProgressSpeedMultiplier() {
     return Math.max(1, Math.pow(Math.round(gameData.population), 1 / 1.869));
 }
 
-function getGameSpeed(ignoreDeath = false) {
-    if (ignoreDeath) {
-        return baseGameSpeed * +!gameData.paused;
-    } else {
-        return baseGameSpeed * +isPlaying();
-    }
+function getGameSpeed() {
+    return baseGameSpeed;
 }
 
 function hideAllTooltips() {
@@ -121,16 +117,17 @@ function setTab(selectedTab) {
 }
 
 // noinspection JSUnusedGlobalSymbols used in HTML
-function setPause() {
-    gameData.paused = !gameData.paused;
-}
-
-function unpause() {
-    gameData.paused = false;
+function togglePause() {
+    if (gameData.state === gameStates.PLAYING) {
+        gameData.transitionState(gameStates.PAUSED);
+    } else if (gameData.state === gameStates.PAUSED) {
+        gameData.transitionState(gameStates.PLAYING);
+    }
+    // Any other state is ignored
 }
 
 function setPointOfInterest(name) {
-    if (!isPlaying()) {
+    if (!gameData.state.canChangeActivation) {
         VFX.shakePlayButton();
         return;
     }
@@ -144,6 +141,11 @@ function setPointOfInterest(name) {
  * @param {HTMLInputElement} switchElement
  */
 function switchModuleActivation(module, switchElement) {
+    if (!gameData.state.canChangeActivation) {
+        VFX.shakePlayButton();
+        return;
+    }
+
     if (!switchElement.checked) {
         module.setActive(false);
         return;
@@ -495,7 +497,6 @@ function createUnfinishedBattlesUI() {
     /** @type {HTMLElement} */
     const level4Slot = domGetter.byClass('level4');
     level4Slot.append(...createLevel4BattleElements(Object.values(battles)));
-    // level4Slot.append(createBossBattleElement(bossBattle));
 
     return level3Element;
 }
@@ -1417,13 +1418,14 @@ function updateText() {
     document.getElementById('dayDisplay').textContent = String(getDay()).padStart(3, '0');
     document.getElementById('stationAge').textContent = String(daysToYears(gameData.totalDays));
     const pauseButton = document.getElementById('pauseButton');
-    if (gameData.paused) {
+    if (gameData.state === gameStates.PAUSED) {
         pauseButton.textContent = 'Play';
         pauseButton.classList.replace('btn-secondary', 'btn-primary');
-    } else {
+    } else if (gameData.state === gameStates.PLAYING) {
         pauseButton.textContent = 'Pause';
         pauseButton.classList.replace('btn-primary', 'btn-secondary');
     }
+    // TODO else???
 
     const danger = attributes.danger.getValue();
     formatValue(Dom.get().byId('dangerDisplay'), danger);
@@ -1472,8 +1474,8 @@ function updateHtmlElementRequirements() {
 }
 
 function updateBodyClasses() {
-    document.getElementById('body').classList.toggle('game-paused', !isPlaying());
-    document.getElementById('body').classList.toggle('game-playing', isPlaying());
+    document.getElementById('body').classList.toggle('game-paused', gameData.state === gameStates.PAUSED);
+    document.getElementById('body').classList.toggle('game-playing', gameData.state === gameStates.PLAYING);
 }
 
 function doTasks() {
@@ -1753,15 +1755,8 @@ function getLifespan() {
     return Number.MAX_VALUE;
 }
 
-function isAlive() {
+function isBossBattleAvailable() {
     return gameData.days < getLifespan();
-}
-
-/**
- * Player is alive and game is not paused aka the game is actually running.
- */
-function isPlaying() {
-    return !gameData.paused && isAlive();
 }
 
 function updateUI() {
@@ -1878,6 +1873,7 @@ function assignNames(data) {
 }
 
 function initConfigNames() {
+    assignNames(gameStates);
     gridStrength.name = 'gridStrength';
     assignNames(attributes);
     assignNames(moduleCategories);
@@ -1901,8 +1897,8 @@ function init() {
      */
     gameData.skipSave = true;
 
-    const saveGameFound = gameData.tryLoading();
-    if (saveGameFound === false) {
+    gameData.tryLoading();
+    if (gameData.state === gameStates.NEW) {
         GameEvents.NewGameStarted.trigger(undefined);
     }
 
