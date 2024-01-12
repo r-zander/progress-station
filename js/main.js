@@ -1158,6 +1158,7 @@ function updateBattleRows() {
     const maxBattles = maximumAvailableBattles();
     let visibleBattles = 0;
     const visibleFactions = {};
+    const bossRow = Dom.get().byId('row_' + bossBattle.name);
 
     // noinspection JSUnusedGlobalSymbols
     const requirementsContext = {
@@ -1203,7 +1204,10 @@ function updateBattleRows() {
             });
         }
 
-        if (!updateRequirements(unfulfilledRequirements.length === 0 ? null : unfulfilledRequirements, requirementsContext)) {
+        if (!updateRequirements(
+            unfulfilledRequirements.length === 0 ? null : unfulfilledRequirements,
+            requirementsContext)
+        ) {
             row.classList.add('hidden');
             continue;
         }
@@ -1224,6 +1228,29 @@ function updateBattleRows() {
         domGetter.byClass('progressFill').classList.toggle('current', isActive);
         domGetter.byClass('active').style.backgroundColor = isActive ? colorPalette.TomatoRed : colorPalette.White;
         formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
+
+        if (isBossBattleAvailable() &&
+            visibleBattles === bossBattle.distance
+        ) {
+            if (row.nextElementSibling !== bossRow) { // Do not update the DOM if not necessary
+                row.after(bossRow);
+            }
+        }
+    }
+
+    if (isBossBattleAvailable()) {
+        bossRow.classList.remove('hidden');
+        if (visibleBattles < bossBattle.distance) {
+            // There are fewer battles visible than the boss distance --> move boss in last position.
+            // Is the bossRow already the last element?
+            if (bossRow.nextElementSibling !== null) { // Do not update the DOM if not necessary
+                Dom.get()
+                    .bySelector('#unfinishedBattles tbody.level4')
+                    .append(bossRow);
+            }
+        }
+    } else {
+        bossRow.classList.add('hidden');
     }
 
     requirementsContext.requirementsElement.classList.toggle('hidden', !requirementsContext.hasUnfulfilledRequirements);
@@ -1487,15 +1514,25 @@ function doTasks() {
 
     for (const battleName of gameData.activeEntities.battles) {
         const battle = battles[battleName];
-        if (battle.isDone() && gameData.selectedTab === 'battles') {
-            // Quality of life - a battle is done and the player is already on the battles tab
-            // or visited it first after the battle was completed --> deactivate battle
-            battle.stop();
-            // TODO VFX should not be called, but triggered via Event
-            VFX.flash(Dom.get().bySelector('#row_done_' + battle.name + ' .progressBar'));
+        if (battle.isDone()) {
+            if (gameData.selectedTab === 'battles') {
+                // Quality of life - a battle is done and the player is already on the battles tab
+                // or visited it first after the battle was completed --> deactivate battle
+                battle.stop();
+                // TODO VFX should not be called, but triggered via Event
+                VFX.flash(Dom.get().bySelector('#row_done_' + battle.name + ' .progressBar'));
+            }
+
+            continue;
         }
 
         battle.do();
+        if (gameData.state === gameStates.PLAYING &&
+            isBossBattleAvailable() &&
+            battle.isDone()
+        ) {
+            bossBattle.decrementDistance();
+        }
     }
 
     gridStrength.do();
@@ -1531,6 +1568,7 @@ function getDay() {
 }
 
 function increaseDays() {
+    if (!gameData.state.isTimeProgressing) return;
     if (gameData.days >= getLifespan()) return;
 
     const increase = applySpeed(1);
@@ -1539,6 +1577,15 @@ function increaseDays() {
 
     if (gameData.days >= getLifespan()) {
         GameEvents.BossAppearance.trigger(undefined);
+    }
+}
+
+function updateBossApproach() {
+    if (gameData.state !== gameStates.PLAYING) return;
+    if (!isBossBattleAvailable()) return;
+
+    if (Math.round(gameData.days - getLifespan() + 1) % bossBattleApproachInterval === 0) {
+        bossBattle.decrementDistance();
     }
 }
 
@@ -1756,7 +1803,7 @@ function getLifespan() {
 }
 
 function isBossBattleAvailable() {
-    return gameData.days < getLifespan();
+    return gameData.days >= getLifespan();
 }
 
 function updateUI() {
@@ -1785,6 +1832,7 @@ function updateUI() {
 
 function update() {
     increaseDays();
+    updateBossApproach();
     doTasks();
     updatePopulation();
     updateUI();

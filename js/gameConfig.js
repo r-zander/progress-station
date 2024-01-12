@@ -335,6 +335,13 @@ const bossBattle = new BossBattle({
 });
 
 /**
+ * How many battles lie between the boss appearance and the boss battle.
+ * @type {number}
+ */
+const bossBattleDefaultDistance = 4;
+const bossBattleApproachInterval = 200; // Cycles
+
+/**
  * @type {Object.<string, Battle>}
  */
 const battles = {

@@ -5,6 +5,7 @@ const localStorageKey = 'ps_gameDataSave';
 /**
  * @typedef {Object} GameState
  * @property {string} [name] name of the game state in the gameStates dictionary
+ * @property {boolean} isTimeProgressing
  * @property {boolean} areTasksProgressing
  * @property {boolean} isBossBattleProgressing
  * @property {boolean} canChangeActivation
@@ -16,39 +17,52 @@ const localStorageKey = 'ps_gameDataSave';
  */
 const gameStates = {
     NEW: {
+        isTimeProgressing: false,
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
     },
     PLAYING: {
+        isTimeProgressing: true,
         areTasksProgressing: true,
         isBossBattleProgressing: false,
         canChangeActivation: true,
     },
     PAUSED: {
+        isTimeProgressing: false,
+        areTasksProgressing: false,
+        isBossBattleProgressing: false,
+        canChangeActivation: false,
+    },
+    BOSS_FIGHT_INTRO: {
+        isTimeProgressing: false,
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
     },
     BOSS_FIGHT: {
+        isTimeProgressing: false,
         areTasksProgressing: false,
         isBossBattleProgressing: true,
         canChangeActivation: true,
     },
     DEAD: {
+        isTimeProgressing: false,
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
     },
     BOSS_DEFEATED: {
+        isTimeProgressing: false,
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
     },
 };
 gameStates.NEW.validNextStates = [gameStates.PLAYING];
-gameStates.PLAYING.validNextStates = [gameStates.PAUSED, gameStates.BOSS_FIGHT];
+gameStates.PLAYING.validNextStates = [gameStates.PAUSED, gameStates.BOSS_FIGHT_INTRO];
 gameStates.PAUSED.validNextStates = [gameStates.PLAYING];
+gameStates.BOSS_FIGHT_INTRO.validNextStates = [gameStates.PLAYING, gameStates.BOSS_FIGHT];
 gameStates.BOSS_FIGHT.validNextStates = [gameStates.DEAD, gameStates.BOSS_DEFEATED];
 gameStates.DEAD.validNextStates = [];
 gameStates.BOSS_DEFEATED.validNextStates = [];
@@ -186,6 +200,7 @@ class GameData {
         for (const key in battles) {
             this.savedValues.battles[key] = Battle.newSavedValues();
         }
+        this.savedValues.battles[bossBattle.name] = BossBattle.newSavedValues();
 
         this.savedValues.sectors = {};
         for (const key in sectors) {

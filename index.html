@@ -729,7 +729,35 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light"><b>The Destroyer</b> found you</h2>
+                <h2 class="modal-title fs-4 fw-light">An ancient evil approaches</h2>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Everything was going great on your space station, but suddenly your
+                    heart sinks into your stomach, and you get that same feeling as when
+                    you came to your senses alone on this very station.
+                </p>
+                <p>
+                    Sensors are going wild, the proximity alert shrieks and the light of stars
+                    gets swallowed by an unidentifiable mass.
+                </p>
+                <p class="help-text">
+                    In <data value="4">4</data> battles or <data value="800">800</data> cycles
+                    (whichever happens first) the boss battle will start.
+                </p>
+            </div>
+            <div class="modal-footer d-flex justify-content-end">
+                <button type="button" class="btn btn-primary" onclick="acknowledgeBossBattle();">Prepare!</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="bossFightIntroModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-4 fw-light"><b>The Destroyer</b> attacks you</h2>
             </div>
             <div class="modal-body">
                 <p>
@@ -792,6 +820,8 @@
 <script type="text/javascript" src="vendor/p5.Color.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/gameEvents.js"></script>
+<!-- TODO remove for release -->
+<script type="text/javascript" src="js/cheats.js"></script>
 <script type="text/javascript" src="js/effects.js"></script>
 <script type="text/javascript" src="js/classes.js"></script>
 <script type="text/javascript" src="js/battle.js"></script>

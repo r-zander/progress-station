@@ -9,9 +9,17 @@ function initIntro() {
         rerollStationName();
     });
 
-    GameEvents.NewGameStarted.subscribe(function () {
+    GameEvents.NewGameStarted.subscribe( () => {
         modal.show();
     });
+
+    if (_.isObject(cheats)) {
+        cheats.Story['Intro'] = {
+            trigger: () => {
+                GameEvents.NewGameStarted.trigger(undefined);
+            }
+        };
+    }
 
     window.finishIntro = function () {
         modal.hide();
@@ -25,7 +33,15 @@ function initBossAppearance() {
         modal.show();
     });
 
-    window.startBossBattle = function () {
+    if (_.isObject(cheats)) {
+        cheats.Story['BossAppearance'] = {
+            trigger: () => {
+                GameEvents.BossAppearance.trigger(undefined);
+            }
+        };
+    }
+
+    window.acknowledgeBossBattle = function () {
         modal.hide();
         // TODO once there is a full specification for boss battle
         // tabButtons.battles.classList.remove('hidden');
@@ -33,6 +49,30 @@ function initBossAppearance() {
         // startBattle('Destroyer');
         setTab('battles');
         gameData.transitionState(gameStates.PLAYING);
+    };
+}
+
+function initBossFightIntro() {
+    const modal = new bootstrap.Modal(document.getElementById('bossFightIntroModal'));
+    GameEvents.GameStateChanged.subscribe(function (payload) {
+        if (payload.newState !== gameStates.BOSS_FIGHT_INTRO) return;
+
+        modal.show();
+    });
+
+    if (_.isObject(cheats)) {
+        cheats.Story['BossFightIntro'] = {
+            trigger: () => {
+                gameData.transitionState(gameStates.BOSS_FIGHT_INTRO);
+            }
+        };
+    }
+
+    window.startBossBattle = function () {
+        modal.hide();
+        setTab('battles');
+        gameData.transitionState(gameStates.BOSS_FIGHT);
+        bossBattle.start();
     };
 }
 
@@ -55,6 +95,18 @@ function initGameOver() {
         modalElement.classList.toggle('loss', !bossDefeated);
     });
 
+    if (_.isObject(cheats)) {
+        cheats.Story['GameOver'] = {
+            trigger: (win) => {
+                if (win){
+                    gameData.transitionState(gameStates.BOSS_DEFEATED);
+                } else {
+                    gameData.transitionState(gameStates.DEAD);
+                }
+            }
+        };
+    }
+
     // TODO thing about what actually to do. This is just a "that's the other option"
     window.resetAfterGameOver = () => {
         gameData.reset();
@@ -69,6 +121,7 @@ function initGameOver() {
 function initStory() {
     initIntro();
     initBossAppearance();
+    initBossFightIntro();
     initGameOver();
 }
 
