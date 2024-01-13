@@ -6,6 +6,7 @@ const localStorageKey = 'ps_gameDataSave';
  * @typedef {Object} GameState
  * @property {string} [name] name of the game state in the gameStates dictionary
  * @property {boolean} isTimeProgressing
+ * @property {boolean} areAttributesUpdated
  * @property {boolean} areTasksProgressing
  * @property {boolean} isBossBattleProgressing
  * @property {boolean} canChangeActivation
@@ -18,42 +19,49 @@ const localStorageKey = 'ps_gameDataSave';
 const gameStates = {
     NEW: {
         isTimeProgressing: false,
+        areAttributesUpdated: false,
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
     },
     PLAYING: {
         isTimeProgressing: true,
+        areAttributesUpdated:true,
         areTasksProgressing: true,
         isBossBattleProgressing: false,
         canChangeActivation: true,
     },
     PAUSED: {
         isTimeProgressing: false,
+        areAttributesUpdated: false,
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
     },
     BOSS_FIGHT_INTRO: {
         isTimeProgressing: false,
+        areAttributesUpdated: false,
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
     },
     BOSS_FIGHT: {
         isTimeProgressing: false,
+        areAttributesUpdated: true,
         areTasksProgressing: false,
         isBossBattleProgressing: true,
         canChangeActivation: true,
     },
     DEAD: {
         isTimeProgressing: false,
+        areAttributesUpdated: false,
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
     },
     BOSS_DEFEATED: {
         isTimeProgressing: false,
+        areAttributesUpdated: false,
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
@@ -65,7 +73,7 @@ gameStates.PAUSED.validNextStates = [gameStates.PLAYING];
 gameStates.BOSS_FIGHT_INTRO.validNextStates = [gameStates.PLAYING, gameStates.BOSS_FIGHT];
 gameStates.BOSS_FIGHT.validNextStates = [gameStates.DEAD, gameStates.BOSS_DEFEATED];
 gameStates.DEAD.validNextStates = [];
-gameStates.BOSS_DEFEATED.validNextStates = [];
+gameStates.BOSS_DEFEATED.validNextStates = [gameStates.PLAYING];
 
 class GameData {
 
@@ -93,11 +101,6 @@ class GameData {
     selectedTab = 'modules';
 
     /**
-     * @var {boolean}
-     */
-    paused = true;
-
-    /**
      * @var {number}
      */
     population = 1;
@@ -111,6 +114,11 @@ class GameData {
      * @var {number}
      */
     totalDays = 365 * 14;
+
+    /**
+     * @var {boolean}
+     */
+    bossBattleAvailable = false;
 
     /**
      * @var {number}
@@ -263,6 +271,13 @@ class GameData {
         }
         for (const key in pointsOfInterest) {
             pointsOfInterest[key].loadValues(this.savedValues.pointsOfInterest[key]);
+        }
+
+        if (saveGameFound) {
+            GameEvents.GameStateChanged.trigger({
+                previousState: gameStates.NEW.name,
+                newState: this.stateName,
+            });
         }
 
         return saveGameFound;

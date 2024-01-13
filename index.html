@@ -717,9 +717,9 @@
                        maxlength="30"
                        placeholder=""/>
             </div>
-            <div class="modal-footer d-flex justify-content-between">
+            <div class="modal-footer d-flex">
                 <button type="button" id="rerollName" class="btn btn-secondary">Re-roll name</button>
-                <button type="button" class="btn btn-primary" onclick="finishIntro()">Take control</button>
+                <button type="button" class="btn btn-primary ms-auto" onclick="finishIntro()">Take control</button>
             </div>
         </div>
     </div>
@@ -746,8 +746,8 @@
                     (whichever happens first) the boss battle will start.
                 </p>
             </div>
-            <div class="modal-footer d-flex justify-content-end">
-                <button type="button" class="btn btn-primary" onclick="acknowledgeBossBattle();">Prepare!</button>
+            <div class="modal-footer d-flex">
+                <button type="button" class="btn btn-primary ms-auto" onclick="acknowledgeBossBattle();">Prepare!</button>
             </div>
         </div>
     </div>
@@ -761,17 +761,19 @@
             </div>
             <div class="modal-body">
                 <p>
-                    The danger was too high, and now the entity known only as the 'Destroyer' has caught up with you.
+                    You are facing an immense, dark mass of writhing tentacles, teeth and eyes that are fixated on the station.
                 </p>
                 <p>
-                    You are facing a dark mass of writhing tentacles, teeth and eyes that are fixated on the station.
-                </p>
-                <p>
-                    Slowly, it moves towards you - brace for impact!
+                    The vacuum of space around your station supress all noise, but you can feel the hatred of
+                    the alien beast and see it's determination to destroy everything you have built up.
                 </p>
             </div>
-            <div class="modal-footer d-flex justify-content-end">
-                <button type="button" class="btn btn-primary" onclick="startBossBattle();">Fight!</button>
+            <div class="modal-footer d-flex">
+                <button type="button" class="btn btn-secondary"
+                        id="delayBossBattleButton" onclick="delayBossBattle();">
+                    Not yet
+                </button>
+                <button type="button" class="btn btn-primary ms-auto" onclick="startBossBattle();">Fight!</button>
             </div>
         </div>
     </div>
@@ -789,19 +791,38 @@
                     Congratulations!
                 </p>
                 <p>
-                    You managed to blast through the Destroyer's near endless defenses. The universe is safe.
+                    You managed to blast through the Destroyer's near endless defenses.
+                </p>
+                <p>
+                    The universe is safe, and it feels as if a curse was lifted of your soul.
+                </p>
+                <p class="mt-4">
+                    On the main console you see what appears to be an ancient video game:
+                </p>
+                <p class="text-center mb-0">
+                    <a href="https://ihtasham-42.itch.io/progress-knight">Progress Knight</a> by ihtasham_42<br/>
+                </p>
+                <p>
+                    <em class="help-text">Check out the original game that Progress Station is based upon.</em>
                 </p>
             </div>
             <div class="modal-body loss-only">
                 <p>
-                    The Destroyer's power is overwhelming. Your only hope is to engage the Temporus artifact
-                    and attempt a time jump. You will lose all of your Modules and Exploration progress, but
-                    will progress much faster the next time around.
+                    The Destroyer's power is overwhelming and annihilates your man, your station, everything.
+                </p>
+                <p>
+                    With the last of your strength, you save yourself in the rescue capsule.
+                </p>
+                <p class="help-text">
+                    In the next play-through, you will progress much faster.<br/>
+                    The max level of modules equals the sum of all operations in that module.<br/>
+                    Each operation in a modules progresses X% faster, where X is the modules max level.
                 </p>
             </div>
-            <div class="modal-footer d-flex justify-content-end">
-                <button type="button" class="btn btn-primary win-only" onclick="resetAfterGameOver();">Start new game</button>
-                <button type="button" class="btn btn-primary loss-only" onclick="restartAfterGameOver();">Attempt time jump!</button>
+            <div class="modal-footer d-flex">
+                <button type="button" class="btn btn-secondary win-only" onclick="continueAfterWin();">Keep playing</button>
+                <button type="button" class="btn btn-primary ms-auto win-only" onclick="resetAfterWin();">Start new game</button>
+                <button type="button" class="btn btn-primary ms-auto loss-only" onclick="restartAfterDead();">Fade to black</button>
             </div>
         </div>
     </div>

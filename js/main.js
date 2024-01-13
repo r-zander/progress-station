@@ -54,21 +54,33 @@ function applySpeed(value) {
 
 function calculateHeat() {
     const danger = attributes.danger.getValue();
-    const military = attributes.military.getValue();
+    let military = 0;
+    if (gameData.state !== gameStates.BOSS_FIGHT) {
+        military = attributes.military.getValue();
+    }
 
     return Math.max(danger - military, 1);
 }
 
 function populationDelta() {
-    const growth = attributes.growth.getValue();
+    let growth = 0;
+    if (gameData.state !== gameStates.BOSS_FIGHT) {
+        growth = attributes.growth.getValue();
+    }
     const heat = attributes.heat.getValue();
     const population = attributes.population.getValue();
     return growth - population * 0.01 * heat;
 }
 
 function updatePopulation() {
+    if (!gameData.state.areAttributesUpdated) return;
+
     gameData.population += applySpeed(populationDelta());
     gameData.population = Math.max(gameData.population, 1);
+
+    if (gameData.state === gameStates.BOSS_FIGHT && gameData.population === 1) {
+        gameData.transitionState(gameStates.DEAD);
+    }
 }
 
 function getPopulationProgressSpeedMultiplier() {
@@ -1569,13 +1581,15 @@ function getDay() {
 
 function increaseDays() {
     if (!gameData.state.isTimeProgressing) return;
-    if (gameData.days >= getLifespan()) return;
+    // if (gameData.days >= getLifespan()) return;
 
     const increase = applySpeed(1);
     gameData.days += increase;
     gameData.totalDays += increase;
 
-    if (gameData.days >= getLifespan()) {
+    if (!isBossBattleAvailable() && gameData.days >= getLifespan()) {
+        gameData.bossBattleAvailable = true;
+        gameData.transitionState(gameStates.PAUSED);
         GameEvents.BossAppearance.trigger(undefined);
     }
 }
@@ -1799,11 +1813,11 @@ function getLifespan() {
     //const immortality = gameData.taskData['Immortality'];
     //const superImmortality = gameData.taskData['Super immortality'];
     //return baseLifespan * immortality.getEffect() * superImmortality.getEffect();
-    return Number.MAX_VALUE;
+    return baseLifespan;
 }
 
 function isBossBattleAvailable() {
-    return gameData.days >= getLifespan();
+    return gameData.bossBattleAvailable;
 }
 
 function updateUI() {

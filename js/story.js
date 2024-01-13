@@ -43,10 +43,6 @@ function initBossAppearance() {
 
     window.acknowledgeBossBattle = function () {
         modal.hide();
-        // TODO once there is a full specification for boss battle
-        // tabButtons.battles.classList.remove('hidden');
-        // resetBattle('Destroyer');
-        // startBattle('Destroyer');
         setTab('battles');
         gameData.transitionState(gameStates.PLAYING);
     };
@@ -55,8 +51,9 @@ function initBossAppearance() {
 function initBossFightIntro() {
     const modal = new bootstrap.Modal(document.getElementById('bossFightIntroModal'));
     GameEvents.GameStateChanged.subscribe(function (payload) {
-        if (payload.newState !== gameStates.BOSS_FIGHT_INTRO) return;
+        if (payload.newState !== gameStates.BOSS_FIGHT_INTRO.name) return;
 
+        Dom.get().byId('delayBossBattleButton').classList.toggle('hidden', bossBattle.distance === 0);
         modal.show();
     });
 
@@ -67,6 +64,11 @@ function initBossFightIntro() {
             }
         };
     }
+
+    window.delayBossBattle = function () {
+        modal.hide();
+        gameData.transitionState(gameStates.PLAYING);
+    };
 
     window.startBossBattle = function () {
         modal.hide();
@@ -81,9 +83,9 @@ function initGameOver() {
     const modal = new bootstrap.Modal(modalElement);
     GameEvents.GameStateChanged.subscribe((payload) => {
         let bossDefeated;
-        if (payload.newState === gameStates.BOSS_DEFEATED) {
+        if (payload.newState === gameStates.BOSS_DEFEATED.name) {
             bossDefeated = true;
-        } else if (payload.newState === gameStates.DEAD) {
+        } else if (payload.newState === gameStates.DEAD.name) {
             bossDefeated = false;
         } else {
             return;
@@ -107,12 +109,16 @@ function initGameOver() {
         };
     }
 
-    // TODO thing about what actually to do. This is just a "that's the other option"
-    window.resetAfterGameOver = () => {
+    window.continueAfterWin = () => {
+        modal.hide();
+        gameData.transitionState(gameStates.PLAYING);
+    };
+
+    window.resetAfterWin = () => {
         gameData.reset();
     };
 
-    window.restartAfterGameOver = () => {
+    window.restartAfterDead = () => {
         modal.hide();
         rebirthOne();
     };

@@ -80,11 +80,11 @@ class Battle extends LayeredTask {
         return 1;
     }
 
-    isActive(){
+    isActive() {
         return gameData.activeEntities.battles.has(this.name);
     }
 
-    toggle(){
+    toggle() {
         if (this.isActive()) {
             this.stop();
         } else {
@@ -92,7 +92,7 @@ class Battle extends LayeredTask {
         }
     }
 
-    start(){
+    start() {
         if (this.isDone()) {
             // Can't activate completed battles
             return;
@@ -101,7 +101,7 @@ class Battle extends LayeredTask {
         gameData.activeEntities.battles.add(this.name);
     }
 
-    stop(){
+    stop() {
         gameData.activeEntities.battles.delete(this.name);
     }
 
@@ -121,7 +121,7 @@ class Battle extends LayeredTask {
         return Effect.getValue(this, effectType, this.effects, 1);
     }
 
-    getRewardsDescription(){
+    getRewardsDescription() {
         return Effect.getDescription(this, this.rewards, 1);
     }
 }
@@ -208,8 +208,15 @@ class BossBattle extends Battle {
     /**
      * @return {boolean}
      */
-    isProgressing(){
+    isProgressing() {
         return gameData.state.isBossBattleProgressing;
+    }
+
+    stop() {
+        // Undefeated boss battle can not be stopped
+        if (!this.isDone()) return;
+
+        super.stop();
     }
 
     onDone() {
@@ -217,7 +224,7 @@ class BossBattle extends Battle {
         gameData.transitionState(gameStates.BOSS_DEFEATED);
     }
 
-    getRewardsDescription(){
+    getRewardsDescription() {
         return 'Essence of Unknown';
     }
 }
