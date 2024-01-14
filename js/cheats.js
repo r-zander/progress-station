@@ -14,12 +14,15 @@ const cheats = {
     Age: {
         set: (age) => {
             gameData.days = age;
+            gameData.totalDays = age;
         },
         add: (age) => {
             gameData.days += age;
+            gameData.totalDays += age;
         },
         setToBossTime: () => {
             gameData.days = getLifespan() - 1;
+            gameData.totalDays = getLifespan() - 1;
         }
     },
     Battles: {},
