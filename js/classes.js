@@ -19,6 +19,10 @@
  */
 
 /**
+ * @typedef {'RESET_MAX_LEVEL'|'UPDATE_MAX_LEVEL'} MaxLevelBehavior
+ */
+
+/**
  * Saved Values that do not (yet) contain any values.
  * These are implemented to enforce a schema that all entities are able to load and save data.
  * @typedef {Object} EmptySavedValues
@@ -71,6 +75,8 @@ class Entity {
                     return this.getSavedValues().requirementCompleted[index];
                 });
             });
+        } else {
+            this.requirements = [];
         }
     }
 
@@ -106,6 +112,12 @@ class Entity {
      */
     getUnfulfilledRequirements() {
         return Requirement.getUnfulfilledRequirements(this.requirements);
+    }
+
+    reset() {
+        for (const requirement of this.requirements) {
+            requirement.reset();
+        }
     }
 }
 
@@ -290,12 +302,23 @@ class Task extends Entity {
         this.xp = this.getMaxXp() + excess;
     }
 
-    updateMaxLevelAndReset() {
-        if (this.level > this.maxLevel) {
-            this.maxLevel = this.level;
-        }
+    /**
+     * @param {MaxLevelBehavior} maxLevelBehavior
+     */
+    reset(maxLevelBehavior) {
+        super.reset(maxLevelBehavior);
         this.level = 0;
         this.xp = 0;
+        switch (maxLevelBehavior) {
+            case 'UPDATE_MAX_LEVEL':
+                if (this.level > this.maxLevel) {
+                    this.maxLevel = this.level;
+                }
+                break;
+            case 'RESET_MAX_LEVEL':
+                this.maxLevel = 0;
+                break;
+        }
     }
 }
 
@@ -459,10 +482,22 @@ class Module extends Entity {
         return this.components.reduce((levelSum, component) => levelSum + component.getOperationLevels(), 0);
     }
 
-    updateMaxLevel() {
-        const currentLevel = this.getLevel();
-        if (currentLevel > this.maxLevel) {
-            this.maxLevel = currentLevel;
+    /**
+     *
+     * @param {MaxLevelBehavior} maxLevelBehavior
+     */
+    reset(maxLevelBehavior) {
+        super.reset(maxLevelBehavior);
+        switch (maxLevelBehavior) {
+            case 'UPDATE_MAX_LEVEL':
+                const currentLevel = this.getLevel();
+                if (currentLevel > this.maxLevel) {
+                    this.maxLevel = currentLevel;
+                }
+                break;
+            case 'RESET_MAX_LEVEL':
+                this.maxLevel = 0;
+                break;
         }
     }
 
@@ -582,7 +617,8 @@ class ModuleOperation extends Task {
     }
 
     set maxLevel(maxLevel) {
-        throw new TypeError('ModuleOperations only inherit the maxLevel of their modules but can not modify it.');
+        // Do nothing
+        // throw new TypeError('ModuleOperations only inherit the maxLevel of their modules but can not modify it.');
     }
 
     /**
@@ -633,11 +669,6 @@ class ModuleOperation extends Task {
 
     getMaxLevelMultiplier() {
         return 1 + this.maxLevel / 100;
-    }
-
-    updateMaxLevelAndReset() {
-        this.level = 0;
-        this.xp = 0;
     }
 
     /**
@@ -858,6 +889,20 @@ class Requirement {
         return true;
     }
 
+    reset(){
+        switch (this.scope) {
+            case 'permanent':
+                // Keep value
+                break;
+            case 'playthrough':
+                this.#completed = false;
+                break;
+            case 'update':
+                // discarded anyway
+                break;
+        }
+    }
+
     /**
      * @return {boolean}
      */
@@ -1035,5 +1080,11 @@ class HtmlElementWithRequirement {
      */
     getUnfulfilledRequirements() {
         return Requirement.getUnfulfilledRequirements(this.requirements);
+    }
+
+    reset() {
+        for (const requirement of this.requirements) {
+            requirement.reset();
+        }
     }
 }

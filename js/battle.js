@@ -216,6 +216,15 @@ class BossBattle extends Battle {
     }
 
     /**
+     * @param {MaxLevelBehavior} maxLevelBehavior
+     */
+    reset(maxLevelBehavior) {
+        super.reset(maxLevelBehavior);
+        this.savedValues.distance = bossBattleDefaultDistance;
+        this.savedValues.coveredDistance = 0;
+    }
+
+    /**
      * @return {boolean}
      */
     isProgressing() {

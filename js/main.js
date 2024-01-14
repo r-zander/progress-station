@@ -78,7 +78,7 @@ function updatePopulation() {
     gameData.population += applySpeed(populationDelta());
     gameData.population = Math.max(gameData.population, 1);
 
-    if (gameData.state === gameStates.BOSS_FIGHT && gameData.population === 1) {
+    if (gameData.state === gameStates.BOSS_FIGHT && Math.round(gameData.population) === 1) {
         gameData.transitionState(gameStates.DEAD);
     }
 }
@@ -1413,9 +1413,15 @@ function updateEnergyGridBar() {
     formatValue(Dom.get(gridStrengthElement).bySelector('data'), currentGridStrength, {keepNumber: true});
 
     const numberOfBoxes = Dom.get().allBySelector('#gridStrength > .grid-strength-box').length;
-    for (let i = numberOfBoxes; i < currentGridStrength; i++) {
-        const gridStrengthBox = Dom.new.fromTemplate('gridStrengthBoxTemplate');
-        Dom.get().byId('gridStrength').append(gridStrengthBox);
+    if (numberOfBoxes > currentGridStrength) {
+        for (let i = 0; i < (numberOfBoxes - currentGridStrength); i++) {
+            Dom.get().bySelector('#gridStrength .grid-strength-box').remove();
+        }
+    } else if (currentGridStrength > numberOfBoxes) {
+        for (let i = numberOfBoxes; i < currentGridStrength; i++) {
+            const gridStrengthBox = Dom.new.fromTemplate('gridStrengthBoxTemplate');
+            Dom.get().byId('gridStrength').append(gridStrengthBox);
+        }
     }
 
     Dom.get().allBySelector('#gridStrength > .grid-strength-box').forEach((gridStrengthBox, index) => {
@@ -1782,52 +1788,64 @@ function resetBattle(name) {
 
 function rebirthOne() {
     gameData.rebirthOneCount += 1;
-    rebirthReset();
+    rebirthReset('UPDATE_MAX_LEVEL');
 }
 
-function rebirthTwo() {
-    gameData.rebirthTwoCount += 1;
-    rebirthReset();
-    resetMaxLevels();
-}
+// function rebirthTwo() {
+//     gameData.rebirthTwoCount += 1;
+//     rebirthReset('RESET_MAX_LEVEL');
+// }
 
-function rebirthReset() {
-    setTab('modules');
-
+/**
+ * @param {MaxLevelBehavior} maxLevelBehavior
+ */
+function rebirthReset(maxLevelBehavior) {
+    gameData.initValues();
     gameData.resetCurrentValues();
 
     for (const key in moduleOperations) {
         const operation = moduleOperations[key];
-        operation.updateMaxLevelAndReset();
+        operation.reset(maxLevelBehavior);
     }
 
-    gridStrength.updateMaxLevelAndReset();
+    gridStrength.reset(maxLevelBehavior);
 
     for (const key in battles) {
         const battle = battles[key];
-        battle.updateMaxLevelAndReset();
+        battle.reset(maxLevelBehavior);
+    }
+
+    for (const key in moduleComponents) {
+        const component = moduleComponents[key];
+        component.reset(maxLevelBehavior);
     }
 
     for (const key in modules) {
         const module = modules[key];
-        module.updateMaxLevel();
+        module.reset(maxLevelBehavior);
     }
 
+    for (const key in moduleCategories) {
+        const category = moduleCategories[key];
+        category.reset(maxLevelBehavior);
+    }
+
+    for (const key in sectors) {
+        const sector = sectors[key];
+        sector.reset(maxLevelBehavior);
+    }
+
+    for (const key in pointsOfInterest) {
+        const pointOfInterest = pointsOfInterest[key];
+        pointOfInterest.reset(maxLevelBehavior);
+    }
+
+    for (const elementRequirement of elementRequirements) {
+        elementRequirement.reset();
+    }
+
+    setTab('modules');
     gameData.transitionState(gameStates.NEW);
-}
-
-function resetMaxLevels() {
-    for (const key in moduleOperations) {
-        const operation = moduleOperations[key];
-        operation.maxLevel = 0;
-    }
-
-    gridStrength.maxLevel = 0;
-
-    for (const key in battles) {
-        const battle = battles[key];
-        battle.maxLevel = 0;
-    }
 }
 
 function getLifespan() {

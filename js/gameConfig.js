@@ -3,6 +3,7 @@
 // TODO replace with requestAnimationFrame for smoothest experience
 const updateSpeed = 20;
 
+const startingDays = 365 * 14;
 const baseLifespan = (14 + 25) * 365;
 const dangerColors = [
     new Color([0, 128, 0], 'RGB'),    // 0% color: dark green
@@ -329,7 +330,7 @@ const bossBattle = new BossBattle({
     title: 'The',
     targetLevel: 20,
     faction: factions.Destroyer,
-    effects: [{effectType: EffectType.Danger, baseValue: 500}],
+    effects: [{effectType: EffectType.Danger, baseValue: 10}],
     rewards: [],
     progressBarId: 'battleProgressBar',
     layerLabel: 'Tentacles layer',

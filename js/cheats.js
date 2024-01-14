@@ -25,7 +25,9 @@ const cheats = {
     Battles: {},
     Requirements: {},
     NameGenerator: {},
-    Story: {},
+    Story: {
+        // Is filled in story.js
+    },
     Attributes: {
         additionalEffects: [],
         increaseAllBy: (value) => {

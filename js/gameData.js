@@ -103,22 +103,22 @@ class GameData {
     /**
      * @var {number}
      */
-    population = 1;
+    population;
 
     /**
      * @var {number}
      */
-    days = 365 * 14;
+    days;
 
     /**
      * @var {number}
      */
-    totalDays = 365 * 14;
+    totalDays = startingDays;
 
     /**
      * @var {boolean}
      */
-    bossBattleAvailable = false;
+    bossBattleAvailable ;
 
     /**
      * @var {number}
@@ -178,8 +178,15 @@ class GameData {
     skipSave = false;
 
     constructor() {
+        this.initValues();
         this.initSavedValues();
         this.resetCurrentValues();
+    }
+
+    initValues() {
+        this.population = 1;
+        this.days = startingDays;
+        this.bossBattleAvailable = false;
     }
 
     initSavedValues() {
@@ -222,12 +229,15 @@ class GameData {
 
     resetCurrentValues() {
         this.activeEntities.modules = new Set();
-        for (const module of defaultModules) {
-            this.activeEntities.modules.add(module.name);
-        }
         this.activeEntities.operations = new Set();
         this.activeEntities.pointOfInterest = defaultPointOfInterest;
         this.activeEntities.battles = new Set();
+        for (const module of defaultModules) {
+            this.activeEntities.modules.add(module.name);
+            for (const component of module.components) {
+                this.activeEntities.operations.add(component.operations[0].name);
+            }
+        }
     }
 
     /**
