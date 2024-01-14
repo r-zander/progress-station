@@ -3,7 +3,7 @@
 // TODO replace with requestAnimationFrame for smoothest experience
 const updateSpeed = 20;
 
-const startingDays = 365 * 14;
+const startingDays = 0;
 const baseLifespan = (14 + 25) * 365;
 const dangerColors = [
     new Color([0, 128, 0], 'RGB'),    // 0% color: dark green

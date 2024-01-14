@@ -1478,8 +1478,8 @@ function updateHeatDisplay() {
 
 function updateText() {
     //Sidebar
-    document.getElementById('ageDisplay').textContent = formatValueWithCommas(daysToCycles(gameData.totalDays, 0));
-    document.getElementById('stationAge').textContent = formatValueWithCommas(daysToCycles(gameData.days));
+    document.getElementById('ageDisplay').textContent = formatValueWithCommas(daysToCycles(gameData.days, 0));
+    document.getElementById('stationAge').textContent = formatValueWithCommas(daysToCycles(gameData.totalDays));
     const pauseButton = document.getElementById('pauseButton');
     if (gameData.state === gameStates.PAUSED) {
         pauseButton.textContent = 'Play';
