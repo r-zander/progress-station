@@ -1472,9 +1472,8 @@ function updateHeatDisplay() {
 
 function updateText() {
     //Sidebar
-    document.getElementById('ageDisplay').textContent = String(daysToYears(gameData.days));
-    document.getElementById('dayDisplay').textContent = String(getDay()).padStart(3, '0');
-    document.getElementById('stationAge').textContent = String(daysToYears(gameData.totalDays));
+    document.getElementById('ageDisplay').textContent = formatValueWithCommas(daysToCycles(gameData.days));
+    document.getElementById('stationAge').textContent = formatValueWithCommas(daysToCycles(gameData.days));
     const pauseButton = document.getElementById('pauseButton');
     if (gameData.state === gameStates.PAUSED) {
         pauseButton.textContent = 'Play';
@@ -1584,6 +1583,21 @@ function calculateGridLoad() {
     }
 
     return gridLoad;
+}
+
+function daysToCycles(days) {
+    const decimalPlaces = 0;
+    const baseStardate = 100000;
+
+    const stardateIncrement = 1;
+    const calculatedStardate = baseStardate + stardateIncrement * days;
+    const roundedStardate = calculatedStardate.toFixed(decimalPlaces);
+  
+    return roundedStardate;
+}
+
+function formatValueWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 function daysToYears(days) {

@@ -108,12 +108,12 @@ class GameData {
     /**
      * @var {number}
      */
-    days = 365 * 14;
+    days = 0;
 
     /**
      * @var {number}
      */
-    totalDays = 365 * 14;
+    totalDays = 0;
 
     /**
      * @var {boolean}
