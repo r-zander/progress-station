@@ -154,6 +154,7 @@ function setPointOfInterest(name) {
  */
 function switchModuleActivation(module, switchElement) {
     if (!gameData.state.canChangeActivation) {
+        switchElement.checked = false;
         VFX.shakePlayButton();
         return;
     }
@@ -165,8 +166,8 @@ function switchModuleActivation(module, switchElement) {
 
     const gridLoadAfterActivation = attributes.gridLoad.getValue() + module.getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
-        VFX.highlightText(Dom.get().bySelector(`#${module.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
         switchElement.checked = false;
+        VFX.highlightText(Dom.get().bySelector(`#${module.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
         return;
     }
 
@@ -481,12 +482,15 @@ function createLevel4BattleElements(battles) {
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
         domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
-        domGetter.byClass('progressBar').addEventListener('click', () => {
-            battle.toggle();
-        });
-        domGetter.byClass('radio').addEventListener('click', () => {
-            battle.toggle();
-        });
+        const clickListener = () => {
+            if (battle instanceof BossBattle){
+                gameData.transitionState(gameStates.BOSS_FIGHT_INTRO);
+            } else {
+                battle.toggle();
+            }
+        };
+        domGetter.byClass('progressBar').addEventListener('click', clickListener);
+        domGetter.byClass('radio').addEventListener('click', clickListener);
 
         level4Elements.push(level4Element);
     }
@@ -531,7 +535,7 @@ function createLevel4FinishedBattleElements(battles) {
         domGetter.byClass('action').classList.add('hidden');
         formatValue(
             domGetter.bySelector('.level > data'),
-            battle.maxLevel,
+            battle.targetLevel,
             {keepNumber: true},
         );
         domGetter.byClass('xpGain').classList.add('hidden');
@@ -961,13 +965,18 @@ function updateBattlesQuickDisplay() {
         const battle = battles[battleName];
         const quickDisplayElement = Dom.get().bySelector('#battleTabButton .quickTaskDisplay.' + battle.name);
         const componentDomGetter = Dom.get(quickDisplayElement);
-        if (!battle.isActive()) {
+        if (battle instanceof BossBattle) {
+            if (!isBossBattleAvailable()) {
+                quickDisplayElement.classList.add('hidden');
+                continue;
+            }
+        } else if (!battle.isActive()) {
             quickDisplayElement.classList.add('hidden');
             continue;
         }
 
         quickDisplayElement.classList.remove('hidden');
-        componentDomGetter.byClass('progressFill').classList.toggle('current', !battle.isDone());
+        componentDomGetter.byClass('progressFill').classList.toggle('current', battle.isActive() && !battle.isDone());
         formatValue(
             componentDomGetter.byClass('level'),
             battle.getDisplayedLevel(),
@@ -1216,18 +1225,20 @@ function updateBattleRows() {
             });
         }
 
-        if (!updateRequirements(
-            unfulfilledRequirements.length === 0 ? null : unfulfilledRequirements,
-            requirementsContext)
-        ) {
-            row.classList.add('hidden');
-            continue;
+        if (!(battle instanceof BossBattle)) {
+            if (!updateRequirements(
+                unfulfilledRequirements.length === 0 ? null : unfulfilledRequirements,
+                requirementsContext)
+            ) {
+                row.classList.add('hidden');
+                continue;
+            }
+
+            visibleBattles++;
+            visibleFactions[battle.faction.name] = true;
+
+            row.classList.remove('hidden');
         }
-
-        visibleBattles++;
-        visibleFactions[battle.faction.name] = true;
-
-        row.classList.remove('hidden');
 
         const domGetter = Dom.get(row);
         formatValue(domGetter.bySelector('.level > data'), battle.getDisplayedLevel(), {keepNumber: true});
@@ -1250,7 +1261,7 @@ function updateBattleRows() {
         }
     }
 
-    if (isBossBattleAvailable()) {
+    if (isBossBattleAvailable() && !bossBattle.isDone()) {
         bossRow.classList.remove('hidden');
         if (visibleBattles < bossBattle.distance) {
             // There are fewer battles visible than the boss distance --> move boss in last position.
@@ -1259,6 +1270,14 @@ function updateBattleRows() {
                 Dom.get()
                     .bySelector('#unfinishedBattles tbody.level4')
                     .append(bossRow);
+            }
+        } else if (bossBattle.distance === 0) {
+            // Boss should be in first position.
+            // Is the bossRow already the first element?
+            if (bossRow.previousElementSibling !== null) { // Do not update the DOM if not necessary
+                Dom.get()
+                    .bySelector('#unfinishedBattles tbody.level4')
+                    .prepend(bossRow);
             }
         }
     } else {
@@ -1594,13 +1613,14 @@ function increaseDays() {
     }
 }
 
-function updateBossApproach() {
+function updateBossDistance() {
     if (gameData.state !== gameStates.PLAYING) return;
     if (!isBossBattleAvailable()) return;
 
-    if (Math.round(gameData.days - getLifespan() + 1) % bossBattleApproachInterval === 0) {
-        bossBattle.decrementDistance();
-    }
+    // How much time has past since the boss' arrival?
+    const overtime = gameData.days - getLifespan();
+    // Translate the elapsed time into distance according to config
+    bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
 }
 
 /**
@@ -1792,6 +1812,8 @@ function rebirthReset() {
         const module = modules[key];
         module.updateMaxLevel();
     }
+
+    gameData.transitionState(gameStates.NEW);
 }
 
 function resetMaxLevels() {
@@ -1846,7 +1868,7 @@ function updateUI() {
 
 function update() {
     increaseDays();
-    updateBossApproach();
+    updateBossDistance();
     doTasks();
     updatePopulation();
     updateUI();
@@ -1899,6 +1921,10 @@ function initStationName() {
         event.preventDefault();
 
         setTab('settings');
+        /** @var {HTMLInputElement} */
+        const settingsStationNameInput = Dom.get().byId('settingsStationNameInput');
+        settingsStationNameInput.focus();
+        settingsStationNameInput.select();
     });
     for (const stationNameInput of Dom.get().allByClass('stationNameInput')) {
         stationNameInput.placeholder = emptyStationName;
@@ -1960,9 +1986,6 @@ function init() {
     gameData.skipSave = true;
 
     gameData.tryLoading();
-    if (gameData.state === gameStates.NEW) {
-        GameEvents.NewGameStarted.trigger(undefined);
-    }
 
     createModulesUI(moduleCategories, 'modulesTable');
     createSectorsUI(sectors, 'sectorTable');

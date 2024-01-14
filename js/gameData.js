@@ -72,7 +72,7 @@ gameStates.PLAYING.validNextStates = [gameStates.PAUSED, gameStates.BOSS_FIGHT_I
 gameStates.PAUSED.validNextStates = [gameStates.PLAYING];
 gameStates.BOSS_FIGHT_INTRO.validNextStates = [gameStates.PLAYING, gameStates.BOSS_FIGHT];
 gameStates.BOSS_FIGHT.validNextStates = [gameStates.DEAD, gameStates.BOSS_DEFEATED];
-gameStates.DEAD.validNextStates = [];
+gameStates.DEAD.validNextStates = [gameStates.NEW];
 gameStates.BOSS_DEFEATED.validNextStates = [gameStates.PLAYING];
 
 class GameData {
@@ -273,12 +273,10 @@ class GameData {
             pointsOfInterest[key].loadValues(this.savedValues.pointsOfInterest[key]);
         }
 
-        if (saveGameFound) {
-            GameEvents.GameStateChanged.trigger({
-                previousState: gameStates.NEW.name,
-                newState: this.stateName,
-            });
-        }
+        GameEvents.GameStateChanged.trigger({
+            previousState: gameStates.NEW.name,
+            newState: this.stateName,
+        });
 
         return saveGameFound;
     }

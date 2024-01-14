@@ -1,6 +1,15 @@
 const cheats = {
     GameSpeed: {},
     Game: {
+        letBossAppear: () => {
+            gameData.bossBattleAvailable = false;
+            cheats.Age.setToBossTime();
+            Object.assign(bossBattle.savedValues, BossBattle.newSavedValues());
+            // Paused game stays paused, otherwise --> switch to regular playing mode
+            if (gameData.state !== gameStates.PAUSED) {
+                gameData.stateName = gameStates.PLAYING.name;
+            }
+        }
     },
     Age: {
         set: (age) => {

@@ -274,6 +274,10 @@ class Task extends Entity {
         while (excess >= 0) {
             this.level += 1;
             excess -= this.getMaxXp();
+
+            if (isDefined(this.targetLevel) && this.level === this.targetLevel) {
+                break;
+            }
         }
         if (this.level > previousLevel) {
             GameEvents.TaskLevelChanged.trigger({
@@ -629,6 +633,11 @@ class ModuleOperation extends Task {
 
     getMaxLevelMultiplier() {
         return 1 + this.maxLevel / 100;
+    }
+
+    updateMaxLevelAndReset() {
+        this.level = 0;
+        this.xp = 0;
     }
 
     /**

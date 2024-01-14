@@ -129,6 +129,7 @@ class Battle extends LayeredTask {
 /**
  * @typedef {TaskSavedValues} BossBattleSavedValues
  * @property {number} distance
+ * @property {number} coveredDistance
  */
 
 class BossBattle extends Battle {
@@ -160,13 +161,14 @@ class BossBattle extends Battle {
             xp: JsTypes.Number,
             requirementCompleted: JsTypes.Array,
             distance: JsTypes.Number,
+            coveredDistance: JsTypes.Number,
         }, this);
         this.savedValues = savedValues;
     }
 
     /**
      *
-     * @return {TaskSavedValues}
+     * @return {BossBattleSavedValues}
      */
     static newSavedValues() {
         return {
@@ -175,6 +177,7 @@ class BossBattle extends Battle {
             xp: 0,
             requirementCompleted: [],
             distance: bossBattleDefaultDistance,
+            coveredDistance: 0,
         };
     }
 
@@ -186,21 +189,28 @@ class BossBattle extends Battle {
     }
 
     get distance() {
-        return this.savedValues.distance;
+        return this.savedValues.distance - this.coveredDistance;
+    }
+
+    get coveredDistance() {
+        return this.savedValues.coveredDistance;
     }
 
     /**
-     * @param {number} distance
+     * @param {number} coveredDistance
      */
-    set distance(distance) {
-        this.savedValues.distance = distance;
+    set coveredDistance(coveredDistance) {
+        this.savedValues.coveredDistance = coveredDistance;
+        if (this.distance <= 0) {
+            gameData.transitionState(gameStates.BOSS_FIGHT_INTRO);
+        }
     }
 
     decrementDistance() {
-        if (this.distance === 0) return;
+        if (this.distance <= 0) return;
 
-        this.distance = (this.distance - 1);
-        if (this.distance === 0) {
+        this.savedValues.distance = (this.savedValues.distance - 1);
+        if (this.distance <= 0) {
             gameData.transitionState(gameStates.BOSS_FIGHT_INTRO);
         }
     }

@@ -9,14 +9,16 @@ function initIntro() {
         rerollStationName();
     });
 
-    GameEvents.NewGameStarted.subscribe( () => {
+    GameEvents.GameStateChanged.subscribe( (payload) => {
+        if (payload.newState !== gameStates.NEW.name) return;
+
         modal.show();
     });
 
     if (_.isObject(cheats)) {
         cheats.Story['Intro'] = {
             trigger: () => {
-                GameEvents.NewGameStarted.trigger(undefined);
+                modal.show();
             }
         };
     }
