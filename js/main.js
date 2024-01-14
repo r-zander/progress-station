@@ -1786,20 +1786,20 @@ function resetBattle(name) {
     battle.xp = 0;
 }
 
-function rebirthOne() {
+function startNewPlaythrough() {
     gameData.rebirthOneCount += 1;
-    rebirthReset('UPDATE_MAX_LEVEL');
+    playthroughReset('UPDATE_MAX_LEVEL');
 }
 
 // function rebirthTwo() {
 //     gameData.rebirthTwoCount += 1;
-//     rebirthReset('RESET_MAX_LEVEL');
+//     playthroughReset('RESET_MAX_LEVEL');
 // }
 
 /**
  * @param {MaxLevelBehavior} maxLevelBehavior
  */
-function rebirthReset(maxLevelBehavior) {
+function playthroughReset(maxLevelBehavior) {
     gameData.initValues();
     gameData.resetCurrentValues();
 

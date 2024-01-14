@@ -122,7 +122,7 @@ function initGameOver() {
 
     window.restartAfterDead = () => {
         modal.hide();
-        rebirthOne();
+        startNewPlaythrough();
     };
 }
 
