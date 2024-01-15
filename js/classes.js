@@ -292,14 +292,18 @@ class Task extends Entity {
             }
         }
         if (this.level > previousLevel) {
-            GameEvents.TaskLevelChanged.trigger({
-                type: this.type,
-                name: this.name,
-                previousLevel: previousLevel,
-                nextLevel: this.level,
-            });
+            this.onLevelUp(previousLevel, this.level);
         }
         this.xp = this.getMaxXp() + excess;
+    }
+
+    onLevelUp(previousLevel, newLevel) {
+        GameEvents.TaskLevelChanged.trigger({
+            type: this.type,
+            name: this.name,
+            previousLevel: previousLevel,
+            nextLevel: newLevel,
+        });
     }
 
     /**
@@ -814,6 +818,63 @@ class PointOfInterest extends Entity {
     getEffectDescription() {
         // Danger is displayed in a separate column
         return Effect.getDescriptionExcept(this, this.effects, 1, EffectType.Danger);
+    }
+}
+
+/**
+ * @typedef {Object} GalacticSecretSavedValues
+ * @property {boolean} unlocked
+ * @property {boolean[]} requirementCompleted
+ */
+
+class GalacticSecret extends Entity {
+    /**
+     * @param {{
+     *     unlocks: ModuleOperation,
+     *     requirements?: Requirement[]
+     * }} baseData
+     */
+    constructor(baseData) {
+        super(baseData.unlocks.title, baseData.unlocks.description, baseData.requirements);
+
+        this.unlocks = baseData.unlocks;
+    }
+
+    /**
+     * @param {GalacticSecretSavedValues} savedValues
+     */
+    loadValues(savedValues) {
+        validateParameter(savedValues, {
+            unlocked: JsTypes.Boolean,
+            requirementCompleted: JsTypes.Array
+        }, this);
+        this.savedValues = savedValues;
+    }
+
+    /**
+     * @return {GalacticSecretSavedValues}
+     */
+    static newSavedValues() {
+        return {
+            unlocked: false,
+            requirementCompleted: [],
+        };
+    }
+
+    /**
+     *
+     * @return {GalacticSecretSavedValues}
+     */
+    getSavedValues() {
+        return this.savedValues;
+    }
+
+    get isUnlocked () {
+        return this.savedValues.unlocked;
+    }
+
+    set isUnlocked(unlocked) {
+        this.savedValues.unlocked = unlocked;
     }
 }
 

@@ -125,10 +125,15 @@ class GameData {
      */
     rebirthOneCount = 0;
 
+    // /**
+    //  * @var {number}
+    //  */
+    // rebirthTwoCount = 0;
+
     /**
      * @var {number}
      */
-    rebirthTwoCount = 0;
+    essenceOfUnknown = 0;
 
     /**
      * @var {{

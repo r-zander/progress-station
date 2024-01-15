@@ -34,6 +34,7 @@ const tabButtons = {
     location: document.getElementById('locationTabButton'),
     captainsLog: document.getElementById('captainsLogTabButton'),
     battles: document.getElementById('battleTabButton'),
+    galacticSecrets: document.getElementById('galacticSecretsTabButton'),
     attributes: document.getElementById('attributesTabButton'),
     settings: document.getElementById('settingsTabButton'),
 };
@@ -574,8 +575,37 @@ function createFinishedBattlesUI() {
 
 function createBattlesUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
-
     slot.replaceWith(createUnfinishedBattlesUI(), createFinishedBattlesUI());
+}
+
+function createGalacticSecretsUI() {
+    const level4Elements = [];
+    for (const key in galacticSecrets) {
+        const galacticSecret = galacticSecrets[key];
+        const level4Element = Dom.new.fromTemplate('level4GalacticSecretTemplate');
+        level4Element.id = galacticSecret.domId;
+        const domGetter = Dom.get(level4Element);
+        domGetter.byClass('name').textContent = galacticSecret.title; // TODO Component: Secret Operation
+        const descriptionElement = domGetter.byClass('descriptionTooltip');
+        descriptionElement.ariaLabel = galacticSecret.title;
+        if (isDefined(galacticSecret.description)) {
+            descriptionElement.title = galacticSecret.description;
+        } else {
+            descriptionElement.removeAttribute('title');
+        }
+        domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
+
+        // TODO actually determine module
+        domGetter.byClass('parent').textContent = modules.Furnace.title;
+        // TODO use base value aka Level 1 values
+        domGetter.byClass('effect').textContent = galacticSecret.unlocks.getEffectDescription();
+        formatValue(domGetter.bySelector('.gridLoad > data'), galacticSecret.unlocks.getGridLoad());
+
+        level4Elements.push(level4Element);
+    }
+
+    const level4Slot = Dom.get().bySelector('#galacticSecrets tbody.level4');
+    level4Slot.append(...level4Elements);
 }
 
 function createModulesQuickDisplay() {
@@ -1523,6 +1553,9 @@ function updateText() {
     const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);
     formatValue(Dom.get().bySelector('#attributeRows > .research .value'), research);
+
+    const essenceOfUnknown = attributes.essenceOfUnknown.getValue();
+    formatValue(Dom.get().byId('essenceOfUnknownDisplay'), essenceOfUnknown, {forceInteger: true, keepNumber: true});
 }
 
 function updateHtmlElementRequirements() {
@@ -2008,6 +2041,7 @@ function init() {
     createModulesUI(moduleCategories, 'modulesTable');
     createSectorsUI(sectors, 'sectorTable');
     createBattlesUI(battles, 'battlesTable');
+    createGalacticSecretsUI(galacticSecrets, 'galacticSecrets');
     createModulesQuickDisplay();
     createBattlesQuickDisplay();
 

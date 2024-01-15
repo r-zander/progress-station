@@ -208,6 +208,17 @@
                     <!--suppress HtmlUnknownTag -->
                     <h3>Captain's Log</h3>
                 </button>
+                <button id="galacticSecretsTabButton" class="tabButton panel p-3" onClick="setTab('galacticSecrets');">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Galactic Secrets</h3>
+                    <div class="col primary-stat d-flex justify-content-center mt-2" data-attribute="essenceOfUnknown"
+                         data-bs-placement="bottom" data-bs-html="true">
+                        <img src="" class="icon me-1" alt=""/>
+                        <span class="label" style=""></span>
+                        <span class="me-1">: </span>
+                        <data id="essenceOfUnknownDisplay" value="0">?</data>
+                    </div>
+                </button>
                 <button id="attributesTabButton" class="tabButton panel p-3" onClick="setTab('attributes');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Attributes</h3>
@@ -414,6 +425,33 @@
                 </tr>
             </template>
 
+            <template id="level4GalacticSecretTemplate">
+                <tr>
+                    <td>
+                        <div class="progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
+                             data-bs-placement="right">
+                            <div class="moduleOperation progressFill progress-bar progress-bar-striped" style="width: 54%"></div>
+                            <div class="progress-text name px-2 text-truncate">Component: Secret Operation</div>
+                        </div>
+                    </td>
+                    <td class="unlocked">
+                        <div class="radio">
+                            <div class="active"></div>
+                        </div>
+                    </td>
+                    <td class="parent">
+                        Module
+                    </td>
+                    <td class="effect">
+                        x1.13 Industry, +4.50 Energy
+                    </td>
+                    <td class="gridLoad">
+                        <data value="1">1</data>
+                    </td>
+                </tr>
+            </template>
+
             <template id="level4RequiredTemplate">
                 <tr>
                     <td class="requirements help-text ps-3" colspan="100%">
@@ -436,18 +474,6 @@
             </div>
 
             <div id="battles" class="tab p-3 overflow-hidden">
-                <!--<p class="help-text">Encounter</p>
-                <h2 id="battleName" class="mb-1">Destroyer</h2>
-                <div id="battleProgressBar" class="progress battle progressBar w-100 mt-3" role="progressbar" hidden
-                     aria-label="Task" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                    <div class="progressBackground progress-background"></div>
-                    <div class="progressFill progress-bar progress-bar-striped" style="width: 0"></div>
-                    <div class="progress-text name px-2">Battle</div>
-                </div>
-                <div class="mt-5 clearfix">
-                    <button class="btn btn-sm btn-light float-end" onclick="concedeBattle();">Concede</button>
-                </div>-->
-
                 <slot id="battlesTable"></slot>
             </div>
 
@@ -511,6 +537,27 @@
                         </button>
                     </li>
                 </ul>
+            </div>
+
+            <div id="galacticSecrets" class="tab p-3">
+                <div class="table-container ps-3">
+                    <table class="table mb-0">
+                        <thead class="level3">
+                        <tr class="header-row">
+                            <th class="name" title="Galactic Secret Description" data-bs-placement="right">
+                                Galactic Secret <!-- TODO Component: Secret Operation -->
+                            </th> <!-- TODO progress bar for long press + is filled if unlocked, and empty if not -->
+                            <th>Unlocked</th> <!-- TODO checkbox -->
+                            <th>Belongs to</th> <!-- TODO Module -->
+                            <th>Effect</th>
+                            <th>Grid Load</th>
+                        </tr>
+                        </thead>
+                        <tbody class="level4">
+                        <!-- repeat level4GalacticSecretTemplate -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div id="attributes" class="tab p-3">

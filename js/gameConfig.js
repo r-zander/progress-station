@@ -60,6 +60,8 @@ const attributes = {
         getValue: () => gameData.population },
     research: { title: 'Research', color: '#cc4ee2', icon: 'img/icons/research.svg',
         getValue: Effect.getTotalValue.bind(this, [EffectType.Research, EffectType.ResearchFactor])},
+    essenceOfUnknown: { title: 'Essence of Unknown', color: '#AB016E', icon: 'img/icons/essence-of-unknown.svg',
+        getValue: () => gameData.essenceOfUnknown },
 };
 
 /**
@@ -76,6 +78,7 @@ function createAttributeDescriptions(printAttribute) {
     attributes.military.description = 'Counteracts ' + printAttribute(attributes.danger) + ' and increases damage in Battles.';
     attributes.population.description = 'Affects all progress speed.';
     attributes.research.description = 'Unlocks new knowledge.';
+    attributes.essenceOfUnknown.description = 'Invest to learn Galactic Secrets.';
 }
 
 const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100});
@@ -111,13 +114,19 @@ const moduleOperations = {
 
     Garbage: new ModuleOperation({
         title: 'Garbage', maxXp: 400, gridLoad: 1,
-        description: 'Garbage text.',
+        description: 'It\'s not about efficiency, it\'s about sustainability. Or just getting rid of all that trash lying around the station.',
         effects: [{effectType: EffectType.Industry, baseValue: 1}, {effectType: EffectType.Energy, baseValue: 1}],
     }),
     Diesel: new ModuleOperation({
         title: 'Diesel', maxXp: 50, gridLoad: 1,
-        description: 'Diesel text.',
+        description: 'From the depths of fossilized relics to the pulse of synthesized organics, it\'s the timeless heart that beats in the mechanical chest of progress.',
         effects: [{effectType: EffectType.Growth, baseValue: 1}, {effectType: EffectType.Energy, baseValue: 1}],
+    }),
+    Quasarite: new ModuleOperation({
+        title: 'Quasarite', maxXp: 1_000_000, gridLoad: 4,
+        description: 'Harnessed from the remnants of distant quasar explosions it pulses with mind-boggling energy. ' +
+            'Its otherworldly properties enhance resource production but require careful containment to avoid unpredictable reactions.',
+        effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}],
     }),
     Plastics: new ModuleOperation({
         title: 'Plastics', maxXp: 100, gridLoad: 1,
@@ -128,6 +137,11 @@ const moduleOperations = {
         title: 'Steel', maxXp: 200, gridLoad: 1,
         description: 'Steel text.',
         effects: [{effectType: EffectType.Growth, baseValue: 1}, {effectType: EffectType.EnergyFactor, baseValue: 1}],
+    }),
+    MicroalloyGlass: new ModuleOperation({
+        title: 'Microalloy Glass', maxXp: 2_500_000, gridLoad: 4,
+        description: 'Fifteen times harder than steel and so clear that objects made out of pure microalloy glass can be considered invisible.',
+        effects: [{effectType: EffectType.Energy, baseValue: 5}, {effectType: EffectType.Research, baseValue: 3}],
     }),
 
     //Population
@@ -187,7 +201,7 @@ const moduleComponents = {
     }),
     Fuel: new ModuleComponent({
         title: 'Fuel',
-        operations: [moduleOperations.Garbage, moduleOperations.Diesel],
+        operations: [moduleOperations.Garbage, moduleOperations.Diesel, moduleOperations.Quasarite],
     }),
     Products: new ModuleComponent({
         title: 'Products',
@@ -432,19 +446,6 @@ const battles = {
         rewards: [{effectType: EffectType.Growth, baseValue: 20}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
 
-    // PseudoBoss10: new Battle({
-    //     title: 'Pseudo',
-    //     targetLevel: 10,
-    //     faction: factions.PseudoBoss,
-    //     effects: [{effectType: EffectType.Danger, baseValue: 9010}],
-    //     rewards: [
-    //         {effectType: EffectType.Research, baseValue: 100},
-    //         {effectType: EffectType.Growth, baseValue: 100},
-    //         {effectType: EffectType.Industry, baseValue: 100},
-    //         {effectType: EffectType.Military, baseValue: 100},
-    //         {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
-    // }),
-
     Destroyer: bossBattle,
 };
 
@@ -535,6 +536,18 @@ const sectors = {
     }),
 };
 
+/**
+ * @type {Object.<string, GalacticSecret>}
+ */
+const galacticSecrets = {
+    Quasarite: new GalacticSecret({
+        unlocks: moduleOperations.Quasarite
+    }),
+    MicroalloyGlass: new GalacticSecret({
+        unlocks: moduleOperations.MicroalloyGlass
+    }),
+};
+
 const defaultPointOfInterest = 'SafeZone';
 
 const permanentUnlocks = ['Scheduling', 'Shop', 'Automation', 'Quick task display'];
@@ -582,6 +595,24 @@ const elementRequirements = [
             requirements: [new AttributeRequirement('playthrough',
                 [{attribute: attributes.gridStrength, requirement: 1}]),
             ],
+            elementsToShowRequirements: []
+        }),
+    new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [Dom.get().byId('galacticSecretsTabButton')],
+            requirements: [new AttributeRequirement('playthrough', [{
+                attribute: attributes.essenceOfUnknown,
+                requirement: 1,
+            }])],
+            elementsToShowRequirements: []
+        }),
+    new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [Dom.get().bySelector('#galacticSecretsTabButton > .primary-stat')],
+            requirements: [new AttributeRequirement('update', [{
+                attribute: attributes.essenceOfUnknown,
+                requirement: 1,
+            }])],
             elementsToShowRequirements: []
         }),
 ];
