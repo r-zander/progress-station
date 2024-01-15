@@ -595,8 +595,7 @@ function createGalacticSecretsUI() {
         }
         domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
 
-        // TODO actually determine module
-        domGetter.byClass('parent').textContent = modules.Furnace.title;
+        domGetter.byClass('parent').textContent = galacticSecret.unlocks.module.title;
         // TODO use base value aka Level 1 values
         domGetter.byClass('effect').textContent = galacticSecret.unlocks.getEffectDescription();
         formatValue(domGetter.bySelector('.gridLoad > data'), galacticSecret.unlocks.getGridLoad());

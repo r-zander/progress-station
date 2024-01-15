@@ -538,7 +538,7 @@ class ModuleComponent extends Entity {
         this.module = module;
 
         for (const operation of this.operations) {
-            operation.registerModule(module);
+            operation.registerModule(module, this);
         }
     }
 
@@ -601,6 +601,9 @@ class ModuleOperation extends Task {
     /** @var {Module} */
     module = null;
 
+    /** @var {ModuleComponent} */
+    component = null;
+
     /**
      * @param {{
      *     title: string,
@@ -627,10 +630,12 @@ class ModuleOperation extends Task {
 
     /**
      * @param {Module} module
+     * @param {ModuleComponent} component
      */
-    registerModule(module) {
+    registerModule(module, component) {
         console.assert(this.module === null, 'Module already registered.');
         this.module = module;
+        this.component = component;
     }
 
     collectEffects() {
@@ -835,9 +840,16 @@ class GalacticSecret extends Entity {
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.unlocks.title, baseData.unlocks.description, baseData.requirements);
+        super(GalacticSecret.#createTitle(baseData.unlocks), baseData.unlocks.description, baseData.requirements);
 
         this.unlocks = baseData.unlocks;
+    }
+
+    /**
+     * @param {ModuleOperation} unlock
+     */
+    static #createTitle(unlock) {
+        return unlock.component + ': ' + unlock.title;
     }
 
     /**
