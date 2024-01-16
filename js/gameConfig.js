@@ -39,7 +39,7 @@ const colorPalette = {
 };
 
 /**
- * @type {Object.<string, AttributeDefinition>}
+ * @type {Object<AttributeDefinition>}
  */
 const attributes = {
     danger: { title: 'Danger', color: colorPalette.DangerRed, icon: 'img/icons/danger.svg',
@@ -84,7 +84,7 @@ function createAttributeDescriptions(printAttribute) {
 const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100});
 
 /**
- * @type {Object.<string, ModuleOperation>}
+ * @type {Object<ModuleOperation>}
  */
 const moduleOperations = {
     StandbyGenerator: new ModuleOperation({
@@ -191,7 +191,7 @@ const moduleOperations = {
 };
 
 /**
- * @type {Object.<string, ModuleComponent>}
+ * @type {Object<ModuleComponent>}
  */
 const moduleComponents = {
     RescueCapsule: new ModuleComponent({
@@ -205,7 +205,7 @@ const moduleComponents = {
     }),
     Products: new ModuleComponent({
         title: 'Products',
-        operations: [moduleOperations.Plastics, moduleOperations.Steel],
+        operations: [moduleOperations.Plastics, moduleOperations.Steel, moduleOperations.MicroalloyGlass],
     }),
     Replication: new ModuleComponent({
         title: 'Replication',
@@ -226,7 +226,7 @@ const moduleComponents = {
 };
 
 /**
- * @type {Object.<string, Module>}
+ * @type {Object<Module>}
  */
 const modules = {
     ISASM: new Module({
@@ -256,7 +256,7 @@ const defaultModules = [
 ];
 
 /**
- * @type {Object.<string, ModuleCategory>}
+ * @type {Object<ModuleCategory>}
  */
 const moduleCategories = {
     EmergencySupplies: new ModuleCategory({
@@ -297,7 +297,7 @@ const moduleCategories = {
  */
 
 /**
- * @type {Object.<string, FactionDefinition>}
+ * @type {Object<FactionDefinition>}
  */
 const factions = {
     NovaFlies: {
@@ -358,7 +358,7 @@ const bossBattleDefaultDistance = 4;
 const bossBattleApproachInterval = 200; // Cycles
 
 /**
- * @type {Object.<string, Battle>}
+ * @type {Object<Battle>}
  */
 const battles = {
     Astrogoblins10: new Battle({
@@ -470,7 +470,7 @@ function maximumAvailableBattles() {
 }
 
 /**
- * @type {Object.<string, PointOfInterest>}
+ * @type {Object<PointOfInterest>}
  */
 const pointsOfInterest = {
     SafeZone: new PointOfInterest({
@@ -508,8 +508,10 @@ const pointsOfInterest = {
     }),
 };
 
+const defaultPointOfInterest = 'SafeZone';
+
 /**
- * @type {Object.<string, Sector>}
+ * @type {Object<Sector>}
  */
 const sectors = {
     // Twilight
@@ -548,9 +550,7 @@ const galacticSecrets = {
     }),
 };
 
-const defaultPointOfInterest = 'SafeZone';
-
-const permanentUnlocks = ['Scheduling', 'Shop', 'Automation', 'Quick task display'];
+const galacticSecretUnlockDuration = 2500; // milliseconds
 
 const layerData = [
     new LayerData('#ffe119'),

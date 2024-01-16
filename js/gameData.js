@@ -14,7 +14,7 @@ const localStorageKey = 'ps_gameDataSave';
  */
 
 /**
- * @type {Object.<string, GameState>}
+ * @type {Object<GameState>}
  */
 const gameStates = {
     NEW: {
@@ -139,15 +139,17 @@ class GameData {
      * @var {{
      *     gridStrength: TaskSavedValues,
      *
-     *     moduleCategories: Object.<string, EmptySavedValues>,
-     *     modules: Object.<string, ModuleSavedValues>,
-     *     moduleComponents: Object.<string, EmptySavedValues>,
-     *     moduleOperations: Object.<string, TaskSavedValues>,
+     *     moduleCategories: Object<ModuleCategorySavedValues>,
+     *     modules: Object<ModuleSavedValues>,
+     *     moduleComponents: Object<EmptySavedValues>,
+     *     moduleOperations: Object<TaskSavedValues>,
      *
-     *     battles: Object.<string, TaskSavedValues>,
+     *     battles: Object<TaskSavedValues>,
      *
-     *     sectors: Object.<string, EmptySavedValues>,
-     *     pointsOfInterest: Object.<string, EmptySavedValues>,
+     *     sectors: Object<SectorSavedValues>,
+     *     pointsOfInterest: Object<PointOfInterestSavedValues>,
+     *
+     *     galacticSecrets: Object<GalacticSecretSavedValues>,
      * }}
      */
     savedValues;
@@ -230,6 +232,11 @@ class GameData {
         for (const key in pointsOfInterest) {
             this.savedValues.pointsOfInterest[key] = PointOfInterest.newSavedValues();
         }
+
+        this.savedValues.galacticSecrets = {};
+        for (const key in galacticSecrets) {
+            this.savedValues.galacticSecrets[key] = GalacticSecret.newSavedValues();
+        }
     }
 
     resetCurrentValues() {
@@ -286,6 +293,10 @@ class GameData {
         }
         for (const key in pointsOfInterest) {
             pointsOfInterest[key].loadValues(this.savedValues.pointsOfInterest[key]);
+        }
+
+        for (const key in galacticSecrets) {
+            galacticSecrets[key].loadValues(this.savedValues.galacticSecrets[key]);
         }
 
         GameEvents.GameStateChanged.trigger({

@@ -27,7 +27,7 @@ const gridLoadBalanceEntries = [];
 
 /**
  *
- * @type {Object.<string, HTMLElement>}
+ * @type {Object<HTMLElement>}
  */
 const tabButtons = {
     modules: document.getElementById('modulesTabButton'),
@@ -373,7 +373,7 @@ function createLevel4SectorElements(pointsOfInterest, sectorName) {
     const level4Elements = [];
     for (const pointOfInterest of pointsOfInterest) {
         const level4Element = Dom.new.fromTemplate('level4PointOfInterestTemplate');
-        level4Element.id = 'row_' + pointOfInterest.name;
+        level4Element.id = pointOfInterest.domId;
 
         const level4DomGetter = Dom.get(level4Element);
         level4DomGetter.byClass('name').textContent = pointOfInterest.title;
@@ -430,7 +430,7 @@ function createLevel3SectorElement(sector, sectorName) {
 
 /**
  * Due to styling reasons, the two rendered levels are actually level 3 + 4 - don't get confused.
- * @param {Object.<string, Sector>} categoryDefinition
+ * @param {Object<Sector>} categoryDefinition
  * @param {string} domId
  */
 function createSectorsUI(categoryDefinition, domId) {
@@ -585,7 +585,8 @@ function createGalacticSecretsUI() {
         const level4Element = Dom.new.fromTemplate('level4GalacticSecretTemplate');
         level4Element.id = galacticSecret.domId;
         const domGetter = Dom.get(level4Element);
-        domGetter.byClass('name').textContent = galacticSecret.title; // TODO Component: Secret Operation
+        domGetter.byClass('component').textContent = galacticSecret.unlocks.component.title;
+        domGetter.byClass('operation').textContent = galacticSecret.unlocks.title;
         const descriptionElement = domGetter.byClass('descriptionTooltip');
         descriptionElement.ariaLabel = galacticSecret.title;
         if (isDefined(galacticSecret.description)) {
@@ -596,12 +597,35 @@ function createGalacticSecretsUI() {
         domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
 
         domGetter.byClass('parent').textContent = galacticSecret.unlocks.module.title;
-        // TODO use base value aka Level 1 values
-        domGetter.byClass('effect').textContent = galacticSecret.unlocks.getEffectDescription();
+        domGetter.byClass('effect').textContent = galacticSecret.unlocks.getEffectDescription(1);
         formatValue(domGetter.bySelector('.gridLoad > data'), galacticSecret.unlocks.getGridLoad());
+
+        domGetter.byClass('progressBar').addEventListener('pointerdown', (event) => {
+            if (galacticSecret.isUnlocked) return;
+
+            const galacticSecretCost = calculateGalacticSecretCost();
+            if (galacticSecretCost > gameData.essenceOfUnknown) {
+                visuallyDenyGalacticSecretUnlock(galacticSecret);
+                return;
+            }
+
+            const tooltip = bootstrap.Tooltip.getInstance(event.currentTarget);
+            tooltip.hide();
+            tooltip.disable();
+            galacticSecret.inProgress = true;
+        });
 
         level4Elements.push(level4Element);
     }
+
+    window.addEventListener('pointerup', () => {
+        for (const key in galacticSecrets) {
+            const galacticSecret = galacticSecrets[key];
+            galacticSecret.inProgress = false;
+            const tooltip = bootstrap.Tooltip.getInstance(Dom.get().bySelector('#' + galacticSecret.domId + ' .progressBar'));
+            tooltip.enable();
+        }
+    });
 
     const level4Slot = Dom.get().bySelector('#galacticSecrets tbody.level4');
     level4Slot.append(...level4Elements);
@@ -1353,7 +1377,7 @@ function updateSectorRows() {
         };
 
         for (const pointOfInterest of sector.pointsOfInterest) {
-            const row = Dom.get().byId('row_' + pointOfInterest.name);
+            const row = Dom.get().byId(pointOfInterest.domId);
 
             if (!updateRequirements(pointOfInterest.getUnfulfilledRequirements(), requirementsContext)) {
                 row.classList.add('hidden');
@@ -1374,6 +1398,25 @@ function updateSectorRows() {
     }
 
     sectorRequirementsContext.requirementsElement.classList.toggle('hidden', !sectorRequirementsContext.hasUnfulfilledRequirements);
+}
+
+function updateGalacticSecretRows() {
+    for (const key in galacticSecrets) {
+        const galacticSecret = galacticSecrets[key];
+        const row = Dom.get().byId(galacticSecret.domId);
+        const domGetter = Dom.get(row);
+        const isUnlocked = galacticSecret.isUnlocked;
+        const progressFillElement = domGetter.byClass('progressFill');
+        if (isUnlocked) {
+            progressFillElement.classList.add('unlocked');
+            domGetter.byClass('progressBar').classList.add('unlocked');
+            progressFillElement.style.removeProperty('width');
+        } else {
+            progressFillElement.classList.toggle('unlocked', galacticSecret.inProgress);
+            domGetter.byClass('progressBar').classList.remove('unlocked');
+            setProgress(progressFillElement, galacticSecret.unlockProgress);
+        }
+    }
 }
 
 function updateHeaderRows() {
@@ -1555,6 +1598,9 @@ function updateText() {
 
     const essenceOfUnknown = attributes.essenceOfUnknown.getValue();
     formatValue(Dom.get().byId('essenceOfUnknownDisplay'), essenceOfUnknown, {forceInteger: true, keepNumber: true});
+
+    const galacticSecretCost = calculateGalacticSecretCost();
+    formatValue(Dom.get().byId('galacticSecretCostDisplay'), galacticSecretCost, {forceInteger: true, keepNumber: true});
 }
 
 function updateHtmlElementRequirements() {
@@ -1624,6 +1670,13 @@ function calculateGridLoad() {
     return gridLoad;
 }
 
+function calculateGalacticSecretCost() {
+    const unlockedGalacticSecrets = Object.values(galacticSecrets)
+        .filter(galacticSecret => galacticSecret.isUnlocked)
+        .length;
+    return Math.pow(3, unlockedGalacticSecrets);
+}
+
 function daysToYears(days) {
     return Math.floor(days / 365);
 }
@@ -1659,6 +1712,39 @@ function updateBossDistance() {
     const overtime = gameData.days - getLifespan();
     // Translate the elapsed time into distance according to config
     bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
+}
+
+function visuallyDenyGalacticSecretUnlock(galacticSecret) {
+    VFX.shakeElement(Dom.get().bySelector(`#${galacticSecret.domId} .progress`), galacticSecret.domId);
+    VFX.highlightText(Dom.get().byId('galacticSecretCostDisplay').parentElement, 'flash-text-denied', 'flash-text-denied');
+    VFX.highlightText(Dom.get().byId('essenceOfUnknownDisplay'), 'flash-text-denied', 'flash-text-denied');
+}
+
+function progressGalacticSecrets() {
+    for (const key in galacticSecrets) {
+        const galacticSecret = galacticSecrets[key];
+        galacticSecret.update();
+        if (galacticSecret.unlockProgress < 1) {
+            continue;
+        }
+
+        const galacticSecretCost = calculateGalacticSecretCost();
+        if (galacticSecretCost > gameData.essenceOfUnknown) {
+            visuallyDenyGalacticSecretUnlock(galacticSecret);
+        } else {
+            // Unlock & pay the required essence of unknown
+            galacticSecret.isUnlocked = true;
+            galacticSecret.inProgress = false;
+            gameData.essenceOfUnknown -= galacticSecretCost;
+            GameEvents.TaskLevelChanged.trigger({
+                type: galacticSecret.type,
+                name: galacticSecret.name,
+                previousLevel: 0,
+                nextLevel: 1,
+            });
+        }
+        galacticSecret.unlockProgress = 0;
+    }
 }
 
 /**
@@ -1904,6 +1990,7 @@ function updateUI() {
 
     updateBattleRows();
     updateSectorRows();
+    updateGalacticSecretRows();
 
     updateHeaderRows();
     updateModulesQuickDisplay();
@@ -1919,6 +2006,7 @@ function updateUI() {
 function update() {
     increaseDays();
     updateBossDistance();
+    progressGalacticSecrets();
     doTasks();
     updatePopulation();
     updateUI();
@@ -2022,6 +2110,7 @@ function initConfigNames() {
     assignNames(battles);
     assignNames(pointsOfInterest);
     assignNames(sectors);
+    assignNames(galacticSecrets);
 }
 
 function init() {

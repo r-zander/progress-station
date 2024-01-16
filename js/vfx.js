@@ -288,7 +288,7 @@ class VFX {
     /**
      * @param {HTMLElement} parent
      * @param {number} numberOfParticles
-     * @param {Object.<string, function():string|string>} styleObject
+     * @param {Object<function():string|string>} styleObject
      */
     static #onetimeSplash(parent, numberOfParticles, styleObject) {
         for (let i = 0; i < numberOfParticles; i++) {
@@ -419,11 +419,24 @@ class VFX {
     static #playButtonShakeTimeout;
 
     static shakePlayButton() {
-        clearTimeout(VFX.#playButtonShakeTimeout);
-        Dom.get().byId('pauseButton').classList.add('shake-strong-tilt-move');
-        VFX.#playButtonShakeTimeout = setTimeout(() => {
-            Dom.get().byId('pauseButton').classList.remove('shake-strong-tilt-move');
-        }, 150);
+        this.shakeElement(Dom.get().byId('pauseButton'), 'pauseButton');
+    }
+
+    static #shakeTimeouts = {};
+
+    /**
+     *
+     * @param {HTMLElement} element
+     * @param {string} identifier identifies this shake - if another shake with the same identifier is started,
+     *                            the ongoing shake is extended.
+     * @param {number} [duration = 150] milliseconds
+     */
+    static shakeElement(element, identifier, duration = 150) {
+        clearTimeout(VFX.#shakeTimeouts[identifier]);
+        element.classList.add('shake-strong-tilt-move');
+        VFX.#shakeTimeouts[identifier] = setTimeout(() => {
+            element.classList.remove('shake-strong-tilt-move');
+        }, duration);
     }
 
     /**
@@ -462,6 +475,8 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
         quickTaskProgressBar = document.querySelector(`.quickTaskDisplay.${taskInfo.name} > .progressBar`);
     } else if (taskInfo.type === 'GridStrength') {
         taskProgressBar = document.getElementById('energyDisplay');
+    } else if (taskInfo.type === 'GalacticSecret') {
+        taskProgressBar = document.querySelector('#' + galacticSecrets[taskInfo.name].domId + ' .progressBar');
     } else {
         if (gameData.selectedTab === 'modules') {
             const taskElement = getModuleOperationElement(taskInfo.name);

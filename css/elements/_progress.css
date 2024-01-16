@@ -21,6 +21,8 @@
     text-shadow: 1px 1px black, 1px 1px 3px black;
 
     max-width: 100%;
+
+    pointer-events: none;
 }
 
 .progress-bar {

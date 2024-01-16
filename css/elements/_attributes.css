@@ -34,3 +34,8 @@
         list-style: none;
     }
 }
+
+#attributeRows .title {
+    font-family: var(--title-font-family);
+    font-weight: 400;
+}
