@@ -1604,7 +1604,8 @@ function updateText() {
 }
 
 function updateHtmlElementRequirements() {
-    for (const htmlElementWithRequirement of elementRequirements) {
+    for (const key in htmlElementRequirements) {
+        const htmlElementWithRequirement = htmlElementRequirements[key];
         const completed = htmlElementWithRequirement.isCompleted();
         for (const element of htmlElementWithRequirement.elementsWithRequirements) {
             element.classList.toggle('hidden', !completed);
@@ -1958,7 +1959,8 @@ function playthroughReset(maxLevelBehavior) {
         pointOfInterest.reset(maxLevelBehavior);
     }
 
-    for (const elementRequirement of elementRequirements) {
+    for (const key in htmlElementRequirements) {
+        const elementRequirement = htmlElementRequirements[key];
         elementRequirement.reset();
     }
 

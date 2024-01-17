@@ -565,10 +565,10 @@ const lastLayerData = new LayerData('#000000');
 
 /**
  * Requirements of arbitrary {@link HTMLElement}s in the layout.
- * @type {HtmlElementWithRequirement[]}
+ * @type {Object<HtmlElementWithRequirement>}
  */
-const elementRequirements = [
-    new HtmlElementWithRequirement(
+const htmlElementRequirements = {
+    battleTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('battleTabButton')],
             requirements: [new AttributeRequirement('playthrough', [{
@@ -577,7 +577,7 @@ const elementRequirements = [
             }])],
             elementsToShowRequirements: []
         }),
-    new HtmlElementWithRequirement(
+    attributesTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('attributesTabButton')],
             requirements: [new AttributeRequirement('playthrough', [{
@@ -586,7 +586,7 @@ const elementRequirements = [
             }])],
             elementsToShowRequirements: []
         }),
-    new HtmlElementWithRequirement(
+    gridStrengthElements: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [
                 Dom.get().byId('gridLabel'),
@@ -597,7 +597,7 @@ const elementRequirements = [
             ],
             elementsToShowRequirements: []
         }),
-    new HtmlElementWithRequirement(
+    galacticSecretsTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('galacticSecretsTabButton')],
             requirements: [new AttributeRequirement('playthrough', [{
@@ -606,7 +606,7 @@ const elementRequirements = [
             }])],
             elementsToShowRequirements: []
         }),
-    new HtmlElementWithRequirement(
+    essenceOfUnknownLabel: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().bySelector('#galacticSecretsTabButton > .primary-stat')],
             requirements: [new AttributeRequirement('update', [{
@@ -615,7 +615,7 @@ const elementRequirements = [
             }])],
             elementsToShowRequirements: []
         }),
-];
+};
 
 function setCustomEffects() {
     // const bargaining = gameData.taskData['Bargaining'];

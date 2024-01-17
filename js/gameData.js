@@ -150,6 +150,8 @@ class GameData {
      *     pointsOfInterest: Object<PointOfInterestSavedValues>,
      *
      *     galacticSecrets: Object<GalacticSecretSavedValues>,
+     *
+     *     htmlElementsWithRequirement: Object<HtmlElementWithRequirementSavedValues>
      * }}
      */
     savedValues;
@@ -237,6 +239,11 @@ class GameData {
         for (const key in galacticSecrets) {
             this.savedValues.galacticSecrets[key] = GalacticSecret.newSavedValues();
         }
+
+        this.savedValues.htmlElementsWithRequirement = [];
+        for (const key in htmlElementRequirements) {
+            this.savedValues.htmlElementsWithRequirement[key] = HtmlElementWithRequirement.newSavedValues();
+        }
     }
 
     resetCurrentValues() {
@@ -297,6 +304,10 @@ class GameData {
 
         for (const key in galacticSecrets) {
             galacticSecrets[key].loadValues(this.savedValues.galacticSecrets[key]);
+        }
+
+        for (const key in htmlElementRequirements) {
+            htmlElementRequirements[key].loadValues(this.savedValues.htmlElementsWithRequirement[key]);
         }
 
         GameEvents.GameStateChanged.trigger({

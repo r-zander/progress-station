@@ -65,7 +65,7 @@ class Entity {
 
         if (Array.isArray(this.requirements)) {
             // Use Array.prototype.forEach to a) have an index and b) capture it
-            this.requirements.forEach(this.#registerRequirement);
+            this.requirements.forEach(this.registerRequirementInternal, this);
         } else {
             this.requirements = [];
         }
@@ -84,7 +84,7 @@ class Entity {
         this.domId = 'row_' + this.type + '_' + name;
     }
 
-    #registerRequirement(requirement, index) {
+    registerRequirementInternal(requirement, index) {
         requirement.registerSaveAndLoad((completed) => {
             this.getSavedValues().requirementCompleted[index] = completed;
         }, () => {
@@ -97,7 +97,7 @@ class Entity {
 
     registerRequirement(requirement) {
         const index = this.requirements.push(requirement) - 1;
-        this.#registerRequirement(requirement, index);
+        this.registerRequirementInternal(requirement, index);
     }
 
     loadValues(savedValues) {
@@ -928,8 +928,6 @@ class GalacticSecret extends Entity {
 }
 
 class Requirement {
-    /** @var {boolean} */
-    #completed = false;
     /** @var {function(boolean)} */
     saveFn;
     /** @var {function(): boolean} */
@@ -959,10 +957,8 @@ class Requirement {
     set completed(completed) {
         switch (this.scope) {
             case 'permanent':
-                this.saveFn(completed);
-                break;
             case 'playthrough':
-                this.#completed = completed;
+                this.saveFn(completed);
                 break;
             case 'update':
                 // discard
@@ -976,9 +972,8 @@ class Requirement {
     get completed() {
         switch (this.scope) {
             case 'permanent':
-                return this.loadFn();
             case 'playthrough':
-                return this.#completed;
+                return this.loadFn();
             case 'update':
                 return false;
         }
@@ -1005,7 +1000,7 @@ class Requirement {
                 // Keep value
                 break;
             case 'playthrough':
-                this.#completed = false;
+                this.saveFn(false);
                 break;
             case 'update':
                 // discarded anyway
@@ -1176,6 +1171,11 @@ class GalacticSecretRequirement extends Requirement {
     }
 }
 
+/**
+ * @typedef {Object} HtmlElementWithRequirementSavedValues
+ * @property {boolean[]} requirementCompleted
+ */
+
 class HtmlElementWithRequirement {
     /**
      * @param {{
@@ -1189,11 +1189,39 @@ class HtmlElementWithRequirement {
         this.requirements = baseData.requirements;
         this.elementsToShowRequirements = isUndefined(baseData.elementsToShowRequirements) ? [] : baseData.elementsToShowRequirements;
 
-        for (const requirement of this.requirements) {
-            if (requirement.scope === 'permanent') {
-                throw new Error('Config Error: scope: permanent is not supported within HtmlElementWithRequirement.');
-            }
+        if (Array.isArray(this.requirements)) {
+            // Use Array.prototype.forEach to a) have an index and b) capture it
+            this.requirements.forEach(this.registerRequirementInternal, this);
+        } else {
+            this.requirements = [];
         }
+    }
+
+    /**
+     * @param {HtmlElementWithRequirementSavedValues} savedValues
+     */
+    loadValues(savedValues) {
+        validateParameter(savedValues, {
+            requirementCompleted: JsTypes.Array,
+        }, this);
+        this.savedValues = savedValues;
+    }
+
+    /**
+     * @return {HtmlElementWithRequirementSavedValues}
+     */
+    static newSavedValues() {
+        return {
+            requirementCompleted: [],
+        };
+    }
+
+    /**
+     *
+     * @return {HtmlElementWithRequirementSavedValues}
+     */
+    getSavedValues() {
+        return this.savedValues;
     }
 
     /**
@@ -1223,3 +1251,6 @@ class HtmlElementWithRequirement {
         }
     }
 }
+
+// Funky cross-extension aka "Trait"
+HtmlElementWithRequirement.prototype.registerRequirementInternal = Entity.prototype.registerRequirementInternal;
