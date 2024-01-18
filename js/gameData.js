@@ -123,7 +123,7 @@ class GameData {
     /**
      * @var {number}
      */
-    rebirthOneCount = 0;
+    bossEncounterCount = 0;
 
     // /**
     //  * @var {number}

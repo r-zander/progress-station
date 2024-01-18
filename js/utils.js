@@ -345,7 +345,7 @@ class DomGetter {
 
     /**
      * @param {string} selector
-     * @returns {NodeList<HTMLElement>}
+     * @returns {NodeListOf<HTMLElement>}
      */
     allBySelector(selector) {
         return this.#parent.querySelectorAll(selector);

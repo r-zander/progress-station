@@ -1209,10 +1209,12 @@ function updateModuleOperationRows() {
             formatValue(domGetter.bySelector('.xpGain > data'), operation.getXpGain());
             formatValue(domGetter.bySelector('.xpLeft > data'), operation.getXpLeft());
 
-            let maxLevelElement = domGetter.bySelector('.maxLevel > data');
-            formatValue(maxLevelElement, operation.maxLevel, {keepNumber: true});
-            maxLevelElement = maxLevelElement.parentElement;
-            gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove('hidden') : maxLevelElement.classList.add('hidden');
+            if (gameData.bossEncounterCount > 0) {
+                domGetter.byClass('maxLevel').classList.remove('hidden');
+                formatValue(domGetter.bySelector('.maxLevel > data'), operation.maxLevel, {keepNumber: true});
+            } else {
+                domGetter.byClass('maxLevel').classList.add('hidden');
+            }
 
             const progressFillElement = domGetter.byClass('progressFill');
             setProgress(progressFillElement, operation.xp / operation.getMaxXp());
@@ -1420,8 +1422,8 @@ function updateGalacticSecretRows() {
 }
 
 function updateHeaderRows() {
-    for (const maxLevelElement of document.querySelectorAll('.level3 .maxLevel')) {
-        maxLevelElement.classList.toggle('hidden', gameData.rebirthOneCount === 0);
+    for (const maxLevelElement of Dom.get().allBySelector('.level3 .maxLevel')) {
+        maxLevelElement.classList.toggle('hidden', gameData.bossEncounterCount === 0);
     }
 }
 
@@ -1906,7 +1908,7 @@ function resetBattle(name) {
 }
 
 function startNewPlaythrough() {
-    gameData.rebirthOneCount += 1;
+    gameData.bossEncounterCount += 1;
     playthroughReset('UPDATE_MAX_LEVEL');
 }
 
@@ -1922,6 +1924,16 @@ function playthroughReset(maxLevelBehavior) {
     gameData.initValues();
     gameData.resetCurrentValues();
 
+    for (const key in modules) {
+        const module = modules[key];
+        module.reset(maxLevelBehavior);
+    }
+
+    for (const key in moduleComponents) {
+        const component = moduleComponents[key];
+        component.reset(maxLevelBehavior);
+    }
+
     for (const key in moduleOperations) {
         const operation = moduleOperations[key];
         operation.reset(maxLevelBehavior);
@@ -1932,16 +1944,6 @@ function playthroughReset(maxLevelBehavior) {
     for (const key in battles) {
         const battle = battles[key];
         battle.reset(maxLevelBehavior);
-    }
-
-    for (const key in moduleComponents) {
-        const component = moduleComponents[key];
-        component.reset(maxLevelBehavior);
-    }
-
-    for (const key in modules) {
-        const module = modules[key];
-        module.reset(maxLevelBehavior);
     }
 
     for (const key in moduleCategories) {
