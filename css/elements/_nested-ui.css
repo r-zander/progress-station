@@ -67,6 +67,10 @@
     margin-top: 0.5rem;
 }
 
+.header-row {
+    white-space: nowrap;
+}
+
 .level4 > tr > .gridLoad {
     transform-origin: right;
 }
