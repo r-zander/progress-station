@@ -65,16 +65,7 @@ class Entity {
 
         if (Array.isArray(this.requirements)) {
             // Use Array.prototype.forEach to a) have an index and b) capture it
-            this.requirements.forEach((requirement, index) => {
-                requirement.registerSaveAndLoad((completed) => {
-                    this.getSavedValues().requirementCompleted[index] = completed;
-                }, () => {
-                    if (isUndefined(this.getSavedValues().requirementCompleted[index])) {
-                        this.getSavedValues().requirementCompleted[index] = false;
-                    }
-                    return this.getSavedValues().requirementCompleted[index];
-                });
-            });
+            this.requirements.forEach(this.registerRequirementInternal, this);
         } else {
             this.requirements = [];
         }
@@ -93,6 +84,22 @@ class Entity {
         this.domId = 'row_' + this.type + '_' + name;
     }
 
+    registerRequirementInternal(requirement, index) {
+        requirement.registerSaveAndLoad((completed) => {
+            this.getSavedValues().requirementCompleted[index] = completed;
+        }, () => {
+            if (isUndefined(this.getSavedValues().requirementCompleted[index])) {
+                this.getSavedValues().requirementCompleted[index] = false;
+            }
+            return this.getSavedValues().requirementCompleted[index];
+        });
+    }
+
+    registerRequirement(requirement) {
+        const index = this.requirements.push(requirement) - 1;
+        this.registerRequirementInternal(requirement, index);
+    }
+
     loadValues(savedValues) {
         // Abstract method that needs to be implemented by each subclass
         throw new TypeError('loadValues not implemented by ' + this.constructor.name);
@@ -103,7 +110,7 @@ class Entity {
      *     requirementCompleted: boolean[]
      * }}
      */
-    getSavedValues(){
+    getSavedValues() {
         throw new TypeError('getSavedValues not implemented by ' + this.constructor.name);
     }
 
@@ -212,7 +219,7 @@ class Task extends Entity {
     /**
      * @return {boolean}
      */
-    isProgressing(){
+    isProgressing() {
         return gameData.state.areTasksProgressing;
     }
 
@@ -267,10 +274,13 @@ class Task extends Entity {
     }
 
     /**
+     * @param {number} [levelOverride] if provided, the returned text will use the provided
+     *                                 level instead of the current level of this task.
      * @return {string}
      */
-    getEffectDescription() {
-        return Effect.getDescription(this, this.effects, this.level);
+    getEffectDescription(levelOverride = undefined) {
+        const level = isNumber(levelOverride) ? levelOverride : this.level;
+        return Effect.getDescription(this, this.effects, level);
     }
 
     increaseXp() {
@@ -292,14 +302,18 @@ class Task extends Entity {
             }
         }
         if (this.level > previousLevel) {
-            GameEvents.TaskLevelChanged.trigger({
-                type: this.type,
-                name: this.name,
-                previousLevel: previousLevel,
-                nextLevel: this.level,
-            });
+            this.onLevelUp(previousLevel, this.level);
         }
         this.xp = this.getMaxXp() + excess;
+    }
+
+    onLevelUp(previousLevel, newLevel) {
+        GameEvents.TaskLevelChanged.trigger({
+            type: this.type,
+            name: this.name,
+            previousLevel: previousLevel,
+            nextLevel: newLevel,
+        });
     }
 
     /**
@@ -346,7 +360,7 @@ class GridStrength extends Task {
 
 
 /**
- * @typedef {Object} ModuleCategprySavedValues
+ * @typedef {Object} ModuleCategorySavedValues
  * @property {boolean[]} requirementCompleted
  */
 
@@ -370,17 +384,17 @@ class ModuleCategory extends Entity {
     }
 
     /**
-     * @param {ModuleCategprySavedValues} savedValues
+     * @param {ModuleCategorySavedValues} savedValues
      */
     loadValues(savedValues) {
         validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array
+            requirementCompleted: JsTypes.Array,
         }, this);
         this.savedValues = savedValues;
     }
 
     /**
-     * @return {ModuleCategprySavedValues}
+     * @return {ModuleCategorySavedValues}
      */
     static newSavedValues() {
         return {
@@ -389,7 +403,7 @@ class ModuleCategory extends Entity {
     }
 
     /**
-     * @return {ModuleCategprySavedValues}
+     * @return {ModuleCategorySavedValues}
      */
     getSavedValues() {
         return this.savedValues;
@@ -534,7 +548,7 @@ class ModuleComponent extends Entity {
         this.module = module;
 
         for (const operation of this.operations) {
-            operation.registerModule(module);
+            operation.registerModule(module, this);
         }
     }
 
@@ -597,6 +611,9 @@ class ModuleOperation extends Task {
     /** @var {Module} */
     module = null;
 
+    /** @var {ModuleComponent} */
+    component = null;
+
     /**
      * @param {{
      *     title: string,
@@ -623,10 +640,12 @@ class ModuleOperation extends Task {
 
     /**
      * @param {Module} module
+     * @param {ModuleComponent} component
      */
-    registerModule(module) {
+    registerModule(module, component) {
         console.assert(this.module === null, 'Module already registered.');
         this.module = module;
+        this.component = component;
     }
 
     collectEffects() {
@@ -707,7 +726,7 @@ class Sector extends Entity {
      */
     loadValues(savedValues) {
         validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array
+            requirementCompleted: JsTypes.Array,
         }, this);
         this.savedValues = savedValues;
     }
@@ -762,7 +781,7 @@ class PointOfInterest extends Entity {
      */
     loadValues(savedValues) {
         validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array
+            requirementCompleted: JsTypes.Array,
         }, this);
         this.savedValues = savedValues;
     }
@@ -817,9 +836,98 @@ class PointOfInterest extends Entity {
     }
 }
 
+/**
+ * @typedef {Object} GalacticSecretSavedValues
+ * @property {boolean} unlocked
+ * @property {boolean[]} requirementCompleted
+ */
+
+class GalacticSecret extends Entity {
+    /**
+     * 0.0 - 1.0
+     * @type {number}
+     */
+    unlockProgress = 0;
+    inProgress = false;
+    lastUpdate = performance.now();
+
+    /**
+     * @param {{
+     *     unlocks: ModuleOperation,
+     *     requirements?: Requirement[]
+     * }} baseData
+     */
+    constructor(baseData) {
+        super(GalacticSecret.#createTitle(baseData.unlocks), baseData.unlocks.description, baseData.requirements);
+
+        this.unlocks = baseData.unlocks;
+        this.unlocks.registerRequirement(new GalacticSecretRequirement([{galacticSecret: this}]));
+    }
+
+    /**
+     * @param {ModuleOperation} unlock
+     */
+    static #createTitle(unlock) {
+        return unlock.component.title + ': ' + unlock.title;
+    }
+
+    /**
+     * @param {GalacticSecretSavedValues} savedValues
+     */
+    loadValues(savedValues) {
+        validateParameter(savedValues, {
+            unlocked: JsTypes.Boolean,
+            requirementCompleted: JsTypes.Array,
+        }, this);
+        this.savedValues = savedValues;
+    }
+
+    /**
+     * @return {GalacticSecretSavedValues}
+     */
+    static newSavedValues() {
+        return {
+            unlocked: false,
+            requirementCompleted: [],
+        };
+    }
+
+    /**
+     *
+     * @return {GalacticSecretSavedValues}
+     */
+    getSavedValues() {
+        return this.savedValues;
+    }
+
+    get isUnlocked() {
+        return this.savedValues.unlocked;
+    }
+
+    set isUnlocked(unlocked) {
+        this.savedValues.unlocked = unlocked;
+    }
+
+    update() {
+        const now = performance.now();
+        const timeDelta = now - this.lastUpdate;
+        this.lastUpdate = now;
+        if (this.inProgress) {
+            if (this.unlockProgress < 1) {
+                this.unlockProgress += timeDelta / galacticSecretUnlockDuration;
+            }
+        } else {
+            if (this.unlockProgress > 0) {
+                this.unlockProgress -= timeDelta / galacticSecretUnlockDuration;
+                if (this.unlockProgress < 0) {
+                    this.unlockProgress = 0;
+                }
+            }
+        }
+    }
+}
+
 class Requirement {
-    /** @var {boolean} */
-    #completed = false;
     /** @var {function(boolean)} */
     saveFn;
     /** @var {function(): boolean} */
@@ -849,10 +957,8 @@ class Requirement {
     set completed(completed) {
         switch (this.scope) {
             case 'permanent':
-                this.saveFn(completed);
-                break;
             case 'playthrough':
-                this.#completed = completed;
+                this.saveFn(completed);
                 break;
             case 'update':
                 // discard
@@ -866,9 +972,8 @@ class Requirement {
     get completed() {
         switch (this.scope) {
             case 'permanent':
-                return this.loadFn();
             case 'playthrough':
-                return this.#completed;
+                return this.loadFn();
             case 'update':
                 return false;
         }
@@ -889,13 +994,13 @@ class Requirement {
         return true;
     }
 
-    reset(){
+    reset() {
         switch (this.scope) {
             case 'permanent':
                 // Keep value
                 break;
             case 'playthrough':
-                this.#completed = false;
+                this.saveFn(false);
                 break;
             case 'update':
                 // discarded anyway
@@ -1041,6 +1146,36 @@ level
     }
 }
 
+class GalacticSecretRequirement extends Requirement {
+    /**
+     * @param {{galacticSecret: GalacticSecret}[]} requirements
+     */
+    constructor(requirements) {
+        super('GalacticSecretRequirement', 'playthrough', requirements);
+    }
+
+    /**
+     * @param {{galacticSecret: GalacticSecret}} requirement
+     * @return {boolean}
+     */
+    getCondition(requirement) {
+        return requirement.galacticSecret.isUnlocked;
+    }
+
+    /**
+     * @param {{galacticSecret: GalacticSecret}} requirement
+     * @return {string}
+     */
+    toHtmlInternal(requirement) {
+        return 'an unraveled Galactic Secret';
+    }
+}
+
+/**
+ * @typedef {Object} HtmlElementWithRequirementSavedValues
+ * @property {boolean[]} requirementCompleted
+ */
+
 class HtmlElementWithRequirement {
     /**
      * @param {{
@@ -1054,11 +1189,39 @@ class HtmlElementWithRequirement {
         this.requirements = baseData.requirements;
         this.elementsToShowRequirements = isUndefined(baseData.elementsToShowRequirements) ? [] : baseData.elementsToShowRequirements;
 
-        for (const requirement of this.requirements) {
-            if (requirement.scope === 'permanent') {
-                throw new Error('Config Error: scope: permanent is not supported within HtmlElementWithRequirement.');
-            }
+        if (Array.isArray(this.requirements)) {
+            // Use Array.prototype.forEach to a) have an index and b) capture it
+            this.requirements.forEach(this.registerRequirementInternal, this);
+        } else {
+            this.requirements = [];
         }
+    }
+
+    /**
+     * @param {HtmlElementWithRequirementSavedValues} savedValues
+     */
+    loadValues(savedValues) {
+        validateParameter(savedValues, {
+            requirementCompleted: JsTypes.Array,
+        }, this);
+        this.savedValues = savedValues;
+    }
+
+    /**
+     * @return {HtmlElementWithRequirementSavedValues}
+     */
+    static newSavedValues() {
+        return {
+            requirementCompleted: [],
+        };
+    }
+
+    /**
+     *
+     * @return {HtmlElementWithRequirementSavedValues}
+     */
+    getSavedValues() {
+        return this.savedValues;
     }
 
     /**
@@ -1088,3 +1251,6 @@ class HtmlElementWithRequirement {
         }
     }
 }
+
+// Funky cross-extension aka "Trait"
+HtmlElementWithRequirement.prototype.registerRequirementInternal = Entity.prototype.registerRequirementInternal;

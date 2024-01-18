@@ -50,5 +50,10 @@ const cheats = {
         increaseAllBy1000: () => {
             cheats.Attributes.increaseAllBy(1000);
         },
+        essenceOfUnknown: {
+            add: (amount) => {
+                gameData.essenceOfUnknown += amount;
+            }
+        }
     },
 };

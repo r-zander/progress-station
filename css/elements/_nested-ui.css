@@ -67,6 +67,10 @@
     margin-top: 0.5rem;
 }
 
+.header-row {
+    white-space: nowrap;
+}
+
 .level4 > tr > .gridLoad {
     transform-origin: right;
 }
@@ -86,7 +90,7 @@
     top: 77px;
 }
 
-:is(#modules, #location, #battles) {
+:is(#modules, #location, #battles, #galacticSecrets) {
     .table :is(td,th):first-of-type {
         width: var(--main-column-width);
     }

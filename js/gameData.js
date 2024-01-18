@@ -14,7 +14,7 @@ const localStorageKey = 'ps_gameDataSave';
  */
 
 /**
- * @type {Object.<string, GameState>}
+ * @type {Object<GameState>}
  */
 const gameStates = {
     NEW: {
@@ -123,26 +123,35 @@ class GameData {
     /**
      * @var {number}
      */
-    rebirthOneCount = 0;
+    bossEncounterCount = 0;
+
+    // /**
+    //  * @var {number}
+    //  */
+    // rebirthTwoCount = 0;
 
     /**
      * @var {number}
      */
-    rebirthTwoCount = 0;
+    essenceOfUnknown = 0;
 
     /**
      * @var {{
      *     gridStrength: TaskSavedValues,
      *
-     *     moduleCategories: Object.<string, EmptySavedValues>,
-     *     modules: Object.<string, ModuleSavedValues>,
-     *     moduleComponents: Object.<string, EmptySavedValues>,
-     *     moduleOperations: Object.<string, TaskSavedValues>,
+     *     moduleCategories: Object<ModuleCategorySavedValues>,
+     *     modules: Object<ModuleSavedValues>,
+     *     moduleComponents: Object<EmptySavedValues>,
+     *     moduleOperations: Object<TaskSavedValues>,
      *
-     *     battles: Object.<string, TaskSavedValues>,
+     *     battles: Object<TaskSavedValues>,
      *
-     *     sectors: Object.<string, EmptySavedValues>,
-     *     pointsOfInterest: Object.<string, EmptySavedValues>,
+     *     sectors: Object<SectorSavedValues>,
+     *     pointsOfInterest: Object<PointOfInterestSavedValues>,
+     *
+     *     galacticSecrets: Object<GalacticSecretSavedValues>,
+     *
+     *     htmlElementsWithRequirement: Object<HtmlElementWithRequirementSavedValues>
      * }}
      */
     savedValues;
@@ -225,6 +234,16 @@ class GameData {
         for (const key in pointsOfInterest) {
             this.savedValues.pointsOfInterest[key] = PointOfInterest.newSavedValues();
         }
+
+        this.savedValues.galacticSecrets = {};
+        for (const key in galacticSecrets) {
+            this.savedValues.galacticSecrets[key] = GalacticSecret.newSavedValues();
+        }
+
+        this.savedValues.htmlElementsWithRequirement = [];
+        for (const key in htmlElementRequirements) {
+            this.savedValues.htmlElementsWithRequirement[key] = HtmlElementWithRequirement.newSavedValues();
+        }
     }
 
     resetCurrentValues() {
@@ -248,6 +267,9 @@ class GameData {
         let saveGameFound = localStorageItem !== null;
         if (saveGameFound) {
             const gameDataSave = JSON.parse(localStorageItem);
+
+            this.#checkSaveGameVersion(gameDataSave);
+
             // noinspection JSUnresolvedReference
             _.merge(this, gameDataSave);
 
@@ -283,12 +305,35 @@ class GameData {
             pointsOfInterest[key].loadValues(this.savedValues.pointsOfInterest[key]);
         }
 
+        for (const key in galacticSecrets) {
+            galacticSecrets[key].loadValues(this.savedValues.galacticSecrets[key]);
+        }
+
+        for (const key in htmlElementRequirements) {
+            htmlElementRequirements[key].loadValues(this.savedValues.htmlElementsWithRequirement[key]);
+        }
+
         GameEvents.GameStateChanged.trigger({
             previousState: gameStates.NEW.name,
             newState: this.stateName,
         });
 
         return saveGameFound;
+    }
+
+    #checkSaveGameVersion(gameDataSave) {
+        if (gameDataSave.hasOwnProperty('version') &&
+            isNumber(gameDataSave.version) &&
+            gameDataSave.version < this.version
+        ) {
+            GameEvents.IncompatibleVersionFound.trigger({
+                savedVersion: gameDataSave.version,
+                expectedVersion: this.version,
+            });
+            return false;
+        }
+
+        return true;
     }
 
     save() {

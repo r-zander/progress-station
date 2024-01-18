@@ -27,13 +27,14 @@ const gridLoadBalanceEntries = [];
 
 /**
  *
- * @type {Object.<string, HTMLElement>}
+ * @type {Object<HTMLElement>}
  */
 const tabButtons = {
     modules: document.getElementById('modulesTabButton'),
     location: document.getElementById('locationTabButton'),
     captainsLog: document.getElementById('captainsLogTabButton'),
     battles: document.getElementById('battleTabButton'),
+    galacticSecrets: document.getElementById('galacticSecretsTabButton'),
     attributes: document.getElementById('attributesTabButton'),
     settings: document.getElementById('settingsTabButton'),
 };
@@ -372,7 +373,7 @@ function createLevel4SectorElements(pointsOfInterest, sectorName) {
     const level4Elements = [];
     for (const pointOfInterest of pointsOfInterest) {
         const level4Element = Dom.new.fromTemplate('level4PointOfInterestTemplate');
-        level4Element.id = 'row_' + pointOfInterest.name;
+        level4Element.id = pointOfInterest.domId;
 
         const level4DomGetter = Dom.get(level4Element);
         level4DomGetter.byClass('name').textContent = pointOfInterest.title;
@@ -429,7 +430,7 @@ function createLevel3SectorElement(sector, sectorName) {
 
 /**
  * Due to styling reasons, the two rendered levels are actually level 3 + 4 - don't get confused.
- * @param {Object.<string, Sector>} categoryDefinition
+ * @param {Object<Sector>} categoryDefinition
  * @param {string} domId
  */
 function createSectorsUI(categoryDefinition, domId) {
@@ -574,8 +575,60 @@ function createFinishedBattlesUI() {
 
 function createBattlesUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
-
     slot.replaceWith(createUnfinishedBattlesUI(), createFinishedBattlesUI());
+}
+
+function createGalacticSecretsUI() {
+    const level4Elements = [];
+    for (const key in galacticSecrets) {
+        const galacticSecret = galacticSecrets[key];
+        const level4Element = Dom.new.fromTemplate('level4GalacticSecretTemplate');
+        level4Element.id = galacticSecret.domId;
+        const domGetter = Dom.get(level4Element);
+        domGetter.byClass('component').textContent = galacticSecret.unlocks.component.title;
+        domGetter.byClass('operation').textContent = galacticSecret.unlocks.title;
+        const descriptionElement = domGetter.byClass('descriptionTooltip');
+        descriptionElement.ariaLabel = galacticSecret.title;
+        if (isDefined(galacticSecret.description)) {
+            descriptionElement.title = galacticSecret.description;
+        } else {
+            descriptionElement.removeAttribute('title');
+        }
+        domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
+
+        domGetter.byClass('parent').textContent = galacticSecret.unlocks.module.title;
+        domGetter.byClass('effect').textContent = galacticSecret.unlocks.getEffectDescription(1);
+        formatValue(domGetter.bySelector('.gridLoad > data'), galacticSecret.unlocks.getGridLoad());
+
+        domGetter.byClass('progressBar').addEventListener('pointerdown', (event) => {
+            if (galacticSecret.isUnlocked) return;
+
+            const galacticSecretCost = calculateGalacticSecretCost();
+            if (galacticSecretCost > gameData.essenceOfUnknown) {
+                visuallyDenyGalacticSecretUnlock(galacticSecret);
+                return;
+            }
+
+            const tooltip = bootstrap.Tooltip.getInstance(event.currentTarget);
+            tooltip.hide();
+            tooltip.disable();
+            galacticSecret.inProgress = true;
+        });
+
+        level4Elements.push(level4Element);
+    }
+
+    window.addEventListener('pointerup', () => {
+        for (const key in galacticSecrets) {
+            const galacticSecret = galacticSecrets[key];
+            galacticSecret.inProgress = false;
+            const tooltip = bootstrap.Tooltip.getInstance(Dom.get().bySelector('#' + galacticSecret.domId + ' .progressBar'));
+            tooltip.enable();
+        }
+    });
+
+    const level4Slot = Dom.get().bySelector('#galacticSecrets tbody.level4');
+    level4Slot.append(...level4Elements);
 }
 
 function createModulesQuickDisplay() {
@@ -1156,10 +1209,12 @@ function updateModuleOperationRows() {
             formatValue(domGetter.bySelector('.xpGain > data'), operation.getXpGain());
             formatValue(domGetter.bySelector('.xpLeft > data'), operation.getXpLeft());
 
-            let maxLevelElement = domGetter.bySelector('.maxLevel > data');
-            formatValue(maxLevelElement, operation.maxLevel, {keepNumber: true});
-            maxLevelElement = maxLevelElement.parentElement;
-            gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove('hidden') : maxLevelElement.classList.add('hidden');
+            if (gameData.bossEncounterCount > 0) {
+                domGetter.byClass('maxLevel').classList.remove('hidden');
+                formatValue(domGetter.bySelector('.maxLevel > data'), operation.maxLevel, {keepNumber: true});
+            } else {
+                domGetter.byClass('maxLevel').classList.add('hidden');
+            }
 
             const progressFillElement = domGetter.byClass('progressFill');
             setProgress(progressFillElement, operation.xp / operation.getMaxXp());
@@ -1324,7 +1379,7 @@ function updateSectorRows() {
         };
 
         for (const pointOfInterest of sector.pointsOfInterest) {
-            const row = Dom.get().byId('row_' + pointOfInterest.name);
+            const row = Dom.get().byId(pointOfInterest.domId);
 
             if (!updateRequirements(pointOfInterest.getUnfulfilledRequirements(), requirementsContext)) {
                 row.classList.add('hidden');
@@ -1347,9 +1402,28 @@ function updateSectorRows() {
     sectorRequirementsContext.requirementsElement.classList.toggle('hidden', !sectorRequirementsContext.hasUnfulfilledRequirements);
 }
 
+function updateGalacticSecretRows() {
+    for (const key in galacticSecrets) {
+        const galacticSecret = galacticSecrets[key];
+        const row = Dom.get().byId(galacticSecret.domId);
+        const domGetter = Dom.get(row);
+        const isUnlocked = galacticSecret.isUnlocked;
+        const progressFillElement = domGetter.byClass('progressFill');
+        if (isUnlocked) {
+            progressFillElement.classList.add('unlocked');
+            domGetter.byClass('progressBar').classList.add('unlocked');
+            progressFillElement.style.removeProperty('width');
+        } else {
+            progressFillElement.classList.toggle('unlocked', galacticSecret.inProgress);
+            domGetter.byClass('progressBar').classList.remove('unlocked');
+            setProgress(progressFillElement, galacticSecret.unlockProgress);
+        }
+    }
+}
+
 function updateHeaderRows() {
-    for (const maxLevelElement of document.querySelectorAll('.level3 .maxLevel')) {
-        maxLevelElement.classList.toggle('hidden', gameData.rebirthOneCount === 0);
+    for (const maxLevelElement of Dom.get().allBySelector('.level3 .maxLevel')) {
+        maxLevelElement.classList.toggle('hidden', gameData.bossEncounterCount === 0);
     }
 }
 
@@ -1522,10 +1596,17 @@ function updateText() {
     const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);
     formatValue(Dom.get().bySelector('#attributeRows > .research .value'), research);
+
+    const essenceOfUnknown = attributes.essenceOfUnknown.getValue();
+    formatValue(Dom.get().byId('essenceOfUnknownDisplay'), essenceOfUnknown, {forceInteger: true, keepNumber: true});
+
+    const galacticSecretCost = calculateGalacticSecretCost();
+    formatValue(Dom.get().byId('galacticSecretCostDisplay'), galacticSecretCost, {forceInteger: true, keepNumber: true});
 }
 
 function updateHtmlElementRequirements() {
-    for (const htmlElementWithRequirement of elementRequirements) {
+    for (const key in htmlElementRequirements) {
+        const htmlElementWithRequirement = htmlElementRequirements[key];
         const completed = htmlElementWithRequirement.isCompleted();
         for (const element of htmlElementWithRequirement.elementsWithRequirements) {
             element.classList.toggle('hidden', !completed);
@@ -1591,6 +1672,13 @@ function calculateGridLoad() {
     return gridLoad;
 }
 
+function calculateGalacticSecretCost() {
+    const unlockedGalacticSecrets = Object.values(galacticSecrets)
+        .filter(galacticSecret => galacticSecret.isUnlocked)
+        .length;
+    return Math.pow(3, unlockedGalacticSecrets);
+}
+
 function getFormattedCycle(ticks, base) {
     const decimalPlaces = 0;
     const incrementPerTick = 1;
@@ -1623,6 +1711,39 @@ function updateBossDistance() {
     const overtime = gameData.cycles - getLifespan();
     // Translate the elapsed time into distance according to config
     bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
+}
+
+function visuallyDenyGalacticSecretUnlock(galacticSecret) {
+    VFX.shakeElement(Dom.get().bySelector(`#${galacticSecret.domId} .progress`), galacticSecret.domId);
+    VFX.highlightText(Dom.get().byId('galacticSecretCostDisplay').parentElement, 'flash-text-denied', 'flash-text-denied');
+    VFX.highlightText(Dom.get().byId('essenceOfUnknownDisplay'), 'flash-text-denied', 'flash-text-denied');
+}
+
+function progressGalacticSecrets() {
+    for (const key in galacticSecrets) {
+        const galacticSecret = galacticSecrets[key];
+        galacticSecret.update();
+        if (galacticSecret.unlockProgress < 1) {
+            continue;
+        }
+
+        const galacticSecretCost = calculateGalacticSecretCost();
+        if (galacticSecretCost > gameData.essenceOfUnknown) {
+            visuallyDenyGalacticSecretUnlock(galacticSecret);
+        } else {
+            // Unlock & pay the required essence of unknown
+            galacticSecret.isUnlocked = true;
+            galacticSecret.inProgress = false;
+            gameData.essenceOfUnknown -= galacticSecretCost;
+            GameEvents.TaskLevelChanged.trigger({
+                type: galacticSecret.type,
+                name: galacticSecret.name,
+                previousLevel: 0,
+                nextLevel: 1,
+            });
+        }
+        galacticSecret.unlockProgress = 0;
+    }
 }
 
 /**
@@ -1787,7 +1908,7 @@ function resetBattle(name) {
 }
 
 function startNewPlaythrough() {
-    gameData.rebirthOneCount += 1;
+    gameData.bossEncounterCount += 1;
     playthroughReset('UPDATE_MAX_LEVEL');
 }
 
@@ -1803,6 +1924,16 @@ function playthroughReset(maxLevelBehavior) {
     gameData.initValues();
     gameData.resetCurrentValues();
 
+    for (const key in modules) {
+        const module = modules[key];
+        module.reset(maxLevelBehavior);
+    }
+
+    for (const key in moduleComponents) {
+        const component = moduleComponents[key];
+        component.reset(maxLevelBehavior);
+    }
+
     for (const key in moduleOperations) {
         const operation = moduleOperations[key];
         operation.reset(maxLevelBehavior);
@@ -1813,16 +1944,6 @@ function playthroughReset(maxLevelBehavior) {
     for (const key in battles) {
         const battle = battles[key];
         battle.reset(maxLevelBehavior);
-    }
-
-    for (const key in moduleComponents) {
-        const component = moduleComponents[key];
-        component.reset(maxLevelBehavior);
-    }
-
-    for (const key in modules) {
-        const module = modules[key];
-        module.reset(maxLevelBehavior);
     }
 
     for (const key in moduleCategories) {
@@ -1840,7 +1961,8 @@ function playthroughReset(maxLevelBehavior) {
         pointOfInterest.reset(maxLevelBehavior);
     }
 
-    for (const elementRequirement of elementRequirements) {
+    for (const key in htmlElementRequirements) {
+        const elementRequirement = htmlElementRequirements[key];
         elementRequirement.reset();
     }
 
@@ -1872,6 +1994,7 @@ function updateUI() {
 
     updateBattleRows();
     updateSectorRows();
+    updateGalacticSecretRows();
 
     updateHeaderRows();
     updateModulesQuickDisplay();
@@ -1887,6 +2010,7 @@ function updateUI() {
 function update() {
     increaseDate();
     updateBossDistance();
+    progressGalacticSecrets();
     doTasks();
     updatePopulation();
     updateUI();
@@ -1990,6 +2114,7 @@ function initConfigNames() {
     assignNames(battles);
     assignNames(pointsOfInterest);
     assignNames(sectors);
+    assignNames(galacticSecrets);
 }
 
 function init() {
@@ -2008,6 +2133,7 @@ function init() {
     createModulesUI(moduleCategories, 'modulesTable');
     createSectorsUI(sectors, 'sectorTable');
     createBattlesUI(battles, 'battlesTable');
+    createGalacticSecretsUI(galacticSecrets, 'galacticSecrets');
     createModulesQuickDisplay();
     createBattlesQuickDisplay();
 
