@@ -747,7 +747,36 @@
     </div>
 </main>
 
-<div id="storyIntro" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+<div id="versionWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-4 fw-light">Incompatible Save Game found</h2>
+            </div>
+            <div class="modal-body">
+                <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
+                <p>The game has evolved a lot since then and we can not guarantee that your save game is still fully compatible.</p>
+                <p>Our recommendation is to start with a fresh game. But you can also try and let the game reuse your save file.</p>
+            </div>
+            <div class="modal-footer d-flex">
+                <div>
+                    <button type="button" class="btn btn-warning" onclick="continueWithIncompatibleVersion();">
+                        Keep save
+                    </button>
+                    <p><small>(might break the game)</small></p>
+                </div>
+                <div class="ms-auto">
+                    <button type="button" class="btn btn-primary" onclick="gameData.reset();">
+                        Reset game
+                    </button>
+                    <p><small>(deletes all progress)</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="storyIntroModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">

@@ -101,6 +101,10 @@ class GameEvent {
 }
 
 const GameEvents = {
+    IncompatibleVersionFound: new GameEvent({
+        savedVersion: JsTypes.Number,
+        expectedVersion: JsTypes.Number,
+    }),
     NewGameStarted: new GameEvent(undefined),
     GameStateChanged: new GameEvent({
         previousState: JsTypes.String,

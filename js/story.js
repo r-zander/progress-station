@@ -1,7 +1,30 @@
 'use strict';
 
+function initVersionWarning() {
+    const modal = new bootstrap.Modal(document.getElementById('versionWarningModal'));
+
+    GameEvents.IncompatibleVersionFound.subscribe(() => {
+        modal.show();
+    });
+
+    if (_.isObject(cheats)) {
+        cheats.Story['VersionWarning'] = {
+            trigger: (savedVersion = 1, expectedVersion = 2) => {
+                GameEvents.IncompatibleVersionFound.trigger({
+                    savedVersion: savedVersion,
+                    expectedVersion: expectedVersion
+                });
+            }
+        };
+    }
+
+    window.continueWithIncompatibleVersion = function () {
+        modal.hide();
+    };
+}
+
 function initIntro() {
-    const modal = new bootstrap.Modal(document.getElementById('storyIntro'));
+    const modal = new bootstrap.Modal(document.getElementById('storyIntroModal'));
 
     const rerollNameButton = Dom.get().byId('rerollName');
     rerollNameButton.addEventListener('click', function (event) {
@@ -127,6 +150,7 @@ function initGameOver() {
 }
 
 function initStory() {
+    initVersionWarning();
     initIntro();
     initBossAppearance();
     initBossFightIntro();

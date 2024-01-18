@@ -267,6 +267,9 @@ class GameData {
         let saveGameFound = localStorageItem !== null;
         if (saveGameFound) {
             const gameDataSave = JSON.parse(localStorageItem);
+
+            this.#checkSaveGameVersion(gameDataSave);
+
             // noinspection JSUnresolvedReference
             _.merge(this, gameDataSave);
 
@@ -316,6 +319,21 @@ class GameData {
         });
 
         return saveGameFound;
+    }
+
+    #checkSaveGameVersion(gameDataSave) {
+        if (gameDataSave.hasOwnProperty('version') &&
+            isNumber(gameDataSave.version) &&
+            gameDataSave.version < this.version
+        ) {
+            GameEvents.IncompatibleVersionFound.trigger({
+                savedVersion: gameDataSave.version,
+                expectedVersion: this.version,
+            });
+            return false;
+        }
+
+        return true;
     }
 
     save() {
