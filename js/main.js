@@ -1601,10 +1601,6 @@ function getFormattedCycle(ticks, base) {
     return roundedCycle;
 }
 
-function formatValueWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
 function increaseDate() {
     if (!gameData.state.isTimeProgressing) return;
 
