@@ -13,16 +13,16 @@ const cheats = {
     },
     Age: {
         set: (age) => {
-            gameData.days = age;
-            gameData.totalDays = age;
+            gameData.cycles = age;
+            gameData.totalCycles = age;
         },
         add: (age) => {
-            gameData.days += age;
-            gameData.totalDays += age;
+            gameData.cycles += age;
+            gameData.totalCycles += age;
         },
         setToBossTime: () => {
-            gameData.days = getLifespan() - 1;
-            gameData.totalDays = getLifespan() - 1;
+            gameData.cycles = getLifespan() - 1;
+            gameData.totalCycles = getLifespan() - 1;
         }
     },
     Battles: {},

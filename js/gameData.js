@@ -108,12 +108,12 @@ class GameData {
     /**
      * @var {number}
      */
-    days;
+    cycles;
 
     /**
      * @var {number}
      */
-    totalDays = startingDays;
+    totalCycles = runStartingCycle;
 
     /**
      * @var {boolean}
@@ -185,7 +185,7 @@ class GameData {
 
     initValues() {
         this.population = 1;
-        this.days = startingDays;
+        this.cycles = runStartingCycle;
         this.bossBattleAvailable = false;
     }
 
