@@ -155,19 +155,17 @@ function setPointOfInterest(name) {
  */
 function switchModuleActivation(module, switchElement) {
     if (!gameData.state.canChangeActivation) {
-        switchElement.checked = false;
         VFX.shakePlayButton();
         return;
     }
 
-    if (!switchElement.checked) {
+    if (module.isActive()) {
         module.setActive(false);
         return;
     }
 
     const gridLoadAfterActivation = attributes.gridLoad.getValue() + module.getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
-        switchElement.checked = false;
         VFX.highlightText(Dom.get().bySelector(`#${module.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
         return;
     }
@@ -309,7 +307,6 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
         /** @var {HTMLInputElement} */
         const switchElement = level2DomGetter.byClass('moduleActivationSwitch');
         switchElement.id = 'switch_' + module.name;
-        switchElement.checked = module.isActive();
         switchElement.addEventListener('click', switchModuleActivation.bind(this, module, switchElement));
         level2DomGetter.byClass('moduleActivationLabel').for = switchElement.id;
         initTooltip(level2DomGetter.byClass('maxLevel'), {
@@ -1171,6 +1168,7 @@ function updateModuleRows() {
             level2Header.classList.toggle('bg-dark', !isActive);
             level2Header.classList.toggle('text-light', !isActive);
 
+            domGetter.byClass('moduleActivationSwitch').checked = module.isActive();
             formatValue(domGetter.byClass('level'), module.getLevel());
 
             const maxLevelElement = domGetter.byClass('maxLevel');
