@@ -21,8 +21,8 @@ const cheats = {
             gameData.totalCycles += age;
         },
         setToBossTime: () => {
-            gameData.cycles = getLifespan() - 1;
-            gameData.totalCycles = getLifespan() - 1;
+            const diff =  (getBossAppearanceCycle() - 1) - gameData.cycles;
+            cheats.Age.add(diff);
         }
     },
     Battles: {},
@@ -57,3 +57,8 @@ const cheats = {
         }
     },
 };
+
+// Debugging output
+GameEvents.GameStateChanged.subscribe((payload) => {
+    console.log('Transition game state from ' + payload.previousState + ' to ' + payload.newState);
+})

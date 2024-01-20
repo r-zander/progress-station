@@ -113,7 +113,7 @@ class GameData {
     /**
      * @var {number}
      */
-    totalCycles = runStartingCycle;
+    totalCycles = 0;
 
     /**
      * @var {boolean}
@@ -194,7 +194,7 @@ class GameData {
 
     initValues() {
         this.population = 1;
-        this.cycles = runStartingCycle;
+        this.cycles = 0;
         this.bossBattleAvailable = false;
     }
 
@@ -384,10 +384,11 @@ class GameData {
             throw new Error('Invalide state transition from ' + this.state.name + ' to ' + newState.name);
         }
 
+        const previousState = this.stateName;
         this.stateName = newState.name;
 
         GameEvents.GameStateChanged.trigger({
-            previousState: this.stateName,
+            previousState: previousState,
             newState: newState.name,
         });
     }

@@ -4,8 +4,7 @@
 const updateSpeed = 20;
 
 const baseCycle = 100000;
-const runStartingCycle = 0;
-const bossCycle = 25 * 365;
+const bossAppearanceCycle = 25_000;
 const dangerColors = [
     new Color([0, 128, 0], 'RGB'),    // 0% color: dark green
     new Color([255, 255, 0], 'RGB'),  // 50% color: yellow

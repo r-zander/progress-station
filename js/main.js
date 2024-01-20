@@ -1551,9 +1551,9 @@ function updateHeatDisplay() {
 }
 
 function updateText() {
-    //Sidebar
-    document.getElementById('cyclesSinceLastEncounter').textContent = Number(getFormattedCycle(gameData.cycles, 0)).toLocaleString('en-US');
-    document.getElementById('cyclesTotal').textContent = Number(getFormattedCycle(gameData.totalCycles, baseCycle)).toLocaleString('en-US');
+    // TODO adjust formatting & use formatValue
+    Dom.get().byId('cyclesSinceLastEncounter').textContent = Number(getFormattedCycle(gameData.cycles, 0)).toLocaleString('en-US');
+    Dom.get().byId('cyclesTotal').textContent = Number(getFormattedCycle(gameData.totalCycles, baseCycle)).toLocaleString('en-US');
     const pauseButton = document.getElementById('pauseButton');
     if (gameData.state === gameStates.PAUSED) {
         pauseButton.textContent = 'Play';
@@ -1685,18 +1685,18 @@ function getFormattedCycle(ticks, base) {
 
     const totalCycle = base + incrementPerTick * ticks;
     const roundedCycle = totalCycle.toFixed(decimalPlaces);
-    
+
     return roundedCycle;
 }
 
-function increaseDate() {
+function increaseCycle() {
     if (!gameData.state.isTimeProgressing) return;
 
     const increase = applySpeed(1);
     gameData.cycles += increase;
     gameData.totalCycles += increase;
 
-    if (!isBossBattleAvailable() && gameData.cycles >= getLifespan()) {
+    if (!isBossBattleAvailable() && gameData.cycles >= getBossAppearanceCycle()) {
         gameData.bossBattleAvailable = true;
         gameData.transitionState(gameStates.PAUSED);
         GameEvents.BossAppearance.trigger(undefined);
@@ -1708,7 +1708,7 @@ function updateBossDistance() {
     if (!isBossBattleAvailable()) return;
 
     // How much time has past since the boss' arrival?
-    const overtime = gameData.cycles - getLifespan();
+    const overtime = gameData.cycles - getBossAppearanceCycle();
     // Translate the elapsed time into distance according to config
     bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
 }
@@ -1750,7 +1750,7 @@ function progressGalacticSecrets() {
  *
  * @param {HTMLDataElement} dataElement
  * @param {number} value
- * @param {{prefixes?: string[], unit?: string, forceSign?: boolean, keepNumber?: boolean, forceInteger?: boolean, toLocale?: string}} config
+ * @param {{prefixes?: string[], unit?: string, forceSign?: boolean, keepNumber?: boolean, forceInteger?: boolean}} config
  */
 function formatValue(dataElement, value, config = {}) {
     // TODO render full number + unit into dataElement.title
@@ -1762,14 +1762,10 @@ function formatValue(dataElement, value, config = {}) {
         forceSign: false,
         keepNumber: false,
         forceInteger: false,
-        toLocale: '',
     };
     config = Object.assign({}, defaultConfig, config);
 
     const toString = (value) => {
-        if (config.hasOwnProperty('toLocale') && config.toLocale !== '') {
-            return Number(value).toLocaleString(toLocale);
-        }
         if (config.forceInteger || Number.isInteger(value)) {
             return value.toFixed(0);
         } else if (Math.abs(value) < 1) {
@@ -1970,12 +1966,12 @@ function playthroughReset(maxLevelBehavior) {
     gameData.transitionState(gameStates.NEW);
 }
 
-function getLifespan() {
+function getBossAppearanceCycle() {
     //Lifespan not defined in station design, if years are not reset this will break the game
     //const immortality = gameData.taskData['Immortality'];
     //const superImmortality = gameData.taskData['Super immortality'];
-    //return bossCycle * immortality.getEffect() * superImmortality.getEffect();
-    return bossCycle;
+    //return bossAppearanceCycle * immortality.getEffect() * superImmortality.getEffect();
+    return bossAppearanceCycle;
 }
 
 function isBossBattleAvailable() {
@@ -2008,7 +2004,7 @@ function updateUI() {
 }
 
 function update() {
-    increaseDate();
+    increaseCycle();
     updateBossDistance();
     progressGalacticSecrets();
     doTasks();
