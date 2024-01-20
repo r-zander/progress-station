@@ -1268,6 +1268,8 @@ function updateBattleRows() {
             continue;
         }
 
+        Dom.get().byId('row_done_' + battle.name).classList.add('hidden');
+
         const unfulfilledRequirements = [];
         if (visibleBattles >= maxBattles.limit) {
             if (maxBattles.requirement === null) {
