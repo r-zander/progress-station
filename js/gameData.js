@@ -240,7 +240,7 @@ class GameData {
             this.savedValues.galacticSecrets[key] = GalacticSecret.newSavedValues();
         }
 
-        this.savedValues.htmlElementsWithRequirement = [];
+        this.savedValues.htmlElementsWithRequirement = {};
         for (const key in htmlElementRequirements) {
             this.savedValues.htmlElementsWithRequirement[key] = HtmlElementWithRequirement.newSavedValues();
         }

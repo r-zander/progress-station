@@ -494,6 +494,7 @@ function createLevel4BattleElements(battles) {
             }
         };
         domGetter.byClass('progressBar').addEventListener('click', clickListener);
+        domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
         domGetter.byClass('radio').addEventListener('click', clickListener);
 
         level4Elements.push(level4Element);
@@ -669,9 +670,10 @@ function createBattlesQuickDisplay() {
     for (const battleName in battles) {
         const battle = battles[battleName];
         const quickDisplayElement = Dom.new.fromTemplate('battleQuickTaskDisplayTemplate');
-        const componentDomGetter = Dom.get(quickDisplayElement);
+        const domGetter = Dom.get(quickDisplayElement);
         quickDisplayElement.classList.add(battle.name);
-        componentDomGetter.byClass('name').textContent = battle.title;
+        domGetter.byClass('name').textContent = battle.title;
+        domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
 
         quickDisplayElements.push(quickDisplayElement);
     }

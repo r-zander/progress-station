@@ -340,16 +340,6 @@ const factions = {
     },
 };
 
-const bossBattle = new BossBattle({
-    title: 'The',
-    targetLevel: 20,
-    faction: factions.Destroyer,
-    effects: [{effectType: EffectType.Danger, baseValue: 10}],
-    rewards: [],
-    progressBarId: 'battleProgressBar',
-    layerLabel: 'Tentacles layer',
-});
-
 /**
  * How many battles lie between the boss appearance and the boss battle.
  * @type {number}
@@ -446,8 +436,18 @@ const battles = {
         rewards: [{effectType: EffectType.Growth, baseValue: 20}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
 
-    Destroyer: bossBattle,
+    Destroyer: new BossBattle({
+        title: 'The',
+        targetLevel: 20,
+        faction: factions.Destroyer,
+        effects: [{effectType: EffectType.Danger, baseValue: 5}],
+        rewards: [],
+        progressBarId: 'battleProgressBar',
+        layerLabel: 'Tentacles layer',
+    }),
 };
+
+const bossBattle = battles.Destroyer;
 
 const battleRequirements = [
     new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 10}]),

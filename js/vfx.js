@@ -347,37 +347,39 @@ class VFX {
             VFX.progressFollow.lastUpdate = updateTime;
 
 
-            if (gameData.state === gameStates.PAUSED || document.hidden) {
+            if (document.hidden) {
                 // Game's paused or the tab is not visible --> no need for any VFX
                 VFX.progressFollow.animationFrameRequestID = requestAnimationFrame(update);
                 return;
             }
 
-            VFX.progressFollow.general.sinceLastParticle += timeDelta;
-            if (VFX.progressFollow.general.sinceLastParticle >= VFX.progressFollow.general.particleDelay) {
-                let selector = '.operationQuickDisplay.progressFill.current';
-                if (gameData.selectedTab === 'modules') {
-                    selector += ', .moduleOperation.progressFill.current';
-                }
-                document.querySelectorAll(selector).forEach((element) => {
-                    // Is the element itself or any parent "hidden"?
-                    if (element.closest('.hidden') !== null) {
-                        return;
+            if (gameData.state.areTasksProgressing) {
+                VFX.progressFollow.general.sinceLastParticle += timeDelta;
+                if (VFX.progressFollow.general.sinceLastParticle >= VFX.progressFollow.general.particleDelay) {
+                    let selector = '.operationQuickDisplay.progressFill.current';
+                    if (gameData.selectedTab === 'modules') {
+                        selector += ', .moduleOperation.progressFill.current';
                     }
+                    document.querySelectorAll(selector).forEach((element) => {
+                        // Is the element itself or any parent "hidden"?
+                        if (element.closest('.hidden') !== null) {
+                            return;
+                        }
 
-                    if (VFX.progressFollow.general.elementHeight === undefined || VFX.progressFollow.general.elementHeight === 0) {
-                        return XFastdom.measure(() => {
-                            console.log('Measure general progress clientHeight');
-                            return element.parentElement.clientHeight;
-                        }).then((elementHeight) => {
-                            VFX.progressFollow.general.elementHeight = elementHeight;
-                            this.#startParticle(element, ProgressParticleBehavior, elementHeight);
-                        });
-                    } else {
-                        this.#startParticle(element, ProgressParticleBehavior, VFX.progressFollow.general.elementHeight);
-                    }
-                });
-                VFX.progressFollow.general.sinceLastParticle = 0;
+                        if (VFX.progressFollow.general.elementHeight === undefined || VFX.progressFollow.general.elementHeight === 0) {
+                            return XFastdom.measure(() => {
+                                console.log('Measure general progress clientHeight');
+                                return element.parentElement.clientHeight;
+                            }).then((elementHeight) => {
+                                VFX.progressFollow.general.elementHeight = elementHeight;
+                                this.#startParticle(element, ProgressParticleBehavior, elementHeight);
+                            });
+                        } else {
+                            this.#startParticle(element, ProgressParticleBehavior, VFX.progressFollow.general.elementHeight);
+                        }
+                    });
+                    VFX.progressFollow.general.sinceLastParticle = 0;
+                }
             }
 
             VFX.progressFollow.battles.sinceLastParticle += timeDelta;
@@ -393,9 +395,16 @@ class VFX {
                         return;
                     }
 
-                    return XFastdom.measure(() => {
+                    if (element.classList.contains('bossBattle')) {
+                        if (!gameData.state.isBossBattleProgressing) {
+                            return;
+                        }
+                    } else if (!gameData.state.areTasksProgressing) {
+                        return;
+                    }
+
+                    XFastdom.measure(() => {
                         if (VFX.progressFollow.battles.elementHeight === undefined || VFX.progressFollow.battles.elementHeight === 0) {
-                            console.log('Measure battle clientHeight');
                             VFX.progressFollow.battles.elementHeight = element.parentElement.clientHeight;
                         }
                         return {
