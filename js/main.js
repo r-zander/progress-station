@@ -1552,9 +1552,8 @@ function updateHeatDisplay() {
 
 function updateText() {
     //Sidebar
-    document.getElementById('ageDisplay').textContent = String(daysToYears(gameData.days));
-    document.getElementById('dayDisplay').textContent = String(getDay()).padStart(3, '0');
-    document.getElementById('stationAge').textContent = String(daysToYears(gameData.totalDays));
+    document.getElementById('cyclesSinceLastEncounter').textContent = Number(getFormattedCycle(gameData.cycles, 0)).toLocaleString('en-US');
+    document.getElementById('cyclesTotal').textContent = Number(getFormattedCycle(gameData.totalCycles, baseCycle)).toLocaleString('en-US');
     const pauseButton = document.getElementById('pauseButton');
     if (gameData.state === gameStates.PAUSED) {
         pauseButton.textContent = 'Play';
@@ -1680,27 +1679,24 @@ function calculateGalacticSecretCost() {
     return Math.pow(3, unlockedGalacticSecrets);
 }
 
-function daysToYears(days) {
-    return Math.floor(days / 365);
+function getFormattedCycle(ticks, base) {
+    const decimalPlaces = 0;
+    const incrementPerTick = 1;
+
+    const totalCycle = base + incrementPerTick * ticks;
+    const roundedCycle = totalCycle.toFixed(decimalPlaces);
+    
+    return roundedCycle;
 }
 
-function yearsToDays(years) {
-    return years * 365;
-}
-
-function getDay() {
-    return Math.floor(gameData.days - daysToYears(gameData.days) * 365);
-}
-
-function increaseDays() {
+function increaseDate() {
     if (!gameData.state.isTimeProgressing) return;
-    // if (gameData.days >= getLifespan()) return;
 
     const increase = applySpeed(1);
-    gameData.days += increase;
-    gameData.totalDays += increase;
+    gameData.cycles += increase;
+    gameData.totalCycles += increase;
 
-    if (!isBossBattleAvailable() && gameData.days >= getLifespan()) {
+    if (!isBossBattleAvailable() && gameData.cycles >= getLifespan()) {
         gameData.bossBattleAvailable = true;
         gameData.transitionState(gameStates.PAUSED);
         GameEvents.BossAppearance.trigger(undefined);
@@ -1712,7 +1708,7 @@ function updateBossDistance() {
     if (!isBossBattleAvailable()) return;
 
     // How much time has past since the boss' arrival?
-    const overtime = gameData.days - getLifespan();
+    const overtime = gameData.cycles - getLifespan();
     // Translate the elapsed time into distance according to config
     bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
 }
@@ -1754,7 +1750,7 @@ function progressGalacticSecrets() {
  *
  * @param {HTMLDataElement} dataElement
  * @param {number} value
- * @param {{prefixes?: string[], unit?: string, forceSign?: boolean, keepNumber?: boolean, forceInteger?: boolean}} config
+ * @param {{prefixes?: string[], unit?: string, forceSign?: boolean, keepNumber?: boolean, forceInteger?: boolean, toLocale?: string}} config
  */
 function formatValue(dataElement, value, config = {}) {
     // TODO render full number + unit into dataElement.title
@@ -1766,10 +1762,14 @@ function formatValue(dataElement, value, config = {}) {
         forceSign: false,
         keepNumber: false,
         forceInteger: false,
+        toLocale: '',
     };
     config = Object.assign({}, defaultConfig, config);
 
     const toString = (value) => {
+        if (config.hasOwnProperty('toLocale') && config.toLocale !== '') {
+            return Number(value).toLocaleString(toLocale);
+        }
         if (config.forceInteger || Number.isInteger(value)) {
             return value.toFixed(0);
         } else if (Math.abs(value) < 1) {
@@ -1974,8 +1974,8 @@ function getLifespan() {
     //Lifespan not defined in station design, if years are not reset this will break the game
     //const immortality = gameData.taskData['Immortality'];
     //const superImmortality = gameData.taskData['Super immortality'];
-    //return baseLifespan * immortality.getEffect() * superImmortality.getEffect();
-    return baseLifespan;
+    //return bossCycle * immortality.getEffect() * superImmortality.getEffect();
+    return bossCycle;
 }
 
 function isBossBattleAvailable() {
@@ -2008,7 +2008,7 @@ function updateUI() {
 }
 
 function update() {
-    increaseDays();
+    increaseDate();
     updateBossDistance();
     progressGalacticSecrets();
     doTasks();

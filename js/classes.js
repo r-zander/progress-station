@@ -1097,7 +1097,7 @@ class AgeRequirement extends Requirement {
      * @return {boolean}
      */
     getCondition(requirement) {
-        return daysToYears(gameData.days) >= requirement.requirement;
+        return gameData.cycles >= requirement.requirement;
     }
 
     /**
@@ -1107,7 +1107,7 @@ class AgeRequirement extends Requirement {
     toHtmlInternal(requirement) {
         return `
 <span class="name">IC</span>
-<data value="${daysToYears(gameData.days)}">${daysToYears(gameData.days)}</data> /
+<data value="${gameData.cycles}">${gameData.cycles}</data> /
 <data value="${requirement.requirement}">${requirement.requirement}</data>
 `;
     }
