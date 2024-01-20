@@ -312,6 +312,12 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
         switchElement.checked = module.isActive();
         switchElement.addEventListener('click', switchModuleActivation.bind(this, module, switchElement));
         level2DomGetter.byClass('moduleActivationLabel').for = switchElement.id;
+        initTooltip(level2DomGetter.byClass('maxLevel'), {
+            title: () => {
+                return `<b>x${(1 + module.maxLevel / 100).toFixed(2)} progress speed</b> for all operations in this module.`;
+            },
+            html: true,
+        });
 
         const level3Slot = level2DomGetter.byId('level3');
         level3Slot.replaceWith(...createModuleLevel3Elements(categoryName, module));
@@ -1166,6 +1172,16 @@ function updateModuleRows() {
             level2Header.classList.toggle('text-light', !isActive);
 
             formatValue(domGetter.byClass('level'), module.getLevel());
+
+            const maxLevelElement = domGetter.byClass('maxLevel');
+            if (gameData.bossEncounterCount > 0) {
+                maxLevelElement.classList.remove('hidden');
+                // bootstrap.Tooltip.getInstance(maxLevelElement).setContent({ '.tooltip-inner': String(module.maxLevel)});
+                formatValue(domGetter.bySelector('.maxLevel > data'), module.maxLevel, {keepNumber: true});
+            } else {
+                maxLevelElement.classList.add('hidden');
+            }
+
             formatValue(domGetter.bySelector('.gridLoad > data'), module.getGridLoad());
         }
 
@@ -1208,13 +1224,6 @@ function updateModuleOperationRows() {
             formatValue(domGetter.bySelector('.level > data'), operation.level, {keepNumber: true});
             formatValue(domGetter.bySelector('.xpGain > data'), operation.getXpGain());
             formatValue(domGetter.bySelector('.xpLeft > data'), operation.getXpLeft());
-
-            if (gameData.bossEncounterCount > 0) {
-                domGetter.byClass('maxLevel').classList.remove('hidden');
-                formatValue(domGetter.bySelector('.maxLevel > data'), operation.maxLevel, {keepNumber: true});
-            } else {
-                domGetter.byClass('maxLevel').classList.add('hidden');
-            }
 
             const progressFillElement = domGetter.byClass('progressFill');
             setProgress(progressFillElement, operation.xp / operation.getMaxXp());
@@ -1418,12 +1427,6 @@ function updateGalacticSecretRows() {
             domGetter.byClass('progressBar').classList.remove('unlocked');
             setProgress(progressFillElement, galacticSecret.unlockProgress);
         }
-    }
-}
-
-function updateHeaderRows() {
-    for (const maxLevelElement of Dom.get().allBySelector('.level3 .maxLevel')) {
-        maxLevelElement.classList.toggle('hidden', gameData.bossEncounterCount === 0);
     }
 }
 
@@ -1992,7 +1995,6 @@ function updateUI() {
     updateSectorRows();
     updateGalacticSecretRows();
 
-    updateHeaderRows();
     updateModulesQuickDisplay();
     updateBattlesQuickDisplay();
     updateAttributeRows();
@@ -2018,21 +2020,30 @@ function rerollStationName() {
 
 const visibleTooltips = [];
 
+/**
+ *
+ * @param {HTMLElement} tooltipTriggerElement
+ * @param {Object} tooltipConfig
+ */
+function initTooltip(tooltipTriggerElement, tooltipConfig) {
+    const mergedTooltipConfig = Object.assign({container: 'body', trigger: 'hover', sanitize: false}, tooltipConfig);
+    // noinspection JSUnresolvedReference
+    new bootstrap.Tooltip(tooltipTriggerElement, mergedTooltipConfig);
+    tooltipTriggerElement.addEventListener('show.bs.tooltip', () => {
+        visibleTooltips.push(tooltipTriggerElement);
+    });
+    tooltipTriggerElement.addEventListener('hide.bs.tooltip', () => {
+        let indexOf = visibleTooltips.indexOf(tooltipTriggerElement);
+        if (indexOf !== -1) {
+            visibleTooltips.splice(indexOf);
+        }
+    });
+}
+
 function initTooltips() {
     const tooltipTriggerElements = document.querySelectorAll('[title], [data-bs-title]');
-    const tooltipConfig = {container: 'body', trigger: 'hover', sanitize: false};
     for (const tooltipTriggerElement of tooltipTriggerElements) {
-        // noinspection JSUnresolvedReference
-        new bootstrap.Tooltip(tooltipTriggerElement, tooltipConfig);
-        tooltipTriggerElement.addEventListener('show.bs.tooltip', () => {
-            visibleTooltips.push(tooltipTriggerElement);
-        });
-        tooltipTriggerElement.addEventListener('hide.bs.tooltip', () => {
-            let indexOf = visibleTooltips.indexOf(tooltipTriggerElement);
-            if (indexOf !== -1) {
-                visibleTooltips.splice(indexOf);
-            }
-        });
+        initTooltip(tooltipTriggerElement, {});
     }
 }
 
