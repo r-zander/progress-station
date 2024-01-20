@@ -61,7 +61,7 @@ class Battle extends LayeredTask {
         super({
             title: baseData.title + ' ' + baseData.faction.title,
             description: baseData.faction.description,
-            maxXp: baseData.faction.maxXp,
+            maxXp: baseData.faction.maxXp * baseData.targetLevel,
             effects: baseData.effects,
             targetLevel: baseData.targetLevel,
             requirements: undefined,

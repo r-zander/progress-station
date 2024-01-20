@@ -627,7 +627,9 @@ function createGalacticSecretsUI() {
             const galacticSecret = galacticSecrets[key];
             galacticSecret.inProgress = false;
             const tooltip = bootstrap.Tooltip.getInstance(Dom.get().bySelector('#' + galacticSecret.domId + ' .progressBar'));
-            tooltip.enable();
+            if (tooltip !== null) {
+                tooltip.enable();
+            }
         }
     });
 

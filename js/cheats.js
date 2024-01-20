@@ -9,6 +9,26 @@ const cheats = {
             if (gameData.state !== gameStates.PAUSED) {
                 gameData.stateName = gameStates.PLAYING.name;
             }
+        },
+        Config: {
+            printStats: () => {
+                console.log('Module Categories', Object.values(moduleCategories).length);
+                console.log('Modules', Object.values(modules).length);
+                console.log('Components', Object.values(moduleComponents).length);
+                console.log('Operations', Object.values(moduleOperations).length);
+
+                console.log('Factions', Object.values(factions).length);
+                console.log('Faction Battles', Object.values(battles).length - 1 /* the boss battle */);
+
+                console.log('Sectors', Object.values(sectors).length);
+                console.log('Points of Interest', Object.values(pointsOfInterest).length);
+
+                console.log('Total',
+                    Object.values(moduleOperations).length +
+                    (Object.values(battles).length - 1 ) +
+                    Object.values(pointsOfInterest).length
+                )
+            }
         }
     },
     Age: {
