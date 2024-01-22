@@ -1151,7 +1151,7 @@ class GalacticSecretRequirement extends Requirement {
      * @param {{galacticSecret: GalacticSecret}[]} requirements
      */
     constructor(requirements) {
-        super('GalacticSecretRequirement', 'playthrough', requirements);
+        super('GalacticSecretRequirement', 'permanent', requirements);
     }
 
     /**
