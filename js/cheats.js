@@ -137,6 +137,7 @@ const cheats = {
                     const locale = getLocale(localeOverride);
                     return Object.values(moduleOperations).map(/** @param {ModuleOperation} operation */operation => {
                         return [
+                            operation.component.name,
                             operation.name,
                             operation.title,
                             operation.description,
@@ -144,7 +145,6 @@ const cheats = {
                             operation.gridLoad,
                             ...prepareEffectsForTSV(operation.effects, locale),
                             ...prepareRequirementsForTSV(operation.requirements, locale),
-                            operation.component.name,
                         ].join('\t');
                     }).join('\n');
                 },
@@ -153,10 +153,10 @@ const cheats = {
                 toTsv: () => {
                     return Object.values(moduleComponents).map(/** @param {ModuleComponent} component */component => {
                         return [
+                            component.module.name,
                             component.name,
                             component.title,
                             component.description,
-                            component.module.name,
                         ].join('\t');
                     }).join('\n');
                 }
@@ -178,11 +178,11 @@ const cheats = {
                             parent = parentCandidates[0].name;
                         }
                         return [
+                            parent,
                             module.name,
                             module.title,
                             module.description,
                             ...prepareRequirementsForTSV(module.requirements, locale),
-                            parent
                         ].join('\t');
                     }).join('\n');
                 }
@@ -247,13 +247,14 @@ const cheats = {
                             parent = parentCandidates[0].name;
                         }
                         return [
+                            parent,
                             pointOfInterest.name,
                             pointOfInterest.title,
                             pointOfInterest.description,
-                            ...prepareEffectsForTSV(pointOfInterest.effects, locale),
+                            ...prepareEffectsForTSV(pointOfInterest.effects.slice(0, 2), locale),
+                            ...prepareEffectsForTSV(pointOfInterest.effects.slice(2), locale),
                             // TODO modifiers
                             ...prepareRequirementsForTSV(pointOfInterest.requirements, locale),
-                            parent
                         ].join('\t');
                     }).join('\n');
                 }
@@ -261,7 +262,7 @@ const cheats = {
             Sectors: {
                 toTsv: (localeOverride = undefined) => {
                     const locale = getLocale(localeOverride);
-                    return Object.values(se).map(/** @param {ModuleCategory} category */category => {
+                    return Object.values(sectors).map(/** @param {ModuleCategory} category */category => {
                         return [
                             category.name,
                             category.title,
