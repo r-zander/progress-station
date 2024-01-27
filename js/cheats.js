@@ -1,4 +1,12 @@
 /**
+ * @param {string} title
+ * @return {string}
+ */
+function prepareTitle(title){
+    return title.replaceAll('\xa0', ' ');
+}
+
+/**
  * @param {string} [localeOverride]
  */
 function getLocale(localeOverride = undefined) {
@@ -139,7 +147,7 @@ const cheats = {
                         return [
                             operation.component.name,
                             operation.name,
-                            operation.title,
+                            prepareTitle(operation.title),
                             operation.description,
                             formatNumber(operation.maxXp, locale),
                             operation.gridLoad,
@@ -155,7 +163,7 @@ const cheats = {
                         return [
                             component.module.name,
                             component.name,
-                            component.title,
+                            prepareTitle(component.title),
                             component.description,
                         ].join('\t');
                     }).join('\n');
@@ -180,7 +188,7 @@ const cheats = {
                         return [
                             parent,
                             module.name,
-                            module.title,
+                            prepareTitle(module.title),
                             module.description,
                             ...prepareRequirementsForTSV(module.requirements, locale),
                         ].join('\t');
@@ -193,7 +201,7 @@ const cheats = {
                     return Object.values(moduleCategories).map(/** @param {ModuleCategory} category */category => {
                         return [
                             category.name,
-                            category.title,
+                            prepareTitle(category.title),
                             category.description,
                             category.color,
                             ...prepareRequirementsForTSV(category.requirements, locale),
@@ -207,7 +215,7 @@ const cheats = {
                     return Object.values(factions).map(/** @param {FactionDefinition} faction */faction => {
                         return [
                             faction.name,
-                            faction.title,
+                            prepareTitle(faction.title),
                             faction.description,
                             formatNumber(faction.maxXp, locale),
                         ].join('\t');
@@ -220,7 +228,7 @@ const cheats = {
                     return Object.values(battles).map(/** @param {Battle} battle */battle => {
                         return [
                             battle.name,
-                            battle.title,
+                            prepareTitle(battle.title),
                             battle.description,
                             battle.faction.name,
                             formatNumber(battle.targetLevel, locale),
@@ -249,7 +257,7 @@ const cheats = {
                         return [
                             parent,
                             pointOfInterest.name,
-                            pointOfInterest.title,
+                            prepareTitle(pointOfInterest.title),
                             pointOfInterest.description,
                             ...prepareEffectsForTSV(pointOfInterest.effects.slice(0, 2), locale),
                             ...prepareEffectsForTSV(pointOfInterest.effects.slice(2), locale),
@@ -265,7 +273,7 @@ const cheats = {
                     return Object.values(sectors).map(/** @param {ModuleCategory} category */category => {
                         return [
                             category.name,
-                            category.title,
+                            prepareTitle(category.title),
                             category.description,
                             category.color,
                             ...prepareRequirementsForTSV(category.requirements, locale),
