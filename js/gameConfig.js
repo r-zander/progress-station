@@ -256,6 +256,7 @@ const moduleComponents = {
         title: 'Tiny Toolbox',
 
         operations: [moduleOperations.FourDPrinter, moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual, moduleOperations.PocketLaboratory],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 1}])],
     }),
     MinedResource: new ModuleComponent({
         title: 'Mined Resource',

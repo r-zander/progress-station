@@ -321,6 +321,7 @@ class Task extends Entity {
      */
     reset(maxLevelBehavior) {
         super.reset(maxLevelBehavior);
+
         this.level = 0;
         this.xp = 0;
         switch (maxLevelBehavior) {
@@ -502,6 +503,7 @@ class Module extends Entity {
      */
     reset(maxLevelBehavior) {
         super.reset(maxLevelBehavior);
+
         switch (maxLevelBehavior) {
             case 'UPDATE_MAX_LEVEL':
                 const currentLevel = this.getLevel();
@@ -515,27 +517,40 @@ class Module extends Entity {
         }
     }
 
+    /**
+     * @return {number}
+     */
     getGridLoad() {
-        return this.components.reduce(
-            (gridLoadSum, component) => gridLoadSum + component.getActiveOperation().getGridLoad(),
-            0);
+        return this.components
+            .filter(component => component.getActiveOperation() !== null)
+            .reduce((gridLoadSum, component) => {
+                return gridLoadSum + component.getActiveOperation().getGridLoad();
+            }, 0);
     }
 }
+
+/**
+ * @typedef {Object} ModuleComponentSavedValues
+ * @property {boolean[]} requirementCompleted
+ */
 
 class ModuleComponent extends Entity {
 
     /** @var {Module} */
     module = null;
+    /** @var {ModuleOperation} */
+    activeOperation = null;
 
     /**
      * @param {{
      *     title: string,
      *     description?: string,
-     *     operations: ModuleOperation[]
+     *     operations: ModuleOperation[],
+     *     requirements?: Requirement[],
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description, undefined);
+        super(baseData.title, baseData.description, baseData.requirements);
 
         this.operations = baseData.operations;
     }
@@ -553,29 +568,26 @@ class ModuleComponent extends Entity {
     }
 
     /**
-     * @param {EmptySavedValues} savedValues
+     * @param {ModuleComponentSavedValues} savedValues
      */
     loadValues(savedValues) {
-        validateParameter(savedValues, {}, this);
-
-        this.activeOperation = this.operations.find(operation => operation.isActive('self'));
-        // No operation was active yet --> fall back to first configured operation as fallback
-        if (isUndefined(this.activeOperation)) {
-            // TODO include in save game
-            this.activeOperation = this.operations[0];
-            this.activeOperation.setActive(true);
-        }
+        validateParameter(savedValues, {
+            requirementCompleted: JsTypes.Array,
+        }, this);
+        this.savedValues = savedValues;
     }
 
     /**
-     * @return {EmptySavedValues}
+     * @return {ModuleComponentSavedValues}
      */
     static newSavedValues() {
-        return {};
+        return {
+            requirementCompleted: [],
+        };
     }
 
     /**
-     * @return {EmptySavedValues}
+     * @return {ModuleComponentSavedValues}
      */
     getSavedValues() {
         return this.savedValues;
@@ -603,6 +615,15 @@ class ModuleComponent extends Entity {
             levels += operation.level;
         }
         return levels;
+    }
+
+    /**
+     * @param {MaxLevelBehavior} maxLevelBehavior
+     */
+    reset(maxLevelBehavior) {
+        super.reset(maxLevelBehavior);
+
+        this.activeOperation = null;
     }
 }
 

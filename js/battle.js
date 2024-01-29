@@ -220,6 +220,7 @@ class BossBattle extends Battle {
      */
     reset(maxLevelBehavior) {
         super.reset(maxLevelBehavior);
+
         this.savedValues.distance = bossBattleDefaultDistance;
         this.savedValues.coveredDistance = 0;
     }

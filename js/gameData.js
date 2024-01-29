@@ -255,9 +255,6 @@ class GameData {
         this.activeEntities.battles = new Set();
         for (const module of defaultModules) {
             this.activeEntities.modules.add(module.name);
-            for (const component of module.components) {
-                this.activeEntities.operations.add(component.operations[0].name);
-            }
         }
     }
 

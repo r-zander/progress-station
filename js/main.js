@@ -102,6 +102,9 @@ function hideAllTooltips() {
     }
 }
 
+/**
+ * @param {string} selectedTab
+ */
 function setTab(selectedTab) {
     if (tabButtons[selectedTab].classList.contains('hidden')) {
         // Tab is not available
@@ -125,7 +128,7 @@ function setTab(selectedTab) {
     hideAllTooltips();
 }
 
-// noinspection JSUnusedGlobalSymbols used in HTML
+// noinspection JSUnusedGlobalSymbols -- used in HTML
 function togglePause() {
     if (gameData.state === gameStates.PLAYING) {
         gameData.transitionState(gameStates.PAUSED);
@@ -145,11 +148,9 @@ function setPointOfInterest(name) {
 }
 
 /**
- *
  * @param {Module} module
- * @param {HTMLInputElement} switchElement
  */
-function switchModuleActivation(module, switchElement) {
+function switchModuleActivation(module) {
     if (!gameData.state.canChangeActivation) {
         VFX.shakePlayButton();
         return;
@@ -170,7 +171,6 @@ function switchModuleActivation(module, switchElement) {
 }
 
 /**
- *
  * @param {ModuleComponent} component
  * @param {ModuleOperation} operation
  */
@@ -192,28 +192,9 @@ function tryActivateOperation(component, operation) {
     component.activateOperation(operation);
 }
 
-// function setBattle(name) {
-//     gameData.currentBattle = gameData.battleData[name];
-//     const nameElement = document.getElementById('battleName');
-//     nameElement.textContent = gameData.currentBattle.name;
-// }
-//
-// function startBattle(name) {
-//     setBattle(name);
-//     const progressBar = document.getElementById('battleProgressBar');
-//     progressBar.hidden = false;
-// }
-//
-// function concedeBattle() {
-//     gameData.currentBattle = null;
-//     GameEvents.GameOver.trigger({
-//         bossDefeated: false,
-//     });
-// }
-
 /**
- *
  * @param {string} domId
+ *
  * @return {HTMLElement}
  */
 function createRequiredRow(domId) {
@@ -224,9 +205,9 @@ function createRequiredRow(domId) {
 }
 
 /**
- *
  * @param {string} categoryName
  * @param {ModuleComponent} component
+ *
  * @returns {HTMLElement[]}
  */
 function createModuleLevel4Elements(categoryName, component) {
@@ -257,11 +238,20 @@ function createModuleLevel4Elements(categoryName, component) {
     return level4Elements;
 }
 
-function createModuleLevel3Elements(categoryName, module) {
+/**
+ * @param {string} categoryName
+ * @param {Module} module
+ * @param {HTMLSlotElement} requirementsSlot
+ *
+ * @return {HTMLElement[]}
+ */
+function createModuleLevel3Elements(categoryName, module, requirementsSlot) {
     const level3Elements = [];
 
     for (const component of module.components) {
         const level3Element = Dom.new.fromTemplate('level3TaskTemplate');
+        level3Element.id = component.domId;
+
         const level3DomGetter = Dom.get(level3Element);
 
         const nameCell = level3DomGetter.byClass('name');
@@ -277,6 +267,11 @@ function createModuleLevel3Elements(categoryName, module) {
         level3Elements.push(level3Element);
     }
 
+    const requirementsElement = Dom.new.fromTemplate('requirementsTemplate');
+    requirementsElement.id = 'row_requirements_module_' + module.name;
+    requirementsElement.classList.add('level3-requirements');
+    requirementsSlot.replaceWith(requirementsElement);
+
     return level3Elements;
 }
 
@@ -284,6 +279,7 @@ function createModuleLevel3Elements(categoryName, module) {
  *
  * @param {string} categoryName
  * @param {ModuleCategory} category
+ * @param {HTMLSlotElement} requirementsSlot
  * @return {HTMLElement[]}
  */
 function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
@@ -291,8 +287,9 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
 
     for (const module of category.modules) {
         const level2Element = Dom.new.fromTemplate('level2Template');
-        const level2DomGetter = Dom.get(level2Element);
         level2Element.id = module.domId;
+
+        const level2DomGetter = Dom.get(level2Element);
         const nameCell = level2DomGetter.byClass('name');
         nameCell.textContent = module.title;
         if (isDefined(module.description)) {
@@ -303,7 +300,7 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
         /** @var {HTMLInputElement} */
         const switchElement = level2DomGetter.byClass('moduleActivationSwitch');
         switchElement.id = 'switch_' + module.name;
-        switchElement.addEventListener('click', switchModuleActivation.bind(this, module, switchElement));
+        switchElement.addEventListener('click', switchModuleActivation.bind(this, module));
         level2DomGetter.byClass('moduleActivationLabel').for = switchElement.id;
         initTooltip(level2DomGetter.byClass('maxLevel'), {
             title: () => {
@@ -313,7 +310,7 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
         });
 
         const level3Slot = level2DomGetter.byId('level3');
-        level3Slot.replaceWith(...createModuleLevel3Elements(categoryName, module));
+        level3Slot.replaceWith(...createModuleLevel3Elements(categoryName, module, level2DomGetter.byId('level3Requirements')));
 
         level2Elements.push(level2Element);
     }
@@ -1114,10 +1111,156 @@ function updateRequirements(unfulfilledRequirements, context) {
 }
 
 let moduleCategoryRequirementsHtmlCache = '';
+const moduleRequirementsHtmlCache = {};
+const moduleComponentRequirementsHtmlCache = {};
+const moduleOperationRequirementsHtmlCache = {};
 
-function updateModuleCategoryRows() {
+function updateModuleOperationRow(operation, operationRequirementsContext) {
+    const row = Dom.get().byId(operation.domId);
+
+    if (!updateRequirements(operation.getUnfulfilledRequirements(), operationRequirementsContext)) {
+        row.classList.add('hidden');
+        return;
+    }
+    row.classList.remove('hidden');
+
+    const domGetter = Dom.get(row);
+    formatValue(domGetter.bySelector('.level > data'), operation.level, {keepNumber: true});
+    formatValue(domGetter.bySelector('.xpGain > data'), operation.getXpGain());
+    formatValue(domGetter.bySelector('.xpLeft > data'), operation.getXpLeft());
+
+    const progressFillElement = domGetter.byClass('progressFill');
+    setProgress(progressFillElement, operation.xp / operation.getMaxXp());
+    progressFillElement.classList.toggle('current', operation.isActive('self'));
+
+    domGetter.byClass('effect').textContent = operation.getEffectDescription();
+}
+
+function updateModuleComponentRow(component, componentRequirementsContext) {
+    const row = document.getElementById(component.domId);
+
+    if (!updateRequirements(component.getUnfulfilledRequirements(), componentRequirementsContext)) {
+        row.classList.add('hidden');
+        return;
+    }
+
+    row.classList.remove('hidden');
+
     // noinspection JSUnusedGlobalSymbols
-    const requirementsContext = {
+    const operationRequirementsContext = {
+        hasUnfulfilledRequirements: false,
+        requirementsElement: Dom.get().byId('row_requirements_component_' + component.name),
+        setHtmlCache: (newValue) => {
+            moduleOperationRequirementsHtmlCache[component.name] = newValue;
+        },
+        getHtmlCache: () => {
+            if (moduleOperationRequirementsHtmlCache.hasOwnProperty(component.name)) {
+                return moduleOperationRequirementsHtmlCache[component.name];
+            }
+
+            return '';
+        },
+    };
+
+    for (const operation of component.operations) {
+        updateModuleOperationRow(operation, operationRequirementsContext);
+    }
+
+    operationRequirementsContext.requirementsElement.classList.toggle('hidden', !operationRequirementsContext.hasUnfulfilledRequirements);
+}
+
+function updateModuleRow(module, moduleRequirementsContext) {
+    const row = document.getElementById(module.domId);
+
+    if (!updateRequirements(module.getUnfulfilledRequirements(), moduleRequirementsContext)) {
+        row.classList.add('hidden');
+        return;
+    }
+
+    row.classList.remove('hidden');
+    const isActive = module.isActive();
+    row.classList.toggle('inactive', !isActive);
+
+    const domGetter = Dom.get(row);
+    const level2Header = domGetter.byClass('level2-header');
+    level2Header.classList.toggle('bg-light', isActive);
+    level2Header.classList.toggle('text-dark', isActive);
+    level2Header.classList.toggle('bg-dark', !isActive);
+    level2Header.classList.toggle('text-light', !isActive);
+
+    domGetter.byClass('moduleActivationSwitch').checked = module.isActive();
+    formatValue(domGetter.byClass('level'), module.getLevel());
+
+    const maxLevelElement = domGetter.byClass('maxLevel');
+    if (gameData.bossEncounterCount > 0) {
+        maxLevelElement.classList.remove('hidden');
+        formatValue(domGetter.bySelector('.maxLevel > data'), module.maxLevel, {keepNumber: true});
+    } else {
+        maxLevelElement.classList.add('hidden');
+    }
+
+    formatValue(domGetter.bySelector('.gridLoad > data'), module.getGridLoad());
+
+    // noinspection JSUnusedGlobalSymbols
+    const componentRequirementsContext = {
+        hasUnfulfilledRequirements: false,
+        requirementsElement: Dom.get().byId('row_requirements_module_' + module.name),
+        setHtmlCache: (newValue) => {
+            moduleComponentRequirementsHtmlCache[module.name] = newValue;
+        },
+        getHtmlCache: () => {
+            if (moduleComponentRequirementsHtmlCache.hasOwnProperty(module.name)) {
+                return moduleComponentRequirementsHtmlCache[module.name];
+            }
+
+            return '';
+        },
+    };
+
+    for (const component of module.components) {
+        updateModuleComponentRow(component, componentRequirementsContext);
+    }
+
+    componentRequirementsContext.requirementsElement.classList.toggle('hidden', !componentRequirementsContext.hasUnfulfilledRequirements);
+}
+
+function updateModuleCategoryRow(category, categoryRequirementsContext) {
+    const categoryRow = Dom.get().byId(category.domId);
+
+    const categoryAvailable = updateRequirements(category.getUnfulfilledRequirements(), categoryRequirementsContext);
+    if (!categoryAvailable) {
+        categoryRow.classList.add('hidden');
+        // continue;
+    }
+
+    categoryRow.classList.remove('hidden');
+
+    // noinspection JSUnusedGlobalSymbols
+    const moduleRequirementsContext = {
+        hasUnfulfilledRequirements: false,
+        requirementsElement: Dom.get().byId('row_requirements_category_' + category.name),
+        setHtmlCache: (newValue) => {
+            moduleRequirementsHtmlCache[category.name] = newValue;
+        },
+        getHtmlCache: () => {
+            if (moduleRequirementsHtmlCache.hasOwnProperty(category.name)) {
+                return moduleRequirementsHtmlCache[category.name];
+            }
+
+            return '';
+        },
+    };
+
+    for (const module of category.modules) {
+        updateModuleRow(module, moduleRequirementsContext);
+    }
+
+    moduleRequirementsContext.requirementsElement.classList.toggle('hidden', !moduleRequirementsContext.hasUnfulfilledRequirements);
+}
+
+function updateModulesUI() {
+    // noinspection JSUnusedGlobalSymbols
+    const categoryRequirementsContext = {
         hasUnfulfilledRequirements: false,
         requirementsElement: Dom.get().byId('row_requirements_moduleCategory'),
         setHtmlCache: (newValue) => {
@@ -1127,120 +1270,10 @@ function updateModuleCategoryRows() {
     };
     for (const key in moduleCategories) {
         const category = moduleCategories[key];
-
-        const categoryAvailable = updateRequirements(category.getUnfulfilledRequirements(), requirementsContext);
-        Dom.get().byId(category.domId).classList.toggle('hidden', !categoryAvailable);
+        updateModuleCategoryRow(category, categoryRequirementsContext);
     }
 
-    requirementsContext.requirementsElement.classList.toggle('hidden', !requirementsContext.hasUnfulfilledRequirements);
-}
-
-const moduleRequirementsHtmlCache = {};
-
-function updateModuleRows() {
-    // We need to iterate on the categories to correctly scope the requirements
-    for (const key in moduleCategories) {
-        const category = moduleCategories[key];
-
-        // noinspection JSUnusedGlobalSymbols
-        const requirementsContext = {
-            hasUnfulfilledRequirements: false,
-            requirementsElement: Dom.get().byId('row_requirements_category_' + category.name),
-            setHtmlCache: (newValue) => {
-                moduleRequirementsHtmlCache[category.name] = newValue;
-            },
-            getHtmlCache: () => {
-                if (moduleRequirementsHtmlCache.hasOwnProperty(category.name)) {
-                    return moduleRequirementsHtmlCache[category.name];
-                }
-
-                return '';
-            },
-        };
-
-        for (const module of category.modules) {
-            const row = document.getElementById(module.domId);
-
-            if (!updateRequirements(module.getUnfulfilledRequirements(), requirementsContext)) {
-                row.classList.add('hidden');
-                continue;
-            }
-
-            row.classList.remove('hidden');
-            const isActive = module.isActive();
-            row.classList.toggle('inactive', !isActive);
-
-            const domGetter = Dom.get(row);
-            const level2Header = domGetter.byClass('level2-header');
-            level2Header.classList.toggle('bg-light', isActive);
-            level2Header.classList.toggle('text-dark', isActive);
-            level2Header.classList.toggle('bg-dark', !isActive);
-            level2Header.classList.toggle('text-light', !isActive);
-
-            domGetter.byClass('moduleActivationSwitch').checked = module.isActive();
-            formatValue(domGetter.byClass('level'), module.getLevel());
-
-            const maxLevelElement = domGetter.byClass('maxLevel');
-            if (gameData.bossEncounterCount > 0) {
-                maxLevelElement.classList.remove('hidden');
-                // bootstrap.Tooltip.getInstance(maxLevelElement).setContent({ '.tooltip-inner': String(module.maxLevel)});
-                formatValue(domGetter.bySelector('.maxLevel > data'), module.maxLevel, {keepNumber: true});
-            } else {
-                maxLevelElement.classList.add('hidden');
-            }
-
-            formatValue(domGetter.bySelector('.gridLoad > data'), module.getGridLoad());
-        }
-
-        requirementsContext.requirementsElement.classList.toggle('hidden', !requirementsContext.hasUnfulfilledRequirements);
-    }
-}
-
-const moduleOperationRequirementsHtmlCache = {};
-
-function updateModuleOperationRows() {
-    for (const key in moduleComponents) {
-        const component = moduleComponents[key];
-
-        // noinspection JSUnusedGlobalSymbols
-        const requirementsContext = {
-            hasUnfulfilledRequirements: false,
-            requirementsElement: Dom.get().byId('row_requirements_component_' + component.name),
-            setHtmlCache: (newValue) => {
-                moduleOperationRequirementsHtmlCache[component.name] = newValue;
-            },
-            getHtmlCache: () => {
-                if (moduleOperationRequirementsHtmlCache.hasOwnProperty(component.name)) {
-                    return moduleOperationRequirementsHtmlCache[component.name];
-                }
-
-                return '';
-            },
-        };
-
-        for (const operation of component.operations) {
-            const row = Dom.get().byId(operation.domId);
-
-            if (!updateRequirements(operation.getUnfulfilledRequirements(), requirementsContext)) {
-                row.classList.add('hidden');
-                continue;
-            }
-            row.classList.remove('hidden');
-
-            const domGetter = Dom.get(row);
-            formatValue(domGetter.bySelector('.level > data'), operation.level, {keepNumber: true});
-            formatValue(domGetter.bySelector('.xpGain > data'), operation.getXpGain());
-            formatValue(domGetter.bySelector('.xpLeft > data'), operation.getXpLeft());
-
-            const progressFillElement = domGetter.byClass('progressFill');
-            setProgress(progressFillElement, operation.xp / operation.getMaxXp());
-            progressFillElement.classList.toggle('current', operation.isActive('self'));
-
-            domGetter.byClass('effect').textContent = operation.getEffectDescription();
-        }
-
-        requirementsContext.requirementsElement.classList.toggle('hidden', !requirementsContext.hasUnfulfilledRequirements);
-    }
+    categoryRequirementsContext.requirementsElement.classList.toggle('hidden', !categoryRequirementsContext.hasUnfulfilledRequirements);
 }
 
 let battleRequirementsHtmlCache = '';
@@ -1481,7 +1514,7 @@ function updateEnergyGridBar() {
         gridLoadElement.style.left = '0';
         gridLoadElement.style.removeProperty('translate');
         gridLoadElement.style.removeProperty('right');
-    } else if (currentGridLoad === 1) {
+    } else if (currentGridLoad === 1 && currentGridStrength === 1) {
         gridLoadElement.style.left = '50%';
         gridLoadElement.style.translate = '-50% 0';
         gridLoadElement.style.removeProperty('right');
@@ -1758,6 +1791,28 @@ function progressGalacticSecrets() {
 }
 
 /**
+ * Activate the first/saved operation of any component that doesn't
+ * have yet an active operation, e.g. because it was blocked.
+ */
+function activateComponentOperations() {
+    for (const key in moduleComponents) {
+        const component = moduleComponents[key];
+
+        if (component.getUnfulfilledRequirements() !== null) continue;
+        if (component.getActiveOperation() !== null) continue;
+
+        // TODO include in save game?
+        let activeOperation = component.operations.find(operation => operation.isActive('self'));
+        // No operation was active yet --> fall back to first configured operation as fallback
+        if (isUndefined(activeOperation)) {
+            activeOperation = component.operations[0];
+            activeOperation.setActive(true);
+        }
+        component.activeOperation = activeOperation;
+    }
+}
+
+/**
  *
  * @param {HTMLDataElement} dataElement
  * @param {number} value
@@ -1931,6 +1986,11 @@ function playthroughReset(maxLevelBehavior) {
     gameData.initValues();
     gameData.resetCurrentValues();
 
+    for (const key in moduleCategories) {
+        const category = moduleCategories[key];
+        category.reset(maxLevelBehavior);
+    }
+
     for (const key in modules) {
         const module = modules[key];
         module.reset(maxLevelBehavior);
@@ -1995,9 +2055,7 @@ function updateUI() {
         return;
     }
 
-    updateModuleCategoryRows();
-    updateModuleRows();
-    updateModuleOperationRows();
+    updateModulesUI();
 
     updateBattleRows();
     updateSectorRows();
@@ -2017,6 +2075,7 @@ function update() {
     increaseCycle();
     updateBossDistance();
     progressGalacticSecrets();
+    activateComponentOperations();
     doTasks();
     updatePopulation();
     updateUI();
