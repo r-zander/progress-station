@@ -251,6 +251,11 @@ class BossBattle extends Battle {
         gameData.transitionState(gameStates.BOSS_DEFEATED);
     }
 
+    // noinspection JSCheckFunctionSignatures
+    getEffectDescription() {
+        return super.getEffectDescription(1);
+    }
+
     getRewardsDescription() {
         return 'Essence of Unknown';
     }

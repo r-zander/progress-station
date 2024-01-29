@@ -106,7 +106,8 @@
     & td {
         &.value,
         &.modifier,
-        &.rewards {
+        &.rewards,
+        &.danger {
             max-width: 10rem;
             /* Squeeze in those two liners */
             line-height: 1.1rem;

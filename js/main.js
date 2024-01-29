@@ -55,19 +55,15 @@ function applySpeed(value) {
 
 function calculateHeat() {
     const danger = attributes.danger.getValue();
-    let military = 0;
-    if (gameData.state !== gameStates.BOSS_FIGHT) {
-        military = attributes.military.getValue();
-    }
+    const military = attributes.military.getValue();
+    const rawHeat = Effect.getTotalValue([EffectType.Heat]);
+    const calculatedHeat = Math.max(danger - military, 0) + rawHeat;
 
-    return Math.max(danger - military, 1);
+    return Math.max(1, calculatedHeat);
 }
 
 function populationDelta() {
-    let growth = 0;
-    if (gameData.state !== gameStates.BOSS_FIGHT) {
-        growth = attributes.growth.getValue();
-    }
+    const growth = attributes.growth.getValue();
     const heat = attributes.heat.getValue();
     const population = attributes.population.getValue();
     return growth - population * 0.01 * heat;
@@ -487,6 +483,11 @@ function createLevel4BattleElements(battles) {
         initializeBattleElement(domGetter, battle);
         domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
         const clickListener = () => {
+            if (!gameData.state.canChangeActivation) {
+                VFX.shakePlayButton();
+                return;
+            }
+
             if (battle instanceof BossBattle){
                 gameData.transitionState(gameStates.BOSS_FIGHT_INTRO);
             } else {
@@ -496,6 +497,11 @@ function createLevel4BattleElements(battles) {
         domGetter.byClass('progressBar').addEventListener('click', clickListener);
         domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
         domGetter.byClass('radio').addEventListener('click', clickListener);
+        if (battle instanceof BossBattle) {
+            domGetter.byClass('danger').innerHTML = battle.getEffectDescription();
+        } else {
+            formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
+        }
 
         level4Elements.push(level4Element);
     }
@@ -509,7 +515,6 @@ function createUnfinishedBattlesUI() {
 
     level3Element.id = 'unfinishedBattles';
     level3Element.classList.remove('ps-3');
-    //     level3Element.classList.remove('mt-2');
 
     const domGetter = Dom.get(level3Element);
     domGetter.byClass('header-row').style.backgroundColor = colorPalette.TomatoRed;
@@ -1318,7 +1323,6 @@ function updateBattleRows() {
         const isActive = battle.isActive();
         domGetter.byClass('progressFill').classList.toggle('current', isActive);
         domGetter.byClass('active').style.backgroundColor = isActive ? colorPalette.TomatoRed : colorPalette.White;
-        formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
 
         if (isBossBattleAvailable() &&
             visibleBattles === bossBattle.distance

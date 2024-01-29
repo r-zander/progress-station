@@ -22,6 +22,8 @@
 
 class EffectType {
     static Danger = new EffectType('+', 'Danger');
+    static DangerFactor = new EffectType('x', 'Danger');
+    static Heat = new EffectType('+', 'Heat');
     static Energy = new EffectType('+', 'Energy');
     static EnergyFactor = new EffectType('x', 'Energy');
     static Growth = new EffectType('+', 'Growth');
@@ -42,10 +44,20 @@ class EffectType {
         this.description = description;
     }
 
+    /**
+     * @return {number}
+     */
     getDefaultValue() {
         return this.operator === 'x' ? 1 : 0;
     }
 
+    /**
+     * Accumulates to effect values according to this effect type's behavior.
+     *
+     * @param a first value
+     * @param b second value
+     * @return {number}
+     */
     combine(a, b) {
         if (this.operator === 'x') {
             return a * b;
@@ -57,7 +69,6 @@ class EffectType {
 
 class Modifier {
     /**
-     *
      * @return {ModifierDefinition[]}
      */
     static getActiveModifiers() {
@@ -65,8 +76,8 @@ class Modifier {
     }
 
     /**
-     *
      * @param {ModifierDefinition} modifier
+     *
      * @return {string}
      */
     static getDescription(modifier) {
@@ -84,6 +95,8 @@ class Effect {
      * values appropriately.
      *
      * @param {EffectType} effectType
+     *
+     * @return {number}
      */
     static #getSingleTotalValue(effectType) {
         let result = effectType.getDefaultValue();
@@ -117,8 +130,9 @@ class Effect {
     }
 
     /**
-     *
      * @param {EffectType[]} effectTypes
+     *
+     * @return {number}
      */
     static getTotalValue(effectTypes) {
         const additiveTypes = [];
@@ -152,6 +166,7 @@ class Effect {
      * @param {EffectType} effectType
      * @param {EffectDefinition[]} effects
      * @param {number} level
+     *
      * @returns {number}
      */
     static getValue(holder, effectType, effects, level) {
@@ -166,7 +181,14 @@ class Effect {
         return effectType.getDefaultValue();
     }
 
-    static #getActualEffectType(holder, effect, modifiers,) {
+    /**
+     * @param {EffectsHolder} holder
+     * @param {EffectDefinition} effect
+     * @param {ModifierDefinition[]} modifiers
+     *
+     * @return {EffectType}
+     */
+    static #getActualEffectType(holder, effect, modifiers) {
         let actualEffectType = effect.effectType;
         // Apply modifiers to find the actual effect type
         for (const modifier of modifiers) {
@@ -206,6 +228,7 @@ class Effect {
      * @param {EffectDefinition[]} effects
      * @param {number} level
      * @param {EffectType} effectException
+     *
      * @return {string}
      */
     static getDescriptionExcept(holder, effects, level, effectException) {
@@ -221,6 +244,7 @@ class Effect {
      * @param {EffectType} effectType
      * @param {number} baseValue
      * @param {number} level
+     *
      * @return {number}
      */
     static #calculateEffectValue(effectType, baseValue, level) {
