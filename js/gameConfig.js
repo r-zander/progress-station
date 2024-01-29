@@ -314,21 +314,25 @@ const modules = {
         title: 'Mining Bay',
 
         components: [moduleComponents.MinedResource, moduleComponents.Drill],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 2}])],
     }),
     Furnace: new Module({
         title: 'Furnace Module',
         description: '',
         components: [moduleComponents.Fuel, moduleComponents.Products],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 3}])],
     }),
     Quarters: new Module({
         title: 'Quarters Module',
         description: '',
         components: [moduleComponents.CrewExpansion, moduleComponents.WayOfLife],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 4}])],
     }),
     Defensive: new Module({
         title: 'Defensive Module',
         description: '',
         components: [moduleComponents.Protection, moduleComponents.Turrets],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 5}])],
     }),
 };
 
