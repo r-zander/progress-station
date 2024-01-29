@@ -130,10 +130,19 @@ function setTab(selectedTab) {
 
 // noinspection JSUnusedGlobalSymbols -- used in HTML
 function togglePause() {
-    if (gameData.state === gameStates.PLAYING) {
-        gameData.transitionState(gameStates.PAUSED);
-    } else if (gameData.state === gameStates.PAUSED) {
-        gameData.transitionState(gameStates.PLAYING);
+    switch (gameData.state) {
+        case gameStates.PLAYING:
+            gameData.transitionState(gameStates.PAUSED);
+            break;
+        case gameStates.PAUSED:
+            gameData.transitionState(gameStates.PLAYING);
+            break;
+        case gameStates.BOSS_FIGHT:
+            gameData.transitionState(gameStates.BOSS_FIGHT_PAUSED);
+            break;
+        case gameStates.BOSS_FIGHT_PAUSED:
+            gameData.transitionState(gameStates.BOSS_FIGHT);
+            break;
     }
     // Any other state is ignored
 }
@@ -1599,14 +1608,16 @@ function updateText() {
     Dom.get().byId('cyclesSinceLastEncounter').textContent = Number(getFormattedCycle(gameData.cycles, 0)).toLocaleString('en-US');
     Dom.get().byId('cyclesTotal').textContent = Number(getFormattedCycle(gameData.totalCycles, baseCycle)).toLocaleString('en-US');
     const pauseButton = document.getElementById('pauseButton');
-    if (gameData.state === gameStates.PAUSED) {
+    if (gameData.state === gameStates.PAUSED || gameData.state === gameStates.BOSS_FIGHT_PAUSED) {
         pauseButton.textContent = 'Play';
         pauseButton.classList.replace('btn-secondary', 'btn-primary');
-    } else if (gameData.state === gameStates.PLAYING) {
+    } else if (gameData.state === gameStates.PLAYING || gameData.state === gameStates.BOSS_FIGHT) {
         pauseButton.textContent = 'Pause';
         pauseButton.classList.replace('btn-primary', 'btn-secondary');
+    } else {
+        pauseButton.textContent = 'Intermission';
+        pauseButton.classList.replace('btn-primary', 'btn-secondary');
     }
-    // TODO else???
 
     const danger = attributes.danger.getValue();
     formatValue(Dom.get().byId('dangerDisplay'), danger);

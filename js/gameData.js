@@ -52,6 +52,13 @@ const gameStates = {
         isBossBattleProgressing: true,
         canChangeActivation: true,
     },
+    BOSS_FIGHT_PAUSED: {
+        isTimeProgressing: false,
+        areAttributesUpdated: false,
+        areTasksProgressing: false,
+        isBossBattleProgressing: false,
+        canChangeActivation: false,
+    },
     DEAD: {
         isTimeProgressing: false,
         areAttributesUpdated: false,
@@ -71,7 +78,8 @@ gameStates.NEW.validNextStates = [gameStates.PLAYING];
 gameStates.PLAYING.validNextStates = [gameStates.PAUSED, gameStates.BOSS_FIGHT_INTRO];
 gameStates.PAUSED.validNextStates = [gameStates.PLAYING];
 gameStates.BOSS_FIGHT_INTRO.validNextStates = [gameStates.PLAYING, gameStates.BOSS_FIGHT];
-gameStates.BOSS_FIGHT.validNextStates = [gameStates.DEAD, gameStates.BOSS_DEFEATED];
+gameStates.BOSS_FIGHT.validNextStates = [gameStates.DEAD, gameStates.BOSS_FIGHT_PAUSED, gameStates.BOSS_DEFEATED];
+gameStates.BOSS_FIGHT_PAUSED.validNextStates = [gameStates.BOSS_FIGHT];
 gameStates.DEAD.validNextStates = [gameStates.NEW];
 gameStates.BOSS_DEFEATED.validNextStates = [gameStates.PLAYING];
 
