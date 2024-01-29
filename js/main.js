@@ -2173,6 +2173,7 @@ function init() {
     cleanUpDom();
 
     gameData.skipSave = false;
+    gameData.save();
     displayLoaded();
 
     update();

@@ -26,7 +26,7 @@ const gameStates = {
     },
     PLAYING: {
         isTimeProgressing: true,
-        areAttributesUpdated:true,
+        areAttributesUpdated: true,
         areTasksProgressing: true,
         isBossBattleProgressing: false,
         canChangeActivation: true,
@@ -118,7 +118,7 @@ class GameData {
     /**
      * @var {boolean}
      */
-    bossBattleAvailable ;
+    bossBattleAvailable;
 
     /**
      * @var {number}
@@ -185,6 +185,8 @@ class GameData {
     };
 
     skipSave = false;
+
+    ignoredVersionUpgrades = [];
 
     constructor() {
         this.initValues();
@@ -326,14 +328,38 @@ class GameData {
             isNumber(gameDataSave.version) &&
             gameDataSave.version < this.version
         ) {
+            // Player decided before to ignore this incompatibility, so just continue
+            if (gameDataSave.hasOwnProperty('ignoredVersionUpgrades') &&
+                gameDataSave.ignoredVersionUpgrades.includes(this.#serializeVersionUpgrade(gameDataSave.version, this.version))
+            ) {
+                return true;
+            }
+
             GameEvents.IncompatibleVersionFound.trigger({
                 savedVersion: gameDataSave.version,
                 expectedVersion: this.version,
             });
+
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * @param {number} savedVersion
+     * @param {number} expectedVersion
+     */
+    ignoreCurrentVersionUpgrade(savedVersion, expectedVersion) {
+        this.ignoredVersionUpgrades.push(this.#serializeVersionUpgrade(savedVersion, expectedVersion));
+    }
+
+    /**
+     * @param {number} savedVersion
+     * @param {number} expectedVersion
+     */
+    #serializeVersionUpgrade(savedVersion, expectedVersion) {
+        return `${savedVersion} -> ${expectedVersion}`;
     }
 
     save() {
@@ -364,14 +390,14 @@ class GameData {
         importExportBox.value = window.btoa(gameData.serializeAsJson());
     }
 
-    get state(){
+    get state() {
         return gameStates[this.stateName];
     }
 
     /**
      * @param {GameState} newState
      */
-    set state(newState){
+    set state(newState) {
         this.transitionState(newState);
     }
 

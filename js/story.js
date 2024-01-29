@@ -2,9 +2,15 @@
 
 function initVersionWarning() {
     const modal = new bootstrap.Modal(document.getElementById('versionWarningModal'));
+    const versionUpgrade = {
+        savedVersion: undefined,
+        expectedVersion: undefined
+    };
 
-    GameEvents.IncompatibleVersionFound.subscribe(() => {
+    GameEvents.IncompatibleVersionFound.subscribe((payload) => {
         modal.show();
+        versionUpgrade.savedVersion = payload.savedVersion;
+        versionUpgrade.expectedVersion = payload.expectedVersion;
     });
 
     if (_.isObject(cheats)) {
@@ -20,6 +26,7 @@ function initVersionWarning() {
 
     window.continueWithIncompatibleVersion = function () {
         modal.hide();
+        gameData.ignoreCurrentVersionUpgrade(versionUpgrade.savedVersion, versionUpgrade.expectedVersion);
     };
 }
 
