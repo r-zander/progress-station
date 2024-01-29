@@ -775,7 +775,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                         operation.getEffect.bind(operation),
                         operation.getEffects.bind(operation),
                         effectType,
-                        module.title + ' ' + component.title + ': ' + operation.title,
+                        module.title + ': ' + component.title + ': ' + operation.title,
                         operation.isActive.bind(operation, 'inHierarchy'),
                     );
                 }
@@ -832,7 +832,7 @@ function createGridLoadBalance(rowElement) {
 
                 const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
                 const domGetter = Dom.get(balanceEntryElement);
-                domGetter.byClass('name').textContent = '(' + module.title + ' ' + component.title + ': ' + operation.title + ')';
+                domGetter.byClass('name').textContent = '(' + module.title + ': ' + component.title + ': ' + operation.title + ')';
                 domGetter.byClass('operator').textContent = '+';
                 formatValue(domGetter.byClass('entryValue'), operation.getGridLoad());
                 gridLoadBalanceEntries.push({
