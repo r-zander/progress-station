@@ -83,7 +83,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 1;
+    version = 2;
 
     /**
      * @type {string}

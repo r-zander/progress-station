@@ -750,35 +750,6 @@
     </div>
 </main>
 
-<div id="versionWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light">Incompatible Save Game found</h2>
-            </div>
-            <div class="modal-body">
-                <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
-                <p>The game has evolved a lot since then and we can not guarantee that your save game is still fully compatible.</p>
-                <p>Our recommendation is to start with a fresh game. But you can also try and let the game reuse your save file.</p>
-            </div>
-            <div class="modal-footer d-flex">
-                <div>
-                    <button type="button" class="btn btn-warning" onclick="continueWithIncompatibleVersion();">
-                        Keep save
-                    </button>
-                    <p><small>(might break the game)</small></p>
-                </div>
-                <div class="ms-auto">
-                    <button type="button" class="btn btn-primary" onclick="gameData.reset();">
-                        Reset game
-                    </button>
-                    <p><small>(deletes all progress)</small></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div id="storyIntroModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -910,6 +881,37 @@
                 <button type="button" class="btn btn-secondary win-only" onclick="continueAfterWin();">Keep playing</button>
                 <button type="button" class="btn btn-primary ms-auto win-only" onclick="resetAfterWin();">Start new game</button>
                 <button type="button" class="btn btn-primary ms-auto loss-only" onclick="restartAfterDead();">Fade to black</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Needs to be the last of all modals, as it's supposed to overlap any other open modals -->
+<!-- Not really elegant, but it's just an intermediate solution until with have game save migrations -->
+<div id="versionWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-4 fw-light">Incompatible Save Game found</h2>
+            </div>
+            <div class="modal-body">
+                <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
+                <p>The game has evolved a lot since then and we can not guarantee that your save game is still fully compatible.</p>
+                <p>Our recommendation is to start with a fresh game. But you can also try and let the game reuse your save file.</p>
+            </div>
+            <div class="modal-footer d-flex">
+                <div>
+                    <button type="button" class="btn btn-warning" onclick="continueWithIncompatibleVersion();">
+                        Keep save
+                    </button>
+                    <p><small>(might break the game)</small></p>
+                </div>
+                <div class="ms-auto">
+                    <button type="button" class="btn btn-primary" onclick="gameData.reset();">
+                        Reset game
+                    </button>
+                    <p><small>(deletes all progress)</small></p>
+                </div>
             </div>
         </div>
     </div>
