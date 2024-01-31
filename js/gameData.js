@@ -259,7 +259,7 @@ class GameData {
     resetCurrentValues() {
         this.activeEntities.modules = new Set();
         this.activeEntities.operations = new Set();
-        this.activeEntities.pointOfInterest = defaultPointOfInterest;
+        this.activeEntities.pointOfInterest = defaultPointOfInterest.name;
         this.activeEntities.battles = new Set();
         for (const module of defaultModules) {
             this.activeEntities.modules.add(module.name);

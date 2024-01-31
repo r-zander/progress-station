@@ -1143,6 +1143,7 @@ function updateModuleOperationRow(operation, operationRequirementsContext) {
     progressFillElement.classList.toggle('current', operation.isActive('self'));
 
     domGetter.byClass('effect').textContent = operation.getEffectDescription();
+    domGetter.byClass('gridLoad').classList.toggle('hidden', attributes.gridStrength.getValue() === 0);
 }
 
 function updateModuleComponentRow(component, componentRequirementsContext) {
@@ -1154,6 +1155,9 @@ function updateModuleComponentRow(component, componentRequirementsContext) {
     }
 
     row.classList.remove('hidden');
+
+    const domGetter = Dom.get(row);
+    domGetter.byClass('gridLoad').classList.toggle('hidden', attributes.gridStrength.getValue() === 0);
 
     // noinspection JSUnusedGlobalSymbols
     const operationRequirementsContext = {
@@ -1208,7 +1212,12 @@ function updateModuleRow(module, moduleRequirementsContext) {
         maxLevelElement.classList.add('hidden');
     }
 
-    formatValue(domGetter.bySelector('.gridLoad > data'), module.getGridLoad());
+    if (attributes.gridStrength.getValue() >= 1) {
+        domGetter.byClass('gridLoad').classList.remove('hidden');
+        formatValue(domGetter.bySelector('.gridLoad > data'), module.getGridLoad());
+    } else {
+        domGetter.byClass('gridLoad').classList.add('hidden');
+    }
 
     // noinspection JSUnusedGlobalSymbols
     const componentRequirementsContext = {
@@ -1604,9 +1613,21 @@ function updateHeatDisplay() {
 }
 
 function updateText() {
+    const cyclesSinceLastEncounterElement = Dom.get().byId('cyclesSinceLastEncounter');
+    const cyclesTotalElement = Dom.get().byId('cyclesTotal');
+    if (gameData.bossEncounterCount === 0) {
+        cyclesSinceLastEncounterElement.classList.add('hidden');
+        cyclesTotalElement.classList.replace('secondary-stat', 'primary-stat');
+        cyclesTotalElement.classList.remove('help-text');
+    } else {
+        cyclesSinceLastEncounterElement.classList.remove('hidden');
+        // TODO adjust formatting & use formatValue
+        Dom.get(cyclesSinceLastEncounterElement).bySelector('data').textContent = Number(getFormattedCycle(gameData.cycles, 0)).toLocaleString('en-US');
+        cyclesTotalElement.classList.replace('primary-stat', 'secondary-stat');
+        cyclesTotalElement.classList.add('help-text');
+    }
     // TODO adjust formatting & use formatValue
-    Dom.get().byId('cyclesSinceLastEncounter').textContent = Number(getFormattedCycle(gameData.cycles, 0)).toLocaleString('en-US');
-    Dom.get().byId('cyclesTotal').textContent = Number(getFormattedCycle(gameData.totalCycles, baseCycle)).toLocaleString('en-US');
+    Dom.get(cyclesTotalElement).bySelector('data').textContent = Number(getFormattedCycle(gameData.totalCycles, baseCycle)).toLocaleString('en-US');
     const pauseButton = document.getElementById('pauseButton');
     if (gameData.state === gameStates.PAUSED || gameData.state === gameStates.BOSS_FIGHT_PAUSED) {
         pauseButton.textContent = 'Play';
