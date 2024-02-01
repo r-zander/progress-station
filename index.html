@@ -92,8 +92,8 @@
             </div>
         </div>
 
-        <div id="attributesDisplay" class="row justify-content-center" onclick="setTab('attributes');">
-            <div class="col primary-stat" data-attribute="population"
+        <div id="attributesDisplay" class="d-flex justify-content-start gap-4" onclick="setTab('attributes');">
+            <div class="primary-stat" data-attribute="population"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
@@ -102,37 +102,37 @@
                     (x<data id="populationProgressSpeedDisplay" value="1">?</data>)
                 </div>
             </div>
-            <div class="col primary-stat" data-attribute="industry"
+            <div class="primary-stat" data-attribute="industry"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
                 <data id="industryDisplay" value="1">?</data>
             </div>
-            <div class="col primary-stat" data-attribute="research"
+            <div class="primary-stat" data-attribute="research"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
                 <data id="researchDisplay" value="1">?</data>
             </div>
-            <div class="col primary-stat" data-attribute="growth"
+            <div class="primary-stat" data-attribute="growth"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
                 <data id="growthDisplay" value="1">?</data>
             </div>
-            <div class="col primary-stat" data-attribute="heat"
+            <div class="primary-stat" data-attribute="heat"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
                 <data id="heatDisplay" style="color: rgb(15, 105, 207)" value="1">?%</data>
             </div>
-            <div class="col primary-stat" data-attribute="danger"
+            <div class="primary-stat" data-attribute="danger"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
                 <data id="dangerDisplay" value="1">?</data>
             </div>
-            <div class="col primary-stat" data-attribute="military"
+            <div class="primary-stat" data-attribute="military"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
@@ -204,14 +204,11 @@
                     <!--suppress HtmlUnknownTag -->
                     <h3>Location</h3>
                 </button>
-                <button id="captainsLogTabButton" class="tabButton panel p-3 hidden" onClick="setTab('captainsLog');">
-                    <!--suppress HtmlUnknownTag -->
-                    <h3>Captain's Log</h3>
-                </button>
                 <button id="galacticSecretsTabButton" class="tabButton panel p-3" onClick="setTab('galacticSecrets');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Galactic Secrets</h3>
-                    <div class="col primary-stat d-flex justify-content-center mt-2" data-attribute="essenceOfUnknown"
+                    <!--suppress HtmlUnknownTag -->
+                    <div class="primary-stat d-flex justify-content-center mt-2" data-attribute="essenceOfUnknown"
                          data-bs-placement="bottom" data-bs-html="true">
                         <img src="" class="icon me-1" alt=""/>
                         <span class="label" style=""></span>
@@ -483,63 +480,6 @@
             <div id="location" class="tab p-3">
                 <slot id="sectorTable"></slot>
                 <slot id="sectorRequirements"></slot>
-            </div>
-
-            <div id="captainsLog" class="tab p-3">
-                <ul>
-                    <li>
-                        You stumble across a strange looking amulet on your 25th birthday. It does not look like
-                        it has any worth on the market given that it's made from cheap-looking copper. However, you
-                        feel a weird urge to keep the amulet, so you slip it into your pocket for safekeeping.
-                    </li>
-                    <li class="mt-2" id="rebirthNote1">
-                        On your 45th birthday, you feel the amulet shiver uncontrollably in your pocket. You take it
-                        out and the constant shivering suddenly stops. More to your bizarre surprise, you notice
-                        a strange etching on the centre of the amulet.
-                    </li>
-                    <li class="mt-2" id="rebirthNote2">
-                        <p>
-                            On your 65th birthday, you once again encounter the strange, unexplained shivering from your
-                            amulet. But this time, a living eyeball emerges from the centre. Although terribly
-                            frightened,
-                            you realise you do not have many years to live left anyway, so you consider touching the eye
-                            to see what happens.
-                        </p>
-                        <p class="mt-2 help-text">
-                            By touching the eyeball, you will be reborn and have to restart life again, losing all your
-                            levels and stored energy.
-                            However, you will gain <b>xp multipliers</b> for your modules and skills equivalent to:
-                            <b>1 + the max level of the skill or job / 10.</b>
-                            This means you will learn everything again much more quickly than you did in your previous
-                            life.
-                        </p>
-                        <p style="color: rgb(200, 0, 0)">
-                            Something tells you that the amulet might transform even
-                            further after living for <b>2 whole centuries</b>&hellip;
-                        </p>
-                        <button class="btn btn-light mt-3" onClick="startNewPlaythrough();">
-                            Touch the eye
-                        </button>
-                    </li>
-                    <li class="mt-2" id="rebirthNote3">
-                        <p>
-                            Your gut instinct was right. The moment you hit the grand age of 200, you hear an ominous
-                            hum coming from the amulet.<br/>
-                            A mouth emerges from its surface and begins to cackle, and proceeds to say: <i>"So you've made
-                            it this far... Are you ready to embrace evil?"</i>
-                        </p>
-                        <p class="mt-2" style="color: rgb(200, 0, 0)">
-                            If you decide to embrace evil, all of your levels, stored energy and even max levels will be
-                            reset.
-                            You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
-                            <b><data id="evilGainDisplay" value="0">0</data> evil</b>, which will heavily impact your
-                            future lives.
-                        </p>
-                        <button class="btn btn-light mt-3" onClick="rebirthTwo();">
-                            Embrace evil
-                        </button>
-                    </li>
-                </ul>
             </div>
 
             <div id="galacticSecrets" class="tab p-3">

@@ -330,6 +330,11 @@ const cheats = {
                 gameData.essenceOfUnknown += amount;
             },
         },
+        show: () => {
+            Object.entries(attributes).forEach(([name, attribute]) => {
+                console.log(name, attribute.getValue());
+            });
+        }
     },
 };
 

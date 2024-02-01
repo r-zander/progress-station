@@ -32,7 +32,6 @@ const gridLoadBalanceEntries = [];
 const tabButtons = {
     modules: document.getElementById('modulesTabButton'),
     location: document.getElementById('locationTabButton'),
-    captainsLog: document.getElementById('captainsLogTabButton'),
     battles: document.getElementById('battleTabButton'),
     galacticSecrets: document.getElementById('galacticSecretsTabButton'),
     attributes: document.getElementById('attributesTabButton'),
