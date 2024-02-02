@@ -76,6 +76,7 @@ function initBossAppearance() {
     window.acknowledgeBossBattle = function () {
         modal.hide();
         setTab('battles');
+        Dom.get().byId(bossBattle.domId).scrollIntoView(false);
         gameData.transitionState(gameStates.PLAYING);
     };
 }

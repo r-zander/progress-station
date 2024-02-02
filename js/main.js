@@ -483,7 +483,7 @@ function createLevel4BattleElements(battles) {
     const level4Elements = [];
     for (const battle of battles) {
         const level4Element = Dom.new.fromTemplate('level4BattleTemplate');
-        level4Element.id = 'row_' + battle.name;
+        level4Element.id = battle.domId;
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
         domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
@@ -1300,7 +1300,7 @@ function updateBattleRows() {
     const maxBattles = maximumAvailableBattles();
     let visibleBattles = 0;
     const visibleFactions = {};
-    const bossRow = Dom.get().byId('row_' + bossBattle.name);
+    const bossRow = Dom.get().byId(bossBattle.domId);
 
     // noinspection JSUnusedGlobalSymbols
     const requirementsContext = {
@@ -1317,7 +1317,7 @@ function updateBattleRows() {
     for (const key in battles) {
         /** @type {Battle} */
         const battle = battles[key];
-        const row = Dom.get().byId('row_' + battle.name);
+        const row = Dom.get().byId(battle.domId);
 
         if (battle.isDone()) {
             row.classList.add('hidden');
@@ -1932,7 +1932,7 @@ function getBattleElement(taskName) {
         return document.getElementById(battle.progressBarId);
     }
 
-    return Dom.get().byId('row_' + battle.name);
+    return Dom.get().byId(battle.domId);
 }
 
 function getPointOfInterestElement(name) {
