@@ -1043,7 +1043,7 @@ class Requirement {
         return '<span class="' + this.type + '">'
             + this.requirements
                 .filter(requirement => !this.getCondition(requirement))
-                .map(requirement => this.toHtmlInternal(requirement))
+                .map(requirement => this.toHtmlInternal(requirement).trim())
                 .join(', ')
             + '</span>';
     }
@@ -1129,8 +1129,7 @@ class AgeRequirement extends Requirement {
         return `
 <span class="name">IC</span>
 <data value="${gameData.cycles}">${gameData.cycles}</data> /
-<data value="${requirement.requirement}">${requirement.requirement}</data>
-`;
+<data value="${requirement.requirement}">${requirement.requirement}</data>`;
     }
 }
 
@@ -1159,8 +1158,7 @@ class AttributeRequirement extends Requirement {
         const value = requirement.attribute.getValue();
         // TODO format value correctly
         return `
-<span class="name">${requirement.attribute.title}</span>
-level 
+<span class="name">${requirement.attribute.title}</span> 
 <data value="${value}">${value.toFixed(2)}</data> /
 <data value="${requirement.requirement}">${requirement.requirement}</data>
 `;
@@ -1189,7 +1187,7 @@ class PointOfInterestVisitedRequirement extends Requirement {
      * @return {string}
      */
     toHtmlInternal(requirement) {
-        return `visited <span class="name">${requirement.pointOfInterest.title}</span>`;
+        return `visit <span class="name">${requirement.pointOfInterest.title}</span>`;
     }
 }
 
