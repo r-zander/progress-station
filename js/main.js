@@ -938,6 +938,10 @@ function createAttributesUI() {
 }
 
 function createEnergyGridDisplay() {
+    const tooltipText = createGridStrengthAndLoadDescription(createAttributeInlineHTML);
+    Dom.get().byId('gridLabel').title = tooltipText;
+    Dom.get().byId('gridStrength').title = tooltipText;
+
     const tickElementsTop = [];
     const tickElementsBottom = [];
     for (let i = 0; i < (5 * 8 + 1); i++) {

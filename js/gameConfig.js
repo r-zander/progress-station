@@ -65,7 +65,6 @@ const attributes = {
 };
 
 /**
- *
  * @param {function(AttributeDefinition): string} printAttribute renders the provided attribute nicely.
  */
 function createAttributeDescriptions(printAttribute) {
@@ -79,6 +78,16 @@ function createAttributeDescriptions(printAttribute) {
     attributes.population.description = 'Affects all progress speed.';
     attributes.research.description = 'Unlocks new knowledge.';
     attributes.essenceOfUnknown.description = 'Invest to learn Galactic Secrets.';
+}
+
+/**
+ * @param {function(AttributeDefinition): string} printAttribute renders the provided attribute nicely.
+ *
+ * @return {string}
+ */
+function createGridStrengthAndLoadDescription(printAttribute) {
+    return `Each active module needs ${printAttribute(attributes.gridLoad)} but you can't use more than your 
+    ${printAttribute(attributes.gridStrength)}. Try deactivating modules to free up the energy grid!`;
 }
 
 const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100});
@@ -476,7 +485,7 @@ moduleOperations.SpaceRocks = new ModuleOperation({
 });
 moduleOperations.HeavyGlitz = new ModuleOperation({
     title: 'Heavy Glitz', maxXp: 100, gridLoad: 1,
-    description: 'It\'s lustrous, it conducts sparks, it\'s surprisingly heavy and hard.',
+    description: 'It\'s shiny, it conducts sparks, it\'s surprisingly heavy and hard.',
     effects: [{effectType: EffectType.Industry, baseValue: 1.0}]
 });
 /** Galactic Secret */
