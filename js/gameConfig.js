@@ -456,156 +456,271 @@ moduleOperations.StandbyGenerator = new ModuleOperation({
 });
 moduleOperations.FourDPrinter = new ModuleOperation({
     title: '4D Printer', maxXp: 500, gridLoad: 1,
-    effects: [{effectType: EffectType.Industry, baseValue: 0.1}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.01}],
     requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 1}])],
 });
 moduleOperations.MicroCyborgAutomat = new ModuleOperation({
     title: 'Micro Cyborg Automat', maxXp: 200, gridLoad: 1,
-    effects: [{effectType: EffectType.Growth, baseValue: 0.1}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.01}],
     requirements: [new OperationLevelRequirement('playthrough', [{operation: moduleOperations.FourDPrinter, requirement: 10}])],
 });
 moduleOperations.KungFuManual = new ModuleOperation({
     title: 'Kung Fu Manual', maxXp: 300, gridLoad: 1,
-    effects: [{effectType: EffectType.Military, baseValue: 0.1}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
     requirements: [new OperationLevelRequirement('playthrough', [{operation: moduleOperations.MicroCyborgAutomat, requirement: 10}])],
 });
 moduleOperations.PocketLaboratory = new ModuleOperation({
     title: 'Pocket Laboratory', maxXp: 400, gridLoad: 1,
-    effects: [{effectType: EffectType.Research, baseValue: 0.1}],
+    effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.01}],
     requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{
                 faction: factions.Astrogoblins,
                 requirement: battles.Astrogoblins10.targetLevel + battles.Astrogoblins15.targetLevel,
             }])],
 });
 
+// Mining
 moduleOperations.SpaceRocks = new ModuleOperation({
     title: 'Space Rocks', maxXp: 100, gridLoad: 1,
     description: 'Space seems to be filled with either nothingness or those rocks.',
-    effects: [{effectType: EffectType.Industry, baseValue: 1.0}]
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.01}]
 });
 moduleOperations.HeavyGlitz = new ModuleOperation({
-    title: 'Heavy Glitz', maxXp: 100, gridLoad: 1,
+    title: 'Heavy Glitz', maxXp: 100, gridLoad: 2,
     description: 'It\'s shiny, it conducts sparks, it\'s surprisingly heavy and hard.',
-    effects: [{effectType: EffectType.Industry, baseValue: 1.0}]
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.02}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.SpaceRocks,
+        requirement: 10,
+    }])],
 });
 /** Galactic Secret */
 moduleOperations.Radiance = new ModuleOperation({
-    title: 'Radiance', maxXp: 100, gridLoad: 1,
+    title: 'Radiance', maxXp: 100, gridLoad: 4,
     description: 'Tingles in your hand but glows in the dark. Even heavier than the regular glitz.',
-    effects: [{effectType: EffectType.Industry, baseValue: 1.0}]
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.03}, {effectType: EffectType.ResearchFactor, baseValue: 0.02}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.HeavyGlitz,
+        requirement: 100,
+    }])],
 });
+
 moduleOperations.BigSpinny = new ModuleOperation({
     title: 'The Big Spinny', maxXp: 100, gridLoad: 1,
-    effects: [{effectType: EffectType.Industry, baseValue: 1.0}]
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
 });
 moduleOperations.AsteroidChomper = new ModuleOperation({
-    title: 'Asteroid Chomper', maxXp: 100, gridLoad: 1,
-    effects: [{effectType: EffectType.Industry, baseValue: 1.0}]
+    title: 'Asteroid Chomper', maxXp: 100, gridLoad: 2,
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.BigSpinny,
+        requirement: 10,
+    }])],
 });
 /** Galactic Secret */
 moduleOperations.TenDrills = new ModuleOperation({
-    title: 'TenDrills', maxXp: 100, gridLoad: 1,
-    effects: [{effectType: EffectType.Industry, baseValue: 1.0}]
+    title: 'TenDrills', maxXp: 100, gridLoad: 4,
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}, {effectType: EffectType.IndustryFactor, baseValue: 0.02}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.AsteroidChomper,
+        requirement: 100,
+    }])],
 });
 
+// Furnace
 moduleOperations.Garbage = new ModuleOperation({
     title: 'Garbage', maxXp: 400, gridLoad: 1,
     description: 'It\'s not about efficiency, it\'s about sustainability. Or just getting rid of all that trash lying around the station.',
-    effects: [{effectType: EffectType.Industry, baseValue: 1}, {effectType: EffectType.Energy, baseValue: 1}],
+    effects: [{effectType: EffectType.Energy, baseValue: 1}],
 });
 moduleOperations.Diesel = new ModuleOperation({
-    title: 'Diesel', maxXp: 50, gridLoad: 1,
+    title: 'Diesel', maxXp: 50, gridLoad: 2,
     description: 'From the depths of fossilized relics to the pulse of synthesized organics, it\'s the timeless heart that beats in the mechanical chest of progress.',
-    effects: [{effectType: EffectType.Growth, baseValue: 1}, {effectType: EffectType.Energy, baseValue: 1}],
+    effects: [{effectType: EffectType.Energy, baseValue: 1.5}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.Garbage,
+        requirement: 10,
+    }])],
+});
+moduleOperations.FuelT3 = new ModuleOperation({
+    title: 'FUEL TIER III', maxXp: 50, gridLoad: 4,
+
+    effects: [{effectType: EffectType.Energy, baseValue: 2}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.Diesel,
+        requirement: 10,
+    }])],
 });
 /** Galactic Secret */
 moduleOperations.Quasarite = new ModuleOperation({
-    title: 'Quasarite', maxXp: 1_000_000, gridLoad: 4,
+    title: 'Quasarite', maxXp: 1_000_000, gridLoad: 8,
     description: 'Harnessed from the remnants of distant quasar explosions it pulses with mind-boggling energy. ' +
         'Its otherworldly properties enhance resource production but require careful containment to avoid unpredictable reactions.',
-    effects: [{effectType: EffectType.Industry, baseValue: 5}, {effectType: EffectType.Energy, baseValue: 5}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.05}, {effectType: EffectType.Energy, baseValue: 3}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.FuelT3,
+        requirement: 100,
+    }])],
 });
+
 moduleOperations.Plastics = new ModuleOperation({
-    title: 'Plastics', maxXp: 100, gridLoad: 1,
-    description: 'Plastics text.',
-    effects: [{effectType: EffectType.Industry, baseValue: 1}, {effectType: EffectType.Energy, baseValue: 1}],
+    title: 'Plastics', maxXp: 100, gridLoad: 2,
+
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.01}],
 });
 moduleOperations.Steel = new ModuleOperation({
-    title: 'Steel', maxXp: 200, gridLoad: 1,
-    description: 'Steel text.',
-    effects: [{effectType: EffectType.Growth, baseValue: 1}, {effectType: EffectType.EnergyFactor, baseValue: 1}],
+    title: 'Steel', maxXp: 200, gridLoad: 4,
+
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.02}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.Plastics,
+        requirement: 10,
+    }])],
+});
+moduleOperations.ProductsT3 = new ModuleOperation({
+    title: 'PRODUCTS TIER III', maxXp: 200, gridLoad: 6,
+
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.03}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.Steel,
+        requirement: 10,
+    }])],
 });
 /** Galactic Secret */
 moduleOperations.MicroalloyGlass = new ModuleOperation({
-    title: 'Microalloy Glass', maxXp: 2_500_000, gridLoad: 4,
+    title: 'Microalloy Glass', maxXp: 2_500_000, gridLoad: 10,
     description: 'Fifteen times harder than steel and so clear that objects made out of pure microalloy glass can be considered invisible.',
-    effects: [{effectType: EffectType.Energy, baseValue: 5}, {effectType: EffectType.Research, baseValue: 3}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.05}, {effectType: EffectType.Research, baseValue: 3}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.ProductsT3,
+        requirement: 100,
+    }])],
 });
 
 //Population
 moduleOperations.Survivors = new ModuleOperation({
     title: 'Pick up survivors', maxXp: 400, gridLoad: 1,
 
-    effects: [{effectType: EffectType.Growth, baseValue: 0.2}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.01}],
 });
 moduleOperations.Recruitment = new ModuleOperation({
-    title: 'Recruitment', maxXp: 400, gridLoad: 1,
+    title: 'Recruitment', maxXp: 400, gridLoad: 2,
 
-    effects: [{effectType: EffectType.Growth, baseValue: 0.5}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.02}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.Survivors,
+        requirement: 10,
+    }])],
 });
 moduleOperations.SmoochSanctuary = new ModuleOperation({
-    title: 'Smooch Sanctuary', maxXp: 400, gridLoad: 1,
+    title: 'Smooch Sanctuary', maxXp: 400, gridLoad: 4,
 
-    effects: [{effectType: EffectType.Growth, baseValue: 1}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.03}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.Recruitment,
+        requirement: 10,
+    }])],
 });
 moduleOperations.MechanoMaker = new ModuleOperation({
-    title: 'Mechano Maker', maxXp: 400, gridLoad: 1,
+    title: 'Mechano Maker', maxXp: 400, gridLoad: 8,
     description: 'Unless you dig deeply into it, you won\'t be able to distinguish those androids from organic humanoids.',
-    effects: [{effectType: EffectType.Growth, baseValue: 1}],
+    effects: [{effectType: EffectType.Growth, baseValue: 0.04}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.MechanoMaker,
+        requirement: 10,
+    }])],
 });
 /** Galactic Secret */
 moduleOperations.ReplicationChambers = new ModuleOperation({
-    title: 'Replication Chambers', maxXp: 400, gridLoad: 1,
+    title: 'Replication Chambers', maxXp: 400, gridLoad: 12,
     description: 'Where life finds a new beginning! This advanced technology can create life forms from scratch, jump-starting your population growth. Simply input the genetic code and environmental parameters, and within moments, you\'ll have a thriving population ready to build a bright future. Handle with care; creating life is a profound responsibility!',
     // description: 'Introducing the \'Quantum Replicator\'—the ultimate solution for population growth! This futuristic device uses quantum technology to duplicate individuals, allowing you to rapidly expand your population. With each activation, watch as your society flourishes and thrives. Just remember to keep track of the originals, or you might end up with an army of duplicates!',
-    effects: [{effectType: EffectType.Growth, baseValue: 1}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.05}, {effectType: EffectType.ResearchFactor, baseValue: 0.03}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.MechanoMaker,
+        requirement: 100,
+    }])],
 });
-moduleOperations.ToughLife = new ModuleOperation({
-    title: 'Tough Life', maxXp: 400, gridLoad: 1,
 
-    effects: [{effectType: EffectType.Growth, baseValue: 1}],
+moduleOperations.ToughLife = new ModuleOperation({
+    title: 'Tough Life', maxXp: 400, gridLoad: 2,
+
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
 });
 moduleOperations.IndividualRooms = new ModuleOperation({
-    title: 'Individual Rooms', maxXp: 400, gridLoad: 1,
+    title: 'Individual Rooms', maxXp: 400, gridLoad: 4,
 
-    effects: [{effectType: EffectType.Growth, baseValue: 1}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.ToughLife,
+        requirement: 10,
+    }])],
+});
+moduleOperations.WayOfLifeT3 = new ModuleOperation({
+    title: 'WAY OF LIFE TIER III', maxXp: 400, gridLoad: 6,
+
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.IndividualRooms,
+        requirement: 10,
+    }])],
+});
+moduleOperations.SecretWayOfLife = new ModuleOperation({
+    title: 'SECRET WAY OF LIFE TIER', maxXp: 400, gridLoad: 10,
+
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.05}, {effectType: EffectType.GrowthFactor, baseValue: 0.03}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.WayOfLifeT3,
+        requirement: 100,
+    }])],
 });
 
 //Military
 moduleOperations.GlitzPlating = new ModuleOperation({
     title: 'Glitz Plating', maxXp: 150, gridLoad: 1,
 
-    effects: [{effectType: EffectType.Military, baseValue: 3}],
+    effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.01}],
 });
 moduleOperations.PulseShield = new ModuleOperation({
-    title: 'Pulse Shield', maxXp: 1000, gridLoad: 1,
+    title: 'Pulse Shield', maxXp: 1000, gridLoad: 2,
 
-    effects: [{effectType: EffectType.Military, baseValue: 10}],
+    effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.02}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.GlitzPlating,
+        requirement: 10,
+    }])],
 });
-moduleOperations.RapidRumbleTower = new ModuleOperation({
-    title: 'Rapid Rumble Tower', maxXp: 100, gridLoad: 1,
+moduleOperations.BulletSponge = new ModuleOperation({
+    title: 'Bullet Sponge', maxXp: 1000, gridLoad: 4,
 
-    effects: [{effectType: EffectType.Military, baseValue: 2}],
+    effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.03}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.PulseShield,
+        requirement: 10,
+    }])],
+});
+
+moduleOperations.RapidRumbleTower = new ModuleOperation({
+    title: 'Rapid Rumble Tower', maxXp: 100, gridLoad: 3,
+
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
 });
 moduleOperations.LaserTurrets = new ModuleOperation({
-    title: 'Laser Turrets', maxXp: 400, gridLoad: 1,
+    title: 'Laser Turrets', maxXp: 400, gridLoad: 6,
 
-    effects: [{effectType: EffectType.Military, baseValue: 1}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.RapidRumbleTower,
+        requirement: 10,
+    }])],
 });
 moduleOperations.AntiMissileSwarm = new ModuleOperation({
-    title: 'Anti-Missile Swarm', maxXp: 400, gridLoad: 1,
+    title: 'Anti-Missile Swarm', maxXp: 400, gridLoad: 10,
 
-    effects: [{effectType: EffectType.Military, baseValue: 1}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
+    requirements: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.LaserTurrets,
+        requirement: 10,
+    }])],
 });
 
 
@@ -622,7 +737,6 @@ const moduleComponents = {
         title: 'Tiny Toolbox',
 
         operations: [moduleOperations.FourDPrinter, moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual, moduleOperations.PocketLaboratory],
-        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 1}])],
     }),
     MinedResource: new ModuleComponent({
         title: 'Mined Resource',
@@ -637,12 +751,12 @@ const moduleComponents = {
     Fuel: new ModuleComponent({
         title: 'Fuel',
 
-        operations: [moduleOperations.Garbage, moduleOperations.Diesel, moduleOperations.Quasarite],
+        operations: [moduleOperations.Garbage, moduleOperations.Diesel, moduleOperations.FuelT3, moduleOperations.Quasarite],
     }),
     Products: new ModuleComponent({
         title: 'Products',
 
-        operations: [moduleOperations.Plastics, moduleOperations.Steel, moduleOperations.MicroalloyGlass],
+        operations: [moduleOperations.Plastics, moduleOperations.Steel, moduleOperations.ProductsT3, moduleOperations.MicroalloyGlass],
     }),
     CrewExpansion: new ModuleComponent({
         title: 'Crew Expansion',
@@ -653,7 +767,7 @@ const moduleComponents = {
     WayOfLife: new ModuleComponent({
         title: 'Way of Life',
 
-        operations: [moduleOperations.ToughLife, moduleOperations.IndividualRooms],
+        operations: [moduleOperations.ToughLife, moduleOperations.IndividualRooms, moduleOperations.WayOfLifeT3, moduleOperations.SecretWayOfLife],
     }),
     Turrets: new ModuleComponent({
         title: 'Turrets',
@@ -663,7 +777,7 @@ const moduleComponents = {
     Protection: new ModuleComponent({
         title: 'Protection',
 
-        operations: [moduleOperations.GlitzPlating, moduleOperations.PulseShield],
+        operations: [moduleOperations.GlitzPlating, moduleOperations.PulseShield, moduleOperations.BulletSponge],
     }),
 };
 
@@ -692,19 +806,19 @@ const modules = {
         title: 'Furnace Module',
         description: '',
         components: [moduleComponents.Fuel, moduleComponents.Products],
-        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 3}])],
-    }),
-    Quarters: new Module({
-        title: 'Quarters Module',
-        description: '',
-        components: [moduleComponents.CrewExpansion, moduleComponents.WayOfLife],
         requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 4}])],
     }),
     Defensive: new Module({
         title: 'Defensive Module',
         description: '',
         components: [moduleComponents.Protection, moduleComponents.Turrets],
-        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 5}])],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 6}])],
+    }),
+    Quarters: new Module({
+        title: 'Quarters Module',
+        description: '',
+        components: [moduleComponents.CrewExpansion, moduleComponents.WayOfLife],
+        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 8}])],
     }),
 };
 
@@ -719,7 +833,7 @@ const moduleCategories = {
     StationCore: new ModuleCategory({
         title: 'Station Core',
         color: colorPalette.DepressionPurple,
-        modules: [modules.ISASM, modules.CaptainsQuarter, modules.MiningBay, modules.Furnace, modules.Quarters, modules.Defensive],
+        modules: [modules.ISASM, modules.CaptainsQuarter, modules.MiningBay, modules.Furnace, modules.Defensive, modules.Quarters],
     }),
 };
 
@@ -911,6 +1025,9 @@ const galacticSecrets = {
     ReplicationChambers: new GalacticSecret({
         unlocks: moduleOperations.ReplicationChambers,
     }),
+    SecretWayOfLife: new GalacticSecret({
+        unlocks: moduleOperations.SecretWayOfLife,
+    }),
     AntiMissileSwarm: new GalacticSecret({
         unlocks: moduleOperations.AntiMissileSwarm,
     }),
@@ -999,6 +1116,7 @@ const htmlElementRequirements = {
             elementsWithRequirements: [
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="danger"]'),
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="heat"]'),
+                Dom.lazy().allBySelector('#battles .level3 .danger, #battles .level4 .danger'),
             ],
             requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{
                 faction: factions.Astrogoblins,

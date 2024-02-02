@@ -1688,7 +1688,19 @@ function updateHtmlElementRequirements() {
         const htmlElementWithRequirement = htmlElementRequirements[key];
         const completed = htmlElementWithRequirement.isCompleted();
         for (const element of htmlElementWithRequirement.elementsWithRequirements) {
-            element.classList.toggle('hidden', !completed);
+            if (element instanceof LazyHtmlElement) {
+                if (element.found()) {
+                    element.get().classList.toggle('hidden', !completed);
+                }
+            } else if (element instanceof LazyHtmlElementCollection) {
+                if (element.found()) {
+                    element.get().forEach(element => {
+                        element.classList.toggle('hidden', !completed);
+                    });
+                }
+            } else {
+                element.classList.toggle('hidden', !completed);
+            }
         }
         for (const element of htmlElementWithRequirement.elementsToShowRequirements) {
             element.classList.toggle('hidden', completed);

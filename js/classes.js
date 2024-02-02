@@ -1167,6 +1167,32 @@ level
     }
 }
 
+class PointOfInterestVisitedRequirement extends Requirement {
+      /**
+     * @param {'permanent'|'playthrough'|'update'} scope
+     * @param {{pointOfInterest: PointOfInterest}[]} requirements
+     */
+    constructor(scope, requirements) {
+        super('PointOfInterestVisitedRequirement', scope, requirements);
+    }
+
+    /**
+     * @param {{pointOfInterest: PointOfInterest}} requirement
+     * @return {boolean}
+     */
+    getCondition(requirement) {
+        return requirement.pointOfInterest.isActive();
+    }
+
+    /**
+     * @param {{pointOfInterest: PointOfInterest}} requirement
+     * @return {string}
+     */
+    toHtmlInternal(requirement) {
+        return `visited <span class="name">${requirement.pointOfInterest.title}</span>`;
+    }
+}
+
 class GalacticSecretRequirement extends Requirement {
     /**
      * @param {{galacticSecret: GalacticSecret}[]} requirements
