@@ -1946,10 +1946,6 @@ function getBattleElement(taskName) {
         return;
     }
     const battle = battles[taskName];
-    if (battle instanceof BossBattle) {
-        return document.getElementById(battle.progressBarId);
-    }
-
     return Dom.get().byId(battle.domId);
 }
 

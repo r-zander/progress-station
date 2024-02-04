@@ -141,13 +141,11 @@ class BossBattle extends Battle {
      *     faction: FactionDefinition,
      *     effects: EffectDefinition[],
      *     rewards: EffectDefinition[],
-     *     progressBarId: string,
      *     layerLabel: string,
      * }} baseData
      */
     constructor(baseData) {
         super(baseData);
-        this.progressBarId = baseData.progressBarId;
         this.layerLabel = baseData.layerLabel;
     }
 

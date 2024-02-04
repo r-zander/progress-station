@@ -413,7 +413,6 @@ const battles = {
         faction: factions.Destroyer,
         effects: [{effectType: EffectType.Heat, baseValue: 5}, {effectType: EffectType.GrowthFactor, baseValue: -1.00}],
         rewards: [],
-        progressBarId: 'battleProgressBar',
         layerLabel: 'Tentacles layer',
     }),
 };

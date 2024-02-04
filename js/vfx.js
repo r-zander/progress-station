@@ -477,7 +477,7 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
     const direction = taskInfo.type === 'Battle' ? 'left' : 'right';
     let taskProgressBar = undefined;
     let quickTaskProgressBar = undefined;
-    if (taskInfo.type === 'Battle') {
+    if (taskInfo.type === 'Battle' || taskInfo.type === 'BossBattle') {
         if (gameData.selectedTab === 'battles') {
             taskProgressBar = getBattleElement(taskInfo.name).querySelector('.progressBar');
         }
