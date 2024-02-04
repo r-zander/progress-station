@@ -1014,7 +1014,6 @@ function setBattleProgress(progressBar, battle) {
     if (battle.isDone()) {
         domGetter.byClass('progressBackground').style.backgroundColor = lastLayerData.color;
         domGetter.byClass('progressFill').style.width = '0%';
-        domGetter.byClass('name').textContent = battle.title + ' defeated!';
         return;
     }
 
@@ -1053,11 +1052,21 @@ function updateBattlesQuickDisplay() {
 
         quickDisplayElement.classList.remove('hidden');
         componentDomGetter.byClass('progressFill').classList.toggle('current', battle.isActive() && !battle.isDone());
-        formatValue(
-            componentDomGetter.byClass('level'),
-            battle.getDisplayedLevel(),
-            {keepNumber: true},
-        );
+        const levelElement = componentDomGetter.byClass('level');
+        if (battle.isDone()) {
+            componentDomGetter.byClass('levelLabel').classList.add('hidden');
+            levelElement.classList.add('hidden');
+            componentDomGetter.byClass('defeatedLabel').classList.remove('hidden');
+        } else {
+            componentDomGetter.byClass('levelLabel').classList.remove('hidden');
+            levelElement.classList.remove('hidden');
+            componentDomGetter.byClass('defeatedLabel').classList.add('hidden');
+            formatValue(
+                levelElement,
+                battle.getDisplayedLevel(),
+                {keepNumber: true},
+            );
+        }
         setBattleProgress(componentDomGetter.byClass('progressBar'), battle);
     }
 }
