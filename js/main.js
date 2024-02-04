@@ -624,8 +624,10 @@ function createGalacticSecretsUI() {
             }
 
             const tooltip = bootstrap.Tooltip.getInstance(event.currentTarget);
-            tooltip.hide();
-            tooltip.disable();
+            if (tooltip !== null) {
+                tooltip.hide();
+                tooltip.disable();
+            }
             galacticSecret.inProgress = true;
         });
 
