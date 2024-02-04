@@ -1403,10 +1403,8 @@ function updateBattleRows() {
         if (visibleBattles < bossBattle.distance) {
             // There are fewer battles visible than the boss distance --> move boss in last position.
             // Is the bossRow already the last element?
-            if (bossRow.nextElementSibling !== null) { // Do not update the DOM if not necessary
-                Dom.get()
-                    .bySelector('#unfinishedBattles tbody.level4')
-                    .append(bossRow);
+            if (bossRow.nextElementSibling !== requirementsContext.requirementsElement) { // Do not update the DOM if not necessary
+                requirementsContext.requirementsElement.before(bossRow);
             }
         } else if (bossBattle.distance === 0) {
             // Boss should be in first position.
