@@ -1280,7 +1280,13 @@ class HtmlElementWithRequirement {
      * @return {string}
      */
     toHtml() {
-        return this.requirements.map(requirement => requirement.toHtml()).join(', ');
+        // TODO use #requirementsTemplate
+        return `<div class="requirements help-text">
+            Required:
+            <span class="rendered">
+                ${this.requirements.map(requirement => requirement.toHtml()).join(', ')}
+            </span>
+        </div>`;
     }
 
     /**

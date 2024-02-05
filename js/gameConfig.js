@@ -1111,7 +1111,7 @@ const htmlElementRequirements = {
                 operation: moduleOperations.KungFuManual,
                 requirement: 10,
             }])],
-            elementsToShowRequirements: []
+            elementsToShowRequirements: [Dom.get().byId('battleTabButtonRequirements')],
         }),
     dangerDisplay: new HtmlElementWithRequirement(
         {
@@ -1144,7 +1144,7 @@ const htmlElementRequirements = {
                 operation: moduleOperations.PocketLaboratory,
                 requirement: 10,
             }])],
-            elementsToShowRequirements: []
+            elementsToShowRequirements: [Dom.get().byId('locationTabButtonRequirements')],
         }),
     attributesTabButton: new HtmlElementWithRequirement(
         {
@@ -1153,7 +1153,7 @@ const htmlElementRequirements = {
                 attribute: attributes.research,
                 requirement: 10,
             }])],
-            elementsToShowRequirements: []
+            elementsToShowRequirements: [Dom.get().byId('attributesTabButtonRequirements')],
         }),
     galacticSecretsTabButton: new HtmlElementWithRequirement(
         {

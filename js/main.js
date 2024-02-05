@@ -1711,8 +1711,14 @@ function updateHtmlElementRequirements() {
                 element.classList.toggle('hidden', !completed);
             }
         }
+        const requirementHtml = htmlElementWithRequirement.toHtml();
         for (const element of htmlElementWithRequirement.elementsToShowRequirements) {
-            element.classList.toggle('hidden', completed);
+            if (completed) {
+                element.classList.add('hidden');
+            } else {
+                element.classList.remove('hidden');
+                element.innerHTML = requirementHtml;
+            }
         }
     }
 }

@@ -185,6 +185,9 @@
                     </template>
                     <slot id="modulesQuickTaskDisplay"></slot>
                 </button>
+                <div id="battleTabButtonRequirements" class="p-3">
+                    <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
+                </div>
                 <button id="battleTabButton" class="tabButton panel p-3" onClick="setTab('battles');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Battle</h3>
@@ -205,9 +208,19 @@
                     </template>
                     <slot id="battlesQuickTaskDisplay"></slot>
                 </button>
+                <div id="locationTabButtonRequirements" class="p-3">
+                    <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
+                </div>
                 <button id="locationTabButton" class="tabButton panel p-3" onClick="setTab('location');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Location</h3>
+                </button>
+                <div id="attributesTabButtonRequirements" class="p-3">
+                    <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
+                </div>
+                <button id="attributesTabButton" class="tabButton panel p-3" onClick="setTab('attributes');">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Attributes</h3>
                 </button>
                 <button id="galacticSecretsTabButton" class="tabButton panel p-3" onClick="setTab('galacticSecrets');">
                     <!--suppress HtmlUnknownTag -->
@@ -220,10 +233,6 @@
                         <span class="me-1">: </span>
                         <data id="essenceOfUnknownDisplay" value="0">?</data>
                     </div>
-                </button>
-                <button id="attributesTabButton" class="tabButton panel p-3" onClick="setTab('attributes');">
-                    <!--suppress HtmlUnknownTag -->
-                    <h3>Attributes</h3>
                 </button>
                 <button id="settingsTabButton" class="tabButton panel p-3" onClick="setTab('settings');">
                     <!--suppress HtmlUnknownTag -->
