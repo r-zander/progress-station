@@ -1634,12 +1634,12 @@ function updateText() {
     } else {
         cyclesSinceLastEncounterElement.classList.remove('hidden');
         // TODO adjust formatting & use formatValue
-        Dom.get(cyclesSinceLastEncounterElement).bySelector('data').textContent = Number(getFormattedCycle(gameData.cycles, 0)).toLocaleString('en-US');
+        Dom.get(cyclesSinceLastEncounterElement).bySelector('data').textContent = Math.round(gameData.cycles).toLocaleString('en-US');
         cyclesTotalElement.classList.replace('primary-stat', 'secondary-stat');
         cyclesTotalElement.classList.add('help-text');
     }
     // TODO adjust formatting & use formatValue
-    Dom.get(cyclesTotalElement).bySelector('data').textContent = Number(getFormattedCycle(gameData.totalCycles, baseCycle)).toLocaleString('en-US');
+    Dom.get(cyclesTotalElement).bySelector('data').textContent = Math.round(startCycle + gameData.totalCycles).toLocaleString('en-US');
     const pauseButton = document.getElementById('pauseButton');
     if (gameData.state === gameStates.PAUSED || gameData.state === gameStates.BOSS_FIGHT_PAUSED) {
         pauseButton.textContent = 'Play';
@@ -1783,16 +1783,6 @@ function calculateGalacticSecretCost() {
         .filter(galacticSecret => galacticSecret.isUnlocked)
         .length;
     return Math.pow(3, unlockedGalacticSecrets);
-}
-
-function getFormattedCycle(ticks, base) {
-    const decimalPlaces = 0;
-    const incrementPerTick = 1;
-
-    const totalCycle = base + incrementPerTick * ticks;
-    const roundedCycle = totalCycle.toFixed(decimalPlaces);
-
-    return roundedCycle;
 }
 
 function increaseCycle() {

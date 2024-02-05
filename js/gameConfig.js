@@ -3,8 +3,8 @@
 // TODO replace with requestAnimationFrame for smoothest experience
 const updateSpeed = 20;
 
-const baseCycle = 100000;
-const bossAppearanceCycle = 25_000;
+const startCycle = 100000;
+const bossAppearanceCycle = 15_000;
 const dangerColors = [
     new Color([0, 128, 0], 'RGB'),    // 0% color: dark green
     new Color([255, 255, 0], 'RGB'),  // 50% color: yellow
@@ -409,11 +409,10 @@ const battles = {
 
     Destroyer: new BossBattle({
         title: 'The',
-        targetLevel: 20,
+        targetLevel: 10,
         faction: factions.Destroyer,
         effects: [{effectType: EffectType.Heat, baseValue: 5}, {effectType: EffectType.GrowthFactor, baseValue: -1.00}],
         rewards: [],
-        layerLabel: 'Tentacles layer',
     }),
 };
 
