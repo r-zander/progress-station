@@ -1696,6 +1696,7 @@ function updateHtmlElementRequirements() {
     for (const key in htmlElementRequirements) {
         const htmlElementWithRequirement = htmlElementRequirements[key];
         const completed = htmlElementWithRequirement.isCompleted();
+        const visible = htmlElementWithRequirement.isVisible();
         for (const element of htmlElementWithRequirement.elementsWithRequirements) {
             if (element instanceof LazyHtmlElement) {
                 if (element.found()) {
@@ -1713,7 +1714,7 @@ function updateHtmlElementRequirements() {
         }
         const requirementHtml = htmlElementWithRequirement.toHtml();
         for (const element of htmlElementWithRequirement.elementsToShowRequirements) {
-            if (completed) {
+            if (completed || !visible) {
                 element.classList.add('hidden');
             } else {
                 element.classList.remove('hidden');
@@ -2265,8 +2266,6 @@ function init() {
     createAttributesDisplay();
     createAttributesUI();
     createEnergyGridDisplay();
-
-    //setCustomEffects();
 
     if (tabButtons.hasOwnProperty(gameData.selectedTab)) {
         setTab(gameData.selectedTab);

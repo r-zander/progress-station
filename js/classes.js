@@ -56,19 +56,13 @@ class Entity {
      * @param {string|undefined} description
      * @param {Requirement[]|undefined} [requirements=undefined]
      */
-    constructor(title, description, requirements = undefined) {
+    constructor(title, description) {
         this.type = this.constructor.name;
         this.title = prepareTitle(title);
         this.description = description;
         /** @var {Requirement[]} */
-        this.requirements = requirements;
+        this.requirements = [];
 
-        if (Array.isArray(this.requirements)) {
-            // Use Array.prototype.forEach to a) have an index and b) capture it
-            this.requirements.forEach(this.registerRequirementInternal, this);
-        } else {
-            this.requirements = [];
-        }
     }
 
     get name() {
@@ -98,6 +92,7 @@ class Entity {
     registerRequirement(requirement) {
         const index = this.requirements.push(requirement) - 1;
         this.registerRequirementInternal(requirement, index);
+        return requirement;
     }
 
     loadValues(savedValues) {
@@ -146,11 +141,10 @@ class Task extends Entity {
      *     description?: string,
      *     maxXp: number,
      *     effects: EffectDefinition[],
-     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description, baseData.requirements);
+        super(baseData.title, baseData.description);
 
         this.maxXp = baseData.maxXp;
         this.effects = baseData.effects;
@@ -374,11 +368,10 @@ class ModuleCategory extends Entity {
      *     description?: string,
      *     color: string
      *     modules: Module[],
-     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description, baseData.requirements);
+        super(baseData.title, baseData.description);
 
         this.modules = baseData.modules;
         this.color = baseData.color;
@@ -425,11 +418,10 @@ class Module extends Entity {
      *     title: string,
      *     description?: string,
      *     components: ModuleComponent[],
-     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description, baseData.requirements);
+        super(baseData.title, baseData.description);
 
         this.data = baseData;
         this.components = baseData.components;
@@ -546,11 +538,10 @@ class ModuleComponent extends Entity {
      *     title: string,
      *     description?: string,
      *     operations: ModuleOperation[],
-     *     requirements?: Requirement[],
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description, baseData.requirements);
+        super(baseData.title, baseData.description);
 
         this.operations = baseData.operations;
     }
@@ -642,7 +633,6 @@ class ModuleOperation extends Task {
      *     maxXp: number,
      *     gridLoad: number,
      *     effects: EffectDefinition[]
-     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
@@ -875,11 +865,10 @@ class GalacticSecret extends Entity {
     /**
      * @param {{
      *     unlocks: ModuleOperation,
-     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
-        super(GalacticSecret.#createTitle(baseData.unlocks), baseData.unlocks.description, baseData.requirements);
+        super(GalacticSecret.#createTitle(baseData.unlocks), baseData.unlocks.description);
 
         this.unlocks = baseData.unlocks;
         this.unlocks.registerRequirement(new GalacticSecretRequirement([{galacticSecret: this}]));
@@ -1219,6 +1208,7 @@ class GalacticSecretRequirement extends Requirement {
 /**
  * @typedef {Object} HtmlElementWithRequirementSavedValues
  * @property {boolean[]} requirementCompleted
+ * @property {boolean[]} prerequirementCompleted
  */
 
 class HtmlElementWithRequirement {
@@ -1227,12 +1217,14 @@ class HtmlElementWithRequirement {
      *     elementsWithRequirements: HTMLElement[],
      *     requirements: Requirement[],
      *     elementsToShowRequirements?: HTMLElement[],
+     *     prerequirements?: Requirement[],
      * }} baseData
      */
     constructor(baseData) {
         this.elementsWithRequirements = baseData.elementsWithRequirements;
         this.requirements = baseData.requirements;
         this.elementsToShowRequirements = isUndefined(baseData.elementsToShowRequirements) ? [] : baseData.elementsToShowRequirements;
+        this.prerequirements = baseData.prerequirements;
 
         if (Array.isArray(this.requirements)) {
             // Use Array.prototype.forEach to a) have an index and b) capture it
@@ -1240,6 +1232,23 @@ class HtmlElementWithRequirement {
         } else {
             this.requirements = [];
         }
+        if (Array.isArray(this.prerequirements)) {
+            // Use Array.prototype.forEach to a) have an index and b) capture it
+            this.prerequirements.forEach(this.registerPrerequirementInternal, this);
+        } else {
+            this.prerequirements = [];
+        }
+    }
+
+    registerPrerequirementInternal(requirement, index) {
+        requirement.registerSaveAndLoad((completed) => {
+            this.getSavedValues().prerequirementCompleted[index] = completed;
+        }, () => {
+            if (isUndefined(this.getSavedValues().prerequirementCompleted[index])) {
+                this.getSavedValues().prerequirementCompleted[index] = false;
+            }
+            return this.getSavedValues().prerequirementCompleted[index];
+        });
     }
 
     /**
@@ -1258,6 +1267,7 @@ class HtmlElementWithRequirement {
     static newSavedValues() {
         return {
             requirementCompleted: [],
+            prerequirementCompleted: [],
         };
     }
 
@@ -1274,6 +1284,13 @@ class HtmlElementWithRequirement {
      */
     isCompleted() {
         return this.requirements.every(requirement => requirement.isCompleted());
+    }
+
+    /**
+     * @return {boolean}
+     */
+    isVisible() {
+        return this.prerequirements.every(requirement => requirement.isCompleted());
     }
 
     /**
