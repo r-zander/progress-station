@@ -312,7 +312,7 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
         level2DomGetter.byClass('moduleActivationLabel').for = switchElement.id;
         initTooltip(level2DomGetter.byClass('maxLevel'), {
             title: () => {
-                return `<b>x${(1 + module.maxLevel / 100).toFixed(2)} progress speed</b> for all operations in this module.`;
+                return `<b>x${(1 + module.maxLevel / 100).toFixed(2)} XP</b> for all operations in this module.`;
             },
             html: true,
         });
