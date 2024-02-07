@@ -1071,6 +1071,19 @@ function updateBattlesQuickDisplay() {
     }
 }
 
+function updateLocationQuickDisplay() {
+    const activePointOfInterest = pointsOfInterest[gameData.activeEntities.pointOfInterest];
+    const quickDisplay = Dom.get().byId('locationQuickDisplay');
+    const title = activePointOfInterest.sector.title + ': ' + activePointOfInterest.title;
+    if (title !== quickDisplay.title) {
+        quickDisplay.title = title;
+        bootstrap.Tooltip.getInstance(quickDisplay).setContent({'.tooltip-inner': quickDisplay.title});
+    }
+    const domGetter = Dom.get(quickDisplay);
+    domGetter.byClass('sector').textContent = activePointOfInterest.sector.title;
+    domGetter.byClass('pointOfInterest').textContent = activePointOfInterest.title;
+}
+
 /**
  *
  * @param {HTMLElement} progressFillElement
@@ -2112,6 +2125,7 @@ function updateUI() {
 
     updateModulesQuickDisplay();
     updateBattlesQuickDisplay();
+    updateLocationQuickDisplay();
     updateAttributeRows();
 
     updateHtmlElementRequirements();

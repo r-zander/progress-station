@@ -149,8 +149,9 @@ class Task extends Entity {
         this.maxXp = baseData.maxXp;
         this.effects = baseData.effects;
         this.xpMultipliers = [];
-        // TODO necessary? rename
-        this.collectEffects();
+        this.xpMultipliers.push(this.getMaxLevelMultiplier.bind(this));
+        // Yey lazy functions
+        this.xpMultipliers.push(() => getPopulationProgressSpeedMultiplier());
     }
 
     /**
@@ -236,12 +237,6 @@ class Task extends Entity {
      */
     getDelta() {
         return this.getXpGain() / this.getMaxXp();
-    }
-
-    collectEffects() {
-        this.xpMultipliers.push(this.getMaxLevelMultiplier.bind(this));
-        // Yey lazy functions
-        this.xpMultipliers.push(() => getPopulationProgressSpeedMultiplier());
     }
 
     /**
@@ -638,6 +633,7 @@ class ModuleOperation extends Task {
     constructor(baseData) {
         super(baseData);
         this.gridLoad = baseData.gridLoad;
+        this.xpMultipliers.push(attributes.industry.getValue);
     }
 
     get maxLevel() {
@@ -657,11 +653,6 @@ class ModuleOperation extends Task {
         console.assert(this.module === null, 'Module already registered.');
         this.module = module;
         this.component = component;
-    }
-
-    collectEffects() {
-        super.collectEffects();
-        this.xpMultipliers.push(attributes.industry.getValue);
     }
 
     /**
@@ -722,14 +713,16 @@ class Sector extends Entity {
      *     description?: string,
      *     color: string,
      *     pointsOfInterest: PointOfInterest[]
-     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description, baseData.requirements);
+        super(baseData.title, baseData.description);
 
         this.color = baseData.color;
         this.pointsOfInterest = baseData.pointsOfInterest;
+        for (const pointOfInterest of this.pointsOfInterest) {
+            pointOfInterest.registerSector(this);
+        }
     }
 
     /**
@@ -770,6 +763,9 @@ class Sector extends Entity {
  * @implements EffectsHolder
  */
 class PointOfInterest extends Entity {
+    /** @var {Sector} */
+    sector = null;
+
     /**
      *
      * @param {{
@@ -777,14 +773,21 @@ class PointOfInterest extends Entity {
      *     description?: string,
      *     effects: EffectDefinition[],
      *     modifiers: ModifierDefinition[],
-     *     requirements?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData.title, baseData.description, baseData.requirements);
+        super(baseData.title, baseData.description);
 
         this.effects = baseData.effects;
         this.modifiers = baseData.modifiers;
+    }
+
+    /**
+     * @param {Sector} sector
+     */
+    registerSector(sector) {
+        console.assert(this.sector === null, 'Sector already registered.');
+        this.sector = sector;
     }
 
     /**
@@ -816,11 +819,6 @@ class PointOfInterest extends Entity {
      */
     isActive() {
         return gameData.activeEntities.pointOfInterest === this.name;
-    }
-
-    collectEffects() {
-        //this.expenseMultipliers.push(getBoundTaskEffect('Bargaining'));
-        //this.expenseMultipliers.push(getBoundTaskEffect('Intimidation'));
     }
 
     /**

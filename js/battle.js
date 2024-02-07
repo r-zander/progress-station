@@ -69,10 +69,7 @@ class Battle extends LayeredTask {
 
         this.faction = baseData.faction;
         this.rewards = baseData.rewards;
-    }
 
-    collectEffects() {
-        super.collectEffects();
         this.xpMultipliers.push(attributes.military.getValue);
     }
 
