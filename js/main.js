@@ -1674,7 +1674,15 @@ function updateText() {
     updateEnergyGridBar();
     formatValue(Dom.get().bySelector('#attributeRows > .gridLoad .value'), attributes.gridLoad.getValue());
     formatValue(Dom.get().bySelector('#attributeRows > .gridStrength .value'), attributes.gridStrength.getValue());
-    formatValue(Dom.get().bySelector('#attributeRows > .gridStrength .delta'), gridStrength.getDelta());
+    const delta = gridStrength.getDelta();
+    const gridStrengthDeltaElement = Dom.get().bySelector('#attributeRows > .gridStrength .delta');
+    if (delta < 0.1) {
+        formatValue(gridStrengthDeltaElement, 1, {forceInteger: true});
+        gridStrengthDeltaElement.nextSibling.textContent = ' per ' + (1 / delta).toFixed(0) + ' cycles';
+    } else {
+        formatValue(gridStrengthDeltaElement, delta);
+        gridStrengthDeltaElement.nextSibling.textContent = ' per cycle';
+    }
 
     const growth = attributes.growth.getValue();
     formatValue(Dom.get().byId('growthDisplay'), growth);
@@ -1884,7 +1892,14 @@ function activateComponentOperations() {
  *
  * @param {HTMLDataElement} dataElement
  * @param {number} value
- * @param {{prefixes?: string[], unit?: string, forceSign?: boolean, keepNumber?: boolean, forceInteger?: boolean}} config
+ * @param {{
+ *     prefixes?: string[],
+ *     unit?: string,
+ *     forceSign?: boolean,
+ *     keepNumber?: boolean,
+ *     forceInteger?: boolean,
+ *     toStringFn?: function(number): string,
+ * }} config
  */
 function formatValue(dataElement, value, config = {}) {
     // TODO render full number + unit into dataElement.title
@@ -1896,12 +1911,15 @@ function formatValue(dataElement, value, config = {}) {
         forceSign: false,
         keepNumber: false,
         forceInteger: false,
+        toStringFn: undefined,
     };
     config = Object.assign({}, defaultConfig, config);
 
     const toString = (value) => {
         if (config.forceInteger || Number.isInteger(value)) {
             return value.toFixed(0);
+        } else if (isFunction(config.toStringFn)) {
+            return config.toStringFn(value);
         } else if (Math.abs(value) < 1) {
             return value.toFixed(2);
         } else {
@@ -1916,6 +1934,7 @@ function formatValue(dataElement, value, config = {}) {
     if (config.forceSign) {
         if (Math.abs(value) <= 0.001) {
             prefix = '±';
+            value = Math.abs(value);
         } else if (value > 0) {
             prefix = '+';
         }
