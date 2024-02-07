@@ -5,31 +5,32 @@
  */
 const factions = {
     NovaFlies: {
-        title: 'Nova Flies', maxXp: 20,
+        title: 'Nova Flies', maxXp: 50,
         description: 'Similar to earth\'s long lost fireflies these bugs are glowing on their own. Experiencing their gigantic numbers and blinding brightness quickly explains the name.',
     },
     Astrogoblins: {
-        title: 'Astrogoblins', maxXp: 50,
+        title: 'Astrogoblins', maxXp: 100,
         description: 'Mischievous beings that can be found in every corner of the galaxy, Astrogoblins zip around in makeshift spacecrafts, armed with primitive weapons and a liking for interstellar chaos.'
     },
     CometCrawlers: {
-        title: 'Comet Crawlers', maxXp: 100,
+        title: 'Comet Crawlers', maxXp: 500,
         description: 'These beagle-sized beetles travel on the surface of comets as they are attracted by metal alloys that are unfortunately also commonly found in space stations. They will attack in large numbers if they sense one of their own being harmed.'
     },
     Scavengers: {
-        title: 'Scavengers', maxXp: 500,
+        title: 'Scavengers', maxXp: 2_500,
         description: 'Outcasts from civilizations across the galaxy, Scavengers form nomadic crews, dressed in distinctive leather attire. Masters of illicit trade and makeshift tech, they roam, seeking quick profits through heists and elusive alliances.'
     },
     SpacePirates: {
-        title: 'Space Pirates', maxXp: 1_000,
+        title: 'Space Pirates', maxXp: 12_500,
         description: 'Buccaneers sailing the astral seas, Space Pirates are notorious for their flashy ships, over-the-top personalities, and the relentless pursuit of rare space booty.'
     },
+    // TODO faction with maxXp: 50_000
     ThunderDragon: {
         title: 'Thunder Dragon', maxXp: 100_000,
         description: 'Roaming the cosmic storm clouds, Thunder Dragons are colossal beings of electric energy. Lightning crackles across their scales as they soar through the galactic skies.'
     },
     AstralSharks: {
-        title: 'Astral Sharks', maxXp: 750_000,
+        title: 'Astral Sharks', maxXp: 500_000,
         description: 'Legends of the cosmic deep, Astral Sharks glide through space with celestial fins and stardust-infused teeth. They\'re the titans of the galactic oceans.'
     },
 
@@ -49,7 +50,7 @@ const battles = {
         targetLevel: 10,
         faction: factions.Astrogoblins,
         effects: [{effectType: EffectType.Danger, baseValue: 0}],
-        rewards: [{effectType: EffectType.Military, baseValue: 1}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+        rewards: [{effectType: EffectType.Industry, baseValue: 1}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     Astrogoblins15: new Battle({
         title: 'Curious',
@@ -63,7 +64,7 @@ const battles = {
         targetLevel: 10,
         faction: factions.CometCrawlers,
         effects: [{effectType: EffectType.Danger, baseValue: 20}],
-        rewards: [{effectType: EffectType.Growth, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+        rewards: [{effectType: EffectType.Military, baseValue: 1}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     Astrogoblins20: new Battle({
         title: 'Courageous',
@@ -105,7 +106,7 @@ const battles = {
         targetLevel: 20,
         faction: factions.Scavengers,
         effects: [{effectType: EffectType.Danger, baseValue: 150}],
-        rewards: [{effectType: EffectType.Research, baseValue: 7}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+        rewards: [{effectType: EffectType.Industry, baseValue: 3}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     CometCrawlers30: new Battle({
         title: 'Aggressive',
@@ -119,7 +120,7 @@ const battles = {
         targetLevel: 10,
         faction: factions.ThunderDragon,
         effects: [{effectType: EffectType.Danger, baseValue: 200}],
-        rewards: [{effectType: EffectType.Research, baseValue: 1}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+        rewards: [{effectType: EffectType.Research, baseValue: 10}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     SpacePirates20: new Battle({
         title: 'Organized',
@@ -140,7 +141,7 @@ const battles = {
         targetLevel: 10,
         faction: factions.AstralSharks,
         effects: [{effectType: EffectType.Danger, baseValue: 500}],
-        rewards: [{effectType: EffectType.ResearchFactor, baseValue: 1.5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+        rewards: [{effectType: EffectType.Research, baseValue: 20}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     CometCrawlers50: new Battle({
         title: 'Swarming',
