@@ -766,14 +766,16 @@ function createAttributeBalance(rowElement, effectTypes) {
 
     let onlyMultipliers = effectTypes.every((effectType) => effectType.operator === 'x');
 
-    if (onlyMultipliers) {
         const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
         const domGetter = Dom.get(balanceEntryElement);
         domGetter.byClass('operator').textContent = '';
-        domGetter.byClass('entryValue').textContent = '1';
+        if (onlyMultipliers) {
+            domGetter.byClass('entryValue').textContent = '1';
+        } else {
+            domGetter.byClass('entryValue').textContent = '0';
+        }
         domGetter.byClass('name').textContent = '(Base)';
         balanceElement.append(balanceEntryElement);
-    }
 
     for (const effectType of effectTypes) {
         for (const moduleName in modules) {
@@ -879,7 +881,7 @@ function createAttributesUI() {
     // Danger
     const dangerRow = createAttributeRow(attributes.danger);
     Dom.get(dangerRow).byClass('balance').classList.remove('hidden');
-    createAttributeBalance(dangerRow, [EffectType.Danger]);
+    createAttributeBalance(dangerRow, [EffectType.Danger, EffectType.DangerFactor]);
     rows.push(dangerRow);
 
     // Grid Load
@@ -898,7 +900,7 @@ function createAttributesUI() {
     // Growth
     const growthRow = createAttributeRow(attributes.growth);
     Dom.get(growthRow).byClass('balance').classList.remove('hidden');
-    createAttributeBalance(growthRow, [EffectType.Growth]);
+    createAttributeBalance(growthRow, [EffectType.Growth, EffectType.GrowthFactor]);
     rows.push(growthRow);
 
     // Heat
@@ -911,7 +913,7 @@ function createAttributesUI() {
     // Industry
     const industryRow = createAttributeRow(attributes.industry);
     Dom.get(industryRow).byClass('balance').classList.remove('hidden');
-    createAttributeBalance(industryRow, [EffectType.Industry]);
+    createAttributeBalance(industryRow, [EffectType.Industry, EffectType.IndustryFactor]);
     rows.push(industryRow);
 
     // Military
