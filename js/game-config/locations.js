@@ -28,18 +28,28 @@ const pointsOfInterest = {
         modifiers: [],
     }),
     GrowthLocationLow: new PointOfInterest({
-        title: 'GrowthLocationLow',
-
+        title: 'Fizzy Nebula',
+        description: 'A cloud of space gas that literally bubbles. Perfect for cool selfies and fizzy drinks.',
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 4},
             {effectType: EffectType.IndustryFactor, baseValue: -0.3},
             {effectType: EffectType.Danger, baseValue: 25}],
         modifiers: [],
     }),
+    ResearchLocationLow: new PointOfInterest({
+        title: 'The Mirror Vortex',
+        description: 'A collection of mini wormholes that show reflections of alternate realities.',
+        effects: [
+            {effectType: EffectType.GrowthFactor, baseValue: 0.3},
+            {effectType: EffectType.IndustryFactor, baseValue: -0.1},
+            {effectType: EffectType.ResearchFactor, baseValue: 3},
+            {effectType: EffectType.Danger, baseValue: 25}],
+        modifiers: [],
+    }),
 
     IndustryLocationMedium: new PointOfInterest({
-        title: 'IndustryLocationMedium',
-
+        title: 'The Sneezy Supernova',
+        description: 'A star about to go boom, but it\'s taking its sweet time. Stellar resources available, with a risk.',
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0},
             {effectType: EffectType.IndustryFactor, baseValue: 9},
@@ -48,8 +58,8 @@ const pointsOfInterest = {
         modifiers: [],
     }),
     ResearchLocationMedium: new PointOfInterest({
-        title: 'ResearchLocationMedium',
-
+        title: 'Whispering Moons',
+        description: 'Twin moons that supposedly whisper space secrets. Good for intel, if you can decipher the murmurs.',
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0.2},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
@@ -58,8 +68,8 @@ const pointsOfInterest = {
         modifiers: [],
     }),
     GrowthLocationMedium: new PointOfInterest({
-        title: 'GrowthLocationMedium',
-
+        title: 'Crystal Gardens',
+        description: 'Fields of glowing, crystal flora. Harvestable as a powerful snack, but they\'re a bit... temperamental.',
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 9},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
@@ -68,8 +78,8 @@ const pointsOfInterest = {
     }),
 
     IndustryLocationHigh: new PointOfInterest({
-        title: 'IndustryLocationHigh',
-
+        title: 'The Shadow Bazaar',
+        description: 'A market run by actual shadows. Trade at your own risk, they\'re known for tricky deals.',
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0},
             {effectType: EffectType.IndustryFactor, baseValue: 19},
@@ -78,8 +88,8 @@ const pointsOfInterest = {
         modifiers: [],
     }),
     ResearchLocationHigh: new PointOfInterest({
-        title: 'ResearchLocationHigh',
-
+        title: 'Sonic Quasar',
+        description: 'Emits deadly sound waves. Great for advanced tech parts if you can withstand the noise.',
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0.2},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
@@ -88,8 +98,8 @@ const pointsOfInterest = {
         modifiers: [],
     }),
     GrowthLocationHigh: new PointOfInterest({
-        title: 'GrowthLocationHigh',
-
+        title: 'Orbiting Oasis',
+        description: 'A rare paradise with vital resources. Also a popular hangout for not-so-friendly giant space beasts.',
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 19},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
@@ -98,8 +108,8 @@ const pointsOfInterest = {
     }),
 
     IndustryLocationExtreme: new PointOfInterest({
-        title: 'IndustryLocationExtreme',
-
+        title: 'Nebula of Forgotten Ships',
+        description: 'A graveyard of ancient spacecrafts, rumored to be haunted. Treasure trove of tech and secrets, but eerily guarded.',
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0},
             {effectType: EffectType.IndustryFactor, baseValue: 49},
@@ -108,8 +118,8 @@ const pointsOfInterest = {
         modifiers: [],
     }),
     ResearchLocationExtreme: new PointOfInterest({
-        title: 'ResearchLocationExtreme',
-
+        title: 'The Singing Black Hole',
+        description: 'It doesn\'t just destroy; it serenades you into oblivion. Unique insights if you dare to listen.',
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0.2},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
@@ -118,8 +128,8 @@ const pointsOfInterest = {
         modifiers: [],
     }),
     GrowthLocationExtreme: new PointOfInterest({
-        title: 'GrowthLocationExtreme',
-
+        title: 'Void\'s Edge',
+        description: 'The edge of known space. Navigation is tricky, and reality behaves oddly here.',
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 49},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
