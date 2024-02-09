@@ -72,8 +72,8 @@ moduleOperations.Diesel = new ModuleOperation({
     effects: [{effectType: EffectType.Energy, baseValue: 1.5}],
 });
 moduleOperations.FuelT3 = new ModuleOperation({
-    title: 'FUEL TIER III', maxXp: 50, gridLoad: 4,
-
+    title: 'Smelly Jelly', maxXp: 50, gridLoad: 4,
+    description: 'Super-concentrated jet fuel, thanks to Neptunium\'s kick. Beware: its potent aroma is adored by some, stomach-churning for most.',
     effects: [{effectType: EffectType.Energy, baseValue: 2}],
 });
 /** Galactic Secret */
@@ -86,17 +86,17 @@ moduleOperations.Quasarite = new ModuleOperation({
 
 moduleOperations.Plastics = new ModuleOperation({
     title: 'Plastics', maxXp: 100, gridLoad: 2,
-
+    description: 'It can be like, molded into anything. Stretchy, sturdy - this stuff does it all!',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.01}],
 });
 moduleOperations.Steel = new ModuleOperation({
     title: 'Steel', maxXp: 200, gridLoad: 4,
-
+    description: 'Super tough stuff, dude! Like, armor for your space castle or sword for cosmic dragon slaying.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.02}],
 });
 moduleOperations.ProductsT3 = new ModuleOperation({
-    title: 'PRODUCTS TIER III', maxXp: 200, gridLoad: 6,
-
+    title: 'Bouncium', maxXp: 200, gridLoad: 6,
+    description: 'The rubbery metal that laughs at gravity. Perfect for when you need your gear to bounce back, literally.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.03}],
 });
 /** Galactic Secret */
