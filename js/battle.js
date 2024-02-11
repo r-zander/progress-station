@@ -227,10 +227,6 @@ class BossBattle extends Battle {
 
     onLevelUp(previousLevel, newLevel) {
         super.onLevelUp(previousLevel, newLevel);
-
-        for(let level = previousLevel; level < newLevel; level++) {
-            gameData.essenceOfUnknown += Math.pow(2, level);
-        }
     }
 
     stop() {

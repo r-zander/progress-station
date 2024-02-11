@@ -320,6 +320,7 @@ const battles = {
  */
 const bossBattleDefaultDistance = 4;
 const bossBattleApproachInterval = 200; // Cycles
+/** @type {BossBattle} */
 const bossBattle = battles.Destroyer;
 
 const battleRequirements = [

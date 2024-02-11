@@ -2054,6 +2054,12 @@ function resetBattle(name) {
 
 function startNewPlaythrough() {
     gameData.bossEncounterCount += 1;
+
+    // grant Essence Of Unknown
+    for (let level = 0; level < bossBattle.level; level++) {
+        gameData.essenceOfUnknown += Math.pow(2, level);
+    }
+
     playthroughReset('UPDATE_MAX_LEVEL');
 }
 
