@@ -13,7 +13,7 @@
   },
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder"
+    "dist": "electron-builder --publish never"
   },
   "build": {
     "appId": "com.kringel.progress-station",
