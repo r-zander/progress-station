@@ -1,0 +1,22 @@
+{
+  "name": "progress-station",
+  "description": "Progress Station is a space-station-sim incremental game based in a quirky sci-fi setting",
+  "homepage": "http://kringel.games/",
+  "repository": "https://github.com/r-zander/progress-station",
+  "version": "1.0.0",
+  "main": "release/electron/main.js",
+  "author": "Raoul Zander",
+  "license": "GPL-3.0-only",
+  "devDependencies": {
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.1"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.kringel.progress-station",
+    "productName": "Progress Station"
+  }
+}
