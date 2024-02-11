@@ -225,10 +225,6 @@ class BossBattle extends Battle {
         return gameData.state.isBossBattleProgressing;
     }
 
-    onLevelUp(previousLevel, newLevel) {
-        super.onLevelUp(previousLevel, newLevel);
-    }
-
     stop() {
         // Undefeated boss battle can not be stopped
         if (!this.isDone()) return;
