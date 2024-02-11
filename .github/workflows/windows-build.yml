@@ -28,13 +28,12 @@ jobs:
       - name: Build
         run: yarn dist
 
-      - name: Upload artifact
+      - name: Upload artifact to release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: dist/*.exe
-      - name: Upload artifact
+      - name: Upload artifact to action
         uses: actions/upload-artifact@v4
-        if: !startsWith(github.ref, 'refs/tags/')
         with:
           path: dist/*.exe
