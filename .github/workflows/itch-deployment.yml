@@ -1,16 +1,19 @@
 name: Deployment
 on:
-  push:
-    branches:
-      - master
+  release:
+    types: [published]
+  workflow_dispatch:
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: manleydev/butler-publish-itchio-action@master
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+      - name: Publish to Itch.io
+        uses: manleydev/butler-publish-itchio-action@master
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
           CHANNEL: html5
           ITCH_GAME: progress-station
           ITCH_USER: kringelgames
-          PACKAGE: ./
+          PACKAGE: .
