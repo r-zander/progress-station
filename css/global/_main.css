@@ -1,10 +1,33 @@
 #gameTitle {
     position: fixed;
-    right: 0;
-    top: 25%;
+    left: 0;
+    top: 20%;
     rotate: 270deg;
-    transform-origin: right bottom;
-    transform: translateX(50%);
+    transform-origin: left top;
+    transform: translateX(-100%);
+}
+
+#logo {
+    font-family: var(--title-font-family) !important;
+    font-weight: 400;
+    font-size: 3rem;
+
+    rotate: 90deg;
+
+    position: relative;
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0.125rem;
+        left: 0;
+        display: block;
+        border: 0.6rem solid #0C65AD;
+        width: 100%;
+        aspect-ratio: 1/1;
+        border-radius: 50%;
+        z-index: -1;
+    }
 }
 
 #main {
