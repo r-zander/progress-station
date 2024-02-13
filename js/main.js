@@ -503,7 +503,9 @@ function createLevel4BattleElements(battles) {
         domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
         domGetter.byClass('radio').addEventListener('click', clickListener);
         if (battle instanceof BossBattle) {
-            domGetter.byClass('danger').innerHTML = battle.getEffectDescription();
+            const dangerElement = domGetter.byClass('danger');
+            dangerElement.classList.add('effect');
+            dangerElement.innerHTML = battle.getEffectDescription();
         } else {
             formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
         }
@@ -962,7 +964,8 @@ function createEnergyGridDisplay() {
  */
 function adjustLayout() {
     const headerHeight = Dom.outerHeight(Dom.get().byId('stationOverview'));
-    Dom.get().byId('contentWrapper').style.maxHeight = `calc(100vh - ${headerHeight}px)`;
+    // TODO don't
+    Dom.get().byId('contentWrapper').style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
 }
 
 function cleanUpDom() {

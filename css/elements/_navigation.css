@@ -3,14 +3,6 @@
     /*overflow: auto;*/
     display: flex;
     flex-direction: column;
-    margin-right: 1rem; /* me-3 */
-}
-
-@media (min-width: 1296px) {
-    #sidebar {
-        margin-right: auto;
-        margin-left: auto;
-    }
 }
 
 .tabButton {
