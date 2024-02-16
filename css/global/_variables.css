@@ -11,4 +11,7 @@
 
     --sidebar-width: 360px;
     --content-width: 1000px;
+
+    /* Calculated variables */
+    --main-width: calc(var(--content-width) + var(--sidebar-width) + 1rem);
 }

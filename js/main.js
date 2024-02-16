@@ -102,6 +102,16 @@ function hideAllTooltips() {
 }
 
 /**
+ *
+ * @param {MouseEvent} event
+ */
+function showCredits(event) {
+    event.preventDefault();
+    setTab('settings');
+    Dom.get().byId('credits').scrollIntoView(true);
+}
+
+/**
  * @param {string} selectedTab
  */
 function setTab(selectedTab) {
@@ -153,6 +163,12 @@ function setPointOfInterest(name) {
     }
 
     gameData.activeEntities.pointOfInterest = name;
+}
+
+function createLinkBehavior() {
+    Dom.get().allBySelector('a[href="#credits"]').forEach(linkElement => {
+        linkElement.addEventListener('click', showCredits);
+    });
 }
 
 /**
@@ -2297,6 +2313,7 @@ function init() {
 
     gameData.tryLoading();
 
+    createLinkBehavior();
     createModulesUI(moduleCategories, 'modulesTable');
     createSectorsUI(sectors, 'sectorTable');
     createBattlesUI(battles, 'battlesTable');
