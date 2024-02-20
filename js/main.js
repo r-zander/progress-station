@@ -58,7 +58,7 @@ function calculateHeat() {
     const rawHeat = Effect.getTotalValue([EffectType.Heat]);
     const calculatedHeat = Math.max(danger - military, 0) + rawHeat;
 
-    return calculatedHeat;
+    return Math.max(0.1, calculatedHeat);
 }
 
 function populationDelta() {
@@ -945,9 +945,10 @@ function createAttributesUI() {
     const populationFormulaElement = Dom.get(populationRow).byClass('formula');
     populationFormulaElement.classList.remove('hidden');
     populationFormulaElement.innerHTML =
-        createAttributeInlineHTML(attributes.growth) + ' - ' +
-        createAttributeInlineHTML(attributes.population) + ' * 0.01 * ' +
-        createAttributeInlineHTML(attributes.heat) + '<br />&wedgeq; <data value="0" class="delta">?</data> per cycle';
+        '(0.1 * ' +  createAttributeInlineHTML(attributes.growth) +
+        ') - (0.01 * ' +
+        createAttributeInlineHTML(attributes.population) + ' * ' +
+        createAttributeInlineHTML(attributes.heat) + ')<br />&wedgeq; <data value="0" class="delta">?</data> per cycle';
     rows.push(populationRow);
 
     // Research
@@ -1703,7 +1704,7 @@ function updateText() {
         gridStrengthDeltaElement.nextSibling.textContent = ' per cycle';
     }
 
-    const growth = attributes.growth.getValue() / 10;
+    const growth = attributes.growth.getValue();
     formatValue(Dom.get().byId('growthDisplay'), growth);
     formatValue(Dom.get().bySelector('#attributeRows > .growth .value'), growth);
 
