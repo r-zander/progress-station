@@ -6,7 +6,7 @@
 const factions = {
     NovaFlies: {
         title: 'Nova Flies', maxXp: 50,
-        description: 'Similar to earth\'s long lost fireflies these bugs are glowing on their own. Experiencing their gigantic numbers and blinding brightness quickly explains the name.',
+        description: 'Similar to earth\'s long lost fireflies, these bugs are glowing on their own. Experiencing their gigantic numbers and blinding brightness quickly explains the name.',
     },
     Astrogoblins: {
         title: 'Astrogoblins', maxXp: 100,
@@ -20,14 +20,25 @@ const factions = {
         title: 'Scavengers', maxXp: 2_500,
         description: 'Outcasts from civilizations across the galaxy, Scavengers form nomadic crews, dressed in distinctive leather attire. Masters of illicit trade and makeshift tech, they roam, seeking quick profits through heists and elusive alliances.'
     },
+    MeteorMaws: {
+        title: 'Meteor Maws', maxXp: 10_000,
+        description: 'Gigantic, worm-like beings that burrow through meteors and small moons, leaving characteristic holes. They are attracted to the vibrations of engines and can engulf smaller vessels whole.'
+    },
     SpacePirates: {
         title: 'Space Pirates', maxXp: 12_500,
         description: 'Buccaneers sailing the astral seas, Space Pirates are notorious for their flashy ships, over-the-top personalities, and the relentless pursuit of rare space booty.'
     },
-    // TODO faction with maxXp: 50_000
+    StarMantas: {
+        title: 'Star Mantas', maxXp: 35_000,
+        description: 'Majestic creatures that glide through the vacuum of space, their vast wingspans absorb cosmic radiation. Often mistaken for celestial phenomena, they can be fiercely territorial.'
+    },
+    VoidVikings: {
+        title: 'Void Vikings', maxXp: 50_000,
+        description: 'Clad in dark matter armor, Void Vikings raid across the galaxy in search of glory and cosmic runes. Their battle cries resonate through the vacuum, freezing the hearts of their foes.'
+    },
     ThunderDragon: {
         title: 'Thunder Dragon', maxXp: 100_000,
-        description: 'Roaming the cosmic storm clouds, Thunder Dragons are colossal beings of electric energy. Lightning crackles across their scales as they soar through the galactic skies.'
+        description: 'Roaming the storm nebula, Thunder Dragons are colossal beings of electric energy. Lightning crackles across their scales as they soar through the interstellar space.'
     },
     AstralSharks: {
         title: 'Astral Sharks', maxXp: 500_000,
@@ -35,7 +46,7 @@ const factions = {
     },
 
     Destroyer: {
-        title: 'Destroyer', maxXp: 150_000_000,
+        title: 'Destroyer', maxXp: 5_000_000,
         description: 'An immense, dark mass of writhing tentacles, teeth and a thousand eyes. The vacuum of space around the station suppresses all noise, ' +
             'but you can feel the hatred of the alien beast and see it\'s determination to destroy everything you have built up.'
     },
@@ -80,6 +91,13 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 75}],
         rewards: [{effectType: EffectType.Research, baseValue: 4}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
+    MeteorMaws10: new Battle({
+        title: 'Two',
+        targetLevel: 10,
+        faction: factions.MeteorMaws,
+        effects: [{effectType: EffectType.Danger, baseValue: 80}],
+        rewards: [{effectType: EffectType.Growth, baseValue: 4}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
     CometCrawlers20: new Battle({
         title: 'Small swarm of',
         targetLevel: 20,
@@ -108,12 +126,26 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 150}],
         rewards: [{effectType: EffectType.Industry, baseValue: 3}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
+    VoidVikings10: new Battle({
+        title: 'Scouting',
+        targetLevel: 10,
+        faction: factions.VoidVikings,
+        effects: [{effectType: EffectType.Danger, baseValue: 120}],
+        rewards: [{effectType: EffectType.Energy, baseValue: 3}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
     CometCrawlers30: new Battle({
         title: 'Aggressive',
         targetLevel: 30,
         faction: factions.CometCrawlers,
         effects: [{effectType: EffectType.Danger, baseValue: 90}],
         rewards: [{effectType: EffectType.Growth, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    MeteorMaws20: new Battle({
+        title: 'Hungry',
+        targetLevel: 20,
+        faction: factions.MeteorMaws,
+        effects: [{effectType: EffectType.Danger, baseValue: 160}],
+        rewards: [{effectType: EffectType.Growth, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     ThunderDragon10: new Battle({
         title: 'Decrepit',
@@ -143,6 +175,13 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 500}],
         rewards: [{effectType: EffectType.Research, baseValue: 20}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
+    VoidVikings20: new Battle({
+        title: 'Looting',
+        targetLevel: 20,
+        faction: factions.VoidVikings,
+        effects: [{effectType: EffectType.Danger, baseValue: 360}],
+        rewards: [{effectType: EffectType.Energy, baseValue: 10}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
     CometCrawlers50: new Battle({
         title: 'Swarming',
         targetLevel: 50,
@@ -163,6 +202,13 @@ const battles = {
         faction: factions.Astrogoblins,
         effects: [{effectType: EffectType.Danger, baseValue: 100}],
         rewards: [{effectType: EffectType.Military, baseValue: 10}, { effectType: EffectType.MilitaryFactor, baseValue: 0.1}],
+    }),
+    MeteorMaws50: new Battle({
+        title: 'Clew of',
+        targetLevel: 50,
+        faction: factions.MeteorMaws,
+        effects: [{effectType: EffectType.Danger, baseValue: 320}],
+        rewards: [{effectType: EffectType.Growth, baseValue: 8}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     Scavengers50: new Battle({
         title: 'Reckless',
@@ -192,6 +238,13 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 2000}],
         rewards: [{effectType: EffectType.ResearchFactor, baseValue: 2}, { effectType: EffectType.MilitaryFactor, baseValue: 0.1}],
     }),
+    StarMantas20: new Battle({
+        title: 'Peaceful',
+        targetLevel: 20,
+        faction: factions.StarMantas,
+        effects: [{effectType: EffectType.Danger, baseValue: 300}],
+        rewards: [{effectType: EffectType.Research, baseValue: 10}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
     CometCrawlers200: new Battle({
         title: 'Endless',
         targetLevel: 200,
@@ -199,12 +252,26 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1500}],
         rewards: [{effectType: EffectType.Growth, baseValue: 40}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}],
     }),
+    VoidVikings50: new Battle({
+        title: 'Raiding',
+        targetLevel: 50,
+        faction: factions.VoidVikings,
+        effects: [{effectType: EffectType.Danger, baseValue: 2400}],
+        rewards: [{effectType: EffectType.Energy, baseValue: 30}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
     ThunderDragon20: new Battle({
         title: 'Venerable',
         targetLevel: 20,
         faction: factions.ThunderDragon,
         effects: [{effectType: EffectType.Danger, baseValue: 2000}],
         rewards: [{effectType: EffectType.Research, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}],
+    }),
+    MeteorMaws100: new Battle({
+        title: 'Radiant',
+        targetLevel: 100,
+        faction: factions.MeteorMaws,
+        effects: [{effectType: EffectType.Danger, baseValue: 3000}],
+        rewards: [{effectType: EffectType.Growth, baseValue: 12}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     Astrogoblins75: new Battle({
         title: 'Bold',
@@ -255,6 +322,13 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 5000}],
         rewards: [{effectType: EffectType.Research, baseValue: 35}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
+    VoidVikings200: new Battle({
+        title: 'Rampaging',
+        targetLevel: 200,
+        faction: factions.VoidVikings,
+        effects: [{effectType: EffectType.Danger, baseValue: 6000}],
+        rewards: [{effectType: EffectType.Energy, baseValue: 80}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
     SpacePirates100: new Battle({
         title: 'Indomitable',
         targetLevel: 100,
@@ -289,6 +363,13 @@ const battles = {
         faction: factions.SpacePirates,
         effects: [{effectType: EffectType.Danger, baseValue: 12000}],
         rewards: [{effectType: EffectType.Military, baseValue: 100}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+    }),
+    StarMantas100: new Battle({
+        title: 'Furious',
+        targetLevel: 200,
+        faction: factions.StarMantas,
+        effects: [{effectType: EffectType.Danger, baseValue: 30000}],
+        rewards: [{effectType: EffectType.Research, baseValue: 80}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     AstralSharks500: new Battle({
         title: 'The Last',
