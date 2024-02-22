@@ -13,7 +13,7 @@ function initVersionWarning() {
         versionUpgrade.expectedVersion = payload.expectedVersion;
     });
 
-    if (_.isObject(cheats)) {
+    if (_.isObject(window.cheats)) {
         cheats.Story['VersionWarning'] = {
             trigger: (savedVersion = 1, expectedVersion = 2) => {
                 GameEvents.IncompatibleVersionFound.trigger({
@@ -45,7 +45,7 @@ function initIntro() {
         modal.show();
     });
 
-    if (_.isObject(cheats)) {
+    if (_.isObject(window.cheats)) {
         cheats.Story['Intro'] = {
             trigger: () => {
                 modal.show();
@@ -65,7 +65,7 @@ function initBossAppearance() {
         modal.show();
     });
 
-    if (_.isObject(cheats)) {
+    if (_.isObject(window.cheats)) {
         cheats.Story['BossAppearance'] = {
             trigger: () => {
                 GameEvents.BossAppearance.trigger(undefined);
@@ -90,7 +90,7 @@ function initBossFightIntro() {
         modal.show();
     });
 
-    if (_.isObject(cheats)) {
+    if (_.isObject(window.cheats)) {
         cheats.Story['BossFightIntro'] = {
             trigger: () => {
                 gameData.transitionState(gameStates.BOSS_FIGHT_INTRO);
@@ -130,7 +130,7 @@ function initGameOver() {
         modalElement.classList.toggle('loss', !bossDefeated);
     });
 
-    if (_.isObject(cheats)) {
+    if (_.isObject(window.cheats)) {
         cheats.Story['GameOver'] = {
             trigger: (win) => {
                 if (win){
