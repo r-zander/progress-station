@@ -276,7 +276,7 @@ const cheats = {
                 return Object.values(battles).map(/** @param {Battle} battle */battle => {
                     return [
                         battle.name,
-                        prepareTitle(battle.title),
+                        prepareTitle(battle.title).replace(battle.faction.title, '').trim(),
                         battle.description,
                         battle.faction.name,
                         formatNumber(battle.targetLevel, locale),

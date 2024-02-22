@@ -25,7 +25,7 @@ const moduleOperationRequirements = {
     PocketLaboratory: moduleOperations.PocketLaboratory.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
             faction: factions.Astrogoblins,
-            requirement: battles.Astrogoblins10.targetLevel + battles.Astrogoblins15.targetLevel,
+            requirement: battles.Astrogoblins10.targetLevel + battles.Astrogoblins20.targetLevel,
         }])
     ),
     HeavyGlitz: moduleOperations.HeavyGlitz.registerRequirement(
@@ -361,7 +361,7 @@ const htmlElementRequirements = {
             ],
             requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{
                 faction: factions.Astrogoblins,
-                requirement: battles.Astrogoblins10.targetLevel + battles.Astrogoblins15.targetLevel,
+                requirement: battles.Astrogoblins10.targetLevel + battles.Astrogoblins20.targetLevel,
             }])],
         }),
     locationTabButton: new HtmlElementWithRequirement(
