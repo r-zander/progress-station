@@ -60,28 +60,28 @@ const battles = {
         title: 'Stray',
         targetLevel: 10,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 10}],
+        effects: [{effectType: EffectType.Danger, baseValue: 0}],
         rewards: [{effectType: EffectType.Industry, baseValue: 1}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     Astrogoblins10: new Battle({
         title: 'Wimpy',
         targetLevel: 10,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 20}],
+        effects: [{effectType: EffectType.Danger, baseValue: 10}],
         rewards: [{effectType: EffectType.Research, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     NovaFlies20: new Battle({
         title: 'Harmless',
         targetLevel: 20,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 20}],
+        effects: [{effectType: EffectType.Danger, baseValue: 15}],
         rewards: [{effectType: EffectType.Energy, baseValue: 3}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     Astrogoblins20: new Battle({
         title: 'Courageous',
         targetLevel: 20,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 40}],
+        effects: [{effectType: EffectType.Danger, baseValue: 20}],
         rewards: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     CometCrawlers10: new Battle({
