@@ -83,7 +83,7 @@
 }
 
 .level1 .level2-header {
-    top: 40px;
+    top: 39px;
 }
 
 .level1 .level2 .level3 {
@@ -105,14 +105,15 @@
 
     & td {
         &.value,
+        &.effect,
         &.modifier,
-        &.rewards,
-        &.danger {
+        &.rewards {
             max-width: 10rem;
             /* Squeeze in those two liners */
             line-height: 1.1rem;
             padding-top: 0.3rem;
             padding-bottom: 0.3rem;
+            white-space: pre-line;
         }
 
         &.modifier {

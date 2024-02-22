@@ -36,7 +36,7 @@ const gameStates = {
         areAttributesUpdated: false,
         areTasksProgressing: false,
         isBossBattleProgressing: false,
-        canChangeActivation: false,
+        canChangeActivation: true,
     },
     BOSS_FIGHT_INTRO: {
         isTimeProgressing: false,
@@ -57,7 +57,7 @@ const gameStates = {
         areAttributesUpdated: false,
         areTasksProgressing: false,
         isBossBattleProgressing: false,
-        canChangeActivation: false,
+        canChangeActivation: true,
     },
     DEAD: {
         isTimeProgressing: false,
@@ -91,7 +91,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 2;
+    version = 3;
 
     /**
      * @type {string}

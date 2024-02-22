@@ -1,20 +1,97 @@
 #gameTitle {
     position: fixed;
-    right: 0;
-    top: 25%;
+    left: 0;
+    top: 20%;
     rotate: 270deg;
-    transform-origin: right bottom;
-    transform: translateX(50%);
+    transform-origin: left top;
+    transform: translateX(-100%);
+
+    > h1 > a {
+        color: inherit;
+        text-decoration: none;
+    }
+}
+
+.logo {
+    color: inherit;
+    text-decoration: none;
+
+    font-family: var(--title-font-family) !important;
+    font-weight: 400;
+    font-size: 3rem;
+
+    position: relative;
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0.125rem;
+        left: 0;
+        display: block;
+        border: 0.6rem solid #0C65AD;
+        width: 100%;
+        aspect-ratio: 1/1;
+        border-radius: 50%;
+        z-index: -1;
+    }
+}
+
+#gameTitleLogo {
+    rotate: 90deg;
+}
+
+#stationOverviewLogo {
+    display: none;
+
+    position: absolute;
+    top: 15px;
+
+    font-size: 2.7rem;
+
+    z-index: 1; /* Keep the background-ring over the panel background */
 }
 
 #main {
-    max-width: 1400px;
+    max-width: var(--main-width);
     opacity: 0;
-
+    margin: 0 auto;
     transition: opacity 500ms ease-in-out;
 
     &.ready {
         opacity: 1;
+    }
+}
+
+/*
+ * No calc() supported in media queries - but this values is equivalent to
+ * calc(var(--main-width) + 2 * (4.5rem + 1rem))
+ */
+@media screen and (max-width: 1552px) {
+    #main {
+        margin: 0;
+        margin-left: 4.5rem; /* width of the game title */
+    }
+}
+
+/*
+ * Removing the game title at this break point frees up full width for #main
+ * Effectively: --main-width + 2 * body padding
+ */
+@media screen and (max-width: 1408px) {
+    #gameTitle {
+        display: none !important;
+    }
+
+    #stationOverviewLogo {
+        display: block;
+    }
+
+    #main {
+        margin-left: 0;
+    }
+
+    #nameDisplay {
+        margin-left: calc(65px + 1rem) !important;
     }
 }
 

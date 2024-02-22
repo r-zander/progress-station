@@ -4,7 +4,7 @@
  * @param {string} title
  * @return {string}
  */
-function prepareTitle(title){
+function prepareTitle(title) {
     return title.replaceAll('\xa0', ' ');
 }
 
@@ -113,7 +113,48 @@ function prepareRequirementsForTSV(requirements, locale) {
 }
 
 const cheats = {
-    GameSpeed: {},
+    GameSpeed: {
+        /**
+         * @param {number} [factor=2]
+         */
+        increase: (factor = 2) => {
+            baseGameSpeed *= factor;
+        },
+        /**
+         * @param {number} [factor=2]
+         */
+        decrease: (factor = 2) => {
+            baseGameSpeed /= factor;
+            if (baseGameSpeed < 1.00) {
+                // noinspection JSUndeclaredVariable
+                baseGameSpeed = 1;
+            }
+        },
+        /**
+         * @param {number} [newSpeed]
+         */
+        set: (newSpeed) => {
+            console.assert(isNumber(newSpeed), 'New speed needs to be a number.');
+            if (isNumber(newSpeed)) {
+                baseGameSpeed = newSpeed;
+            }
+        },
+        setNormal: () => {
+            baseGameSpeed = 4;
+        },
+        setSlow: () => {
+            baseGameSpeed = 1;
+        },
+        setFast: () => {
+            baseGameSpeed = 32;
+        },
+        setExtreme: () => {
+            baseGameSpeed = 256;
+        },
+        setLudicrous: () => {
+            baseGameSpeed = 1024;
+        },
+    },
     Game: {
         letBossAppear: () => {
             gameData.bossBattleAvailable = false;
@@ -124,165 +165,168 @@ const cheats = {
                 gameData.stateName = gameStates.PLAYING.name;
             }
         },
-        Config: {
-            printStats: () => {
-                console.log('Module Categories', Object.values(moduleCategories).length);
-                console.log('Modules', Object.values(modules).length);
-                console.log('Components', Object.values(moduleComponents).length);
-                console.log('Operations', Object.values(moduleOperations).length);
+        reset: () => {
+            gameData.reset();
+        },
+    },
+    Config: {
+        printStats: () => {
+            console.log('Module Categories', Object.values(moduleCategories).length);
+            console.log('Modules', Object.values(modules).length);
+            console.log('Components', Object.values(moduleComponents).length);
+            console.log('Operations', Object.values(moduleOperations).length);
 
-                console.log('Factions', Object.values(factions).length);
-                console.log('Faction Battles', Object.values(battles).length - 1 /* the boss battle */);
+            console.log('Factions', Object.values(factions).length);
+            console.log('Faction Battles', Object.values(battles).length - 1 /* the boss battle */);
 
-                console.log('Sectors', Object.values(sectors).length);
-                console.log('Points of Interest', Object.values(pointsOfInterest).length);
+            console.log('Sectors', Object.values(sectors).length);
+            console.log('Points of Interest', Object.values(pointsOfInterest).length);
 
-                console.log('Total',
-                    Object.values(moduleOperations).length +
-                    (Object.values(battles).length - 1) +
-                    Object.values(pointsOfInterest).length,
-                );
+            console.log('Total',
+                Object.values(moduleOperations).length +
+                (Object.values(battles).length - 1) +
+                Object.values(pointsOfInterest).length,
+            );
+        },
+        ModuleOperations: {
+            toTsv: (localeOverride = undefined) => {
+                const locale = getLocale(localeOverride);
+                return Object.values(moduleOperations).map(/** @param {ModuleOperation} operation */operation => {
+                    return [
+                        operation.component.name,
+                        operation.name,
+                        prepareTitle(operation.title),
+                        operation.description,
+                        formatNumber(operation.maxXp, locale),
+                        operation.gridLoad,
+                        ...prepareEffectsForTSV(operation.effects, locale),
+                        ...prepareRequirementsForTSV(operation.requirements, locale),
+                    ].join('\t');
+                }).join('\n');
             },
-            ModuleOperations: {
-                toTsv: (localeOverride = undefined) => {
-                    const locale = getLocale(localeOverride);
-                    return Object.values(moduleOperations).map(/** @param {ModuleOperation} operation */operation => {
-                        return [
-                            operation.component.name,
-                            operation.name,
-                            prepareTitle(operation.title),
-                            operation.description,
-                            formatNumber(operation.maxXp, locale),
-                            operation.gridLoad,
-                            ...prepareEffectsForTSV(operation.effects, locale),
-                            ...prepareRequirementsForTSV(operation.requirements, locale),
-                        ].join('\t');
-                    }).join('\n');
-                },
+        },
+        ModuleComponents: {
+            toTsv: () => {
+                return Object.values(moduleComponents).map(/** @param {ModuleComponent} component */component => {
+                    return [
+                        component.module.name,
+                        component.name,
+                        prepareTitle(component.title),
+                        component.description,
+                    ].join('\t');
+                }).join('\n');
             },
-            ModuleComponents: {
-                toTsv: () => {
-                    return Object.values(moduleComponents).map(/** @param {ModuleComponent} component */component => {
-                        return [
-                            component.module.name,
-                            component.name,
-                            prepareTitle(component.title),
-                            component.description,
-                        ].join('\t');
-                    }).join('\n');
-                }
+        },
+        Modules: {
+            toTsv: (localeOverride = undefined) => {
+                const locale = getLocale(localeOverride);
+                return Object.values(modules).map(/** @param {Module} module */module => {
+                    /** @var {ModuleCategory[]} */
+                    const parentCandidates = Object.values(moduleCategories)
+                        .filter(/** @param {ModuleCategory} category */category => category.modules.includes(module));
+                    let parent = null;
+                    if (parentCandidates.length === 0) {
+                        console.warn('No parent Category found for Module "' + module.title + '".');
+                    } else if (parentCandidates.length >= 2) {
+                        console.warn(parentCandidates.length + ' parent Categories found for Module "' + module.title + '".');
+                        parent = parentCandidates[0].name;
+                    } else {
+                        parent = parentCandidates[0].name;
+                    }
+                    return [
+                        parent,
+                        module.name,
+                        prepareTitle(module.title),
+                        module.description,
+                        ...prepareRequirementsForTSV(module.requirements, locale),
+                    ].join('\t');
+                }).join('\n');
             },
-            Modules: {
-                toTsv: (localeOverride = undefined) => {
-                    const locale = getLocale(localeOverride);
-                    return Object.values(modules).map(/** @param {Module} module */module => {
-                        /** @var {ModuleCategory[]} */
-                        const parentCandidates = Object.values(moduleCategories)
-                            .filter(/** @param {ModuleCategory} category */category => category.modules.includes(module));
-                        let parent = null;
-                        if (parentCandidates.length === 0) {
-                            console.warn('No parent Category found for Module "' + module.title + '".');
-                        } else if (parentCandidates.length >= 2) {
-                            console.warn(parentCandidates.length + ' parent Categories found for Module "' + module.title + '".');
-                            parent = parentCandidates[0].name;
-                        } else {
-                            parent = parentCandidates[0].name;
-                        }
-                        return [
-                            parent,
-                            module.name,
-                            prepareTitle(module.title),
-                            module.description,
-                            ...prepareRequirementsForTSV(module.requirements, locale),
-                        ].join('\t');
-                    }).join('\n');
-                }
+        },
+        ModuleCategories: {
+            toTsv: (localeOverride = undefined) => {
+                const locale = getLocale(localeOverride);
+                return Object.values(moduleCategories).map(/** @param {ModuleCategory} category */category => {
+                    return [
+                        category.name,
+                        prepareTitle(category.title),
+                        category.description,
+                        category.color,
+                        ...prepareRequirementsForTSV(category.requirements, locale),
+                    ].join('\t');
+                }).join('\n');
             },
-            ModuleCategories: {
-                toTsv: (localeOverride = undefined) => {
-                    const locale = getLocale(localeOverride);
-                    return Object.values(moduleCategories).map(/** @param {ModuleCategory} category */category => {
-                        return [
-                            category.name,
-                            prepareTitle(category.title),
-                            category.description,
-                            category.color,
-                            ...prepareRequirementsForTSV(category.requirements, locale),
-                        ].join('\t');
-                    }).join('\n');
-                }
+        },
+        Factions: {
+            toTsv: (localeOverride = undefined) => {
+                const locale = getLocale(localeOverride);
+                return Object.values(factions).map(/** @param {FactionDefinition} faction */faction => {
+                    return [
+                        faction.name,
+                        prepareTitle(faction.title),
+                        faction.description,
+                        formatNumber(faction.maxXp, locale),
+                    ].join('\t');
+                }).join('\n');
             },
-            Factions: {
-                toTsv: (localeOverride = undefined) => {
-                    const locale = getLocale(localeOverride);
-                    return Object.values(factions).map(/** @param {FactionDefinition} faction */faction => {
-                        return [
-                            faction.name,
-                            prepareTitle(faction.title),
-                            faction.description,
-                            formatNumber(faction.maxXp, locale),
-                        ].join('\t');
-                    }).join('\n');
-                }
+        },
+        Battles: {
+            toTsv: (localeOverride = undefined) => {
+                const locale = getLocale(localeOverride);
+                return Object.values(battles).map(/** @param {Battle} battle */battle => {
+                    return [
+                        battle.name,
+                        prepareTitle(battle.title).replace(battle.faction.title, '').trim(),
+                        battle.description,
+                        battle.faction.name,
+                        formatNumber(battle.targetLevel, locale),
+                        ...prepareEffectsForTSV(battle.effects, locale),
+                        ...prepareEffectsForTSV(battle.rewards, locale),
+                    ].join('\t');
+                }).join('\n');
             },
-            Battles: {
-                toTsv: (localeOverride = undefined) => {
-                    const locale = getLocale(localeOverride);
-                    return Object.values(battles).map(/** @param {Battle} battle */battle => {
-                        return [
-                            battle.name,
-                            prepareTitle(battle.title),
-                            battle.description,
-                            battle.faction.name,
-                            formatNumber(battle.targetLevel, locale),
-                            ...prepareEffectsForTSV(battle.effects, locale),
-                            ...prepareEffectsForTSV(battle.rewards, locale),
-                        ].join('\t');
-                    }).join('\n');
-                }
+        },
+        PointsOfInterest: {
+            toTsv: (localeOverride = undefined) => {
+                const locale = getLocale(localeOverride);
+                return Object.values(pointsOfInterest).map(/** @param {PointOfInterest} pointOfInterest */pointOfInterest => {
+                    /** @var {Sector[]} */
+                    const parentCandidates = Object.values(sectors)
+                        .filter(/** @param {Sector} sector */sector => sector.pointsOfInterest.includes(pointOfInterest));
+                    let parent = null;
+                    if (parentCandidates.length === 0) {
+                        console.warn('No parent Sector found for PointOfInterest "' + pointOfInterest.title + '".');
+                    } else if (parentCandidates.length >= 2) {
+                        console.warn(parentCandidates.length + ' parent Sectors found for PointOfInterest "' + pointOfInterest.title + '".');
+                        parent = parentCandidates[0].name;
+                    } else {
+                        parent = parentCandidates[0].name;
+                    }
+                    return [
+                        parent,
+                        pointOfInterest.name,
+                        prepareTitle(pointOfInterest.title),
+                        pointOfInterest.description,
+                        ...prepareEffectsForTSV(pointOfInterest.effects.slice(0, 2), locale),
+                        ...prepareEffectsForTSV(pointOfInterest.effects.slice(2), locale),
+                        // TODO modifiers
+                        ...prepareRequirementsForTSV(pointOfInterest.requirements, locale),
+                    ].join('\t');
+                }).join('\n');
             },
-            PointsOfInterest: {
-                toTsv: (localeOverride = undefined) => {
-                    const locale = getLocale(localeOverride);
-                    return Object.values(pointsOfInterest).map(/** @param {PointOfInterest} pointOfInterest */pointOfInterest => {
-                        /** @var {Sector[]} */
-                        const parentCandidates = Object.values(sectors)
-                            .filter(/** @param {Sector} sector */sector => sector.pointsOfInterest.includes(pointOfInterest));
-                        let parent = null;
-                        if (parentCandidates.length === 0) {
-                            console.warn('No parent Sector found for PointOfInterest "' + pointOfInterest.title + '".');
-                        } else if (parentCandidates.length >= 2) {
-                            console.warn(parentCandidates.length + ' parent Sectors found for PointOfInterest "' + pointOfInterest.title + '".');
-                            parent = parentCandidates[0].name;
-                        } else {
-                            parent = parentCandidates[0].name;
-                        }
-                        return [
-                            parent,
-                            pointOfInterest.name,
-                            prepareTitle(pointOfInterest.title),
-                            pointOfInterest.description,
-                            ...prepareEffectsForTSV(pointOfInterest.effects.slice(0, 2), locale),
-                            ...prepareEffectsForTSV(pointOfInterest.effects.slice(2), locale),
-                            // TODO modifiers
-                            ...prepareRequirementsForTSV(pointOfInterest.requirements, locale),
-                        ].join('\t');
-                    }).join('\n');
-                }
-            },
-            Sectors: {
-                toTsv: (localeOverride = undefined) => {
-                    const locale = getLocale(localeOverride);
-                    return Object.values(sectors).map(/** @param {ModuleCategory} category */category => {
-                        return [
-                            category.name,
-                            prepareTitle(category.title),
-                            category.description,
-                            category.color,
-                            ...prepareRequirementsForTSV(category.requirements, locale),
-                        ].join('\t');
-                    }).join('\n');
-                }
+        },
+        Sectors: {
+            toTsv: (localeOverride = undefined) => {
+                const locale = getLocale(localeOverride);
+                return Object.values(sectors).map(/** @param {ModuleCategory} category */category => {
+                    return [
+                        category.name,
+                        prepareTitle(category.title),
+                        category.description,
+                        category.color,
+                        ...prepareRequirementsForTSV(category.requirements, locale),
+                    ].join('\t');
+                }).join('\n');
             },
         },
     },
@@ -302,7 +346,16 @@ const cheats = {
     },
     Battles: {},
     Requirements: {},
-    NameGenerator: {},
+    NameGenerator: {
+        generate: (amount = 1) => {
+            for (let i = 0; i < amount; i++) {
+                console.log(stationNameGenerator.generate());
+            }
+        },
+        generateArray: (amount = 1) => {
+            return Array.from(Array(amount), () => stationNameGenerator.generate());
+        },
+    },
     Story: {
         // Is filled in story.js
     },
@@ -334,7 +387,7 @@ const cheats = {
             Object.entries(attributes).forEach(([name, attribute]) => {
                 console.log(name, attribute.getValue());
             });
-        }
+        },
     },
 };
 

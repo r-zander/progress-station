@@ -58,7 +58,7 @@ function calculateHeat() {
     const rawHeat = Effect.getTotalValue([EffectType.Heat]);
     const calculatedHeat = Math.max(danger - military, 0) + rawHeat;
 
-    return calculatedHeat;
+    return Math.max(0.1, calculatedHeat);
 }
 
 function populationDelta() {
@@ -99,6 +99,16 @@ function hideAllTooltips() {
         // noinspection JSUnresolvedReference
         bootstrap.Tooltip.getInstance(tooltipTriggerElement).hide();
     }
+}
+
+/**
+ *
+ * @param {MouseEvent} event
+ */
+function showCredits(event) {
+    event.preventDefault();
+    setTab('settings');
+    Dom.get().byId('credits').scrollIntoView(true);
 }
 
 /**
@@ -153,6 +163,12 @@ function setPointOfInterest(name) {
     }
 
     gameData.activeEntities.pointOfInterest = name;
+}
+
+function createLinkBehavior() {
+    Dom.get().allBySelector('a[href="#credits"]').forEach(linkElement => {
+        linkElement.addEventListener('click', showCredits);
+    });
 }
 
 /**
@@ -503,7 +519,9 @@ function createLevel4BattleElements(battles) {
         domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
         domGetter.byClass('radio').addEventListener('click', clickListener);
         if (battle instanceof BossBattle) {
-            domGetter.byClass('danger').innerHTML = battle.getEffectDescription();
+            const dangerElement = domGetter.byClass('danger');
+            dangerElement.classList.add('effect');
+            dangerElement.innerHTML = battle.getEffectDescription();
         } else {
             formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
         }
@@ -927,9 +945,10 @@ function createAttributesUI() {
     const populationFormulaElement = Dom.get(populationRow).byClass('formula');
     populationFormulaElement.classList.remove('hidden');
     populationFormulaElement.innerHTML =
-        createAttributeInlineHTML(attributes.growth) + ' - ' +
-        createAttributeInlineHTML(attributes.population) + ' * 0.01 * ' +
-        createAttributeInlineHTML(attributes.heat) + '<br />&wedgeq; <data value="0" class="delta">?</data> per cycle';
+        '(0.1 * ' +  createAttributeInlineHTML(attributes.growth) +
+        ') - (0.01 * ' +
+        createAttributeInlineHTML(attributes.population) + ' * ' +
+        createAttributeInlineHTML(attributes.heat) + ')<br />&wedgeq; <data value="0" class="delta">?</data> per cycle';
     rows.push(populationRow);
 
     // Research
@@ -962,7 +981,8 @@ function createEnergyGridDisplay() {
  */
 function adjustLayout() {
     const headerHeight = Dom.outerHeight(Dom.get().byId('stationOverview'));
-    Dom.get().byId('contentWrapper').style.maxHeight = `calc(100vh - ${headerHeight}px)`;
+    // TODO don't
+    Dom.get().byId('contentWrapper').style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
 }
 
 function cleanUpDom() {
@@ -1684,7 +1704,7 @@ function updateText() {
         gridStrengthDeltaElement.nextSibling.textContent = ' per cycle';
     }
 
-    const growth = attributes.growth.getValue() / 10;
+    const growth = attributes.growth.getValue();
     formatValue(Dom.get().byId('growthDisplay'), growth);
     formatValue(Dom.get().bySelector('#attributeRows > .growth .value'), growth);
 
@@ -2294,6 +2314,7 @@ function init() {
 
     gameData.tryLoading();
 
+    createLinkBehavior();
     createModulesUI(moduleCategories, 'modulesTable');
     createSectorsUI(sectors, 'sectorTable');
     createBattlesUI(battles, 'battlesTable');

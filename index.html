@@ -22,11 +22,20 @@
     <div id="main-planet-overlay"></div>
 </section>
 
-<h1 id="gameTitle" class="panel p-2">Progress Station</h1>
+<!-- TODO reserve horizontal space for game title -->
+<div id="gameTitle" class="d-flex panel align-items-center">
+    <a id="gameTitleLogo" class="logo me-2 order-2" href="#credits">
+        PS
+    </a>
+    <h1 class="p-2 m-0 order-1"><a href="#credits">Progress Station</a></h1>
+</div>
 <main id="main" class="d-flex flex-column">
-    <header id="stationOverview" class="panel my-3 px-3 py-2 d-flex flex-column">
+    <header id="stationOverview" class="panel mb-3 px-3 py-2 d-flex flex-column">
         <div class="d-flex flex-row gap-3 align-items-start">
-            <h2 id="nameDisplay" class="m-0 flex-fill">USS Progress</h2>
+            <a id="stationOverviewLogo" class="logo me-2" href="#credits">
+                PS
+            </a>
+            <h2 id="nameDisplay" class="my-0 flex-fill">USS Progress</h2>
             <div id="cyclesSinceLastEncounter" class="primary-stat"
                  title="Intergalactic Cycles" data-bs-placement="bottom">
                 <span class="label">Since Last Encounter:</span>
@@ -145,8 +154,8 @@
         </div>
     </header>
 
-    <div id="contentWrapper" class="d-flex align-content-start" style="height: calc(100vh - 192px)">
-        <aside id="sidebar" class="mh-100 overflow-x-hidden overflow-y-auto d-flex flex-column mb-3">
+    <div id="contentWrapper" class="d-flex align-content-start" style="height: calc(100vh - 32px - 192px)"> <!-- TODO drop height here -->
+        <aside id="sidebar" class="mh-100 overflow-x-hidden overflow-y-auto d-flex flex-column me-3">
             <div id="actions" class="panel d-flex flex-column p-3">
                 <div class="d-flex flex-row gap-3">
                     <div class="flex-fill">
@@ -163,7 +172,7 @@
 
                     <template id="moduleQuickTaskDisplayTemplate">
                         <div class="quickTaskDisplayContainer hidden">
-                            <h4 class="fs-6 text-start moduleName mb-0 mt-3">Module</h4>
+                            <h4 class="fs-6 text-start moduleName mb-0 mt-3 fw-light">Module</h4>
                             <slot id="componentsQuickTaskDisplay"></slot>
                         </div>
                     </template>
@@ -249,7 +258,7 @@
             </nav>
         </aside>
 
-        <div id="content" class="panel flex-fill position-relative mh-100 overflow-auto mb-3">
+        <div id="content" class="panel flex-fill position-relative mh-100 overflow-auto">
             <template id="level1Template">
                 <div class="level1">
                     <div class="level1-header d-flex justify-content-start py-2 px-2 mb-0"
@@ -536,46 +545,48 @@
 
             <div id="attributes" class="tab p-3">
                 <!-- TODO: boxed design for mobile -> be able to have 1 attribute per row -->
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th class="text-nowrap">Attribute</th>
-                        <th class="text-nowrap">Value</th>
-                        <th class="text-nowrap">Breakdown</th>
-                        <th class="text-nowrap">Description</th>
-                    </tr>
-                    </thead>
-                    <template id="attributeRowTemplate">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
                         <tr>
-                            <td class="title">
-                                <img src="img/icons/industry.svg" class="icon" alt="Population Icon"/>
-                                <span class="name" style="color: rgb(97, 173, 50)">Industry</span>
-                            </td>
-                            <td>
-                                <data value="0" class="value">?</data>
-                            </td>
-                            <td class="breakdown"
-                                style="line-height: 1.1rem; padding-top: 0.3rem; padding-bottom: 0.3rem;">
-                                <ul class="balance hidden m-0 list-unstyled">
-                                    <!-- Repeat balanceEntry -->
-                                </ul>
-
-                                <p class="formula hidden">
-                                </p>
-                            </td>
-                            <td class="description"></td>
+                            <th class="text-nowrap">Attribute</th>
+                            <th class="text-nowrap">Value</th>
+                            <th class="text-nowrap">Breakdown</th>
+                            <th class="text-nowrap">Description</th>
                         </tr>
-                    </template>
-                    <template id="balanceEntryTemplate">
-                        <li class="balanceEntry">
-                            <span class="operator"></span>
-                            <data value="0" class="entryValue">?</data>
-                            <span class="name"></span>
-                        </li>
-                    </template>
-                    <tbody id="attributeRows">
-                    </tbody>
-                </table>
+                        </thead>
+                        <template id="attributeRowTemplate">
+                            <tr>
+                                <td class="title">
+                                    <img src="img/icons/industry.svg" class="icon" alt="Population Icon"/>
+                                    <span class="name" style="color: rgb(97, 173, 50)">Industry</span>
+                                </td>
+                                <td>
+                                    <data value="0" class="value">?</data>
+                                </td>
+                                <td class="breakdown"
+                                    style="line-height: 1.1rem; padding-top: 0.3rem; padding-bottom: 0.3rem;">
+                                    <ul class="balance hidden m-0 list-unstyled">
+                                        <!-- Repeat balanceEntry -->
+                                    </ul>
+
+                                    <p class="formula hidden">
+                                    </p>
+                                </td>
+                                <td class="description"></td>
+                            </tr>
+                        </template>
+                        <template id="balanceEntryTemplate">
+                            <li class="balanceEntry">
+                                <span class="operator"></span>
+                                <data value="0" class="entryValue">?</data>
+                                <span class="name"></span>
+                            </li>
+                        </template>
+                        <tbody id="attributeRows">
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div id="settings" class="tab p-3">
@@ -668,37 +679,35 @@
                 </div>
 
                 <div class="row mt-3">
-                    <div class="col-sm-2 col-form-label">Credits</div>
+                    <div id="credits" class="col-sm-2 col-form-label">Credits</div>
                     <div class="col-sm-10" style="padding-top: 10px">
                         <h5>Team</h5>
                         <p>
                             A game by <a href="http://kringel.games/" target="_blank">Kringel Games</a>.
                         </p>
 
-                        <table class="table table-borderless table-striped align-middle w-auto">
-                            <tbody>
-                            <tr>
-                                <th class="ps-0">Vision Keeper &amp; Visual Coder</th>
-                                <td>Raoul</td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0">Feature Coder</th>
-                                <td>Mark</td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0">Initial Vision</th>
-                                <td>Janik</td>
-                            </tr>
-                          <!-- <tr>
-                                <th class="ps-0">Game Designer</th>
-                                <td>Gino</td>
-                            </tr> -->
-                            <tr>
-                                <th class="ps-0">Dev Ops</th>
-                                <td>Pauline</td>
-                            </tr>
-                            </tbody>
-                        </table>
+                        <div class="table-container">
+                            <table class="table table-borderless table-striped align-middle w-auto">
+                                <tbody>
+                                <tr>
+                                    <th class="ps-0">Vision Keeper &amp; Visual Coder</th>
+                                    <td>Raoul</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-0">Feature Coder</th>
+                                    <td>Mark</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-0">Initial Vision</th>
+                                    <td>Janik</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-0">Dev Ops</th>
+                                    <td>Pauline</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
 
                         <h5>Origin</h5>
                         <p class="mb-3">

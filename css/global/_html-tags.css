@@ -3,6 +3,8 @@
  * No classes, no ids.
  */
 body {
+    padding: 1rem; /* p-3 */
+
     background-color: var(--body-bg-color);
     color: var(--body-font-color);
     font-family: var(--body-font-family);

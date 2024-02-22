@@ -219,7 +219,7 @@ class Effect {
             return actualEffectType.operator +
                 Effect.#calculateEffectValue(actualEffectType, effect.baseValue, level).toFixed(2) +
                 ' ' + actualEffectType.description;
-        }, this).join(', ');
+        }, this).join('\n');
     }
 
     /**

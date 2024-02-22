@@ -237,6 +237,9 @@ class BossBattle extends Battle {
         gameData.transitionState(gameStates.BOSS_DEFEATED);
     }
 
+    getMaxXp() {
+        return Math.round(this.maxXp * (this.level + 1) * Math.pow(10, this.level));
+    }
     // noinspection JSCheckFunctionSignatures
     getEffectDescription() {
         return super.getEffectDescription(1);
