@@ -287,17 +287,6 @@ function validateParameter(parameter, definition, context, ) {
     }
 }
 
-/**
- * Prepares configured titles to be displayed in the UI.
- * @param {string} title
- * @return {string}
- */
-// TODO shouldn't be in this file as this is somewhat game specific
-function prepareTitle(title) {
-    // Replace regular spaces with non-breaking spaces, ensuring that one title stays on the same line.
-    return title.replaceAll(' ', '\u00A0' /* non-breaking space */);
-}
-
 class DomGetter {
     /**
      *
