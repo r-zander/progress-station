@@ -119,12 +119,12 @@ class Effect {
 
         result = effectType.combine(result, pointsOfInterest[gameData.activeEntities.pointOfInterest].getEffect(effectType));
 
-        if (_.isObject(window.cheats)) {
+        withCheats(cheats => {
             result = effectType.combine(
                 result,
                 Effect.getValue(undefined, effectType, cheats.Attributes.additionalEffects, 1),
             );
-        }
+        });
 
         return result;
     }

@@ -13,7 +13,7 @@ function initVersionWarning() {
         versionUpgrade.expectedVersion = payload.expectedVersion;
     });
 
-    if (_.isObject(window.cheats)) {
+    withCheats(cheats => {
         cheats.Story['VersionWarning'] = {
             trigger: (savedVersion = 1, expectedVersion = 2) => {
                 GameEvents.IncompatibleVersionFound.trigger({
@@ -22,7 +22,7 @@ function initVersionWarning() {
                 });
             }
         };
-    }
+    });
 
     window.continueWithIncompatibleVersion = function () {
         modal.hide();
@@ -45,13 +45,13 @@ function initIntro() {
         modal.show();
     });
 
-    if (_.isObject(window.cheats)) {
+    withCheats(cheats => {
         cheats.Story['Intro'] = {
             trigger: () => {
                 modal.show();
             }
         };
-    }
+    });
 
     window.finishIntro = function () {
         modal.hide();
@@ -65,13 +65,13 @@ function initBossAppearance() {
         modal.show();
     });
 
-    if (_.isObject(window.cheats)) {
+    withCheats(cheats => {
         cheats.Story['BossAppearance'] = {
             trigger: () => {
                 GameEvents.BossAppearance.trigger(undefined);
             }
         };
-    }
+    });
 
     window.acknowledgeBossBattle = function () {
         modal.hide();
@@ -90,13 +90,13 @@ function initBossFightIntro() {
         modal.show();
     });
 
-    if (_.isObject(window.cheats)) {
+    withCheats(cheats => {
         cheats.Story['BossFightIntro'] = {
             trigger: () => {
                 gameData.transitionState(gameStates.BOSS_FIGHT_INTRO);
             }
         };
-    }
+    });
 
     window.delayBossBattle = function () {
         modal.hide();
@@ -130,7 +130,7 @@ function initGameOver() {
         modalElement.classList.toggle('loss', !bossDefeated);
     });
 
-    if (_.isObject(window.cheats)) {
+    withCheats(cheats => {
         cheats.Story['GameOver'] = {
             trigger: (win) => {
                 if (win){
@@ -140,7 +140,7 @@ function initGameOver() {
                 }
             }
         };
-    }
+    });
 
     window.continueAfterWin = () => {
         modal.hide();
