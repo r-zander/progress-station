@@ -52,4 +52,4 @@ function createGridStrengthAndLoadDescription(printAttribute) {
     ${printAttribute(attributes.gridStrength)}. Try deactivating modules to free up the energy grid!`;
 }
 
-const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 100});
+const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 500});

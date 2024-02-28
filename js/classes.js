@@ -343,8 +343,7 @@ class GridStrength extends Task {
     }
 
     getMaxXp() {
-        // TODO not final, but works somewhat okay
-        return Math.round(this.maxXp * Math.pow(Math.E, this.level * 2));
+        return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.6, this.level));
     }
 }
 

@@ -5,7 +5,7 @@
  */
 const moduleOperations = {};
 moduleOperations.StandbyGenerator = new ModuleOperation({
-    title: 'Standby Generator', maxXp: 500, gridLoad: 0,
+    title: 'Standby Generator', maxXp: 50, gridLoad: 0,
     effects: [{effectType: EffectType.Energy, baseValue: 0.5}],
 });
 moduleOperations.FourDPrinter = new ModuleOperation({
