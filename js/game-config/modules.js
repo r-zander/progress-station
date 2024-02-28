@@ -32,13 +32,13 @@ moduleOperations.SpaceRocks = new ModuleOperation({
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.01}]
 });
 moduleOperations.HeavyGlitz = new ModuleOperation({
-    title: 'Heavy Glitz', maxXp: 1_000, gridLoad: 2,
+    title: 'Heavy Glitz', maxXp: 500, gridLoad: 2,
     description: 'It\'s shiny, it conducts sparks, it\'s surprisingly heavy and hard.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.02}],
 });
 /** Galactic Secret */
 moduleOperations.Radiance = new ModuleOperation({
-    title: 'Radiance', maxXp: 10_000, gridLoad: 4,
+    title: 'Radiance', maxXp: 5_000, gridLoad: 4,
     description: 'Tingles in your hand but glows in the dark. Even heavier than the regular glitz.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.03}, {effectType: EffectType.ResearchFactor, baseValue: 0.02}],
 });
@@ -49,111 +49,61 @@ moduleOperations.BigSpinny = new ModuleOperation({
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
 });
 moduleOperations.AsteroidChomper = new ModuleOperation({
-    title: 'Asteroid Chomper', maxXp: 2_000, gridLoad: 2,
+    title: 'Asteroid Chomper', maxXp: 1_000, gridLoad: 2,
 
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
 });
 /** Galactic Secret */
 moduleOperations.TenDrills = new ModuleOperation({
-    title: 'TenDrills', maxXp: 20_000, gridLoad: 4,
+    title: 'TenDrills', maxXp: 10_000, gridLoad: 4,
 
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}, {effectType: EffectType.IndustryFactor, baseValue: 0.02}],
 });
 
 // Furnace
 moduleOperations.Garbage = new ModuleOperation({
-    title: 'Garbage', maxXp: 200, gridLoad: 1,
+    title: 'Garbage', maxXp: 500, gridLoad: 1,
     description: 'It\'s not about efficiency, it\'s about sustainability. Or just getting rid of all that trash lying around the station.',
     effects: [{effectType: EffectType.Energy, baseValue: 1}],
 });
 moduleOperations.Diesel = new ModuleOperation({
-    title: 'Diesel', maxXp: 2_000, gridLoad: 2,
+    title: 'Diesel', maxXp: 1_000, gridLoad: 2,
     description: 'From the depths of fossilized relics to the pulse of synthesized organics, it\'s the timeless heart that beats in the mechanical chest of progress.',
     effects: [{effectType: EffectType.Energy, baseValue: 2}],
 });
 moduleOperations.FuelT3 = new ModuleOperation({
-    title: 'Smelly Jelly', maxXp: 20_000, gridLoad: 4,
+    title: 'Smelly Jelly', maxXp: 2_000, gridLoad: 4,
     description: 'Super-concentrated jet fuel, thanks to Neptunium\'s kick. Beware: its potent aroma is adored by some, stomach-churning for most.',
     effects: [{effectType: EffectType.Energy, baseValue: 4}],
 });
 /** Galactic Secret */
 moduleOperations.Quasarite = new ModuleOperation({
-    title: 'Quasarite', maxXp: 200_000, gridLoad: 8,
+    title: 'Quasarite', maxXp: 20_000, gridLoad: 8,
     description: 'Harnessed from the remnants of distant quasar explosions it pulses with mind-boggling energy. ' +
         'Its otherworldly properties enhance resource production but require careful containment to avoid unpredictable reactions.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.05}, {effectType: EffectType.Energy, baseValue: 8}],
 });
 
 moduleOperations.Plastics = new ModuleOperation({
-    title: 'Plastics', maxXp: 400, gridLoad: 2,
+    title: 'Plastics', maxXp: 1_000, gridLoad: 2,
     description: 'It can be like, molded into anything. Stretchy, sturdy - this stuff does it all!',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.01}],
 });
 moduleOperations.Steel = new ModuleOperation({
-    title: 'Steel', maxXp: 4_000, gridLoad: 4,
+    title: 'Steel', maxXp: 2_000, gridLoad: 4,
     description: 'Super tough stuff, dude! Like, armor for your space castle or sword for cosmic dragon slaying.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.02}],
 });
 moduleOperations.ProductsT3 = new ModuleOperation({
-    title: 'Bouncium', maxXp: 40_000, gridLoad: 6,
+    title: 'Bouncium', maxXp: 4_000, gridLoad: 6,
     description: 'The rubbery metal that laughs at gravity. Perfect for when you need your gear to bounce back, literally.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.03}],
 });
 /** Galactic Secret */
 moduleOperations.MicroalloyGlass = new ModuleOperation({
-    title: 'Microalloy Glass', maxXp: 400_000, gridLoad: 10,
+    title: 'Microalloy Glass', maxXp: 40_000, gridLoad: 10,
     description: 'Fifteen times harder than steel and so clear that objects made out of pure microalloy glass can be considered invisible.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.05}, {effectType: EffectType.Research, baseValue: 3}],
-});
-
-//Population
-moduleOperations.Survivors = new ModuleOperation({
-    title: 'Pick up survivors', maxXp: 800, gridLoad: 1,
-
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.01}],
-});
-moduleOperations.Recruitment = new ModuleOperation({
-    title: 'Recruitment', maxXp: 8_000, gridLoad: 2,
-
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.02}],
-});
-moduleOperations.SmoochSanctuary = new ModuleOperation({
-    title: 'Smooch Sanctuary', maxXp: 80_000, gridLoad: 4,
-
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.03}],
-});
-moduleOperations.MechanoMaker = new ModuleOperation({
-    title: 'Mechano Maker', maxXp: 800_000, gridLoad: 8,
-    description: 'Unless you dig deeply into it, you won\'t be able to distinguish those androids from organic humanoids.',
-    effects: [{effectType: EffectType.Growth, baseValue: 0.04}],
-});
-/** Galactic Secret */
-moduleOperations.ReplicationChambers = new ModuleOperation({
-    title: 'Replication Chambers', maxXp: 8_000_000, gridLoad: 12,
-    description: 'Where life finds a new beginning! This advanced technology can create life forms from scratch, jump-starting your population growth. Simply input the genetic code and environmental parameters, and within moments, you\'ll have a thriving population ready to build a bright future. Handle with care; creating life is a profound responsibility!',
-    // description: 'Introducing the \'Quantum Replicator\'—the ultimate solution for population growth! This futuristic device uses quantum technology to duplicate individuals, allowing you to rapidly expand your population. With each activation, watch as your society flourishes and thrives. Just remember to keep track of the originals, or you might end up with an army of duplicates!',
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.05}, {effectType: EffectType.ResearchFactor, baseValue: 0.03}],
-});
-
-moduleOperations.ToughLife = new ModuleOperation({
-    title: 'Tough Life', maxXp: 1_600, gridLoad: 2,
-
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
-});
-moduleOperations.IndividualRooms = new ModuleOperation({
-    title: 'Individual Rooms', maxXp: 16_000, gridLoad: 4,
-
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
-});
-moduleOperations.WayOfLifeT3 = new ModuleOperation({
-    title: 'WAY OF LIFE TIER III', maxXp: 160_000, gridLoad: 6,
-
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
-});
-moduleOperations.SecretWayOfLife = new ModuleOperation({
-    title: 'SECRET WAY OF LIFE TIER', maxXp: 1_600_000, gridLoad: 10,
-
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.05}, {effectType: EffectType.GrowthFactor, baseValue: 0.03}],
 });
 
 //Military
@@ -163,12 +113,12 @@ moduleOperations.GlitzPlating = new ModuleOperation({
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.01}],
 });
 moduleOperations.PulseShield = new ModuleOperation({
-    title: 'Pulse Shield', maxXp: 20_000, gridLoad: 2,
+    title: 'Pulse Shield', maxXp: 4_000, gridLoad: 2,
 
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.02}],
 });
 moduleOperations.BulletSponge = new ModuleOperation({
-    title: 'Bullet Sponge', maxXp: 200_000, gridLoad: 4,
+    title: 'Bullet Sponge', maxXp: 8_000, gridLoad: 4,
 
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.03}],
 });
@@ -179,14 +129,65 @@ moduleOperations.RapidRumbleTower = new ModuleOperation({
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
 });
 moduleOperations.LaserTurrets = new ModuleOperation({
-    title: 'Laser Turrets', maxXp: 40_000, gridLoad: 6,
+    title: 'Laser Turrets', maxXp: 8_000, gridLoad: 6,
 
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
 });
 moduleOperations.AntiMissileSwarm = new ModuleOperation({
-    title: 'Anti-Missile Swarm', maxXp: 400_000, gridLoad: 10,
+    title: 'Anti-Missile Swarm', maxXp: 16_000, gridLoad: 10,
 
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
+});
+
+//Population
+moduleOperations.Survivors = new ModuleOperation({
+    title: 'Pick up survivors', maxXp: 4_000, gridLoad: 1,
+
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.01}],
+});
+moduleOperations.Recruitment = new ModuleOperation({
+    title: 'Recruitment', maxXp: 8_000, gridLoad: 2,
+
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.02}],
+});
+moduleOperations.SmoochSanctuary = new ModuleOperation({
+    title: 'Smooch Sanctuary', maxXp: 16_000, gridLoad: 4,
+
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.03}],
+});
+moduleOperations.MechanoMaker = new ModuleOperation({
+    title: 'Mechano Maker', maxXp: 32_000, gridLoad: 8,
+    description: 'Unless you dig deeply into it, you won\'t be able to distinguish those androids from organic humanoids.',
+    effects: [{effectType: EffectType.Growth, baseValue: 0.04}],
+});
+/** Galactic Secret */
+moduleOperations.ReplicationChambers = new ModuleOperation({
+    title: 'Replication Chambers', maxXp: 320_000, gridLoad: 12,
+    description: 'Where life finds a new beginning! This advanced technology can create life forms from scratch, jump-starting your population growth. Simply input the genetic code and environmental parameters, and within moments, you\'ll have a thriving population ready to build a bright future. Handle with care; creating life is a profound responsibility!',
+    // description: 'Introducing the \'Quantum Replicator\'—the ultimate solution for population growth! This futuristic device uses quantum technology to duplicate individuals, allowing you to rapidly expand your population. With each activation, watch as your society flourishes and thrives. Just remember to keep track of the originals, or you might end up with an army of duplicates!',
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.05}, {effectType: EffectType.ResearchFactor, baseValue: 0.03}],
+});
+
+moduleOperations.ToughLife = new ModuleOperation({
+    title: 'Tough Life', maxXp: 8_000, gridLoad: 2,
+
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
+});
+moduleOperations.IndividualRooms = new ModuleOperation({
+    title: 'Individual Rooms', maxXp: 16_000, gridLoad: 4,
+
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
+});
+moduleOperations.WayOfLifeT3 = new ModuleOperation({
+    title: 'WAY OF LIFE TIER III', maxXp: 32_000, gridLoad: 6,
+
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
+});
+/** Galactic Secret */
+moduleOperations.SecretWayOfLife = new ModuleOperation({
+    title: 'SECRET WAY OF LIFE TIER', maxXp: 320_000, gridLoad: 10,
+
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.05}, {effectType: EffectType.GrowthFactor, baseValue: 0.03}],
 });
 
 
@@ -224,6 +225,16 @@ const moduleComponents = {
 
         operations: [moduleOperations.Plastics, moduleOperations.Steel, moduleOperations.ProductsT3, moduleOperations.MicroalloyGlass],
     }),
+    Protection: new ModuleComponent({
+        title: 'Protection',
+
+        operations: [moduleOperations.GlitzPlating, moduleOperations.PulseShield, moduleOperations.BulletSponge],
+    }),
+    Turrets: new ModuleComponent({
+        title: 'Turrets',
+
+        operations: [moduleOperations.RapidRumbleTower, moduleOperations.LaserTurrets, moduleOperations.AntiMissileSwarm],
+    }),
     CrewExpansion: new ModuleComponent({
         title: 'Crew Expansion',
 
@@ -234,16 +245,6 @@ const moduleComponents = {
         title: 'Way of Life',
 
         operations: [moduleOperations.ToughLife, moduleOperations.IndividualRooms, moduleOperations.WayOfLifeT3, moduleOperations.SecretWayOfLife],
-    }),
-    Turrets: new ModuleComponent({
-        title: 'Turrets',
-
-        operations: [moduleOperations.RapidRumbleTower, moduleOperations.LaserTurrets, moduleOperations.AntiMissileSwarm],
-    }),
-    Protection: new ModuleComponent({
-        title: 'Protection',
-
-        operations: [moduleOperations.GlitzPlating, moduleOperations.PulseShield, moduleOperations.BulletSponge],
     }),
 };
 

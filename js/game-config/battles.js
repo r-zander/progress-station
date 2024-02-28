@@ -67,84 +67,84 @@ const battles = {
         title: 'Wimpy',
         targetLevel: 10,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 10}],
-        rewards: [{effectType: EffectType.Research, baseValue: 2}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+        effects: [{effectType: EffectType.Danger, baseValue: 5}],
+        rewards: [{effectType: EffectType.Research, baseValue: 1}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     NovaFlies20: new Battle({
         title: 'Harmless',
         targetLevel: 20,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 15}],
-        rewards: [{effectType: EffectType.Energy, baseValue: 3}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+        effects: [{effectType: EffectType.Danger, baseValue: 10}],
+        rewards: [{effectType: EffectType.Military, baseValue: 1}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     Astrogoblins20: new Battle({
         title: 'Courageous',
         targetLevel: 20,
         faction: factions.Astrogoblins,
         effects: [{effectType: EffectType.Danger, baseValue: 20}],
-        rewards: [{effectType: EffectType.Military, baseValue: 5}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
+        rewards: [{effectType: EffectType.Energy, baseValue: 3}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     CometCrawlers10: new Battle({
         title: 'Handful of',
         targetLevel: 10,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 100}],
+        effects: [{effectType: EffectType.Danger, baseValue: 30}],
         rewards: [{effectType: EffectType.Growth, baseValue: 3}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     NovaFlies30: new Battle({
         title: 'Glowing',
         targetLevel: 30,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 30}],
+        effects: [{effectType: EffectType.Danger, baseValue: 40}],
         rewards: [{effectType: EffectType.Energy, baseValue: 6}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     Astrogoblins30: new Battle({
         title: 'Trained',
         targetLevel: 30,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 60}],
+        effects: [{effectType: EffectType.Danger, baseValue: 50}],
         rewards: [{effectType: EffectType.Military, baseValue: 13}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     NovaFlies50: new Battle({
         title: 'Dazzling',
         targetLevel: 50,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 50}],
+        effects: [{effectType: EffectType.Danger, baseValue: 60}],
         rewards: [{effectType: EffectType.Energy, baseValue: 16}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     CometCrawlers20: new Battle({
         title: 'Small swarm of',
         targetLevel: 20,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 200}],
+        effects: [{effectType: EffectType.Danger, baseValue: 80}],
         rewards: [{effectType: EffectType.Growth, baseValue: 8}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     Scavengers10: new Battle({
         title: 'Lost',
         targetLevel: 10,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 500}],
+        effects: [{effectType: EffectType.Danger, baseValue: 100}],
         rewards: [{effectType: EffectType.Research, baseValue: 4}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     Astrogoblins50: new Battle({
         title: 'Fearless',
         targetLevel: 50,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 100}],
+        effects: [{effectType: EffectType.Danger, baseValue: 130}],
         rewards: [{effectType: EffectType.Industry, baseValue: 31}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     NovaFlies75: new Battle({
         title: 'Numerous',
         targetLevel: 75,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 75}],
+        effects: [{effectType: EffectType.Danger, baseValue: 150}],
         rewards: [{effectType: EffectType.Energy, baseValue: 39}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     CometCrawlers30: new Battle({
         title: 'Starving',
         targetLevel: 30,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 300}],
+        effects: [{effectType: EffectType.Danger, baseValue: 200}],
         rewards: [{effectType: EffectType.Growth, baseValue: 19}, {effectType: EffectType.MilitaryFactor, baseValue: 0.1}]
     }),
     MeteorMaws10: new Battle({
