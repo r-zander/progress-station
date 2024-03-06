@@ -17,11 +17,11 @@ const factions = {
         description: 'These beagle-sized beetles travel on the surface of comets as they are attracted by metal alloys that are unfortunately also commonly found in space stations. They will attack in large numbers if they sense one of their own being harmed.'
     },
     Scavengers: {
-        title: 'Scavengers', maxXp: 2_500,
+        title: 'Scavengers', maxXp: 2_000,
         description: 'Outcasts from civilizations across the galaxy, Scavengers form nomadic crews, dressed in distinctive leather attire. Masters of illicit trade and makeshift tech, they roam, seeking quick profits through heists and elusive alliances.'
     },
     MeteorMaws: {
-        title: 'Meteor Maws', maxXp: 10_000,
+        title: 'Meteor Maws', maxXp: 7_500,
         description: 'Gigantic, worm-like beings that burrow through meteors and small moons, leaving characteristic holes. They are attracted to the vibrations of engines and can engulf smaller vessels whole.'
     },
     SpacePirates: {
@@ -898,7 +898,26 @@ const battles = {
     }),
 
     Destroyer: new BossBattle({
-        title: 'The',
+        titleGenerator: new NameGenerator()
+            .add([
+                'Glorgomax',
+                'Munchulor',
+                'Snorgolan',
+                'Tentakulon',
+                'Snafflogon',
+                'Gobblethrox',
+                'Snorplaxion',
+                'Chompulor',
+            ])
+            .skipSeparator()
+            .add(', the')
+            .add([
+                'Destroyer',
+                'Shadow of Cosmos',
+                'Essence Harvester',
+                'Decimator',
+                'Jester of Annihilation'
+            ]),
         targetLevel: 10,
         faction: factions.Destroyer,
         effects: [{effectType: EffectType.Heat, baseValue: 5}, {effectType: EffectType.GrowthFactor, baseValue: -1.00}],
