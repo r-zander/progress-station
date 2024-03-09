@@ -91,7 +91,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 3;
+    version = 4;
 
     /**
      * @type {string}

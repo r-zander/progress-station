@@ -36,7 +36,6 @@ const pointsOfInterest = {
             {effectType: EffectType.Danger, baseValue: 25}],
         modifiers: [],
     }),
-    // TODO replace research with Energy
     ResearchLocationLow: new PointOfInterest({
         title: 'The Mirror Vortex',
         description: 'A collection of mini wormholes that show reflections of alternate realities.',
