@@ -23,12 +23,9 @@ const moduleOperationRequirements = {
         }]),
     ),
     PocketLaboratory: moduleOperations.PocketLaboratory.registerRequirement(
-        new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.NovaFlies,
-            requirement: battles.NovaFlies10.targetLevel,
-        }, {
-            faction: factions.Astrogoblins,
-            requirement: battles.Astrogoblins10.targetLevel,
+        new AttributeRequirement('playthrough', [{
+            attribute: attributes.research,
+            requirement: 0.01,
         }]),
     ),
     HeavyGlitz: moduleOperations.HeavyGlitz.registerRequirement(
@@ -211,67 +208,78 @@ const pointsOfInterestRequirements = {
     StarlightEnclave: pointsOfInterest.StarlightEnclave.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
             faction: factions.Astrogoblins,
-            requirement: 5,
+            requirement: 20, // Target: 20
+            // equals Battle #5
         }]),
     ),
     GrowthLocationLow: pointsOfInterest.GrowthLocationLow.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.CometCrawlers,
-            requirement: 10,
+            faction: factions.NovaFlies,
+            requirement: 250, // Target: 100
+            // equals Battle #10
         }]),
     ),
     IndustryLocationMedium: pointsOfInterest.IndustryLocationMedium.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.Scavengers,
-            requirement: 10,
+            faction: factions.Astrogoblins,
+            requirement: 250, // Target: 100
+            // equals Battle #18
         }]),
     ),
     ResearchLocationMedium: pointsOfInterest.ResearchLocationMedium.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.SpacePirates,
-            requirement: 10,
+            faction: factions.Scavengers,
+            requirement: 50, // Target: 30
+            // equals Battle #27
         }]),
     ),
     GrowthLocationMedium: pointsOfInterest.GrowthLocationMedium.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.Astrogoblins,
-            requirement: 50,
+            faction: factions.MeteorMaws,
+            requirement: 20, // Target: 20
+            // equals Battle #36
         }]),
     ),
     IndustryLocationHigh: pointsOfInterest.IndustryLocationHigh.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.NovaFlies,
-            requirement: 50,
+            faction: factions.SpacePirates,
+            requirement: 20, // Target: 20
+            // equals Battle #47
         }]),
     ),
     ResearchLocationHigh: pointsOfInterest.ResearchLocationHigh.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.AstralSharks,
-            requirement: 10,
+            faction: factions.VoidVikings,
+            requirement: 5, // Target: 10
+            // equals Battle #65
         }]),
     ),
     GrowthLocationHigh: pointsOfInterest.GrowthLocationHigh.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.ThunderDragon,
-            requirement: 10,
+            faction: factions.MeteorMaws,
+            requirement: 1800, // Target: 750
+            // equals Battle #73
         }]),
     ),
     IndustryLocationExtreme: pointsOfInterest.IndustryLocationExtreme.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.SpacePirates,
-            requirement: 300,
+            faction: factions.AstralSharks,
+            requirement: 5, // Target: 10
+            // equals Battle #85
         }]),
     ),
     ResearchLocationExtreme: pointsOfInterest.ResearchLocationExtreme.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.AstralSharks,
-            requirement: 50,
+            faction: factions.StarMantas,
+            requirement: 1200, // Target: 500
+            // equals Battle #95
         }]),
     ),
     GrowthLocationExtreme: pointsOfInterest.GrowthLocationExtreme.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
             faction: factions.ThunderDragon,
-            requirement: 50,
+            requirement: 200, // Target: 100
+            // equals Battle #101
         }]),
     ),
 };

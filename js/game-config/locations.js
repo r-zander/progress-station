@@ -36,13 +36,14 @@ const pointsOfInterest = {
             {effectType: EffectType.Danger, baseValue: 25}],
         modifiers: [],
     }),
+    // TODO replace research with Energy
     ResearchLocationLow: new PointOfInterest({
         title: 'The Mirror Vortex',
         description: 'A collection of mini wormholes that show reflections of alternate realities.',
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0.3},
             {effectType: EffectType.IndustryFactor, baseValue: -0.1},
-            {effectType: EffectType.ResearchFactor, baseValue: 3},
+            {effectType: EffectType.EnergyFactor, baseValue: 3},
             {effectType: EffectType.Danger, baseValue: 25}],
         modifiers: [],
     }),
@@ -53,7 +54,7 @@ const pointsOfInterest = {
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0},
             {effectType: EffectType.IndustryFactor, baseValue: 9},
-            {effectType: EffectType.ResearchFactor, baseValue: -0.2},
+            {effectType: EffectType.EnergyFactor, baseValue: -0.2},
             {effectType: EffectType.Danger, baseValue: 50}],
         modifiers: [],
     }),
@@ -63,7 +64,7 @@ const pointsOfInterest = {
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0.2},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
-            {effectType: EffectType.ResearchFactor, baseValue: 9},
+            {effectType: EffectType.EnergyFactor, baseValue: 9},
             {effectType: EffectType.Danger, baseValue: 250}],
         modifiers: [],
     }),
@@ -83,7 +84,7 @@ const pointsOfInterest = {
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0},
             {effectType: EffectType.IndustryFactor, baseValue: 19},
-            {effectType: EffectType.ResearchFactor, baseValue: -0.2},
+            {effectType: EffectType.EnergyFactor, baseValue: -0.2},
             {effectType: EffectType.Danger, baseValue: 1000}],
         modifiers: [],
     }),
@@ -93,7 +94,7 @@ const pointsOfInterest = {
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0.2},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
-            {effectType: EffectType.ResearchFactor, baseValue: 19},
+            {effectType: EffectType.EnergyFactor, baseValue: 19},
             {effectType: EffectType.Danger, baseValue: 3000}],
         modifiers: [],
     }),
@@ -113,7 +114,7 @@ const pointsOfInterest = {
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0},
             {effectType: EffectType.IndustryFactor, baseValue: 49},
-            {effectType: EffectType.ResearchFactor, baseValue: -0.2},
+            {effectType: EffectType.EnergyFactor, baseValue: -0.2},
             {effectType: EffectType.Danger, baseValue: 10000}],
         modifiers: [],
     }),
@@ -123,7 +124,7 @@ const pointsOfInterest = {
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 0.2},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
-            {effectType: EffectType.ResearchFactor, baseValue: 49},
+            {effectType: EffectType.EnergyFactor, baseValue: 49},
             {effectType: EffectType.Danger, baseValue: 30000}],
         modifiers: [],
     }),

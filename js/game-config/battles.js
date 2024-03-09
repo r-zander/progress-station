@@ -13,31 +13,31 @@ const factions = {
         description: 'Mischievous beings that can be found in every corner of the galaxy, Astrogoblins zip around in makeshift spacecrafts, armed with primitive weapons and a liking for interstellar chaos.'
     },
     CometCrawlers: {
-        title: 'Comet Crawlers', maxXp: 500,
+        title: 'Comet Crawlers', maxXp: 300,
         description: 'These beagle-sized beetles travel on the surface of comets as they are attracted by metal alloys that are unfortunately also commonly found in space stations. They will attack in large numbers if they sense one of their own being harmed.'
     },
     Scavengers: {
-        title: 'Scavengers', maxXp: 2_000,
+        title: 'Scavengers', maxXp: 900,
         description: 'Outcasts from civilizations across the galaxy, Scavengers form nomadic crews, dressed in distinctive leather attire. Masters of illicit trade and makeshift tech, they roam, seeking quick profits through heists and elusive alliances.'
     },
     MeteorMaws: {
-        title: 'Meteor Maws', maxXp: 7_500,
+        title: 'Meteor Maws', maxXp: 2_500,
         description: 'Gigantic, worm-like beings that burrow through meteors and small moons, leaving characteristic holes. They are attracted to the vibrations of engines and can engulf smaller vessels whole.'
     },
     SpacePirates: {
-        title: 'Space Pirates', maxXp: 12_500,
+        title: 'Space Pirates', maxXp: 8_000,
         description: 'Buccaneers sailing the astral seas, Space Pirates are notorious for their flashy ships, over-the-top personalities, and the relentless pursuit of rare space booty.'
     },
     StarMantas: {
-        title: 'Star Mantas', maxXp: 35_000,
+        title: 'Star Mantas', maxXp: 25_000,
         description: 'Majestic creatures that glide through the vacuum of space, their vast wingspans absorb cosmic radiation. Often mistaken for celestial phenomena, they can be fiercely territorial.'
     },
     VoidVikings: {
-        title: 'Void Vikings', maxXp: 50_000,
+        title: 'Void Vikings', maxXp: 75_000,
         description: 'Clad in dark matter armor, Void Vikings raid across the galaxy in search of glory and cosmic runes. Their battle cries resonate through the vacuum, freezing the hearts of their foes.'
     },
     ThunderDragon: {
-        title: 'Thunder Dragon', maxXp: 100_000,
+        title: 'Thunder Dragon', maxXp: 200_000,
         description: 'Roaming the storm nebula, Thunder Dragons are colossal beings of electric energy. Lightning crackles across their scales as they soar through the interstellar space.'
     },
     AstralSharks: {
@@ -62,8 +62,7 @@ const battles = {
         faction: factions.NovaFlies,
         effects: [{effectType: EffectType.Danger, baseValue: 0}],
         rewards: [
-            {effectType: EffectType.Energy, baseValue: 1},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.Military, baseValue: 1},
         ],
     }),
     NovaFlies20: new Battle({
@@ -72,7 +71,7 @@ const battles = {
         faction: factions.NovaFlies,
         effects: [{effectType: EffectType.Danger, baseValue: 5}],
         rewards: [
-            {effectType: EffectType.Energy, baseValue: 1},
+            {effectType: EffectType.Research, baseValue: 1},
             {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
         ],
     }),
