@@ -27,6 +27,12 @@ const attributes = {
 };
 
 /**
+ * [0; 1)
+ * @type {number}
+ */
+const populationDeltaInertia = 0.98; // 98% inertia ≙ 10sec speed delay at updateSpeed 20 and baseGameSpeed 4
+
+/**
  * @param {function(AttributeDefinition): string} printAttribute renders the provided attribute nicely.
  */
 function createAttributeDescriptions(printAttribute) {
