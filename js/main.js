@@ -506,7 +506,7 @@ function createLevel4BattleElements(battles) {
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
         domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
-        const clickListener = () => {
+        domGetter.byClass('progressBar').addEventListener('click', () => {
             if (!gameData.state.canChangeActivation) {
                 VFX.shakePlayButton();
                 return;
@@ -517,10 +517,8 @@ function createLevel4BattleElements(battles) {
             } else {
                 battle.toggle();
             }
-        };
-        domGetter.byClass('progressBar').addEventListener('click', clickListener);
+        });
         domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
-        domGetter.byClass('radio').addEventListener('click', clickListener);
         if (battle instanceof BossBattle) {
             const dangerElement = domGetter.byClass('danger');
             dangerElement.classList.add('effect');
@@ -568,7 +566,6 @@ function createLevel4FinishedBattleElements(battles) {
         initializeBattleElement(domGetter, battle);
         domGetter.bySelector('.progressBar .progressBackground').style.backgroundColor = lastLayerData.color;
         domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
-        domGetter.byClass('action').classList.add('hidden');
         formatValue(
             domGetter.bySelector('.level > data'),
             battle.targetLevel,
@@ -595,7 +592,6 @@ function createFinishedBattlesUI() {
     const domGetter = Dom.get(level3Element);
     domGetter.byClass('header-row').style.backgroundColor = colorPalette.EasyGreen;
     domGetter.byClass('name').textContent = 'Completed';
-    domGetter.byClass('action').classList.add('hidden');
     domGetter.byClass('level').textContent = 'Defeated levels';
     domGetter.byClass('xpGain').classList.add('hidden');
     domGetter.byClass('xpLeft').classList.add('hidden');
@@ -1432,7 +1428,6 @@ function updateBattleRows() {
 
         const isActive = battle.isActive();
         domGetter.byClass('progressFill').classList.toggle('current', isActive);
-        domGetter.byClass('active').style.backgroundColor = isActive ? colorPalette.TomatoRed : colorPalette.White;
 
         if (isBossBattleAvailable() &&
             visibleBattles === bossBattle.distance

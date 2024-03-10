@@ -30,8 +30,8 @@
     <h1 class="p-2 m-0 order-1"><a href="#credits">Progress Station</a></h1>
 </div>
 <main id="main" class="d-flex flex-column">
-    <header id="stationOverview" class="panel mb-3 px-3 py-2 d-flex flex-column">
-        <div class="d-flex flex-row gap-3 align-items-start">
+    <header id="stationOverview" class="mb-3 gap-1 d-flex flex-column">
+        <div class="panel px-3 pt-2 pb-1 d-flex flex-row gap-3 align-items-start">
             <a id="stationOverviewLogo" class="logo me-2" href="#credits">
                 PS
             </a>
@@ -48,7 +48,7 @@
             </div>
         </div>
 
-        <div id="energyGridDisplay" class="d-flex flex-row">
+        <div id="energyGridDisplay" class="panel px-3 py-1 d-flex flex-row">
             <div class="d-flex flex-column mt-3">
                 <p id="gridLabel" class="grid-strength-bar d-flex align-items-center px-2" style="background-color: grey"
                      title="[Filled by JavaScript]" data-bs-placement="bottom" data-bs-html="true">
@@ -105,7 +105,7 @@
             </div>
         </div>
 
-        <div id="attributesDisplay" class="d-flex justify-content-start gap-4" onclick="setTab('attributes');">
+        <div id="attributesDisplay" class="panel px-3 py-1 d-flex justify-content-start gap-4" onclick="setTab('attributes');">
             <div class="primary-stat" data-attribute="population"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
@@ -156,14 +156,10 @@
 
     <div id="contentWrapper" class="d-flex align-content-start" style="height: calc(100vh - 32px - 192px)"> <!-- TODO drop height here -->
         <aside id="sidebar" class="mh-100 overflow-x-hidden overflow-y-auto d-flex flex-column me-3">
-            <div id="actions" class="panel d-flex flex-column p-3">
-                <div class="d-flex flex-row gap-3">
-                    <div class="flex-fill">
-                        <button class="btn btn-secondary btn-lg w-100" id="pauseButton" onClick="togglePause();">
-                            Pause
-                        </button>
-                    </div>
-                </div>
+            <div id="actions" class="d-flex flex-column">
+                <button class="btn btn-secondary btn-lg w-100" id="pauseButton" onClick="togglePause();">
+                    Pause
+                </button>
             </div>
             <nav class="d-flex flex-column flex-fill mt-3 gap-1">
                 <button id="modulesTabButton" class="tabButton panel p-3" onClick="setTab('modules');">
@@ -338,7 +334,6 @@
                         <thead class="level3">
                         <tr class="header-row">
                             <th class="name">Battles</th>
-                            <th class="action">Engaged</th>
                             <th class="level">Level</th>
                             <th class="xpGain">Dmg</th>
                             <th class="xpLeft">HP left</th>
@@ -411,11 +406,6 @@
                             <div class="progressBackground progress-background"></div>
                             <div class="battleProgress progressFill progress-bar progress-bar-striped" style="width: 54%"></div>
                             <div class="progress-text name px-2">Wimpy Astrogoblins</div>
-                        </div>
-                    </td>
-                    <td class="action">
-                        <div class="radio">
-                            <div class="active"></div>
                         </div>
                     </td>
                     <td class="level">
