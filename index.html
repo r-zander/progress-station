@@ -487,7 +487,7 @@
             <template id="level4RequiredTemplate">
                 <tr>
                     <td class="requirements help-text ps-3" colspan="100%">
-                        Next Unlock:
+                        Next unlock at:
                         <span class="rendered"></span>
                     </td>
                 </tr>
@@ -495,7 +495,7 @@
 
             <template id="requirementsTemplate">
                 <div class="requirements help-text">
-                    Next Unlock:
+                    Next unlock at:
                     <span class="rendered"></span>
                 </div>
             </template>
@@ -506,6 +506,23 @@
             </div>
 
             <div id="battles" class="tab p-3 overflow-hidden">
+                <ul class="tab-help-text help-text m-0">
+                    <li class="battles-pose-danger">
+                        Engaged battles pose a
+                        <span class="primary-stat" data-attribute="danger" data-attribute-tooltip="false">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
+                        that will reduce your population if your
+                        <span class="primary-stat" data-attribute="military" data-attribute-tooltip="false">
+                            <img src="" class="icon" alt=""/>
+                            <span class="label"></span>
+                        </span>
+                        is not high enough.
+                    </li>
+                    <li class="battles-pose-danger">Disengage battles by clicking them again.</li>
+                    <li class="multiple-battles">Engage as many battles as you like.</li>
+                </ul>
                 <slot id="battlesTable"></slot>
             </div>
 
@@ -515,11 +532,14 @@
             </div>
 
             <div id="galacticSecrets" class="tab p-3">
-                <ul class="galactic-secrets-help-text help-text m-0">
+                <ul class="tab-help-text help-text m-0">
                     <li>Unravel a Galactic Secret by long pressing its progress bar.</li>
                     <li style="transform-origin: left">Each Secret costs
                         <data id="galacticSecretCostDisplay" value="1" class="text-body">1</data>
-                        <span class="label" style="color: rgb(171, 1, 110); font-weight: 400;">Essence of Unknown</span>
+                        <span class="primary-stat" data-attribute="essenceOfUnknown" data-attribute-tooltip="false">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
                         currently.
                     </li>
                     <li>After unraveling a Secret, the cost per Secret will increase <data value="3" class="text-body">x3</data>.</li>
