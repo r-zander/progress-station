@@ -1295,11 +1295,13 @@ class HtmlElementWithRequirement {
      */
     toHtml() {
         // TODO use #requirementsTemplate
+        const requirementsString = this.requirements
+            .map(requirement => requirement.toHtml())
+            .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
+            .join(', ');
         return `<div class="requirements help-text">
-            Required:
-            <span class="rendered">
-                ${this.requirements.map(requirement => requirement.toHtml()).join(', ')}
-            </span>
+            Next unlock at:
+            <span class="rendered">${requirementsString}</span>
         </div>`;
     }
 

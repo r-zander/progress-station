@@ -1,11 +1,3 @@
-.primary-stat {
-    font-size: large;
-
-  /*  > .label::after {
-        content: ":";
-    }*/
-}
-
 .secondary-stat {
     font-size: 100%;
 }
@@ -16,6 +8,12 @@
 
 #attributesDisplay {
     .primary-stat {
+        font-size: large;
+
+        > .label {
+            font-weight: 300;
+        }
+
         & > data {
             display: block;
         }

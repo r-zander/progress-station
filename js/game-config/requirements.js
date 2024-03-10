@@ -168,7 +168,7 @@ const modulesRequirements = {
     ),
     MiningBay: modules.MiningBay.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
-            operation: moduleOperations.KungFuManual,
+            operation: moduleOperations.PocketLaboratory,
             requirement: 10,
         }]),
         new AttributeRequirement('playthrough', [{
@@ -360,6 +360,7 @@ const htmlElementRequirements = {
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="danger"]'),
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="heat"]'),
                 Dom.lazy().allBySelector('#battles .level3 .danger, #battles .level4 .danger'),
+                ...Dom.get().allByClass('battles-pose-danger'),
             ],
             requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{
                 faction: factions.NovaFlies,
@@ -399,6 +400,13 @@ const htmlElementRequirements = {
                 operation: moduleOperations.PocketLaboratory,
                 requirement: 10,
             }])],
+        }),
+    battleMultiEngageHelp: new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [
+                ...Dom.get().allByClass('multiple-battles'),
+            ],
+            requirements: [battleRequirements[0]],
         }),
     galacticSecretsTabButton: new HtmlElementWithRequirement(
         {

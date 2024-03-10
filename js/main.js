@@ -74,9 +74,6 @@ function updatePopulation() {
     const rawDelta = populationDelta();
     // TODO inertia is not scaled with game speed
     const inertDelta = populationDeltaInertia * gameData.lastPopulationDelta + (1 - populationDeltaInertia) * rawDelta;
-    if (inertDelta / rawDelta <= 0.98) {
-        console.log('Inert Delta', inertDelta, (inertDelta * 100/ rawDelta).toFixed(1) + '%');
-    }
     gameData.population = Math.max(gameData.population + applySpeed(inertDelta), 1);
     gameData.lastPopulationDelta = inertDelta;
 
@@ -888,13 +885,19 @@ function createAttributesDisplay() {
         /** @var {AttributeDefinition} */
         const attribute = attributes[attributeContainer.dataset.attribute];
         const domGetter = Dom.get(attributeContainer);
-        attributeContainer.dataset.bsTitle = attribute.description;
+        if (_.defaultTo(attributeContainer.dataset.attributeTooltip, 'true').toLowerCase() === 'true') {
+            attributeContainer.dataset.bsTitle = attribute.description;
+        }
         const iconElement = domGetter.byClass('icon');
-        iconElement.src = attribute.icon;
-        iconElement.alt = attribute.title + ' icon';
+        if (iconElement !== null) {
+            iconElement.src = attribute.icon;
+            iconElement.alt = attribute.title + ' icon';
+        }
         const labelElement = domGetter.byClass('label');
-        labelElement.style.color = attribute.color;
-        labelElement.textContent = attribute.title;
+        if (labelElement !== null) {
+            labelElement.style.color = attribute.color;
+            labelElement.textContent = attribute.title;
+        }
     }
 }
 
@@ -1160,6 +1163,7 @@ function updateRequirements(unfulfilledRequirements, context) {
         if (context.hasUnfulfilledRequirements !== true) {
             const html = unfulfilledRequirements
                 .map(requirement => requirement.toHtml())
+                .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
                 .join(', ');
             if (html !== context.getHtmlCache()) {
                 Dom.get(context.requirementsElement).byClass('rendered').innerHTML = html;
@@ -1353,7 +1357,7 @@ let battleRequirementsHtmlCache = '';
 
 function updateBattleRows() {
     // Determine visibility
-    const maxBattles = maximumAvailableBattles();
+    const maxBattles = maximumAvailableBattles(attributes.research.getValue());
     let visibleBattles = 0;
     const visibleFactions = {};
     const bossRow = Dom.get().byId(bossBattle.domId);
@@ -1385,10 +1389,10 @@ function updateBattleRows() {
 
         const unfulfilledRequirements = [];
         if (visibleBattles >= maxBattles.limit) {
-            if (maxBattles.requirement === null) {
+            if (isString(maxBattles.requirement)) {
                 unfulfilledRequirements.push({
                     toHtml: () => {
-                        return `Win open battles`;
+                        return maxBattles.requirement;
                     },
                 });
             } else {

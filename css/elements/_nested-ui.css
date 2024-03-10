@@ -142,3 +142,12 @@
         }
     }
 }
+
+/* Some rules to improve VFX */
+.tab-help-text {
+    overflow: hidden;
+
+    > li {
+        transform-origin: left;
+    }
+}
