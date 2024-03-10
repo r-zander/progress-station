@@ -62,17 +62,23 @@ function calculateHeat() {
 }
 
 function populationDelta() {
-    const growth = attributes.growth.getValue() / 10;
+    const growth = attributes.growth.getValue();
     const heat = attributes.heat.getValue();
     const population = attributes.population.getValue();
-    return growth - population * 0.01 * heat;
+    return (0.1 * growth) - (0.01 * population * heat);
 }
 
 function updatePopulation() {
     if (!gameData.state.areAttributesUpdated) return;
 
-    gameData.population += applySpeed(populationDelta());
-    gameData.population = Math.max(gameData.population, 1);
+    const rawDelta = populationDelta();
+    // TODO inertia is not scaled with game speed
+    const inertDelta = populationDeltaInertia * gameData.lastPopulationDelta + (1 - populationDeltaInertia) * rawDelta;
+    if (inertDelta / rawDelta <= 0.98) {
+        console.log('Inert Delta', inertDelta, (inertDelta * 100/ rawDelta).toFixed(1) + '%');
+    }
+    gameData.population = Math.max(gameData.population + applySpeed(inertDelta), 1);
+    gameData.lastPopulationDelta = inertDelta;
 
     if (gameData.state === gameStates.BOSS_FIGHT && Math.round(gameData.population) === 1) {
         gameData.transitionState(gameStates.DEAD);

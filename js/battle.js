@@ -125,6 +125,7 @@ class Battle extends LayeredTask {
 
 /**
  * @typedef {TaskSavedValues} BossBattleSavedValues
+ * @property {string} title
  * @property {number} distance
  * @property {number} coveredDistance
  */
@@ -133,7 +134,7 @@ class BossBattle extends Battle {
     /**
      *
      * @param {{
-     *     title: string,
+     *     titleGenerator: NameGenerator,
      *     targetLevel: number,
      *     faction: FactionDefinition,
      *     effects: EffectDefinition[],
@@ -141,7 +142,15 @@ class BossBattle extends Battle {
      * }} baseData
      */
     constructor(baseData) {
-        super(baseData);
+        super({
+            title: '',
+            targetLevel: baseData.targetLevel,
+            faction: baseData.faction,
+            effects: baseData.effects,
+            rewards: baseData.rewards,
+        });
+
+        this.titleGenerator = baseData.titleGenerator;
     }
 
     /**
@@ -153,10 +162,17 @@ class BossBattle extends Battle {
             maxLevel: JsTypes.Number,
             xp: JsTypes.Number,
             requirementCompleted: JsTypes.Array,
+            title: JsTypes.String,
             distance: JsTypes.Number,
             coveredDistance: JsTypes.Number,
         }, this);
+
+        if (savedValues.title === '') {
+            savedValues.title = prepareTitle(this.titleGenerator.generate());
+        }
+
         this.savedValues = savedValues;
+        this.title = savedValues.title;
     }
 
     /**
@@ -169,6 +185,7 @@ class BossBattle extends Battle {
             maxLevel: 0,
             xp: 0,
             requirementCompleted: [],
+            title: '',
             distance: bossBattleDefaultDistance,
             coveredDistance: 0,
         };

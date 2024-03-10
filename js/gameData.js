@@ -91,7 +91,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 3;
+    version = 4;
 
     /**
      * @type {string}
@@ -112,6 +112,11 @@ class GameData {
      * @var {number}
      */
     population;
+
+    /**
+     * @var {number}
+     */
+    lastPopulationDelta;
 
     /**
      * @var {number}
@@ -204,6 +209,7 @@ class GameData {
 
     initValues() {
         this.population = 1;
+        this.lastPopulationDelta = 0;
         this.cycles = 0;
         this.bossBattleAvailable = false;
     }
