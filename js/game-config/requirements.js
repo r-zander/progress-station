@@ -219,13 +219,7 @@ const pointsOfInterestRequirements = {
             // equals Battle #10
         }]),
     ),
-    IndustryLocationMedium: pointsOfInterest.IndustryLocationMedium.registerRequirement(
-        new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.Astrogoblins,
-            requirement: 250, // Target: 100
-            // equals Battle #18
-        }]),
-    ),
+
     ResearchLocationMedium: pointsOfInterest.ResearchLocationMedium.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
             faction: factions.Scavengers,
@@ -240,13 +234,7 @@ const pointsOfInterestRequirements = {
             // equals Battle #36
         }]),
     ),
-    IndustryLocationHigh: pointsOfInterest.IndustryLocationHigh.registerRequirement(
-        new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.SpacePirates,
-            requirement: 20, // Target: 20
-            // equals Battle #47
-        }]),
-    ),
+
     ResearchLocationHigh: pointsOfInterest.ResearchLocationHigh.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
             faction: factions.VoidVikings,
@@ -261,13 +249,7 @@ const pointsOfInterestRequirements = {
             // equals Battle #73
         }]),
     ),
-    IndustryLocationExtreme: pointsOfInterest.IndustryLocationExtreme.registerRequirement(
-        new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.AstralSharks,
-            requirement: 5, // Target: 10
-            // equals Battle #85
-        }]),
-    ),
+
     ResearchLocationExtreme: pointsOfInterest.ResearchLocationExtreme.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
             faction: factions.StarMantas,
@@ -288,10 +270,25 @@ const pointsOfInterestRequirements = {
  * @type {Object<Requirement>}
  */
 const sectorsRequirements = {
-    GrowthLocationExtreme: sectors.BetaSector.registerRequirement(
+    BetaSector: sectors.BetaSector.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
             faction: factions.Astrogoblins,
-            requirement: 30,
+            requirement: 250, // Target: 100
+            // equals Battle #18
+        }]),
+    ),
+    GammaSector: sectors.GammaSector.registerRequirement(
+        new FactionLevelsDefeatedRequirement('playthrough', [{
+            faction: factions.SpacePirates,
+            requirement: 20, // Target: 20
+            // equals Battle #47
+        }]),
+    ),
+    DeltaSector: sectors.DeltaSector.registerRequirement(
+        new FactionLevelsDefeatedRequirement('playthrough', [{
+            faction: factions.AstralSharks,
+            requirement: 5, // Target: 10
+            // equals Battle #85
         }]),
     ),
 };
