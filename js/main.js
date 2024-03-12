@@ -411,9 +411,6 @@ function createLevel4SectorElements(pointsOfInterest, sectorName) {
         level4DomGetter.byClass('button').addEventListener('click', () => {
             setPointOfInterest(pointOfInterest.name);
         });
-        level4DomGetter.byClass('radio').addEventListener('click', () => {
-            setPointOfInterest(pointOfInterest.name);
-        });
 
         level4Elements.push(level4Element);
     }
@@ -783,16 +780,16 @@ function createAttributeBalance(rowElement, effectTypes) {
 
     let onlyMultipliers = effectTypes.every((effectType) => effectType.operator === 'x');
 
-        const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
-        const domGetter = Dom.get(balanceEntryElement);
-        domGetter.byClass('operator').textContent = '';
-        if (onlyMultipliers) {
-            domGetter.byClass('entryValue').textContent = '1';
-        } else {
-            domGetter.byClass('entryValue').textContent = '0';
-        }
-        domGetter.byClass('name').textContent = '(Base)';
-        balanceElement.append(balanceEntryElement);
+    const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
+    const domGetter = Dom.get(balanceEntryElement);
+    domGetter.byClass('operator').textContent = '';
+    if (onlyMultipliers) {
+        domGetter.byClass('entryValue').textContent = '1';
+    } else {
+        domGetter.byClass('entryValue').textContent = '0';
+    }
+    domGetter.byClass('name').textContent = '(Base)';
+    balanceElement.append(balanceEntryElement);
 
     for (const effectType of effectTypes) {
         for (const moduleName in modules) {
@@ -1509,7 +1506,6 @@ function updateSectorRows() {
 
             const domGetter = Dom.get(row);
             const isActive = pointOfInterest.isActive();
-            domGetter.byClass('active').style.backgroundColor = isActive ? 'rgb(12, 101, 173)' : 'white';
             domGetter.byClass('button').classList.toggle('btn-dark', !isActive);
             domGetter.byClass('button').classList.toggle('btn-warning', isActive);
             domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescription();
@@ -1659,7 +1655,7 @@ function updateHeatDisplay() {
     heatElement1.textContent = heatText;
     heatElement1.style.color = color;
 
-    const heatElement2 = Dom.get().bySelector('#attributeRows > .heat .value');
+    const heatElement2 = Dom.get().bySelector('#attributeRows > .heat > .value > data');
     heatElement2.textContent = heatText;
     heatElement2.style.color = color;
 }
@@ -1694,11 +1690,11 @@ function updateText() {
 
     const danger = attributes.danger.getValue();
     formatValue(Dom.get().byId('dangerDisplay'), danger);
-    formatValue(Dom.get().bySelector('#attributeRows > .danger .value'), danger);
+    formatValue(Dom.get().bySelector('#attributeRows > .danger > .value > data'), danger);
 
     updateEnergyGridBar();
-    formatValue(Dom.get().bySelector('#attributeRows > .gridLoad .value'), attributes.gridLoad.getValue());
-    formatValue(Dom.get().bySelector('#attributeRows > .gridStrength .value'), attributes.gridStrength.getValue());
+    formatValue(Dom.get().bySelector('#attributeRows > .gridLoad > .value > data'), attributes.gridLoad.getValue());
+    formatValue(Dom.get().bySelector('#attributeRows > .gridStrength > .value > data'), attributes.gridStrength.getValue());
     const delta = gridStrength.getDelta();
     const gridStrengthDeltaElement = Dom.get().bySelector('#attributeRows > .gridStrength .delta');
     if (delta < 0.1) {
@@ -1711,27 +1707,27 @@ function updateText() {
 
     const growth = attributes.growth.getValue();
     formatValue(Dom.get().byId('growthDisplay'), growth);
-    formatValue(Dom.get().bySelector('#attributeRows > .growth .value'), growth);
+    formatValue(Dom.get().bySelector('#attributeRows > .growth > .value > data'), growth);
 
     updateHeatDisplay();
 
     const industry = attributes.industry.getValue();
     formatValue(Dom.get().byId('industryDisplay'), industry);
-    formatValue(Dom.get().bySelector('#attributeRows > .industry .value'), industry);
+    formatValue(Dom.get().bySelector('#attributeRows > .industry > .value > data'), industry);
 
     const military = attributes.military.getValue();
     formatValue(Dom.get().byId('militaryDisplay'), military);
-    formatValue(Dom.get().bySelector('#attributeRows > .military .value'), military);
+    formatValue(Dom.get().bySelector('#attributeRows > .military > .value > data'), military);
 
     const population = attributes.population.getValue();
     formatValue(Dom.get().byId('populationDisplay'), population, {forceInteger: true});
     formatValue(Dom.get().byId('populationProgressSpeedDisplay'), getPopulationProgressSpeedMultiplier(), {});
-    formatValue(Dom.get().bySelector('#attributeRows > .population .value'), population, {forceInteger: true});
+    formatValue(Dom.get().bySelector('#attributeRows > .population > .value > data'), population, {forceInteger: true});
     formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), populationDelta(), {forceSign: true});
 
     const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);
-    formatValue(Dom.get().bySelector('#attributeRows > .research .value'), research);
+    formatValue(Dom.get().bySelector('#attributeRows > .research > .value > data'), research);
 
     const essenceOfUnknown = attributes.essenceOfUnknown.getValue();
     formatValue(Dom.get().byId('essenceOfUnknownDisplay'), essenceOfUnknown, {forceInteger: true, keepNumber: true});

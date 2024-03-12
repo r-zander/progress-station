@@ -314,52 +314,11 @@
                             <th class="name" title="Component Description" data-bs-placement="right">
                                 Drills
                             </th>
-                            <th>Level</th>
-                            <th>Effect</th>
-                            <th>Xp/Cycle</th>
-                            <th>Xp left</th>
-                            <th class="gridLoad">Grid Load</th>
-                        </tr>
-                        </thead>
-                        <tbody class="level4">
-                            <!-- repeat level 4 row -->
-                        </tbody>
-                    </table>
-                </div>
-            </template>
-
-            <template id="level3BattleTemplate">
-                <div class="table-container ps-3 mt-2">
-                    <table class="table mb-0">
-                        <thead class="level3">
-                        <tr class="header-row">
-                            <th class="name">Battles</th>
-                            <th class="level">Level</th>
-                            <th class="xpGain">Dmg</th>
-                            <th class="xpLeft">HP left</th>
-                            <th class="danger">Danger</th>
-                            <th class="rewards">Reward</th>
-                        </tr>
-                        </thead>
-                        <tbody class="level4">
-                        <!-- repeat level 4 row -->
-                        </tbody>
-                    </table>
-                </div>
-            </template>
-
-            <template id="level3PointOfInterestTemplate">
-                <div class="table-container ps-3">
-                    <table class="table mb-0">
-                        <thead class="level3">
-                        <tr class="header-row">
-                            <th class="name" title="Sector Description" data-bs-placement="right">
-                                Sector
-                            </th>
-                            <th>Stationed</th>
-                            <th>Effect</th>
-                            <th>Modifier</th>
-                            <th>Danger</th>
+                            <th class="level numeric">Level</th>
+                            <th class="effect">Effect</th>
+                            <th class="xpGain numeric">Xp/Cycle</th>
+                            <th class="xpLeft numeric">Xp left</th>
+                            <th class="gridLoad numeric">Grid Load</th>
                         </tr>
                         </thead>
                         <tbody class="level4">
@@ -379,22 +338,42 @@
                             <div class="progress-text name px-2 text-truncate">Basic Bitch Co. Drills</div>
                         </div>
                     </td>
-                    <td class="level">
+                    <td class="level numeric">
                         <data value="53">53</data>
                     </td>
                     <td class="effect">
                         x1.13 Industry
                     </td>
-                    <td class="xpGain">
+                    <td class="xpGain numeric">
                         <data value="1600" data-unit="k">1.6</data>
                     </td>
-                    <td class="xpLeft">
+                    <td class="xpLeft numeric">
                         <data value="4550" data-unit="k">45.5</data>
                     </td>
-                    <td class="gridLoad">
+                    <td class="gridLoad numeric">
                         <data value="1">1</data>
                     </td>
                 </tr>
+            </template>
+
+            <template id="level3BattleTemplate">
+                <div class="table-container ps-3 mt-2">
+                    <table class="table mb-0">
+                        <thead class="level3">
+                        <tr class="header-row">
+                            <th class="name">Battles</th>
+                            <th class="level numeric">Level</th>
+                            <th class="xpGain numeric">Dmg</th>
+                            <th class="xpLeft numeric">HP left</th>
+                            <th class="danger numeric">Danger</th>
+                            <th class="rewards">Reward</th>
+                        </tr>
+                        </thead>
+                        <tbody class="level4">
+                        <!-- repeat level 4 row -->
+                        </tbody>
+                    </table>
+                </div>
             </template>
 
             <template id="level4BattleTemplate">
@@ -408,22 +387,42 @@
                             <div class="progress-text name px-2">Wimpy Astrogoblins</div>
                         </div>
                     </td>
-                    <td class="level">
+                    <td class="level numeric">
                         <data value="53">53</data>
                     </td>
-                    <td class="xpGain">
+                    <td class="xpGain numeric">
                         <data value="1600" data-unit="k">1.6</data>
                     </td>
-                    <td class="xpLeft">
+                    <td class="xpLeft numeric">
                         <data value="4550" data-unit="k">45.5</data>
                     </td>
-                    <td class="danger">
+                    <td class="danger numeric">
                         <data value="200">200</data>
                     </td>
                     <td class="rewards">
                         +2.0 Research
                     </td>
                 </tr>
+            </template>
+
+            <template id="level3PointOfInterestTemplate">
+                <div class="table-container ps-3">
+                    <table class="table mb-0">
+                        <thead class="level3">
+                        <tr class="header-row">
+                            <th class="name" title="Sector Description" data-bs-placement="right">
+                                Sector
+                            </th>
+                            <th class="danger numeric">Danger</th>
+                            <th class="effect">Effect</th>
+                            <th class="modifier hidden">Modifier</th>
+                        </tr>
+                        </thead>
+                        <tbody class="level4">
+                        <!-- repeat level 4 row -->
+                        </tbody>
+                    </table>
+                </div>
             </template>
 
             <template id="level4PointOfInterestTemplate">
@@ -434,16 +433,11 @@
                             <span class="name"></span>
                         </button>
                     </td>
-                    <td>
-                        <div class="radio">
-                            <div class="active"></div>
-                        </div>
-                    </td>
-                    <td class="effect"></td>
-                    <td class="modifier"></td>
-                    <td class="danger">
+                    <td class="danger numeric">
                         <data value="200">200</data>
                     </td>
+                    <td class="effect"></td>
+                    <td class="modifier hidden"></td>
                 </tr>
             </template>
 
@@ -468,7 +462,7 @@
                     <td class="effect">
                         x1.13 Industry, +4.50 Energy
                     </td>
-                    <td class="gridLoad">
+                    <td class="gridLoad numeric">
                         <data value="1">1</data>
                     </td>
                 </tr>
@@ -521,48 +515,16 @@
                 <slot id="sectorRequirements"></slot>
             </div>
 
-            <div id="galacticSecrets" class="tab p-3">
-                <ul class="tab-help-text help-text m-0">
-                    <li>Unravel a Galactic Secret by long pressing its progress bar.</li>
-                    <li style="transform-origin: left">Each Secret costs
-                        <data id="galacticSecretCostDisplay" value="1" class="text-body">1</data>
-                        <span class="primary-stat" data-attribute="essenceOfUnknown" data-attribute-tooltip="false">
-                            <img src="" class="icon" alt="" />
-                            <span class="label"></span>
-                        </span>
-                        currently.
-                    </li>
-                    <li>After unraveling a Secret, the cost per Secret will increase <data value="3" class="text-body">x3</data>.</li>
-                </ul>
-                <div class="table-container ps-3">
-                    <table class="table mb-0">
-                        <thead class="level3">
-                        <tr class="header-row">
-                            <th class="name" title="Galactic Secret Description" data-bs-placement="right">
-                                Galactic Secret
-                            </th>
-                            <th>Belongs to</th>
-                            <th>Effect</th>
-                            <th>Grid Load</th>
-                        </tr>
-                        </thead>
-                        <tbody class="level4">
-                        <!-- repeat level4GalacticSecretTemplate -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
             <div id="attributes" class="tab p-3">
                 <!-- TODO: boxed design for mobile -> be able to have 1 attribute per row -->
                 <div class="table-container">
                     <table class="table">
                         <thead>
                         <tr>
-                            <th class="text-nowrap">Attribute</th>
-                            <th class="text-nowrap">Value</th>
-                            <th class="text-nowrap">Breakdown</th>
-                            <th class="text-nowrap">Description</th>
+                            <th class="text-nowrap name">Attribute</th>
+                            <th class="text-nowrap value numeric">Value</th>
+                            <th class="text-nowrap breakdown">Breakdown</th>
+                            <th class="text-nowrap description">Description</th>
                         </tr>
                         </thead>
                         <template id="attributeRowTemplate">
@@ -571,8 +533,8 @@
                                     <img src="img/icons/industry.svg" class="icon" alt="Population Icon"/>
                                     <span class="name" style="color: rgb(97, 173, 50)">Industry</span>
                                 </td>
-                                <td>
-                                    <data value="0" class="value">?</data>
+                                <td class="value numeric">
+                                    <data value="0">?</data>
                                 </td>
                                 <td class="breakdown"
                                     style="line-height: 1.1rem; padding-top: 0.3rem; padding-bottom: 0.3rem;">
@@ -594,6 +556,38 @@
                             </li>
                         </template>
                         <tbody id="attributeRows">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="galacticSecrets" class="tab p-3">
+                <ul class="tab-help-text help-text m-0">
+                    <li>Unravel a Galactic Secret by long pressing its progress bar.</li>
+                    <li style="transform-origin: left">Each Secret costs
+                        <data id="galacticSecretCostDisplay" value="1" class="text-body">1</data>
+                        <span class="primary-stat" data-attribute="essenceOfUnknown" data-attribute-tooltip="false">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
+                        currently.
+                    </li>
+                    <li>After unraveling a Secret, the cost per Secret will increase <data value="3" class="text-body">x3</data>.</li>
+                </ul>
+                <div class="table-container ps-3">
+                    <table class="table mb-0">
+                        <thead class="level3">
+                        <tr class="header-row">
+                            <th class="name">
+                                Galactic Secret
+                            </th>
+                            <th class="parent">Belongs to</th>
+                            <th class="effect">Effect</th>
+                            <th class="gridLoad numeric">Grid Load</th>
+                        </tr>
+                        </thead>
+                        <tbody class="level4">
+                        <!-- repeat level4GalacticSecretTemplate -->
                         </tbody>
                     </table>
                 </div>
