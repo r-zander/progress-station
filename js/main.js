@@ -174,6 +174,56 @@ function createLinkBehavior() {
     });
 }
 
+function updateConnector() {
+    const activeTabButton = Dom.get().bySelector('.tabButton.active');
+    const connectorElement = Dom.get().byId('connector');
+    const contentElement = Dom.get().byId('content');
+
+    const margin = 16;
+    const connectorHeight = 4;
+
+    XFastdom.measure(() => {
+        return {
+            activeTabButton: activeTabButton.getBoundingClientRect(),
+            contentElement: contentElement.getBoundingClientRect(),
+        };
+    }).then(/** @param {Object<DOMRect>} boundingClientRect */ (boundingClientRect) => {
+        // Way too complicated positioning logic. Raoul, don't you have other things to do?
+
+        // Element still within clipping bounds?
+        if (boundingClientRect.contentElement.bottom - boundingClientRect.activeTabButton.top <= connectorHeight) {
+            connectorElement.classList.add('hidden');
+            return;
+        }
+        if (boundingClientRect.activeTabButton.bottom - boundingClientRect.contentElement.top <= connectorHeight) {
+            connectorElement.classList.add('hidden');
+            return;
+        }
+        connectorElement.classList.remove('hidden');
+
+        // Determine vertical position
+        if (boundingClientRect.contentElement.bottom - boundingClientRect.activeTabButton.top < margin)
+        {
+            connectorElement.style.top = Math.round(boundingClientRect.activeTabButton.top) + 'px';
+        } else if (boundingClientRect.activeTabButton.bottom - boundingClientRect.contentElement.top < margin) {
+            connectorElement.style.top = Math.round(boundingClientRect.activeTabButton.bottom - connectorHeight) + 'px';
+        } else {
+            connectorElement.style.top = Math.round(
+                _.clamp(
+                    boundingClientRect.activeTabButton.top + boundingClientRect.activeTabButton.height / 2,
+                    boundingClientRect.contentElement.top + margin,
+                    boundingClientRect.contentElement.bottom - margin,
+                )) + 'px';
+        }
+
+        // Determine horizontal position and size
+        connectorElement.style.left = Math.round(boundingClientRect.activeTabButton.right) + 'px';
+        connectorElement.style.width = Math.round(boundingClientRect.contentElement.left - boundingClientRect.activeTabButton.right + 1) + 'px';
+    });
+
+    requestAnimationFrame(updateConnector);
+}
+
 /**
  * @param {Module} module
  */
@@ -408,7 +458,7 @@ function createLevel4SectorElements(pointsOfInterest, sectorName) {
             descriptionElement.removeAttribute('title');
         }
         level4DomGetter.byClass('modifier').innerHTML = pointOfInterest.modifiers.map(Modifier.getDescription).join(',\n');
-        level4DomGetter.byClass('button').addEventListener('click', () => {
+        level4DomGetter.byClass('point-of-interest').addEventListener('click', () => {
             setPointOfInterest(pointOfInterest.name);
         });
 
@@ -1506,8 +1556,8 @@ function updateSectorRows() {
 
             const domGetter = Dom.get(row);
             const isActive = pointOfInterest.isActive();
-            domGetter.byClass('button').classList.toggle('btn-dark', !isActive);
-            domGetter.byClass('button').classList.toggle('btn-warning', isActive);
+            domGetter.byClass('point-of-interest').classList.toggle('btn-primary', !isActive);
+            domGetter.byClass('point-of-interest').classList.toggle('btn-warning', isActive);
             domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescription();
             formatValue(domGetter.bySelector('.danger > data'), pointOfInterest.getEffect(EffectType.Danger));
         }
@@ -2348,6 +2398,7 @@ function init() {
     update();
     setInterval(update, 1000 / updateSpeed);
     setInterval(gameData.save.bind(gameData), 3000);
+    requestAnimationFrame(updateConnector);
 }
 
 init();
