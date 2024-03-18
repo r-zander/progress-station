@@ -261,7 +261,8 @@ function tryActivateOperation(component, operation) {
         + operation.getGridLoad()
         - component.getActiveOperation().getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
-        VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
+        VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad > data`), 'flash-text-denied-long', 'flash-text-denied-long');
+        VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad > .floating-warning `), 'show', 'flash-floating-warning');
         return;
     }
 

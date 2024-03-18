@@ -331,7 +331,7 @@
             </template>
 
             <template id="level4TaskTemplate">
-                <tr>
+                <tr class="floating-warning-container">
                     <td>
                         <div class="progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
                              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
@@ -354,6 +354,9 @@
                     </td>
                     <td class="gridLoad numeric">
                         <data value="1">1</data>
+                        <div class="floating-warning m-2 p-2">
+                            Not enough Grid Strength!
+                        </div>
                     </td>
                 </tr>
             </template>

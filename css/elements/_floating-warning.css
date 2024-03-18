@@ -1,0 +1,40 @@
+.floating-warning-container {
+    position: relative;
+}
+
+.floating-warning {
+    display: none;
+
+    position: absolute;
+    top: 0;
+    left: 70%;
+    translate: -50% 0;
+
+    opacity: 0;
+
+    background-color: rgb(200, 0, 0);
+    color: white;
+
+    line-height: 1;
+
+    &.show {
+        display: block;
+
+        animation: flash-floating-warning 1300ms ease;
+    }
+}
+
+@keyframes flash-floating-warning {
+    0% {
+        opacity: 0;
+    }
+    12% {
+        opacity: 1;
+    }
+    60% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}

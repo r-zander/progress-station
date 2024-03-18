@@ -71,7 +71,7 @@
     white-space: nowrap;
 }
 
-.level4 > tr > .gridLoad {
+.level4 > tr > .gridLoad > data {
     transform-origin: right;
 }
 
