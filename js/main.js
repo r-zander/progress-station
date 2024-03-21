@@ -174,6 +174,56 @@ function createLinkBehavior() {
     });
 }
 
+function updateConnector() {
+    const activeTabButton = Dom.get().bySelector('.tabButton.active');
+    const connectorElement = Dom.get().byId('connector');
+    const contentElement = Dom.get().byId('content');
+
+    const margin = 16;
+    const connectorHeight = 4;
+
+    XFastdom.measure(() => {
+        return {
+            activeTabButton: activeTabButton.getBoundingClientRect(),
+            contentElement: contentElement.getBoundingClientRect(),
+        };
+    }).then(/** @param {Object<DOMRect>} boundingClientRect */ (boundingClientRect) => {
+        // Way too complicated positioning logic. Raoul, don't you have other things to do?
+
+        // Element still within clipping bounds?
+        if (boundingClientRect.contentElement.bottom - boundingClientRect.activeTabButton.top <= connectorHeight) {
+            connectorElement.classList.add('hidden');
+            return;
+        }
+        if (boundingClientRect.activeTabButton.bottom - boundingClientRect.contentElement.top <= connectorHeight) {
+            connectorElement.classList.add('hidden');
+            return;
+        }
+        connectorElement.classList.remove('hidden');
+
+        // Determine vertical position
+        if (boundingClientRect.contentElement.bottom - boundingClientRect.activeTabButton.top < margin)
+        {
+            connectorElement.style.top = Math.round(boundingClientRect.activeTabButton.top) + 'px';
+        } else if (boundingClientRect.activeTabButton.bottom - boundingClientRect.contentElement.top < margin) {
+            connectorElement.style.top = Math.round(boundingClientRect.activeTabButton.bottom - connectorHeight) + 'px';
+        } else {
+            connectorElement.style.top = Math.round(
+                _.clamp(
+                    boundingClientRect.activeTabButton.top + boundingClientRect.activeTabButton.height / 2,
+                    boundingClientRect.contentElement.top + margin,
+                    boundingClientRect.contentElement.bottom - margin,
+                )) + 'px';
+        }
+
+        // Determine horizontal position and size
+        connectorElement.style.left = Math.round(boundingClientRect.activeTabButton.right) + 'px';
+        connectorElement.style.width = Math.round(boundingClientRect.contentElement.left - boundingClientRect.activeTabButton.right + 1) + 'px';
+    });
+
+    requestAnimationFrame(updateConnector);
+}
+
 /**
  * @param {Module} module
  */
@@ -211,7 +261,8 @@ function tryActivateOperation(component, operation) {
         + operation.getGridLoad()
         - component.getActiveOperation().getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
-        VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
+        VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad > data`), 'flash-text-denied-long', 'flash-text-denied-long');
+        VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad > .floating-warning `), 'show', 'flash-floating-warning');
         return;
     }
 
@@ -408,10 +459,7 @@ function createLevel4SectorElements(pointsOfInterest, sectorName) {
             descriptionElement.removeAttribute('title');
         }
         level4DomGetter.byClass('modifier').innerHTML = pointOfInterest.modifiers.map(Modifier.getDescription).join(',\n');
-        level4DomGetter.byClass('button').addEventListener('click', () => {
-            setPointOfInterest(pointOfInterest.name);
-        });
-        level4DomGetter.byClass('radio').addEventListener('click', () => {
+        level4DomGetter.byClass('point-of-interest').addEventListener('click', () => {
             setPointOfInterest(pointOfInterest.name);
         });
 
@@ -506,7 +554,7 @@ function createLevel4BattleElements(battles) {
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
         domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
-        const clickListener = () => {
+        domGetter.byClass('progressBar').addEventListener('click', () => {
             if (!gameData.state.canChangeActivation) {
                 VFX.shakePlayButton();
                 return;
@@ -517,10 +565,8 @@ function createLevel4BattleElements(battles) {
             } else {
                 battle.toggle();
             }
-        };
-        domGetter.byClass('progressBar').addEventListener('click', clickListener);
+        });
         domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
-        domGetter.byClass('radio').addEventListener('click', clickListener);
         if (battle instanceof BossBattle) {
             const dangerElement = domGetter.byClass('danger');
             dangerElement.classList.add('effect');
@@ -568,7 +614,6 @@ function createLevel4FinishedBattleElements(battles) {
         initializeBattleElement(domGetter, battle);
         domGetter.bySelector('.progressBar .progressBackground').style.backgroundColor = lastLayerData.color;
         domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
-        domGetter.byClass('action').classList.add('hidden');
         formatValue(
             domGetter.bySelector('.level > data'),
             battle.targetLevel,
@@ -595,7 +640,6 @@ function createFinishedBattlesUI() {
     const domGetter = Dom.get(level3Element);
     domGetter.byClass('header-row').style.backgroundColor = colorPalette.EasyGreen;
     domGetter.byClass('name').textContent = 'Completed';
-    domGetter.byClass('action').classList.add('hidden');
     domGetter.byClass('level').textContent = 'Defeated levels';
     domGetter.byClass('xpGain').classList.add('hidden');
     domGetter.byClass('xpLeft').classList.add('hidden');
@@ -787,16 +831,16 @@ function createAttributeBalance(rowElement, effectTypes) {
 
     let onlyMultipliers = effectTypes.every((effectType) => effectType.operator === 'x');
 
-        const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
-        const domGetter = Dom.get(balanceEntryElement);
-        domGetter.byClass('operator').textContent = '';
-        if (onlyMultipliers) {
-            domGetter.byClass('entryValue').textContent = '1';
-        } else {
-            domGetter.byClass('entryValue').textContent = '0';
-        }
-        domGetter.byClass('name').textContent = '(Base)';
-        balanceElement.append(balanceEntryElement);
+    const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
+    const domGetter = Dom.get(balanceEntryElement);
+    domGetter.byClass('operator').textContent = '';
+    if (onlyMultipliers) {
+        domGetter.byClass('entryValue').textContent = '1';
+    } else {
+        domGetter.byClass('entryValue').textContent = '0';
+    }
+    domGetter.byClass('name').textContent = '(Base)';
+    balanceElement.append(balanceEntryElement);
 
     for (const effectType of effectTypes) {
         for (const moduleName in modules) {
@@ -1432,7 +1476,6 @@ function updateBattleRows() {
 
         const isActive = battle.isActive();
         domGetter.byClass('progressFill').classList.toggle('current', isActive);
-        domGetter.byClass('active').style.backgroundColor = isActive ? colorPalette.TomatoRed : colorPalette.White;
 
         if (isBossBattleAvailable() &&
             visibleBattles === bossBattle.distance
@@ -1514,9 +1557,8 @@ function updateSectorRows() {
 
             const domGetter = Dom.get(row);
             const isActive = pointOfInterest.isActive();
-            domGetter.byClass('active').style.backgroundColor = isActive ? 'rgb(12, 101, 173)' : 'white';
-            domGetter.byClass('button').classList.toggle('btn-dark', !isActive);
-            domGetter.byClass('button').classList.toggle('btn-warning', isActive);
+            domGetter.byClass('point-of-interest').classList.toggle('btn-primary', !isActive);
+            domGetter.byClass('point-of-interest').classList.toggle('btn-warning', isActive);
             domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescription();
             formatValue(domGetter.bySelector('.danger > data'), pointOfInterest.getEffect(EffectType.Danger));
         }
@@ -1664,7 +1706,7 @@ function updateHeatDisplay() {
     heatElement1.textContent = heatText;
     heatElement1.style.color = color;
 
-    const heatElement2 = Dom.get().bySelector('#attributeRows > .heat .value');
+    const heatElement2 = Dom.get().bySelector('#attributeRows > .heat > .value > data');
     heatElement2.textContent = heatText;
     heatElement2.style.color = color;
 }
@@ -1699,11 +1741,11 @@ function updateText() {
 
     const danger = attributes.danger.getValue();
     formatValue(Dom.get().byId('dangerDisplay'), danger);
-    formatValue(Dom.get().bySelector('#attributeRows > .danger .value'), danger);
+    formatValue(Dom.get().bySelector('#attributeRows > .danger > .value > data'), danger);
 
     updateEnergyGridBar();
-    formatValue(Dom.get().bySelector('#attributeRows > .gridLoad .value'), attributes.gridLoad.getValue());
-    formatValue(Dom.get().bySelector('#attributeRows > .gridStrength .value'), attributes.gridStrength.getValue());
+    formatValue(Dom.get().bySelector('#attributeRows > .gridLoad > .value > data'), attributes.gridLoad.getValue());
+    formatValue(Dom.get().bySelector('#attributeRows > .gridStrength > .value > data'), attributes.gridStrength.getValue());
     const delta = gridStrength.getDelta();
     const gridStrengthDeltaElement = Dom.get().bySelector('#attributeRows > .gridStrength .delta');
     if (delta < 0.1) {
@@ -1716,27 +1758,27 @@ function updateText() {
 
     const growth = attributes.growth.getValue();
     formatValue(Dom.get().byId('growthDisplay'), growth);
-    formatValue(Dom.get().bySelector('#attributeRows > .growth .value'), growth);
+    formatValue(Dom.get().bySelector('#attributeRows > .growth > .value > data'), growth);
 
     updateHeatDisplay();
 
     const industry = attributes.industry.getValue();
     formatValue(Dom.get().byId('industryDisplay'), industry);
-    formatValue(Dom.get().bySelector('#attributeRows > .industry .value'), industry);
+    formatValue(Dom.get().bySelector('#attributeRows > .industry > .value > data'), industry);
 
     const military = attributes.military.getValue();
     formatValue(Dom.get().byId('militaryDisplay'), military);
-    formatValue(Dom.get().bySelector('#attributeRows > .military .value'), military);
+    formatValue(Dom.get().bySelector('#attributeRows > .military > .value > data'), military);
 
     const population = attributes.population.getValue();
     formatValue(Dom.get().byId('populationDisplay'), population, {forceInteger: true});
     formatValue(Dom.get().byId('populationProgressSpeedDisplay'), getPopulationProgressSpeedMultiplier(), {});
-    formatValue(Dom.get().bySelector('#attributeRows > .population .value'), population, {forceInteger: true});
+    formatValue(Dom.get().bySelector('#attributeRows > .population > .value > data'), population, {forceInteger: true});
     formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), populationDelta(), {forceSign: true});
 
     const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);
-    formatValue(Dom.get().bySelector('#attributeRows > .research .value'), research);
+    formatValue(Dom.get().bySelector('#attributeRows > .research > .value > data'), research);
 
     const essenceOfUnknown = attributes.essenceOfUnknown.getValue();
     formatValue(Dom.get().byId('essenceOfUnknownDisplay'), essenceOfUnknown, {forceInteger: true, keepNumber: true});
@@ -2357,6 +2399,7 @@ function init() {
     update();
     setInterval(update, 1000 / updateSpeed);
     setInterval(gameData.save.bind(gameData), 3000);
+    requestAnimationFrame(updateConnector);
 }
 
 init();

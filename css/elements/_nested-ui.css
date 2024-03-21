@@ -71,7 +71,7 @@
     white-space: nowrap;
 }
 
-.level4 > tr > .gridLoad {
+.level4 > tr > .gridLoad > data {
     transform-origin: right;
 }
 
@@ -124,11 +124,6 @@
             color: rgb(172, 172, 172);
         }
 
-        & data {
-            display: block;
-            text-align: right;
-        }
-
         &.requirements data {
             display: inline;
         }
@@ -141,6 +136,15 @@
             }
         }
     }
+}
+
+th.numeric {
+    text-align: right;
+}
+
+td > data {
+    display: block;
+    text-align: right;
 }
 
 /* Some rules to improve VFX */

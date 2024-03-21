@@ -455,9 +455,8 @@ class VFX {
      */
     static highlightText(element, animationCssClass, animationName) {
         const callback = (ev) => {
-            if (ev.animationName === animationName) {
-                element.removeEventListener('animationend', callback);
-            }
+            if (ev.animationName !== animationName) return;
+            element.removeEventListener('animationend', callback);
             element.classList.remove(animationCssClass);
         };
         element.addEventListener('animationend', callback);

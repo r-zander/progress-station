@@ -45,3 +45,26 @@
         /*background-image: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.25));*/
     }
 }
+
+.btn.point-of-interest {
+    --bs-btn-color: white;
+    --bs-btn-active-color: white;
+    --bs-btn-hover-color: white;
+
+    border-top-width: 0;
+    border-bottom-width: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    line-height: 30px;
+    text-align: left;
+
+    font-family: inherit;
+    font-weight: inherit;
+    font-size: var(--bs-body-font-size);
+    text-shadow: 1px 1px black, 1px 1px 3px black;
+
+    &.btn-primary {
+        --bs-btn-bg: rgb(12, 101, 173);
+    }
+}
