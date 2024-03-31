@@ -112,21 +112,21 @@ const moduleOperationRequirements = {
             requirement: 100,
         }]),
     ),
-    IndividualRooms: moduleOperations.IndividualRooms.registerRequirement(
+    IndividualRooms: moduleOperations.UnitedForVictory.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
-            operation: moduleOperations.ToughLife,
+            operation: moduleOperations.EveryoneMatters,
             requirement: 10,
         }]),
     ),
-    WayOfLifeT3: moduleOperations.WayOfLifeT3.registerRequirement(
+    WayOfLifeT3: moduleOperations.GuileIsStrength.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
-            operation: moduleOperations.IndividualRooms,
+            operation: moduleOperations.UnitedForVictory,
             requirement: 10,
         }]),
     ),
-    SecretWayOfLife: moduleOperations.SecretWayOfLife.registerRequirement(
+    SecretWayOfLife: moduleOperations.GloryToTheGreatHeroes.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
-            operation: moduleOperations.WayOfLifeT3,
+            operation: moduleOperations.GuileIsStrength,
             requirement: 100,
         }]),
     ),

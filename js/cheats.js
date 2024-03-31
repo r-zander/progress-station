@@ -188,6 +188,31 @@ const cheats = {
                 Object.values(pointsOfInterest).length,
             );
         },
+        /**
+         * Use case: Wrap up all (not yet, but intended) strings in the game to give them into contextual review.
+         */
+        exportStrings: () => {
+            return JSON.stringify({
+                modules: Object.values(modules).reduce((transformedModules, module) => {
+                    transformedModules[prepareTitle(module.title)] = {
+                        description: module.description,
+                        components: Object.values(module.components).reduce((transformedComponents, component) => {
+                            transformedComponents[prepareTitle(component.title)] = {
+                                description: component.description,
+                                operations: Object.values(component.operations).reduce((transformedOperations, operation) => {
+                                    transformedOperations[prepareTitle(operation.title)] = {
+                                        description: operation.description,
+                                    };
+                                    return transformedOperations;
+                                }, {}),
+                            };
+                            return transformedComponents;
+                        }, {}),
+                    };
+                    return transformedModules;
+                }, {}),
+            }, null, 2);
+        },
         ModuleOperations: {
             toTsv: (localeOverride = undefined) => {
                 const locale = getLocale(localeOverride);
