@@ -6,16 +6,6 @@
     margin-left: 0.5rem;
 }
 
-#settings {
-    .form-check {
-        cursor: pointer;
-
-        > * {
-            cursor: inherit;
-        }
-    }
-}
-
 .form-check.background {
     display: block;
     text-shadow: 1px 1px black, 1px 1px 3px black;

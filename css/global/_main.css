@@ -203,3 +203,15 @@ a[target="_blank"]:after {
     scrollbar-width: thin;
     scrollbar-color: #686868 #424242;
 }
+
+.form-check {
+    cursor: pointer;
+
+    > * {
+        cursor: inherit;
+    }
+}
+
+.form-check-input:hover {
+    box-shadow: 0 0 0 0.25rem rgba(255, 165, 0, 0.3);
+}

@@ -377,9 +377,9 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
         }
         /** @var {HTMLInputElement} */
         const switchElement = level2DomGetter.byClass('moduleActivationSwitch');
-        switchElement.id = 'switch_' + module.name;
+        switchElement.id = 'switch_' + module.domId;
         switchElement.addEventListener('click', switchModuleActivation.bind(this, module));
-        level2DomGetter.byClass('moduleActivationLabel').for = switchElement.id;
+        level2DomGetter.byClass('moduleActivationLabel').htmlFor = switchElement.id;
         initTooltip(level2DomGetter.byClass('maxLevel'), {
             title: () => {
                 return `<b>x${(1 + module.maxLevel / 100).toFixed(2)} XP</b> for all operations in this module.`;
