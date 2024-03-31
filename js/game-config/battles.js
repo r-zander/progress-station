@@ -1245,11 +1245,12 @@ const battles = {
             {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
         ],
     }),
+    // TODO add _ in large numbers on export
     AstralSharks1000: new Battle({
         title: 'End of Times',
         targetLevel: 1000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 10000000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 10_000_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 600},
             {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
