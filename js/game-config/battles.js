@@ -57,7 +57,7 @@ const factions = {
  */
 const battles = {
     NovaFlies10: new Battle({
-        title: 'Stray',
+        title: 'Harmless',
         targetLevel: 10,
         faction: factions.NovaFlies,
         effects: [{effectType: EffectType.Danger, baseValue: 0}],
@@ -66,7 +66,7 @@ const battles = {
         ],
     }),
     NovaFlies20: new Battle({
-        title: 'Harmless',
+        title: 'Stray',
         targetLevel: 20,
         faction: factions.NovaFlies,
         effects: [{effectType: EffectType.Danger, baseValue: 5}],
