@@ -1306,11 +1306,13 @@ const battleRequirements = [
  * @return {{limit: number, requirement: AttributeRequirement|string}}
  */
 function maximumAvailableBattles(research) {
-    if (research >= 100) return {limit: 5, requirement: 'Win open battles'};
+    // Special case 1: Research is maxed, but there would be more battles to display
+    if (research >= 100) return {limit: 5, requirement: 'Win any open battle'};
     if (research >= 50) return {limit: 4, requirement: battleRequirements[3]};
     if (research >= 20) return {limit: 3, requirement: battleRequirements[2]};
     if (research >= 10) return {limit: 2, requirement: battleRequirements[1]};
     if (research >= 0.01) return {limit: 1, requirement: battleRequirements[0]};
+    // Special case 2: Research is not yet discovered
     return {limit: 1, requirement: 'Win open battle'};
 }
 

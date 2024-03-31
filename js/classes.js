@@ -934,6 +934,14 @@ class GalacticSecret extends Entity {
     }
 }
 
+/**
+ * @typedef {Object} RequirementLike
+ * @property {function(): string} toHtml
+ */
+
+/**
+ * @extends {RequirementLike}
+ */
 class Requirement {
     /** @var {function(boolean)} */
     saveFn;

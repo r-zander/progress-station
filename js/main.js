@@ -1187,7 +1187,7 @@ function setProgress(progressFillElement, progress, increasing = true) {
 }
 
 /**
- * @param {Requirement[]|null} unfulfilledRequirements
+ * @param {RequirementLike[]|null} unfulfilledRequirements
  * @param {{
  *     hasUnfulfilledRequirements: boolean,
  *     requirementsElement: HTMLElement,
@@ -1397,6 +1397,58 @@ function updateModulesUI() {
     categoryRequirementsContext.requirementsElement.classList.toggle('hidden', !categoryRequirementsContext.hasUnfulfilledRequirements);
 }
 
+
+/**
+ *
+ * @param visibleFactions
+ * @param battle
+ * @param visibleBattles
+ * @param maxBattles
+ * @return {RequirementLike|null}
+ */
+function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattles, maxBattles) {
+    if (visibleFactions.hasOwnProperty(battle.faction.name)) {
+        return {
+            toHtml: () => {
+                return `${visibleFactions[battle.faction.name].title} defeated`;
+            },
+        };
+    }
+
+    if (visibleBattles < maxBattles.limit) {
+        // All good, no unfulfilled requirement
+        return null;
+    }
+
+    // The first and last maximumAvailableBattles are strings for special cases
+    if (isString(maxBattles.requirement)) {
+        return {
+            toHtml: () => {
+                return maxBattles.requirement;
+            },
+        };
+    }
+
+    // Let's get dirty for some nice UX
+    // If due to low research, only 1 battle can be shown, this battle explicitly mentioned
+    if (maxBattles.limit === 1) {
+        return {
+            toHtml: () => {
+                // Find the open battle by looking up the one value in the visible factions
+                return `${Object.values(visibleFactions)[0].title} defeated or ` +
+                    maxBattles.requirement.toHtml();
+            },
+        };
+    }
+
+    // There is more than 1 battle open but there could be more battles visible
+    return {
+        toHtml: () => {
+            return 'Win any open battle or ' + maxBattles.requirement.toHtml();
+        },
+    };
+}
+
 let battleRequirementsHtmlCache = '';
 
 function updateBattleRows() {
@@ -1431,29 +1483,11 @@ function updateBattleRows() {
 
         Dom.get().byId('row_done_' + battle.name).classList.add('hidden');
 
-        const unfulfilledRequirements = [];
-
-        if (visibleFactions.hasOwnProperty(battle.faction.name)) {
-            unfulfilledRequirements.push({
-                toHtml: () => {
-                    return `${visibleFactions[battle.faction.name].title} defeated`;
-                },
-            });
-        } else if (visibleBattles >= maxBattles.limit) {
-            if (isString(maxBattles.requirement)) {
-                unfulfilledRequirements.push({
-                    toHtml: () => {
-                        return maxBattles.requirement;
-                    },
-                });
-            } else {
-                unfulfilledRequirements.push(maxBattles.requirement);
-            }
-        }
+        const unfulfilledRequirement = getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattles, maxBattles);
 
         if (!(battle instanceof BossBattle)) {
             if (!updateRequirements(
-                unfulfilledRequirements.length === 0 ? null : unfulfilledRequirements,
+                unfulfilledRequirement === null ? null : [unfulfilledRequirement],
                 requirementsContext)
             ) {
                 row.classList.add('hidden');
