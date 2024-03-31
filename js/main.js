@@ -1432,7 +1432,14 @@ function updateBattleRows() {
         Dom.get().byId('row_done_' + battle.name).classList.add('hidden');
 
         const unfulfilledRequirements = [];
-        if (visibleBattles >= maxBattles.limit) {
+
+        if (visibleFactions.hasOwnProperty(battle.faction.name)) {
+            unfulfilledRequirements.push({
+                toHtml: () => {
+                    return `${visibleFactions[battle.faction.name].title} defeated`;
+                },
+            });
+        } else if (visibleBattles >= maxBattles.limit) {
             if (isString(maxBattles.requirement)) {
                 unfulfilledRequirements.push({
                     toHtml: () => {
@@ -1442,14 +1449,6 @@ function updateBattleRows() {
             } else {
                 unfulfilledRequirements.push(maxBattles.requirement);
             }
-        }
-
-        if (visibleFactions.hasOwnProperty(battle.faction.name)) {
-            unfulfilledRequirements.push({
-                toHtml: () => {
-                    return `${battle.faction.name} defeated`;
-                },
-            });
         }
 
         if (!(battle instanceof BossBattle)) {
@@ -1462,7 +1461,7 @@ function updateBattleRows() {
             }
 
             visibleBattles++;
-            visibleFactions[battle.faction.name] = true;
+            visibleFactions[battle.faction.name] = battle;
 
             row.classList.remove('hidden');
         }

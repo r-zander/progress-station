@@ -1311,7 +1311,7 @@ function maximumAvailableBattles(research) {
     if (research >= 20) return {limit: 3, requirement: battleRequirements[2]};
     if (research >= 10) return {limit: 2, requirement: battleRequirements[1]};
     if (research >= 0.01) return {limit: 1, requirement: battleRequirements[0]};
-    return {limit: 1, requirement: ''};
+    return {limit: 1, requirement: 'Win open battle'};
 }
 
 const layerData = [
