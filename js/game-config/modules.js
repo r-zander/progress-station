@@ -50,18 +50,18 @@ moduleOperations.Radiance = new ModuleOperation({
 
 moduleOperations.BigSpinny = new ModuleOperation({
     title: 'The Big Spinny', maxXp: 200, gridLoad: 1,
-
+    description: 'Primitive yet effective, this drill spins into action with relentless determination, making short work of the most stubborn space rocks.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
 });
 moduleOperations.AsteroidChomper = new ModuleOperation({
     title: 'Asteroid Chomper', maxXp: 1_000, gridLoad: 2,
-
+    description: 'A significant upgrade in mining tech, this beast chews through smaller planetoids with ease, turning mountains into molehills and rocks into progress.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
 });
 /** Galactic Secret */
 moduleOperations.TenDrills = new ModuleOperation({
     title: 'TenDrills', maxXp: 10_000, gridLoad: 4,
-
+    description: 'Alien tentacles, able to consume celestial bodies, turning them into perfectly refined resources.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}, {effectType: EffectType.IndustryFactor, baseValue: 0.02}],
 });
 
