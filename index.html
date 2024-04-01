@@ -389,7 +389,7 @@
                              data-bs-placement="right">
                             <div class="progressBackground progress-background"></div>
                             <div class="battleProgress progressFill progress-bar progress-bar-striped" style="width: 54%"></div>
-                            <div class="progress-text name px-2">Wimpy Astrogoblins</div>
+                            <div class="progress-text name text-truncate px-2">Wimpy Astrogoblins</div>
                         </div>
                     </td>
                     <td class="level numeric">
@@ -837,7 +837,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light"><b>The Destroyer</b> attacks you</h2>
+                <h2 class="modal-title fs-4 fw-light"><b class="bossName">The Destroyer</b> attacks you</h2>
             </div>
             <div class="modal-body">
                 <p>
@@ -847,6 +847,53 @@
                     The vacuum of space around your station suppresses all noise, but you can feel the hatred of
                     the alien beast and see it's determination to destroy everything you have built up.
                 </p>
+                <ul class="help-text m-0">
+                    <li>Your damage output is multiplied by your
+                        <span class="primary-stat" data-attribute="military" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
+                        and the progress speed from
+                        <span class="primary-stat" data-attribute="population" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>.
+                    </li>
+                    <li>The boss inflicts
+                        <span class="primary-stat" data-attribute="heat" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
+                        and is directly damaging your
+                        <span class="primary-stat" data-attribute="population" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>.
+                    </li>
+                    <li><span class="primary-stat" data-attribute="growth" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
+                        is disabled during the boss battle.
+                    </li>
+                    <li>Once your
+                        <span class="primary-stat" data-attribute="population" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
+                        reaches <data value="0">0</data>,
+                        you <b>lose the battle</b>.
+                    </li>
+                    <li>The boss has <data class="bossTargetLevel" value="10">10</data> levels of defense.</li>
+                    <li>The more levels of the boss that you overcome, the more
+                        <span class="primary-stat" data-attribute="essenceOfUnknown" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
+                        you will collect.
+                    </li>
+                    <li>Overcoming the last level of the boss will <b>win you the game</b>.</li>
+                </ul>
             </div>
             <div class="modal-footer d-flex">
                 <button type="button" class="btn btn-secondary"
@@ -863,15 +910,15 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light win-only">You defeated <b>The Destroyer</b></h2>
-                <h2 class="modal-title fs-4 fw-light loss-only"><b>The Destroyer</b> defeated you</h2>
+                <h2 class="modal-title fs-4 fw-light win-only">You defeated <b class="bossName">The Destroyer!</b></h2>
+                <h2 class="modal-title fs-4 fw-light loss-only"><b class="bossName">The Destroyer</b> defeated you!</h2>
             </div>
             <div class="modal-body win-only">
                 <p>
                     Congratulations!
                 </p>
                 <p>
-                    You managed to blast through the Destroyer's near endless defenses.
+                    You managed to blast through <b class="bossName">the Destroyer</b>'s near endless defenses.
                 </p>
                 <p>
                     The universe is safe, and it feels as if a curse was lifted of your soul.
@@ -879,25 +926,26 @@
                 <p class="mt-4">
                     On the main console you see what appears to be an ancient video game:
                 </p>
-                <p class="text-center mb-0">
+                <p class="text-center">
                     <a href="https://ihtasham-42.itch.io/progress-knight">Progress Knight</a> by ihtasham_42<br/>
                 </p>
-                <p>
-                    <em class="help-text">Check out the original game that Progress Station is based upon.</em>
+                <p class="help-text">
+                    Check out the original game that Progress Station is based upon.
                 </p>
             </div>
             <div class="modal-body loss-only">
                 <p>
-                    The Destroyer's power is overwhelming and annihilates your crew, your station, everything.
+                    <b class="bossName">The Destroyer</b>'s power is overwhelming and annihilates your crew, your station, everything.
                 </p>
                 <p>
                     With the last of your strength, you save yourself in the rescue capsule.
                 </p>
-                <p class="help-text">
-                    In the next play-through, you will progress much faster.<br/>
-                    The max level of modules equals the sum of all operations in that module.<br/>
-                    Each operation in a modules progresses X% faster, where X is the modules max level.
-                </p>
+                <ul class="help-text m-0">
+                    <li>In the next play-through, you will progress much faster.</li>
+                    <li>Each operation in a module progresses <data value="X" data-unit="%">X</data> faster,
+                        where <data value="X">X</data> is the module's max level.</li>
+                    <li>Max level of modules = sum of that module's operations max level.</li>
+                </ul>
             </div>
             <div class="modal-footer d-flex">
                 <button type="button" class="btn btn-secondary win-only" onclick="continueAfterWin();">Keep playing</button>

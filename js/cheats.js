@@ -158,7 +158,7 @@ const cheats = {
     Game: {
         letBossAppear: () => {
             gameData.bossBattleAvailable = false;
-            cheats.Age.setToBossTime();
+            cheats.Age.setToBossTime(false);
             Object.assign(bossBattle.savedValues, BossBattle.newSavedValues());
             // Paused game stays paused, otherwise --> switch to regular playing mode
             if (gameData.state !== gameStates.PAUSED) {
@@ -364,9 +364,12 @@ const cheats = {
             gameData.cycles += age;
             gameData.totalCycles += age;
         },
-        setToBossTime: () => {
-            const diff = (getBossAppearanceCycle() - 1) - gameData.cycles;
-            cheats.Age.add(diff);
+        setToBossTime: (forceBossAppearance = false) => {
+            if (forceBossAppearance) {
+                cheats.Game.letBossAppear();
+            } else {
+                cheats.Age.set(getBossAppearanceCycle() - 1);
+            }
         },
     },
     Battles: {},

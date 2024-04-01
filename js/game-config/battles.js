@@ -45,8 +45,8 @@ const factions = {
         description: 'Legends of the cosmic deep, Astral Sharks glide through space with celestial fins and stardust-infused teeth. They\'re the titans of the galactic oceans.'
     },
 
-    Destroyer: {
-        title: 'Destroyer', maxXp: 5_000_000,
+    Boss: {
+        title: 'Boss', maxXp: 5_000_000,
         description: 'An immense, dark mass of writhing tentacles, teeth and a thousand eyes. The vacuum of space around the station suppresses all noise, ' +
             'but you can feel the hatred of the alien beast and see it\'s determination to destroy everything you have built up.'
     },
@@ -1257,7 +1257,7 @@ const battles = {
         ],
     }),
 
-    Destroyer: new BossBattle({
+    Boss10: new BossBattle({
         titleGenerator: new NameGenerator()
             .add([
                 'Glorgomax',
@@ -1279,7 +1279,7 @@ const battles = {
                 'Jester of Annihilation'
             ]),
         targetLevel: 10,
-        faction: factions.Destroyer,
+        faction: factions.Boss,
         effects: [{effectType: EffectType.Heat, baseValue: 5}, {effectType: EffectType.GrowthFactor, baseValue: -1.00}],
         rewards: [],
     }),
@@ -1292,7 +1292,7 @@ const battles = {
 const bossBattleDefaultDistance = 4;
 const bossBattleApproachInterval = 200; // Cycles
 /** @type {BossBattle} */
-const bossBattle = battles.Destroyer;
+const bossBattle = battles.Boss10;
 
 const battleRequirements = [
     new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 10}]),

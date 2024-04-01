@@ -86,6 +86,12 @@ function initBossFightIntro() {
     GameEvents.GameStateChanged.subscribe(function (payload) {
         if (payload.newState !== gameStates.BOSS_FIGHT_INTRO.name) return;
 
+        Dom.get().allBySelector('#bossFightIntroModal .bossName').forEach((nameElement) => {
+            nameElement.textContent = bossBattle.title;
+        });
+        Dom.get().allBySelector('#bossFightIntroModal .bossTargetLevel').forEach((targetLevelElement) => {
+            formatValue(targetLevelElement, bossBattle.targetLevel, {keepNumber: true, forceInteger: true});
+        });
         Dom.get().byId('delayBossBattleButton').classList.toggle('hidden', bossBattle.distance === 0);
         modal.show();
     });
@@ -124,6 +130,9 @@ function initGameOver() {
             return;
         }
 
+        Dom.get().allBySelector('#gameOverModal .bossName').forEach((nameElement) => {
+            nameElement.textContent = bossBattle.title;
+        });
         modal.show();
 
         modalElement.classList.toggle('win', bossDefeated);
