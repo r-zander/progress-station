@@ -773,23 +773,23 @@ function createAttributeInlineHTML(attribute) {
  * @returns {HTMLElement}
  */
 function createAttributeRow(attribute) {
-    const dangerRow = Dom.new.fromTemplate('attributeRowTemplate');
-    dangerRow.classList.add(attribute.name);
-    const dangerDomGetter = Dom.get(dangerRow);
+    const attributeRow = Dom.new.fromTemplate('attributeRowTemplate');
+    attributeRow.classList.add(attribute.name);
+    const domGetter = Dom.get(attributeRow);
     if (attribute.icon === null) {
-        dangerDomGetter.byClass('icon').remove();
+        domGetter.byClass('icon').remove();
     } else {
-        dangerDomGetter.byClass('icon').src = attribute.icon;
+        domGetter.byClass('icon').src = attribute.icon;
     }
-    let nameElement = dangerDomGetter.byClass('name');
+    let nameElement = domGetter.byClass('name');
     nameElement.textContent = attribute.title;
     if (attribute.color === null) {
         nameElement.style.removeProperty('color');
     } else {
         nameElement.style.color = attribute.color;
     }
-    dangerDomGetter.byClass('description').innerHTML = attribute.description;
-    return dangerRow;
+    domGetter.byClass('description').innerHTML = attribute.description;
+    return attributeRow;
 }
 
 /**
