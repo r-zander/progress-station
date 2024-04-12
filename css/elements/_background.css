@@ -71,10 +71,10 @@
 
 #gas-planet {
     position: absolute;
-    right: -75px;
+    right: -10px;
     top: 250px;
-    width: 520px;
-    filter: hue-rotate(315deg);
+    width: 140px;
+    filter: hue-rotate(280deg);
 }
 
 #main-planet-wrapper {
@@ -82,6 +82,7 @@
     right: 0;
     bottom: 0;
     left: 0;
+    transform: translateY(66%);
 
     background-image: radial-gradient(circle at bottom center, #021012 35%, rgba(2, 16, 18, 0) 45%);
 }
@@ -95,7 +96,7 @@
     max-width: 1200px;
     height: 100%;
     margin-top: 4%; /* A bit of space for the radial background */
-    filter: hue-rotate(190deg);
+    filter: hue-rotate(0deg);
 }
 
 #main-planet-overlay {
@@ -115,8 +116,8 @@
     }
 
     #gas-planet {
-        width: 450px;
-        right: -125px;
+        width: 120px;
+        right: -10px;
     }
 }
 
@@ -127,8 +128,8 @@
     }
 
     #gas-planet {
-        width: 400px;
-        right: -150px;
+        width: 100px;
+        right: -10px;
     }
 }
 
