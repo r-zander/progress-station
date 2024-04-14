@@ -1820,6 +1820,8 @@ function updateText() {
     formatValue(Dom.get().byId('galacticSecretCostDisplay'), galacticSecretCost, {forceInteger: true, keepNumber: true});
 }
 
+const htmlElementRequirementsHtmlCache = {};
+
 function updateHtmlElementRequirements() {
     for (const key in htmlElementRequirements) {
         const htmlElementWithRequirement = htmlElementRequirements[key];
@@ -1840,13 +1842,26 @@ function updateHtmlElementRequirements() {
                 element.classList.toggle('hidden', !completed);
             }
         }
-        const requirementHtml = htmlElementWithRequirement.toHtml();
-        for (const element of htmlElementWithRequirement.elementsToShowRequirements) {
-            if (completed || !visible) {
+
+        if (completed || !visible) {
+            for (const element of htmlElementWithRequirement.elementsToShowRequirements) {
                 element.classList.add('hidden');
-            } else {
+            }
+        } else {
+            const requirementHtml = htmlElementWithRequirement.toHtml();
+            let updateInnerHtml = false;
+            if (!htmlElementRequirementsHtmlCache.hasOwnProperty(key) ||
+                requirementHtml !== htmlElementRequirementsHtmlCache[key]
+            ) {
+                updateInnerHtml = true;
+                htmlElementRequirementsHtmlCache[key] = requirementHtml;
+            }
+
+            for (const element of htmlElementWithRequirement.elementsToShowRequirements) {
                 element.classList.remove('hidden');
-                element.innerHTML = requirementHtml;
+                if (updateInnerHtml) {
+                    element.innerHTML = requirementHtml;
+                }
             }
         }
     }
