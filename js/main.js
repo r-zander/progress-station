@@ -220,8 +220,19 @@ function updateConnector() {
         connectorElement.style.left = Math.round(boundingClientRect.activeTabButton.right) + 'px';
         connectorElement.style.width = Math.round(boundingClientRect.contentElement.left - boundingClientRect.activeTabButton.right + 1) + 'px';
     });
+}
 
-    requestAnimationFrame(updateConnector);
+function updateLayout(){
+    /**
+     * Do some layout calculations Raoul's too stupid to do in pure CSS.
+     */
+    const headerHeight = Dom.outerHeight(Dom.get().byId('stationOverview'));
+    // TODO don't
+    Dom.get().byId('contentWrapper').style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
+
+    updateConnector();
+
+    requestAnimationFrame(updateLayout);
 }
 
 /**
@@ -1027,15 +1038,6 @@ function createEnergyGridDisplay() {
 
     Dom.get().byId('ticksTop').replaceWith(...tickElementsTop);
     Dom.get().byId('ticksBottom').replaceWith(...tickElementsBottom);
-}
-
-/**
- * Does layout calculations Raoul's too stupid to do in pure CSS.
- */
-function adjustLayout() {
-    const headerHeight = Dom.outerHeight(Dom.get().byId('stationOverview'));
-    // TODO don't
-    Dom.get().byId('contentWrapper').style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
 }
 
 function cleanUpDom() {
@@ -2422,8 +2424,6 @@ function init() {
     createModulesQuickDisplay();
     createBattlesQuickDisplay();
 
-    adjustLayout();
-
     createAttributeDescriptions(createAttributeInlineHTML);
     createAttributesDisplay();
     createAttributesUI();
@@ -2447,7 +2447,7 @@ function init() {
     update();
     setInterval(update, 1000 / updateSpeed);
     setInterval(gameData.save.bind(gameData), 3000);
-    requestAnimationFrame(updateConnector);
+    requestAnimationFrame(updateLayout);
 }
 
 init();

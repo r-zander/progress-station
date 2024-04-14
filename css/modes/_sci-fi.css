@@ -65,22 +65,15 @@
 
     :not(.btn-group) > .btn {
         --corner-length: 12px;
-        clip-path: polygon(
-                0 var(--corner-length),
-                var(--corner-length) 0,
-                calc(100% - var(--corner-length)) 0,
-                100% var(--corner-length),
-                100% calc(100% - var(--corner-length)),
-                calc(100% - var(--corner-length)) 100%,
-                var(--corner-length) 100%,
-                0 calc(100% - var(--corner-length))
-        );
-        border-left: 3px solid;
-        border-right: 3px solid;
-        padding-left: calc(2 * var(--bs-btn-padding-x));
-        padding-right: calc(2 * var(--bs-btn-padding-x));
+        border-radius: var(--corner-length);
+        border: 3px solid currentColor;
+        padding: calc(var(--bs-btn-padding-y) - 3px) calc(1.5 * var(--bs-btn-padding-x));
 
         position: relative;
+
+        &.btn-contrast-outline {
+            box-shadow: 0 0 0 1px var(--bs-btn-bg);
+        }
 
         &::before,
         &::after {
