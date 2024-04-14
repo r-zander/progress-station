@@ -1324,6 +1324,9 @@ class HtmlElementWithRequirement {
         for (const requirement of this.requirements) {
             requirement.reset();
         }
+        for (const requirement of this.prerequirements) {
+            requirement.reset();
+        }
     }
 }
 
