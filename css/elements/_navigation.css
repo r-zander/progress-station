@@ -2,28 +2,40 @@
     width: var(--sidebar-width);
 }
 
-.tabButton {
-    border: none;
+.tabButton,
+.shortcut {
+    --tab-button-border-color: grey;
+    --tab-button-interact-border-color: white;
+    --tab-button-active-border-color: orange;
+
+    border: var(--clickable-border-width) var(--clickable-border-style) var(--tab-button-border-color);
+    border-radius: var(--corner-length-large);
     position: relative;
+
+    &:hover,
+    &:focus {
+        border-color: var(--tab-button-interact-border-color);
+    }
+
+    &:active {
+        border-color: var(--tab-button-interact-border-color);
+    }
+
+    &.active {
+        border-color: var(--tab-button-active-border-color);
+    }
+
+    > h3 {
+        font-size: var(--bs-body-font-size);
+        font-weight: 400;
+        margin: 0;
+    }
 }
 
-.tabButton:hover,
-.tabButton:focus {
-    box-shadow: inset 0 0 5px 4px grey;
-}
-
-.tabButton:active {
-    box-shadow: inset 0 0 10px 4px grey;
-}
-
-.tabButton.active {
-    box-shadow: inset 0 0 5px 4px orange;
-}
-
-.tabButton > h3 {
-    font-size: var(--bs-body-font-size);
-    font-weight: 400;
-    margin: 0;
+.shortcut {
+    cursor: pointer;
+    border-width: 0;
+    border-bottom-width: var(--clickable-border-width);
 }
 
 #connector {

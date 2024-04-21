@@ -6,6 +6,11 @@
 let gameData;
 
 /**
+ * @type {number}
+ */
+let updateIntervalID = 0;
+
+/**
  *
  * @type {
  * {
@@ -1746,7 +1751,7 @@ function updateHeatDisplay() {
     heatElement2.style.color = color;
 }
 
-function updateText() {
+function updateStationOverview() {
     const cyclesSinceLastEncounterElement = Dom.get().byId('cyclesSinceLastEncounter');
     const cyclesTotalElement = Dom.get().byId('cyclesTotal');
     if (gameData.bossEncounterCount === 0) {
@@ -1820,6 +1825,9 @@ function updateText() {
 
     const galacticSecretCost = calculateGalacticSecretCost();
     formatValue(Dom.get().byId('galacticSecretCostDisplay'), galacticSecretCost, {forceInteger: true, keepNumber: true});
+
+    // Only shot the attributes display as a shortcut link if the attributes tab is actually available
+    Dom.get().byId('attributesDisplay').classList.toggle('shortcut', !tabButtons['attributes'].classList.contains('hidden'));
 }
 
 const htmlElementRequirementsHtmlCache = {};
@@ -2279,7 +2287,7 @@ function updateUI() {
 
     updateHtmlElementRequirements();
 
-    updateText();
+    updateStationOverview();
     updateBodyClasses();
 }
 
@@ -2445,7 +2453,7 @@ function init() {
     displayLoaded();
 
     update();
-    setInterval(update, 1000 / updateSpeed);
+    updateIntervalID = setInterval(update, 1000 / updateSpeed);
     setInterval(gameData.save.bind(gameData), 3000);
     requestAnimationFrame(updateLayout);
 }

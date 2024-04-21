@@ -1,15 +1,16 @@
-#gameTitle {
+a#gameTitle {
     position: fixed;
     left: 0;
     top: 20%;
+
+    display: block;
+
     rotate: 270deg;
     transform-origin: left top;
     transform: translateX(-100%);
 
-    > h1 > a {
-        color: inherit;
-        text-decoration: none;
-    }
+    color: inherit;
+    text-decoration: none;
 }
 
 .logo {
@@ -214,4 +215,24 @@ a[target="_blank"]:after {
 
 .form-check-input:hover {
     box-shadow: 0 0 0 0.25rem rgba(255, 165, 0, 0.3);
+}
+
+.rounded {
+    --bs-border-radius: var(--corner-length)
+}
+
+.rounded-top-end {
+    border-top-right-radius: var(--corner-length);
+}
+
+.rounded-top-start {
+    border-top-left-radius: var(--corner-length);
+}
+
+.rounded-bottom-end {
+    border-bottom-right-radius: var(--corner-length);
+}
+
+.rounded-bottom-start {
+    border-bottom-left-radius: var(--corner-length);
 }

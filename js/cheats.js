@@ -168,6 +168,18 @@ const cheats = {
         reset: () => {
             gameData.reset();
         },
+        /**
+         * Useful to manipulate the DOM.
+         */
+        disableUpdates: () => {
+            clearInterval(updateIntervalID);
+        },
+        /**
+         * Inverse of disableUpdates to continue the normal game.
+         */
+        enableUpdates: () => {
+            updateIntervalID = setInterval(update, 1000 / updateSpeed);
+        }
     },
     Config: {
         printStats: () => {

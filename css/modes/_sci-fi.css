@@ -1,31 +1,9 @@
 .sci-fi {
-    .progress {
-        background: none;
-    }
-
-    .progress::before,
-    .progress-background {
-        content: "";
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
-
-        background-color: var(--progress-bg-color);
-    }
-
-    .progress::before,
-    .progress-bar,
-    .progress-background {
-        --corner-length: 30px;
-        clip-path: polygon(
-                0 0,
-                calc(100% - var(--corner-length)) 0,
-                100% 100%,
-                0 100%
-        );
+    .progress,
+    .progress-bar {
+        border-radius: var(--corner-length);
+        border-top-right-radius: 44px 29px;
+        border-bottom-right-radius: calc(var(--corner-length) / 2);
     }
 
     .progress-text {
@@ -34,15 +12,10 @@
 
     #energyDisplay {
         /* Flip cut corner so it aligns with the grid bar */
-        &.progress::before,
-        .progress-bar,
-        .progress-background {
-            clip-path: polygon(
-                    0 0,
-                    100% 0,
-                    calc(100% - var(--corner-length)) 100%,
-                    0 100%
-            );
+        &.progress,
+        .progress-bar {
+            border-top-right-radius: calc(var(--corner-length) / 2);
+            border-bottom-right-radius: 44px 29px;
         }
 
         /* Elongate the last tick so it fills the cut corner */
@@ -64,9 +37,8 @@
     }
 
     :not(.btn-group) > .btn {
-        --corner-length: 12px;
         border-radius: var(--corner-length);
-        border: 3px solid currentColor;
+        border: var(--clickable-border-width) var(--clickable-border-style) currentColor;
         padding: calc(var(--bs-btn-padding-y) - 3px) calc(1.5 * var(--bs-btn-padding-x));
 
         position: relative;
@@ -100,7 +72,7 @@
         }
 
         &.btn-lg {
-            --corner-length: 16px;
+            --corner-length: var(--corner-length-large);
         }
     }
 }

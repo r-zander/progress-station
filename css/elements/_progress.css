@@ -1,12 +1,30 @@
 .progress {
+    --progress-bg-color: rgb(12, 101, 173);
+    --progress-bar-bg-color: rgb(46, 148, 231);
+
     position: relative;
     height: 30px;
-    --progress-bg-color: rgb(12, 101, 173);
+    box-sizing: content-box; /* Add border on the outside */
+
     background-color: var(--progress-bg-color);
+
 
     /* Reset some bootstrap styling */
     overflow: visible;
     border-radius: 0;
+
+    &.clickable {
+        border: var(--clickable-border-width) var(--clickable-border-style) var(--progress-bar-bg-color);
+
+        &:hover,
+        &:focus {
+            border-color: var(--clickable-interact-border-color);
+        }
+
+        &:active {
+            border-color: var(--clickable-interact-border-color);
+        }
+    }
 }
 
 .progress-text {
@@ -28,7 +46,6 @@
 .progress-bar {
     /* Smooth out progress bar filling */
     transition: width 50ms linear;
-    --progress-bar-bg-color: rgb(46, 148, 231);
     background-color: var(--progress-bar-bg-color);
 }
 

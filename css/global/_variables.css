@@ -14,4 +14,10 @@
 
     /* Calculated variables */
     --main-width: calc(var(--content-width) + var(--sidebar-width) + 1rem);
+
+    --clickable-border-width: 3px;
+    --clickable-border-style: solid;
+    --clickable-interact-border-color: white;
+    --corner-length: 12px;
+    --corner-length-large: 16px;
 }

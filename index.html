@@ -22,20 +22,19 @@
     <div id="main-planet-overlay"></div>
 </section>
 
-<!-- TODO reserve horizontal space for game title -->
-<div id="gameTitle" class="d-flex panel align-items-center">
-    <a id="gameTitleLogo" class="logo me-2 order-2" href="#credits">
+<a id="gameTitle" class="d-flex panel align-items-center shortcut" href="#credits">
+    <div id="gameTitleLogo" class="logo me-2 order-2" >
         PS
-    </a>
-    <h1 class="p-2 m-0 order-1"><a href="#credits">Progress Station</a></h1>
-</div>
+    </div>
+    <h1 class="p-0 m-0 order-1">Progress Station</h1>
+</a>
 <main id="main" class="d-flex flex-column">
     <header id="stationOverview" class="mb-3 gap-1 d-flex flex-column">
-        <div class="panel px-3 pt-2 pb-1 d-flex flex-row gap-3 align-items-start">
+        <div class="panel pe-3 pt-2 d-flex flex-row gap-3 align-items-start">
             <a id="stationOverviewLogo" class="logo me-2" href="#credits">
                 PS
             </a>
-            <h2 id="nameDisplay" class="my-0 flex-fill">USS Progress</h2>
+            <h2 id="nameDisplay" class="shortcut my-0 me-auto px-3 pb-1">USS Progress</h2>
             <div id="cyclesSinceLastEncounter" class="primary-stat"
                  title="Intergalactic Cycles" data-bs-placement="bottom">
                 <span class="label">Since Last Encounter:</span>
@@ -105,7 +104,7 @@
             </div>
         </div>
 
-        <div id="attributesDisplay" class="panel px-3 py-1 d-flex justify-content-start gap-4" onclick="setTab('attributes');">
+        <div id="attributesDisplay" class="shortcut panel px-3 py-1 d-flex justify-content-start gap-4" onclick="setTab('attributes');">
             <div class="primary-stat" data-attribute="population"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
@@ -333,7 +332,7 @@
             <template id="level4TaskTemplate">
                 <tr class="floating-warning-container">
                     <td>
-                        <div class="progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
+                        <div class="progress progressBar descriptionTooltip clickable" role="progressbar" aria-label="Task"
                              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
                              data-bs-placement="right">
                             <div class="moduleOperation progressFill progress-bar progress-bar-striped" style="width: 54%"></div>
@@ -384,7 +383,7 @@
             <template id="level4BattleTemplate">
                 <tr>
                     <td>
-                        <div class="progress battle progressBar descriptionTooltip" role="progressbar" aria-label="Task"
+                        <div class="progress battle progressBar descriptionTooltip clickable" role="progressbar" aria-label="Task"
                              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Learn something about astrogoblins."
                              data-bs-placement="right">
                             <div class="progressBackground progress-background"></div>
@@ -449,7 +448,7 @@
             <template id="level4GalacticSecretTemplate">
                 <tr>
                     <td>
-                        <div class="galactic-secret progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
+                        <div class="galactic-secret progress progressBar descriptionTooltip clickable" role="progressbar" aria-label="Task"
                              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
                              data-bs-placement="right">
                             <div class="moduleOperation progressFill progress-bar progress-bar-striped" style="width: 54%"></div>
