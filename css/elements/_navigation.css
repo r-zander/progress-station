@@ -4,10 +4,6 @@
 
 .tabButton,
 .shortcut {
-    --tab-button-border-color: grey;
-    --tab-button-interact-border-color: white;
-    --tab-button-active-border-color: orange;
-
     border: var(--clickable-border-width) var(--clickable-border-style) var(--tab-button-border-color);
     border-radius: var(--corner-length-large);
     position: relative;
@@ -43,7 +39,7 @@
     width: 26px;
     height: 4px;
 
-    background-color: orange;
+    background-color: var(--active-color);
     border: none;
 
     /* Remove bootstrap styling */

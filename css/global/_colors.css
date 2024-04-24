@@ -14,29 +14,33 @@
     --ps-green1: #48a07e;
     --ps-green3: #2abf72;
     --ps-green2: #02CC72;
-    --ps-foreground-dark: #000000;
-    --ps-foreground-light: #FFFFFF;
-    --ps-foreground-light-transparent100: #FFFFFF00;
-    --ps-foreground-light-transparent90: #FFFFFF19;
+    --ps-dark: #000000;
+    --ps-light: #FFFFFF;
+    --ps-light-transparent100: #FFFFFF00;
+    --ps-light-transparent90: #FFFFFF19;
+    --ps-passive: #848484;
 
     --active-color: #FFA500;
     --active-color-subtle: #FFA5004C;
-    --clickable-interact-border-color: var(--ps-foreground-light);
+    --clickable-interact-border-color: var(--ps-light);
     --backdrop-color: rgba(0, 0, 0, 0.6);
     --scrollbar-thumb-color: #686868;
     --scrollbar-track-color: #424242;
+    --tab-button-border-color: var(--ps-passive);
+    --tab-button-interact-border-color: var(--ps-light);
+    --tab-button-active-border-color: var(--active-color);
 
     --body-bg-color: #202020;
     --body-font-color: white;
     --panel-bg-color: #2E2E2E;
-    --panel-bg-color-transparent80: #2E2E2ECB;
-    --panel-bg-color-transparent95: #2E2E2EF2;
+    --panel-bg-color-transparent20: #2E2E2ECB;
+    --panel-bg-color-transparent05: #2E2E2EF2;
 
     --progress-bg-color: #0C65AD;
     --progress-bar-color: #2E94E7;
     --progress-current-bar-color: var(--active-color);
     --progress-passive-bg-color: #575757;
-    --progress-passive-bar-color: #848484;
+    --progress-passive-bar-color: var(--ps-passive);
 
     --logo-border-color: var(--progress-bg-color);
     --help-font-color: #ACACAC;

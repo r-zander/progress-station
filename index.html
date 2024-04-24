@@ -49,12 +49,12 @@
 
         <div id="energyGridDisplay" class="panel px-3 py-1 d-flex flex-row overflow-hidden">
             <div class="d-flex flex-column mt-3">
-                <p id="gridLabel" class="grid-strength-bar d-flex align-items-center px-2" style="background-color: grey"
+                <p id="gridLabel" class="grid-strength-bar energy-label d-flex align-items-center px-2"
                      title="[Filled by JavaScript]" data-bs-placement="bottom" data-bs-html="true">
                     <img src="img/icons/grid.svg" class="icon" alt="Grid Icon" style="height: 30px;" />
                     <span class="flex-fill ms-1">Grid</span>
                 </p>
-                <p class="energy-bar d-flex align-items-center px-2" style="background-color: grey">
+                <p class="energy-bar energy-label d-flex align-items-center px-2">
                     <img src="img/icons/energy.svg" class="icon" alt="Energy Icon"/>
                     <span class="flex-fill ms-1">Energy</span>
                 </p>
@@ -136,7 +136,7 @@
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
-                <data id="heatDisplay" style="color: rgb(15, 105, 207)" value="1">?%</data>
+                <data id="heatDisplay" style="color: lime" value="1">?%</data>
             </div>
             <div class="primary-stat" data-attribute="danger"
                  data-bs-placement="bottom" data-bs-html="true">
@@ -259,7 +259,7 @@
             <template id="level1Template">
                 <div class="level1">
                     <div class="level1-header d-flex justify-content-start py-2 px-2 mb-0"
-                         style="background-color: rgb(199, 21, 133);">
+                         style="background-color: lime;">
                         <div class="category" title="Component Description" data-bs-placement="right">
                             Industry
                         </div>
@@ -535,7 +535,7 @@
                             <tr>
                                 <td class="title">
                                     <img src="img/icons/industry.svg" class="icon" alt="Population Icon"/>
-                                    <span class="name" style="color: rgb(97, 173, 50)">Industry</span>
+                                    <span class="name" style="color: lime">Industry</span>
                                 </td>
                                 <td class="value numeric">
                                     <data value="0">?</data>

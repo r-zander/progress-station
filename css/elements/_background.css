@@ -32,12 +32,12 @@
 }
 
 .background-triangles1 .panel {
-    background-color: var(--panel-bg-color-transparent80);
+    background-color: var(--panel-bg-color-transparent20);
 }
 
 
 .background-space .panel {
-    background-color: var(--panel-bg-color-transparent95);
+    background-color: var(--panel-bg-color-transparent05);
 }
 
 #star-background {

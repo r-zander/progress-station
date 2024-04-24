@@ -1,5 +1,5 @@
 #energyGridDisplay {
-    color: white;
+    color: var(--body-font-color);
 
     .ticks {
         height: 1rem;
@@ -30,7 +30,7 @@
 #gridStrength {
     .gridLoad,
     .gridStrength {
-        text-shadow: 1px 1px var(--ps-foreground-dark), 1px 1px 3px var(--ps-foreground-dark);
+        text-shadow: 1px 1px var(--ps-dark), 1px 1px 3px var(--ps-dark);
     }
 
     .grid-strength-box {
@@ -52,4 +52,8 @@
         line-height: inherit;
         white-space: nowrap;
     }
+}
+
+.energy-label {
+    background-color: var(--ps-passive);
 }

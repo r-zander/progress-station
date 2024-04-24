@@ -8,10 +8,10 @@
 
 .form-check.background {
     display: block;
-    text-shadow: 1px 1px black, 1px 1px 3px black;
+    text-shadow: 1px 1px var(--ps-dark), 1px 1px 3px var(--ps-dark);
     padding: 1rem;
     padding-left: 2.5rem;
-    border: 1px solid white;
+    border: 1px solid var(--ps-light);
     line-height: 23px;
 }
 

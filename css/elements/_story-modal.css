@@ -30,9 +30,9 @@
 
 @keyframes flash-background {
     from {
-        background-color: var(--ps-foreground-light-transparent100);
+        background-color: var(--ps-light-transparent100);
     }
     to {
-        background-color: var(--ps-foreground-light-transparent90);
+        background-color: var(--ps-light-transparent90);
     }
 }

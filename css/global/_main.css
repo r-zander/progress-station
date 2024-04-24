@@ -100,10 +100,10 @@ a#gameTitle {
     position: relative;
     max-width: var(--content-width);
 
-    background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, orange 4px, orange 8px);
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, var(--active-color) 4px, var(--active-color) 8px);
     background-size: 12px 100%;
     background-repeat: repeat-y;
-    border-left: 2px solid orange;
+    border-left: 2px solid var(--active-color);
 }
 
 #content .progress {
