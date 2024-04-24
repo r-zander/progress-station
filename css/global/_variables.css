@@ -5,10 +5,6 @@
     --number-font-size: 1.125rem;
     --number-font-weight: 400;
 
-    --body-bg-color: rgb(243, 243, 243);
-    --body-font-color: #222;
-    --panel-bg-color: white;
-
     --sidebar-width: 360px;
     --content-width: 1000px;
 
@@ -17,7 +13,6 @@
 
     --clickable-border-width: 3px;
     --clickable-border-style: solid;
-    --clickable-interact-border-color: white;
     --corner-length: 12px;
     --corner-length-large: 16px;
 }

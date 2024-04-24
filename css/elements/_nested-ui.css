@@ -32,15 +32,15 @@
 
 .level2.inactive {
     .progress {
-        --progress-bg-color: #575757;
+        --progress-bg-color: var(--progress-passive-bg-color);
     }
 
     .progress-bar {
-        --progress-bar-bg-color: #848484;
+        --progress-bar-color: var(--progress-passive-bar-color);
     }
 
     .progress-bar.current {
-        --progress-bar-bg-color: rgb(46, 148, 231);
+        --progress-bar-color: var(--progress-bar-color);
     }
 }
 
@@ -85,7 +85,7 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    background-color: white;
+    background-color: var(--panel-bg-color);
 }
 
 .level1 .level2-header {
@@ -127,7 +127,7 @@
         }
 
         &.help-text {
-            color: rgb(172, 172, 172);
+            color: var(--help-font-color);
         }
 
         &.requirements data {

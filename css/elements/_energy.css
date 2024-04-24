@@ -30,15 +30,15 @@
 #gridStrength {
     .gridLoad,
     .gridStrength {
-        text-shadow: 1px 1px black, 1px 1px 3px black;
+        text-shadow: 1px 1px var(--ps-foreground-dark), 1px 1px 3px var(--ps-foreground-dark);
     }
 
     .grid-strength-box {
         height: 100%;
-        background-color: rgb(12, 101, 173);
+        background-color: var(--grid-strength-color);
 
         &.in-use {
-            background-color: rgb(46, 148, 231)
+            background-color: var(--grid-load-color);
         }
     }
 }

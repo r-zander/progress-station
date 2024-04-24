@@ -1,7 +1,4 @@
 .progress {
-    --progress-bg-color: rgb(12, 101, 173);
-    --progress-bar-bg-color: rgb(46, 148, 231);
-
     position: relative;
     height: 30px;
     box-sizing: content-box; /* Add border on the outside */
@@ -14,7 +11,7 @@
     border-radius: 0;
 
     &.clickable {
-        border: var(--clickable-border-width) var(--clickable-border-style) var(--progress-bar-bg-color);
+        border: var(--clickable-border-width) var(--clickable-border-style) var(--progress-bar-color);
 
         &:hover,
         &:focus {
@@ -35,8 +32,8 @@
     font-size: var(--bs-body-font-size);
     line-height: 30px;
 
-    color: white;
-    text-shadow: 1px 1px black, 1px 1px 3px black;
+    color: var(--ps-foreground-light);
+    text-shadow: 1px 1px var(--ps-foreground-dark), 1px 1px 3px var(--ps-foreground-dark);
 
     max-width: 100%;
 
@@ -46,11 +43,11 @@
 .progress-bar {
     /* Smooth out progress bar filling */
     transition: width 50ms linear;
-    background-color: var(--progress-bar-bg-color);
+    background-color: var(--progress-bar-color);
 }
 
 .progress-bar.current {
-    --progress-bar-bg-color: orange;
+    --progress-bar-color: var(--progress-current-bar-color);
 }
 
 .game-playing {
@@ -64,9 +61,9 @@
 }
 
 .btn.point-of-interest {
-    --bs-btn-color: white;
-    --bs-btn-active-color: white;
-    --bs-btn-hover-color: white;
+    --bs-btn-color: var(--ps-foreground-light);
+    --bs-btn-active-color: var(--ps-foreground-light);
+    --bs-btn-hover-color: var(--ps-foreground-light);
 
     border-top-width: 0;
     border-bottom-width: 0;
@@ -79,9 +76,9 @@
     font-family: inherit;
     font-weight: inherit;
     font-size: var(--bs-body-font-size);
-    text-shadow: 1px 1px black, 1px 1px 3px black;
+    text-shadow: 1px 1px var(--ps-foreground-dark), 1px 1px 3px var(--ps-foreground-dark);
 
     &.btn-primary {
-        --bs-btn-bg: rgb(12, 101, 173);
+        --bs-btn-bg: var(--progress-bg-color);
     }
 }

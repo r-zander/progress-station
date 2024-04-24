@@ -1,0 +1,61 @@
+:root {
+    --ps-yellow: #eca545;
+    --ps-orange: #fd7d45;
+    --ps-pink2: #d9557d;
+    --ps-pink1: #c12f5f;
+    --ps-pink3: #c04d56;
+    --ps-red2: #cb3140;
+    --ps-red: #ed3a44;
+    --ps-purple2: #7c2c90;
+    --ps-purple1: #67288f;
+    --ps-dark-blue: #144a8b;
+    --ps-blue: #5d8ec8;
+    --ps-cyan: #54e9d6;
+    --ps-green1: #48a07e;
+    --ps-green3: #2abf72;
+    --ps-green2: #02CC72;
+    --ps-foreground-dark: #000000;
+    --ps-foreground-light: #FFFFFF;
+    --ps-foreground-light-transparent100: #FFFFFF00;
+    --ps-foreground-light-transparent90: #FFFFFF19;
+
+    --active-color: #FFA500;
+    --active-color-subtle: #FFA5004C;
+    --clickable-interact-border-color: var(--ps-foreground-light);
+    --backdrop-color: rgba(0, 0, 0, 0.6);
+    --scrollbar-thumb-color: #686868;
+    --scrollbar-track-color: #424242;
+
+    --body-bg-color: #202020;
+    --body-font-color: white;
+    --panel-bg-color: #2E2E2E;
+    --panel-bg-color-transparent80: #2E2E2ECB;
+    --panel-bg-color-transparent95: #2E2E2EF2;
+
+    --progress-bg-color: #0C65AD;
+    --progress-bar-color: #2E94E7;
+    --progress-current-bar-color: var(--active-color);
+    --progress-passive-bg-color: #575757;
+    --progress-passive-bar-color: #848484;
+
+    --logo-border-color: var(--progress-bg-color);
+    --help-font-color: #ACACAC;
+    --warning-color: #C80000;
+
+    --grid-strength-color: var(--progress-bg-color);
+    --grid-load-color: var(--progress-bar-color);
+    --galactic-secret-color: #AB016E;
+    --battle-color: var(--ps-red);
+
+
+    /* Special purpose colors */
+    --background-fade-1-color: #033038;
+    --background-fade-2-color: #162E33;
+    --background-fade-3-color: #152124;
+    --background-fade-4-color: #0D191C;
+    --background-fade-5-color: #021012;
+    --background-fade-5-color-transparent: #02101200;
+    --stars-1-color: #D7C89C;
+    --stars-2-color: #CCBE95;
+    --stars-3-color: #C2B58D;
+}

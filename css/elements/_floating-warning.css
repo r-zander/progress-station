@@ -12,8 +12,8 @@
 
     opacity: 0;
 
-    background-color: rgb(200, 0, 0);
-    color: white;
+    background-color: var(--warning-color);
+    color: var(--ps-foreground-light);
 
     line-height: 1;
 

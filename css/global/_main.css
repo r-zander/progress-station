@@ -29,7 +29,7 @@ a#gameTitle {
         top: 0.125rem;
         left: 0;
         display: block;
-        border: 0.6rem solid #0C65AD;
+        border: 0.6rem solid var(--logo-border-color);
         width: 100%;
         aspect-ratio: 1/1;
         border-radius: 50%;
@@ -124,7 +124,7 @@ a#gameTitle {
 }
 
 .help-text {
-    color: rgb(172, 172, 172);
+    color: var(--help-font-color);
 }
 
 .table td,
@@ -151,19 +151,6 @@ data[data-unit]::after {
     font-family: var(--title-font-family);
     font-weight: 300;
     border-radius: 0;
-}
-
-.item-button {
-    background-color: white;
-    text-align: center;
-    width: 200px;
-    height: 40px;
-    padding: 8px;
-}
-
-.item-button:hover {
-    cursor: pointer;
-    background-color: rgb(192, 192, 192);
 }
 
 .radio {
@@ -202,7 +189,7 @@ a[target="_blank"]:after {
 .overflow-y-auto,
 .overflow-x-auto {
     scrollbar-width: thin;
-    scrollbar-color: #686868 #424242;
+    scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
 }
 
 .form-check {
@@ -214,7 +201,7 @@ a[target="_blank"]:after {
 }
 
 .form-check-input:hover {
-    box-shadow: 0 0 0 0.25rem rgba(255, 165, 0, 0.3);
+    box-shadow: 0 0 0 0.25rem var(--active-color-subtle);
 }
 
 .rounded {
