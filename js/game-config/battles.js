@@ -1269,12 +1269,14 @@ const battles = {
                 'Chompulor',
             ])
             .skipSeparator()
-            .add(', the')
+            .add(',')
+            .add(['the', 'Eternal'])
             .add([
                 'Destroyer',
                 'Shadow of Cosmos',
                 'Essence Harvester',
                 'Decimator',
+                'Devourer',
                 'Jester of Annihilation'
             ]),
         targetLevel: 10,
