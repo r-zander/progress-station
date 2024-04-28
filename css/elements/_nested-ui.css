@@ -153,6 +153,10 @@ td > data {
     text-align: right;
 }
 
+#attributes td.description > data {
+    display: inline;
+}
+
 /* Some rules to improve VFX */
 .tab-help-text {
     overflow: hidden;

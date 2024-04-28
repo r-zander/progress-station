@@ -780,7 +780,7 @@ function createBattlesQuickDisplay() {
  * @param {AttributeDefinition} attribute
  */
 function createAttributeInlineHTML(attribute) {
-    return `<span class="attribute" style="color: ${attribute.color}">${attribute.title}</span>`;
+    return `<span class="attribute ${attribute.textClass}">${attribute.title}</span>`;
 }
 
 /**
@@ -799,11 +799,7 @@ function createAttributeRow(attribute) {
     }
     let nameElement = domGetter.byClass('name');
     nameElement.textContent = attribute.title;
-    if (attribute.color === null) {
-        nameElement.style.removeProperty('color');
-    } else {
-        nameElement.style.color = attribute.color;
-    }
+    nameElement.classList.add(attribute.textClass);
     domGetter.byClass('description').innerHTML = attribute.description;
     return attributeRow;
 }
@@ -955,7 +951,7 @@ function createAttributesDisplay() {
         }
         const labelElement = domGetter.byClass('label');
         if (labelElement !== null) {
-            labelElement.style.color = attribute.color;
+            labelElement.classList.add(attribute.textClass);
             labelElement.textContent = attribute.title;
         }
     }
@@ -992,9 +988,15 @@ function createAttributesUI() {
 
     // Heat
     const heatRow = createAttributeRow(attributes.heat);
+    Dom.get(heatRow).byClass('description').innerHTML += `<br />
+${createAttributeInlineHTML(attributes.military)} exceeding ${createAttributeInlineHTML(attributes.danger)} is disregarded.
+The total can never be less than <data value="0.1">0.1</data> - space is dangerous!`;
     const heatFormulaElement = Dom.get(heatRow).byClass('formula');
     heatFormulaElement.classList.remove('hidden');
-    heatFormulaElement.innerHTML = 'max(' + createAttributeInlineHTML(attributes.danger) + ' - ' + createAttributeInlineHTML(attributes.military) + ', 1)';
+    heatFormulaElement.innerHTML = `<ul class="balance m-0 list-unstyled">
+    <li class="balanceEntry">${createAttributeInlineHTML(attributes.danger)} - ${createAttributeInlineHTML(attributes.military)}</li>
+    <li><span class="operator">+</span> raw <span class="attribute ${attributes.heat.textClass}">Heat</span> from Boss</li>
+</ul>`;
     rows.push(heatRow);
 
     // Industry
@@ -1719,38 +1721,6 @@ function updateEnergyGridBar() {
     energyGeneratedElement.style.right = `clamp(${rightLimit}px, ${relativeEnergy}%, calc(100% - ${leftLimit}px))`;
 }
 
-function updateHeatDisplay() {
-    const mediumHeat = 1000;
-    const maxHeat = 8000;
-
-    const heat = attributes.heat.getValue();
-    let heatText = (heat).toFixed(0);
-    let color;
-    if (heat < mediumHeat) {
-        color = lerpColor(
-            dangerColors[0],
-            dangerColors[1],
-            heat / mediumHeat,
-            'RGB',
-        ).toString('rgb');
-    } else {
-        color = lerpColor(
-            dangerColors[1],
-            dangerColors[2],
-            (heat - mediumHeat) / (maxHeat - mediumHeat),
-            'RGB',
-        ).toString('rgb');
-    }
-
-    const heatElement1 = Dom.get().byId('heatDisplay');
-    heatElement1.textContent = heatText;
-    heatElement1.style.color = color;
-
-    const heatElement2 = Dom.get().bySelector('#attributeRows > .heat > .value > data');
-    heatElement2.textContent = heatText;
-    heatElement2.style.color = color;
-}
-
 function updateStationOverview() {
     const cyclesSinceLastEncounterElement = Dom.get().byId('cyclesSinceLastEncounter');
     const cyclesTotalElement = Dom.get().byId('cyclesTotal');
@@ -1767,16 +1737,23 @@ function updateStationOverview() {
     }
     // TODO adjust formatting & use formatValue
     Dom.get(cyclesTotalElement).bySelector('data').textContent = Math.round(startCycle + gameData.totalCycles).toLocaleString('en-US');
+
     const pauseButton = document.getElementById('pauseButton');
     if (gameData.state === gameStates.PAUSED || gameData.state === gameStates.BOSS_FIGHT_PAUSED) {
         pauseButton.textContent = 'Play';
-        pauseButton.classList.replace('btn-secondary', 'btn-primary');
+        pauseButton.classList.remove('btn-pause', 'btn-intermission');
+        pauseButton.classList.add('btn-play');
+        pauseButton.disabled = false;
     } else if (gameData.state === gameStates.PLAYING || gameData.state === gameStates.BOSS_FIGHT) {
         pauseButton.textContent = 'Pause';
-        pauseButton.classList.replace('btn-primary', 'btn-secondary');
+        pauseButton.classList.remove('btn-play', 'btn-intermission');
+        pauseButton.classList.add('btn-pause');
+        pauseButton.disabled = false;
     } else {
         pauseButton.textContent = 'Intermission';
-        pauseButton.classList.replace('btn-primary', 'btn-secondary');
+        pauseButton.classList.remove('btn-pause', 'btn-play');
+        pauseButton.classList.add('btn-intermission');
+        pauseButton.disabled = true;
     }
 
     const danger = attributes.danger.getValue();
@@ -1800,7 +1777,9 @@ function updateStationOverview() {
     formatValue(Dom.get().byId('growthDisplay'), growth);
     formatValue(Dom.get().bySelector('#attributeRows > .growth > .value > data'), growth);
 
-    updateHeatDisplay();
+    const heat = attributes.heat.getValue();
+    formatValue(Dom.get().byId('heatDisplay'), heat, {forceInteger: true});
+    formatValue(Dom.get().bySelector('#attributeRows > .heat > .value > data'), heat);
 
     const industry = attributes.industry.getValue();
     formatValue(Dom.get().byId('industryDisplay'), industry);

@@ -27,16 +27,9 @@ const units = {
 
 const colorPalette = {
     EasyGreen: '#55A630',
-    HappyBlue: '#219EBC',
     TomatoRed: '#E63946',
     DangerRed: 'rgb(200, 0, 0)',
     DepressionPurple: '#4A4E69',
-    // 'Fundamentals': '#4A4E69',
-    // 'Combat': '#FF704D',
-    // 'Magic': '#875F9A',
-    // 'Dark magic': '#73000F',
-    // 'Misc': '#B56576',
-    White: '#FFFFFF',
 };
 
 /*

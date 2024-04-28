@@ -30,7 +30,7 @@
 </a>
 <main id="main" class="d-flex flex-column">
     <header id="stationOverview" class="mb-3 gap-1 d-flex flex-column">
-        <div class="panel pe-3 pt-2 d-flex flex-row gap-3 align-items-start">
+        <div class="panel pe-3 pt-2 d-flex flex-row gap-3 align-items-start position-relative">
             <a id="stationOverviewLogo" class="logo me-2" href="#credits">
                 PS
             </a>
@@ -136,7 +136,7 @@
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
-                <data id="heatDisplay" style="color: lime" value="1">?%</data>
+                <data id="heatDisplay" value="1">?%</data>
             </div>
             <div class="primary-stat" data-attribute="danger"
                  data-bs-placement="bottom" data-bs-html="true">
@@ -156,7 +156,7 @@
     <div id="contentWrapper" class="d-flex align-content-start">
         <aside id="sidebar" class="d-flex flex-column mh-100 overflow-x-hidden overflow-y-auto me-3">
             <div id="actions" class="d-flex flex-column">
-                <button class="btn btn-secondary btn-lg w-100" id="pauseButton" onClick="togglePause();">
+                <button class="btn btn-lg w-100" id="pauseButton" onClick="togglePause();">
                     Pause
                 </button>
             </div>
@@ -535,7 +535,7 @@
                             <tr>
                                 <td class="title">
                                     <img src="img/icons/industry.svg" class="icon" alt="Population Icon"/>
-                                    <span class="name" style="color: lime">Industry</span>
+                                    <span class="name">Industry</span>
                                 </td>
                                 <td class="value numeric">
                                     <data value="0">?</data>

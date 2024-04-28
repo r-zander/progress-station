@@ -4,7 +4,7 @@
  * @typedef {Object} AttributeDefinition
  * @property {string} [name] - identifier
  * @property {string} title - displayed name of the attribute
- * @property {string} color - font color to display the title
+ * @property {string} textClass - css class to attack to the title
  * @property {string} icon - path to the icon file#
  * @property {string} [description] - (HTML) description of the attribute
  * @property {function(): number} getValue - retrieves the current value for this attribute

@@ -2,6 +2,26 @@
     width: var(--sidebar-width);
 }
 
+#pauseButton {
+    --bs-btn-color: var(--ps-light);
+    --bs-btn-disabled-color: var(--ps-passive);
+    --bs-btn-disabled-bg: var(--panel-bg-color-transparent05);
+    --bs-btn-disabled-border-color: var(--ps-passive);
+    --bs-btn-disabled-opacity: 1.0;
+
+    &.btn-pause,
+    &.btn-intermission {
+        --bs-btn-bg: var(--progress-bg-color);
+        --bs-btn-hover-bg: var(--progress-bar-color);
+        --bs-btn-active-bg: var(--progress-bar-color);
+    }
+    &.btn-play {
+        --bs-btn-bg: var(--progress-current-bar-color);
+        --bs-btn-hover-bg: var(--progress-current-bar-color);
+        --bs-btn-active-bg: var(--progress-current-bar-color);
+    }
+}
+
 .tabButton,
 .shortcut {
     border: var(--clickable-border-width) var(--clickable-border-style) var(--tab-button-border-color);

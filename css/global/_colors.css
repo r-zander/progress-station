@@ -1,26 +1,28 @@
 :root {
-    --ps-yellow: #eca545;
-    --ps-orange: #fd7d45;
-    --ps-pink2: #d9557d;
-    --ps-pink1: #c12f5f;
-    --ps-pink3: #c04d56;
-    --ps-red2: #cb3140;
-    --ps-red: #ed3a44;
-    --ps-purple2: #7c2c90;
-    --ps-purple1: #67288f;
-    --ps-dark-blue: #144a8b;
-    --ps-blue: #5d8ec8;
-    --ps-cyan: #54e9d6;
-    --ps-green1: #48a07e;
-    --ps-green3: #2abf72;
+    --ps-yellow: #ECA545;
+    --ps-orange: #FD7D45;
+    /*--ps-pink2: #D9557D;*/
+    --ps-pink1: #C12F5F; /*#AB016E*/
+    /*--ps-pink3: #C04D56;*/
+    --ps-red2: #CB3140;
+    --ps-red: #ED3A44;
+    --ps-purple2: #AE3EC9;
+    /*--ps-purple1: #67288F;*/
+    --ps-dark-blue: #144A8B;
+    --ps-blue: #5D8EC8;
+    --ps-cyan: #54E9D6;
+    --ps-green1: #48A07E;
+    --ps-green3: #2ABF72;
     --ps-green2: #02CC72;
     --ps-dark: #000000;
     --ps-light: #FFFFFF;
+    /* TODO */
+    /*color: rgba(var(--bs-danger-rgb), var(--bs-text-opacity)) !important;*/
     --ps-light-transparent100: #FFFFFF00;
     --ps-light-transparent90: #FFFFFF19;
     --ps-passive: #848484;
 
-    --active-color: #FFA500;
+    --active-color: var(--ps-yellow); /* #FFA500;*/
     --active-color-subtle: #FFA5004C;
     --clickable-interact-border-color: var(--ps-light);
     --backdrop-color: rgba(0, 0, 0, 0.6);
@@ -32,12 +34,13 @@
 
     --body-bg-color: #202020;
     --body-font-color: white;
-    --panel-bg-color: #2E2E2E;
-    --panel-bg-color-transparent20: #2E2E2ECB;
-    --panel-bg-color-transparent05: #2E2E2EF2;
+    --panel-bg-color: #1F1F1F;
+    --panel-bg-color-transparent20: #1F1F1FCB;
+    --panel-bg-color-transparent05: #1F1F1FF2;
 
-    --progress-bg-color: #0C65AD;
-    --progress-bar-color: #2E94E7;
+
+    --progress-bg-color: var(--ps-dark-blue); /* #0C65AD;*/
+    --progress-bar-color: var(--ps-blue); /* #2E94E7;*/
     --progress-current-bar-color: var(--active-color);
     --progress-passive-bg-color: #575757;
     --progress-passive-bar-color: var(--ps-passive);
@@ -46,9 +49,19 @@
     --help-font-color: #ACACAC;
     --warning-color: #C80000;
 
-    --grid-strength-color: var(--progress-bg-color);
-    --grid-load-color: var(--progress-bar-color);
-    --galactic-secret-color: #AB016E;
+    /* Attributes */
+    --attr-danger-color: var(--ps-orange);
+    --attr-essence-of-unknown-color: var(--ps-pink1);
+    --attr-grid-load-color: var(--progress-bar-color);
+    --attr-grid-strength-color: var(--progress-bg-color);
+    --attr-growth-color: var(--ps-green3);
+    --attr-heat-color: var(--ps-red2);
+    --attr-industry-color: var(--ps-cyan);
+    --attr-military-color: #9897A9;
+    --attr-population-color: var(--ps-blue);
+    --attr-research-color: var(--ps-purple2);
+
+    --galactic-secret-color: var(--attr-essence-of-unknown-color);
     --battle-color: var(--ps-red);
 
 
@@ -62,4 +75,46 @@
     --stars-1-color: #D7C89C;
     --stars-2-color: #CCBE95;
     --stars-3-color: #C2B58D;
+}
+
+/* TODO collides with bs text-danger - prefix our attributes? */
+.text-danger {
+    /* !important to override Bootstrap style */
+    color: var(--attr-danger-color) !important;
+}
+
+.text-essence-of-unknown {
+    color: var(--attr-essence-of-unknown-color);
+}
+
+.text-grid-load {
+    color: var(--attr-grid-load-color);
+}
+
+.text-grid-strength {
+    color: var(--attr-grid-strength-color);
+}
+
+.text-growth {
+    color: var(--attr-growth-color);
+}
+
+.text-heat {
+    color: var(--attr-heat-color);
+}
+
+.text-industry {
+    color: var(--attr-industry-color);
+}
+
+.text-military {
+    color: var(--attr-military-color);
+}
+
+.text-population {
+    color: var(--attr-population-color);
+}
+
+.text-research {
+    color: var(--attr-research-color);
 }

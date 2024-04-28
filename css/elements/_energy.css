@@ -35,10 +35,10 @@
 
     .grid-strength-box {
         height: 100%;
-        background-color: var(--grid-strength-color);
+        background-color: var(--attr-grid-strength-color);
 
         &.in-use {
-            background-color: var(--grid-load-color);
+            background-color: var(--attr-grid-load-color);
         }
     }
 }

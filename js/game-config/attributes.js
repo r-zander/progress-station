@@ -4,26 +4,66 @@
  * @type {Object<AttributeDefinition>}
  */
 const attributes = {
-    danger: { title: 'Danger', color: colorPalette.DangerRed, icon: 'img/icons/danger.svg',
-        getValue: Effect.getTotalValue.bind(this, [EffectType.Danger, EffectType.DangerFactor])},
-    gridLoad: { title: 'Grid Load', color: '#2CCBFF', icon: 'img/icons/grid.svg',
-        getValue: () => calculateGridLoad() },
-    gridStrength: { title: 'Grid Strength', color: '#0C65AD', icon: 'img/icons/grid.svg',
-        getValue: () => gridStrength.getGridStrength() },
-    growth: { title: 'Growth', color: '#008000', icon: 'img/icons/growth.svg',
-        getValue: Effect.getTotalValue.bind(this, [EffectType.Growth, EffectType.GrowthFactor])},
-    heat: { title: 'Heat', color: 'rgb(245, 166, 35)', icon: 'img/icons/heat.svg',
-        getValue: () => calculateHeat() },
-    industry: { title: 'Industry', color: 'rgb(97, 173, 50)', icon: 'img/icons/industry.svg',
-        getValue: Effect.getTotalValue.bind(this, [EffectType.Industry, EffectType.IndustryFactor])},
-    military: { title: 'Military', color: '#b3b3b3', icon: 'img/icons/military.svg',
-        getValue: Effect.getTotalValue.bind(this, [EffectType.Military, EffectType.MilitaryFactor])},
-    population: { title: 'Population', color: 'rgb(46, 148, 231)', icon: 'img/icons/population.svg',
-        getValue: () => gameData.population },
-    research: { title: 'Research', color: '#cc4ee2', icon: 'img/icons/research.svg',
-        getValue: Effect.getTotalValue.bind(this, [EffectType.Research, EffectType.ResearchFactor])},
-    essenceOfUnknown: { title: 'Essence of Unknown', color: '#AB016E', icon: 'img/icons/essence-of-unknown.svg',
-        getValue: () => gameData.essenceOfUnknown },
+    danger: {
+        title: 'Danger',
+        icon: 'img/icons/danger.svg',
+        textClass: 'text-danger',
+        getValue: Effect.getTotalValue.bind(this, [EffectType.Danger, EffectType.DangerFactor]),
+    },
+    essenceOfUnknown: {
+        title: 'Essence of Unknown',
+        icon: 'img/icons/essence-of-unknown.svg',
+        textClass: 'text-essence-of-unknown',
+        getValue: () => gameData.essenceOfUnknown,
+    },
+    gridLoad: {
+        title: 'Grid Load',
+        icon: 'img/icons/grid.svg',
+        textClass: 'text-grid-load',
+        getValue: () => calculateGridLoad(),
+    },
+    gridStrength: {
+        title: 'Grid Strength',
+        icon: 'img/icons/grid.svg',
+        textClass: 'text-grid-strength',
+        getValue: () => gridStrength.getGridStrength(),
+    },
+    growth: {
+        title: 'Growth',
+        icon: 'img/icons/growth.svg',
+        textClass: 'text-growth',
+        getValue: Effect.getTotalValue.bind(this, [EffectType.Growth, EffectType.GrowthFactor]),
+    },
+    heat: {
+        title: 'Heat',
+        icon: 'img/icons/heat.svg',
+        textClass: 'text-heat',
+        getValue: () => calculateHeat(),
+    },
+    industry: {
+        title: 'Industry',
+        icon: 'img/icons/industry.svg',
+        textClass: 'text-industry',
+        getValue: Effect.getTotalValue.bind(this, [EffectType.Industry, EffectType.IndustryFactor]),
+    },
+    military: {
+        title: 'Military',
+        icon: 'img/icons/military.svg',
+        textClass: 'text-military',
+        getValue: Effect.getTotalValue.bind(this, [EffectType.Military, EffectType.MilitaryFactor]),
+    },
+    population: {
+        title: 'Population',
+        icon: 'img/icons/population.svg',
+        textClass: 'text-population',
+        getValue: () => gameData.population,
+    },
+    research: {
+        title: 'Research',
+        icon: 'img/icons/research.svg',
+        textClass: 'text-research',
+        getValue: Effect.getTotalValue.bind(this, [EffectType.Research, EffectType.ResearchFactor]),
+    },
 };
 
 /**
