@@ -107,10 +107,6 @@ a#gameTitle {
     border-left: 2px solid var(--active-color);
 }
 
-#content .progress {
-    cursor: pointer;
-}
-
 .panel {
     background-color: var(--panel-bg-color);
 }
@@ -146,6 +142,10 @@ data[data-unit]::after {
 
 .hiddenTask {
     display: none !important;
+}
+
+.clickable {
+    cursor: pointer;
 }
 
 .btn {

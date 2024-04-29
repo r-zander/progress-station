@@ -9,7 +9,7 @@
 .level1-header {
     position: sticky;
     top: 0;
-    background: inherit;
+    background-color: var(--ps-dark-blue);
     z-index: 3;
 }
 
@@ -155,6 +155,11 @@ td > data {
 
 #attributes td.description > data {
     display: inline;
+}
+
+tr.text-bg-light > th,
+tr.text-bg-light > td {
+    color: inherit;
 }
 
 /* Some rules to improve VFX */

@@ -288,7 +288,6 @@ const cheats = {
                         category.name,
                         prepareTitle(category.title),
                         category.description,
-                        category.color,
                         ...prepareRequirementsForTSV(category.requirements, locale),
                     ].join('\t');
                 }).join('\n');
@@ -355,13 +354,12 @@ const cheats = {
         Sectors: {
             toTsv: (localeOverride = undefined) => {
                 const locale = getLocale(localeOverride);
-                return Object.values(sectors).map(/** @param {ModuleCategory} category */category => {
+                return Object.values(sectors).map(/** @param {Sector} sector */sector => {
                     return [
-                        category.name,
-                        prepareTitle(category.title),
-                        category.description,
-                        category.color,
-                        ...prepareRequirementsForTSV(category.requirements, locale),
+                        sector.name,
+                        prepareTitle(sector.title),
+                        sector.description,
+                        ...prepareRequirementsForTSV(sector.requirements, locale),
                     ].join('\t');
                 }).join('\n');
             },

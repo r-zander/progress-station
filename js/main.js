@@ -232,8 +232,11 @@ function updateLayout(){
      * Do some layout calculations Raoul's too stupid to do in pure CSS.
      */
     const headerHeight = Dom.outerHeight(Dom.get().byId('stationOverview'));
-    // TODO don't
-    Dom.get().byId('contentWrapper').style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
+    const contentWrapper = Dom.get().byId('contentWrapper');
+    // Ensure inner scrolling
+    contentWrapper.style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
+    // Ensure full screen usage
+    contentWrapper.style.height = `calc(100vh - 32px - ${headerHeight}px)`;
 
     updateConnector();
 
@@ -437,7 +440,6 @@ function createModulesUI(categoryDefinition, domId) {
         } else {
             categoryCell.removeAttribute('title');
         }
-        level1DomGetter.byClass('level1-header').style.backgroundColor = category.color;
 
         const level2Slot = level1DomGetter.byId('level2');
         level2Slot.replaceWith(...createModuleLevel2Elements(category.name, category, level1DomGetter.byId('level2Requirements')));
@@ -500,7 +502,6 @@ function createLevel3SectorElement(sector, sectorName) {
     level3Element.classList.remove('ps-3');
 
     const level3DomGetter = Dom.get(level3Element);
-    level3DomGetter.byClass('header-row').style.backgroundColor = sector.color;
     const nameCell = level3DomGetter.byClass('name');
     nameCell.textContent = sector.title;
     if (isDefined(sector.description)) {
@@ -605,7 +606,6 @@ function createUnfinishedBattlesUI() {
     level3Element.classList.remove('ps-3');
 
     const domGetter = Dom.get(level3Element);
-    domGetter.byClass('header-row').style.backgroundColor = colorPalette.TomatoRed;
     domGetter.byClass('name').textContent = 'Open';
 
     /** @type {HTMLElement} */
@@ -628,7 +628,8 @@ function createLevel4FinishedBattleElements(battles) {
         level4Element.classList.add('hidden');
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
-        domGetter.bySelector('.progressBar .progressBackground').style.backgroundColor = lastLayerData.color;
+        domGetter.byClass('progressBar').classList.remove('clickable');
+        domGetter.bySelector('.progressBar').dataset.layer = String(numberOfLayers);
         domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
         formatValue(
             domGetter.bySelector('.level > data'),
@@ -654,7 +655,7 @@ function createFinishedBattlesUI() {
     level3Element.classList.remove('ps-3');
 
     const domGetter = Dom.get(level3Element);
-    domGetter.byClass('header-row').style.backgroundColor = colorPalette.EasyGreen;
+    domGetter.byClass('header-row').classList.replace('text-bg-light', 'text-bg-dark');
     domGetter.byClass('name').textContent = 'Completed';
     domGetter.byClass('level').textContent = 'Defeated levels';
     domGetter.byClass('xpGain').classList.add('hidden');
@@ -1096,7 +1097,7 @@ function updateModulesQuickDisplay() {
 function setBattleProgress(progressBar, battle) {
     const domGetter = Dom.get(progressBar);
     if (battle.isDone()) {
-        domGetter.byClass('progressBackground').style.backgroundColor = lastLayerData.color;
+        progressBar.dataset.layer = String(numberOfLayers);
         domGetter.byClass('progressFill').style.width = '0%';
         return;
     }
@@ -1108,13 +1109,13 @@ function setBattleProgress(progressBar, battle) {
         return;
     }
 
-    const layerLevel = battle.level % layerData.length;
-    progressBarFill.style.backgroundColor = layerData[layerLevel].color;
+    const layerLevel = battle.level % numberOfLayers;
+    progressBarFill.dataset.layer = String(layerLevel);
     if (battle.getDisplayedLevel() === 1) {
-        domGetter.byClass('progressBackground').style.backgroundColor = lastLayerData.color;
+        progressBar.dataset.layer = String(numberOfLayers);
     } else {
-        const nextLayerLevel = (battle.level + 1) % layerData.length;
-        domGetter.byClass('progressBackground').style.backgroundColor = layerData[nextLayerLevel].color;
+        const nextLayerLevel = (battle.level + 1) % numberOfLayers;
+        progressBar.dataset.layer = String(nextLayerLevel);
     }
 }
 
@@ -1308,10 +1309,8 @@ function updateModuleRow(module, moduleRequirementsContext) {
 
     const domGetter = Dom.get(row);
     const level2Header = domGetter.byClass('level2-header');
-    level2Header.classList.toggle('bg-light', isActive);
-    level2Header.classList.toggle('text-dark', isActive);
-    level2Header.classList.toggle('bg-dark', !isActive);
-    level2Header.classList.toggle('text-light', !isActive);
+    level2Header.classList.toggle('text-bg-light', isActive);
+    level2Header.classList.toggle('text-bg-dark', !isActive);
 
     domGetter.byClass('moduleActivationSwitch').checked = module.isActive();
     formatValue(domGetter.byClass('level'), module.getLevel());
@@ -1599,8 +1598,7 @@ function updateSectorRows() {
 
             const domGetter = Dom.get(row);
             const isActive = pointOfInterest.isActive();
-            domGetter.byClass('point-of-interest').classList.toggle('btn-primary', !isActive);
-            domGetter.byClass('point-of-interest').classList.toggle('btn-warning', isActive);
+            domGetter.byClass('point-of-interest').classList.toggle('current', isActive);
             domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescription();
             formatValue(domGetter.bySelector('.danger > data'), pointOfInterest.getEffect(EffectType.Danger));
         }

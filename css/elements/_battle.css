@@ -1,5 +1,5 @@
 .battle > .progress-bar.current {
-    background-color: var(--battle-color);
+    --progress-bar-color: var(--battle-color);
 }
 
 .game-playing {

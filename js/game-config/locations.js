@@ -147,22 +147,18 @@ const sectors = {
     // Twilight
     AlphaSector: new Sector({
         title: 'Alpha Sector',
-        color: '#ECA545',
         pointsOfInterest: [pointsOfInterest.SafeZone, pointsOfInterest.StarlightEnclave, pointsOfInterest.GrowthLocationLow],
     }),
     BetaSector: new Sector({
         title: 'Beta Sector',
-        color: '#56BA5A',
         pointsOfInterest: [pointsOfInterest.IndustryLocationMedium, pointsOfInterest.ResearchLocationMedium, pointsOfInterest.GrowthLocationMedium],
     }),
     GammaSector: new Sector({
         title: 'Gamma Sector',
-        color: '#1C92D0',
         pointsOfInterest: [pointsOfInterest.IndustryLocationHigh, pointsOfInterest.ResearchLocationHigh, pointsOfInterest.GrowthLocationHigh],
     }),
     DeltaSector: new Sector({
         title: 'Delta Sector',
-        color: '#E64E4D',
         pointsOfInterest: [pointsOfInterest.IndustryLocationExtreme, pointsOfInterest.ResearchLocationExtreme, pointsOfInterest.GrowthLocationExtreme],
     }),
 };

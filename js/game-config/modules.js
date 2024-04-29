@@ -299,7 +299,6 @@ const defaultModules = [
 const moduleCategories = {
     StationCore: new ModuleCategory({
         title: 'Station Core',
-        color: colorPalette.DepressionPurple,
         modules: [modules.ISASM, modules.CaptainsQuarter, modules.MiningBay, modules.Furnace, modules.Defensive, modules.Quarters],
     }),
 };

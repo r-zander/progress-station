@@ -360,7 +360,6 @@ class ModuleCategory extends Entity {
      * @param {{
      *     title: string,
      *     description?: string,
-     *     color: string
      *     modules: Module[],
      * }} baseData
      */
@@ -368,7 +367,6 @@ class ModuleCategory extends Entity {
         super(baseData.title, baseData.description);
 
         this.modules = baseData.modules;
-        this.color = baseData.color;
     }
 
     /**
@@ -710,14 +708,12 @@ class Sector extends Entity {
      * @param {{
      *     title: string,
      *     description?: string,
-     *     color: string,
      *     pointsOfInterest: PointOfInterest[]
      * }} baseData
      */
     constructor(baseData) {
         super(baseData.title, baseData.description);
 
-        this.color = baseData.color;
         this.pointsOfInterest = baseData.pointsOfInterest;
         for (const pointOfInterest of this.pointsOfInterest) {
             pointOfInterest.registerSector(this);

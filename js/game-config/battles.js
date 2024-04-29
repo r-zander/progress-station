@@ -1317,13 +1317,5 @@ function maximumAvailableBattles(research) {
     return {limit: 1, requirement: 'Win open battle'};
 }
 
-const layerData = [
-    new LayerData('#ffe119'),
-    new LayerData('#f58231'),
-    new LayerData('#e6194B'),
-    new LayerData('#911eb4'),
-    new LayerData('#4363d8'),
-    new LayerData('#47ff00'),
-];
-
-const lastLayerData = new LayerData('#000000');
+/** @type {number} */
+const numberOfLayers = 10;
