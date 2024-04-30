@@ -1149,8 +1149,8 @@ class AttributeRequirement extends Requirement {
         // TODO format value correctly
         return `
 <span class="name">${requirement.attribute.title}</span> 
-<data value="${value}">${value.toFixed(2)}</data> /
-<data value="${requirement.requirement}">${requirement.requirement}</data>
+<data value="${value}">${formatNumber(value)}</data> /
+<data value="${requirement.requirement}">${formatNumber(requirement.requirement)}</data>
 `;
     }
 }

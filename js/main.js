@@ -1732,12 +1732,12 @@ function updateStationOverview() {
     } else {
         cyclesSinceLastEncounterElement.classList.remove('hidden');
         // TODO adjust formatting & use formatValue
-        Dom.get(cyclesSinceLastEncounterElement).bySelector('data').textContent = Math.round(gameData.cycles).toLocaleString('en-US');
+        Dom.get(cyclesSinceLastEncounterElement).bySelector('data').textContent = formatNumber(Math.floor(gameData.cycles));
         cyclesTotalElement.classList.replace('primary-stat', 'secondary-stat');
         cyclesTotalElement.classList.add('help-text');
     }
     // TODO adjust formatting & use formatValue
-    Dom.get(cyclesTotalElement).bySelector('data').textContent = Math.round(startCycle + gameData.totalCycles).toLocaleString('en-US');
+    Dom.get(cyclesTotalElement).bySelector('data').textContent = formatNumber(Math.floor(startCycle + gameData.totalCycles));
 
     const pauseButton = document.getElementById('pauseButton');
     if (gameData.state === gameStates.PAUSED || gameData.state === gameStates.BOSS_FIGHT_PAUSED) {

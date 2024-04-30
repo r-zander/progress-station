@@ -9,30 +9,6 @@ function prepareTitle(title) {
 }
 
 /**
- * @param {string} [localeOverride]
- */
-function getLocale(localeOverride = undefined) {
-    if (isString(localeOverride)) {
-        return localeOverride;
-    }
-
-    return navigator.language;
-}
-
-/**
- * @param {number} value
- * @param {string} locale
- * @return {string}
- */
-function formatNumber(value, locale) {
-    // noinspection JSCheckFunctionSignatures
-    return value.toLocaleString(locale, {
-        // useGrouping: false,
-        trailingZeroDisplay: 'stripIfInteger',
-    });
-}
-
-/**
  * @param {EffectType} effectType
  * @return {string}
  */

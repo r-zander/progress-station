@@ -201,6 +201,34 @@ function validateParameter(parameter, definition, context, ) {
     }
 }
 
+
+/**
+ * @param {string} [localeOverride]
+ */
+function getLocale(localeOverride = undefined) {
+    if (isString(localeOverride)) {
+        return localeOverride;
+    }
+
+    // return navigator.language;
+    return 'en-US';
+}
+
+/**
+ * @param {number} value
+ * @param {string} locale
+ * @return {string}
+ */
+function formatNumber(value, locale = undefined) {
+    locale = getLocale(locale);
+
+    // noinspection JSCheckFunctionSignatures
+    return value.toLocaleString(locale, {
+        // useGrouping: false,
+        trailingZeroDisplay: 'stripIfInteger',
+    });
+}
+
 class DomGetter {
     /**
      *
