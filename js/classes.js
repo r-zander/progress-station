@@ -1030,12 +1030,17 @@ class Requirement {
      * @return {string}
      */
     toHtml() {
-        return '<span class="' + this.type + '">'
-            + this.requirements
-                .filter(requirement => !this.getCondition(requirement))
-                .map(requirement => this.toHtmlInternal(requirement).trim())
-                .join(', ')
-            + '</span>';
+        const innerHtml = this.requirements
+            .filter(requirement => !this.getCondition(requirement))
+            .map(requirement => this.toHtmlInternal(requirement).trim())
+            .join(', ');
+
+        // TODO pseudo-prerequisites
+        if (innerHtml === '') {
+            return '';
+        }
+
+        return `<span class="${this.type}">${innerHtml}</span>`;
     }
 
     /**
@@ -1059,6 +1064,28 @@ class Requirement {
             return null;
         }
         return openRequirements;
+    }
+
+    /**
+     * @param {{requirements: Requirement[]}} entity
+     */
+    static hasRequirementsFulfilled(entity) {
+        if (isUndefined(entity.requirements)) {
+            return true;
+        }
+
+        return entity.requirements.every(requirement => requirement.isCompleted());
+    }
+
+    /**
+     * @param {{requirements: Requirement[]}} entity
+     */
+    static hasUnfulfilledRequirements(entity) {
+        if (isUndefined(entity.requirements)) {
+            return false;
+        }
+
+        return entity.requirements.some(requirement => !requirement.isCompleted());
     }
 }
 
@@ -1084,6 +1111,11 @@ class OperationLevelRequirement extends Requirement {
      * @return {string}
      */
     toHtmlInternal(requirement) {
+        // TODO pseudo-prerequisites
+        if (Requirement.hasUnfulfilledRequirements(requirement.operation)) {
+            return '';
+        }
+
         return `
 <span class="name">${requirement.operation.title}</span>
 level 
@@ -1146,6 +1178,11 @@ class AttributeRequirement extends Requirement {
      */
     toHtmlInternal(requirement) {
         const value = requirement.attribute.getValue();
+        // TODO pseudo-prerequisites
+        if (nearlyEquals(value, 0, 0.001)) {
+            return '';
+        }
+
         // TODO format value correctly
         return `
 <span class="name">${requirement.attribute.title}</span> 
@@ -1177,6 +1214,11 @@ class PointOfInterestVisitedRequirement extends Requirement {
      * @return {string}
      */
     toHtmlInternal(requirement) {
+        // TODO pseudo-prerequisites
+        if (Requirement.hasUnfulfilledRequirements(requirement.pointOfInterest)) {
+            return '';
+        }
+
         return `visit <span class="name">${requirement.pointOfInterest.title}</span>`;
     }
 }

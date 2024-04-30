@@ -161,9 +161,9 @@ const moduleOperationRequirements = {
  */
 const modulesRequirements = {
     CaptainsQuarter: modules.CaptainsQuarter.registerRequirement(
-        new AttributeRequirement('playthrough', [{
-            attribute: attributes.gridStrength,
-            requirement: 1,
+        new OperationLevelRequirement('playthrough', [{
+            operation: moduleOperations.FourDPrinter,
+            requirement: 10,
         }]),
     ),
     MiningBay: modules.MiningBay.registerRequirement(

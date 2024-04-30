@@ -1208,28 +1208,33 @@ function setProgress(progressFillElement, progress, increasing = true) {
  */
 function updateRequirements(unfulfilledRequirements, context) {
     // Block all following entities
+    // Only first requirement is shown
     if (context.hasUnfulfilledRequirements) {
         return false;
     }
 
-    if (unfulfilledRequirements !== null) {
-        // Only first requirement is shown
-        if (context.hasUnfulfilledRequirements !== true) {
-            const html = unfulfilledRequirements
-                .map(requirement => requirement.toHtml())
-                .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
-                .join(', ');
-            if (html !== context.getHtmlCache()) {
-                Dom.get(context.requirementsElement).byClass('rendered').innerHTML = html;
-                context.setHtmlCache(html);
-            }
-            context.hasUnfulfilledRequirements = true;
-        }
-
-        return false;
+    if (unfulfilledRequirements === null) {
+        return true;
     }
 
-    return true;
+    const html = unfulfilledRequirements
+        .map(requirement => requirement.toHtml())
+        .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
+        .join(', ');
+    // TODO pseudo-prerequisites
+    if (html === '') {
+        // Hack: don't use .hidden to not interfere with the rest of the requirements system
+        context.requirementsElement.style.display = 'none';
+    } else {
+        context.requirementsElement.style.removeProperty('display');
+        if (html !== context.getHtmlCache()) {
+            Dom.get(context.requirementsElement).byClass('rendered').innerHTML = html;
+            context.setHtmlCache(html);
+        }
+    }
+    context.hasUnfulfilledRequirements = true;
+
+    return false;
 }
 
 let moduleCategoryRequirementsHtmlCache = '';

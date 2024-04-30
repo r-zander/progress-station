@@ -152,6 +152,12 @@ function approximatelyEquals(a, b, epsilon = 128 * Number.EPSILON) {
     return Math.abs(a - b) <= epsilon;
 }
 
+/**
+ * Alias for approximatelyEquals
+ * @type {function(number, number, number=): boolean}
+ */
+const nearlyEquals = approximatelyEquals;
+
 const JsTypes = {
     Undefined: 'undefined',
     Boolean: 'boolean',

@@ -12,7 +12,7 @@ moduleOperations.StandbyGenerator = new ModuleOperation({
 moduleOperations.FourDPrinter = new ModuleOperation({
     title: '4D Printer', maxXp: 50, gridLoad: 1,
     description: 'Prints anything from spare parts to midnight snacks. Adds a dimension of convenience to survival.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.01}],
+    effects: [{effectType: EffectType.Industry, baseValue: 0.10}],
 });
 moduleOperations.MicroCyborgAutomat = new ModuleOperation({
     title: 'Micro Cyborg Automat', maxXp: 100, gridLoad: 1,
@@ -202,12 +202,12 @@ const moduleComponents = {
     RescueCapsule: new ModuleComponent({
         title: 'Rescue Capsule',
         description: 'A small pod, big enough to house a single person. Ideal to escape from the station as a last resort.',
-        operations: [moduleOperations.StandbyGenerator],
+        operations: [moduleOperations.StandbyGenerator, moduleOperations.FourDPrinter],
     }),
     TinyToolbox: new ModuleComponent({
         title: 'Tiny Toolbox',
         description: 'This compact kit contains everything a captain needs to get the station up and running.',
-        operations: [moduleOperations.FourDPrinter, moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual, moduleOperations.PocketLaboratory],
+        operations: [moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual, moduleOperations.PocketLaboratory],
     }),
     MinedResource: new ModuleComponent({
         title: 'Mined Resource',
