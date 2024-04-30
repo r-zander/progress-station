@@ -4,10 +4,6 @@
 
 #pauseButton {
     --bs-btn-color: var(--ps-light);
-    --bs-btn-disabled-color: var(--ps-passive);
-    --bs-btn-disabled-bg: var(--panel-bg-color-transparent05);
-    --bs-btn-disabled-border-color: var(--ps-passive);
-    --bs-btn-disabled-opacity: 1.0;
 
     &.btn-pause,
     &.btn-intermission {
@@ -17,8 +13,8 @@
     }
     &.btn-play {
         --bs-btn-bg: var(--progress-current-bar-color);
-        --bs-btn-hover-bg: var(--progress-current-bar-color);
-        --bs-btn-active-bg: var(--progress-current-bar-color);
+        --bs-btn-hover-bg: var(--ps-orange);
+        --bs-btn-active-bg: var(--ps-orange);
     }
 }
 

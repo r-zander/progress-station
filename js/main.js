@@ -1615,14 +1615,17 @@ function updateGalacticSecretRows() {
         const row = Dom.get().byId(galacticSecret.domId);
         const domGetter = Dom.get(row);
         const isUnlocked = galacticSecret.isUnlocked;
+        const progressBarElement = domGetter.byClass('progressBar');
         const progressFillElement = domGetter.byClass('progressFill');
         if (isUnlocked) {
             progressFillElement.classList.add('unlocked');
-            domGetter.byClass('progressBar').classList.add('unlocked');
+            progressBarElement.classList.add('unlocked');
+            progressBarElement.classList.remove('clickable');
             progressFillElement.style.removeProperty('width');
         } else {
             progressFillElement.classList.toggle('unlocked', galacticSecret.inProgress);
-            domGetter.byClass('progressBar').classList.remove('unlocked');
+            progressBarElement.classList.remove('unlocked');
+            progressBarElement.classList.add('clickable');
             setProgress(progressFillElement, galacticSecret.unlockProgress);
         }
     }

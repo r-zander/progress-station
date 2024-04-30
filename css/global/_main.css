@@ -149,10 +149,36 @@ data[data-unit]::after {
 }
 
 .btn {
+    --bs-btn-disabled-color: var(--ps-passive);
+    --bs-btn-disabled-bg: var(--panel-bg-color-transparent05);
+    --bs-btn-disabled-border-color: var(--ps-passive);
+    --bs-btn-disabled-opacity: 1.0;
+
     font-family: var(--title-font-family);
     font-weight: 300;
     border-radius: 0;
     text-shadow: 1px 1px var(--ps-dark), 1px 1px 3px var(--ps-dark);
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--ps-dark-blue);
+    --bs-btn-hover-bg: var(--ps-blue);
+    --bs-btn-active-bg: var(--ps-blue);
+}
+
+.btn-secondary {
+    --bs-btn-bg: var(--panel-bg-color-transparent20);
+    --bs-btn-hover-bg: var(--ps-passive);
+    --bs-btn-active-bg: var(--ps-passive);
+}
+
+.btn-warning {
+    --bs-btn-color: var(--ps-light);
+    --bs-btn-bg: var(--ps-orange);
+    --bs-btn-hover-color: var(--ps-light);
+    --bs-btn-hover-bg: var(--ps-yellow);
+    --bs-btn-active-color: var(--ps-light);
+    --bs-btn-active-bg: var(--ps-yellow);;
 }
 
 .radio {
