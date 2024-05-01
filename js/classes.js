@@ -1257,7 +1257,7 @@ class GalacticSecretRequirement extends Requirement {
 class HtmlElementWithRequirement {
     /**
      * @param {{
-     *     elementsWithRequirements: HTMLElement[],
+     *     elementsWithRequirements: (HTMLElement|LazyHtmlElement|LazyHtmlElementCollection)[],
      *     requirements: Requirement[],
      *     elementsToShowRequirements?: HTMLElement[],
      *     prerequirements?: Requirement[],

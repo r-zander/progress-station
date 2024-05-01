@@ -166,25 +166,27 @@ const modulesRequirements = {
             requirement: 10,
         }]),
     ),
-    MiningBay: modules.MiningBay.registerRequirement(
+    MiningBay1: modules.MiningBay.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
             operation: moduleOperations.PocketLaboratory,
             requirement: 10,
         }]),
+    ),
+    MiningBay2: modules.MiningBay.registerRequirement(
         new AttributeRequirement('playthrough', [{
             attribute: attributes.gridStrength,
             requirement: 2,
         }]),
     ),
-    Furnace1: modules.Furnace.registerRequirement(
+    MiningBay3: modules.MiningBay.registerRequirement(
+        new PointOfInterestVisitedRequirement('playthrough', [{
+            pointOfInterest: pointsOfInterest.StarlightEnclave,
+        }]),
+    ),
+    Furnace: modules.Furnace.registerRequirement(
         new AttributeRequirement('playthrough', [{
             attribute: attributes.gridStrength,
             requirement: 4,
-        }]),
-    ),
-    Furnace2: modules.Furnace.registerRequirement(
-        new PointOfInterestVisitedRequirement('playthrough', [{
-            pointOfInterest: pointsOfInterest.StarlightEnclave,
         }]),
     ),
     Defensive: modules.Defensive.registerRequirement(
@@ -361,6 +363,16 @@ const htmlElementRequirements = {
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="heat"]'),
                 Dom.lazy().allBySelector('#battles .level3 .danger, #battles .level4 .danger'),
                 ...Dom.get().allByClass('battles-pose-danger'),
+            ],
+            requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{
+                faction: factions.NovaFlies,
+                requirement: battles.NovaFlies10.targetLevel,
+            }])],
+        }),
+    completedBattles: new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [
+                Dom.lazy().byId('finishedBattles'),
             ],
             requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{
                 faction: factions.NovaFlies,

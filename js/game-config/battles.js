@@ -1296,6 +1296,7 @@ const bossBattleApproachInterval = 200; // Cycles
 const bossBattle = battles.Boss10;
 
 const battleRequirements = [
+    new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 1.5}]),
     new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 10}]),
     new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 20}]),
     new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 50}]),
@@ -1308,10 +1309,11 @@ const battleRequirements = [
  */
 function maximumAvailableBattles(research) {
     // Special case 1: Research is maxed, but there would be more battles to display
-    if (research >= 100) return {limit: 5, requirement: 'Win any open battle'};
-    if (research >= 50) return {limit: 4, requirement: battleRequirements[3]};
-    if (research >= 20) return {limit: 3, requirement: battleRequirements[2]};
-    if (research >= 10) return {limit: 2, requirement: battleRequirements[1]};
+    if (research >= 100) return {limit: 6, requirement: 'Win any open battle'};
+    if (research >= 50) return {limit: 5, requirement: battleRequirements[4]};
+    if (research >= 20) return {limit: 4, requirement: battleRequirements[3]};
+    if (research >= 10) return {limit: 3, requirement: battleRequirements[2]};
+    if (research >= 1.5) return {limit: 2, requirement: battleRequirements[1]};
     if (research >= 0.01) return {limit: 1, requirement: battleRequirements[0]};
     // Special case 2: Research is not yet discovered
     return {limit: 1, requirement: 'Win open battle'};
