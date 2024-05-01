@@ -139,6 +139,9 @@ function setTab(selectedTab) {
         tabButton.classList.remove('active');
     }
     tabButtons[selectedTab].classList.add('active');
+
+    Dom.get().byId('content').style.animationPlayState = 'running';
+
     gameData.selectedTab = selectedTab;
     gameData.save();
 
@@ -185,7 +188,7 @@ function updateConnector() {
     const contentElement = Dom.get().byId('content');
 
     const margin = 16;
-    const connectorHeight = 4;
+    const connectorHeight = 3;
 
     XFastdom.measure(() => {
         return {
@@ -2319,6 +2322,21 @@ function initTooltips() {
     }
 }
 
+function initTabBehavior() {
+    if (tabButtons.hasOwnProperty(gameData.selectedTab)) {
+        setTab(gameData.selectedTab);
+    } else {
+        setTab('modules');
+    }
+
+    Dom.get().byId('content').addEventListener('animationiteration', (event) => {
+        // Ignore bubbling events from children
+        if (event.target !== event.currentTarget) return;
+
+        event.target.style.animationPlayState = 'paused';
+    });
+}
+
 /**
  * @param {string} newStationName
  */
@@ -2422,11 +2440,7 @@ function init() {
     createAttributesUI();
     createEnergyGridDisplay();
 
-    if (tabButtons.hasOwnProperty(gameData.selectedTab)) {
-        setTab(gameData.selectedTab);
-    } else {
-        setTab('modules');
-    }
+    initTabBehavior();
     initTooltips();
     initStationName();
     initSettings();

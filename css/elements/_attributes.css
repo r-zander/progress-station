@@ -31,6 +31,10 @@
     .balance {
         list-style: none;
     }
+
+    .description {
+        line-height: 1.25rem;
+    }
 }
 
 #attributeRows .title {

@@ -1,6 +1,7 @@
 .sci-fi {
     .progress,
-    .progress-bar {
+    .progress-bar,
+    .progress > .flash {
         border-radius: var(--corner-length);
         border-top-right-radius: 44px 29px;
         border-bottom-right-radius: calc(var(--corner-length) / 2);

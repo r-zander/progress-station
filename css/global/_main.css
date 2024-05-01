@@ -102,9 +102,23 @@ a#gameTitle {
     max-width: var(--content-width);
 
     background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, var(--active-color) 4px, var(--active-color) 8px);
-    background-size: 12px 100%;
     background-repeat: repeat-y;
-    border-left: 2px solid var(--active-color);
+    border-left: 3px solid var(--active-color);
+
+    animation: 800ms ease-in-out infinite pulse-background;
+    animation-play-state: paused;
+}
+
+@keyframes pulse-background {
+    0% {
+        background-size: 0 100%;
+    }
+    25%, 60% {
+        background-size: 24px 100%;
+    }
+    100% {
+        background-size: 0 100%;
+    }
 }
 
 .panel {

@@ -53,7 +53,7 @@
 #connector {
     position: absolute;
     width: 26px;
-    height: 4px;
+    height: 3px;
 
     background-color: var(--active-color);
     border: none;
