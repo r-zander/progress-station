@@ -39,13 +39,13 @@ moduleOperations.SpaceRocks = new ModuleOperation({
 moduleOperations.HeavyGlitz = new ModuleOperation({
     title: 'Heavy Glitz', maxXp: 500, gridLoad: 2,
     description: 'It\'s shiny, it conducts sparks, it\'s surprisingly heavy and hard.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.02}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.03}],
 });
 /** Galactic Secret */
 moduleOperations.Radiance = new ModuleOperation({
     title: 'Radiance', maxXp: 5_000, gridLoad: 4,
     description: 'Tingles in your hand but glows in the dark. Even heavier than the regular glitz.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.03}, {effectType: EffectType.ResearchFactor, baseValue: 0.02}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.10}, {effectType: EffectType.ResearchFactor, baseValue: 0.05}],
 });
 
 moduleOperations.BigSpinny = new ModuleOperation({
@@ -56,13 +56,13 @@ moduleOperations.BigSpinny = new ModuleOperation({
 moduleOperations.AsteroidChomper = new ModuleOperation({
     title: 'Asteroid Chomper', maxXp: 1_000, gridLoad: 2,
     description: 'A significant upgrade in mining tech, this beast chews through smaller planetoids with ease, turning mountains into molehills and rocks into progress.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
 });
 /** Galactic Secret */
 moduleOperations.TenDrills = new ModuleOperation({
     title: 'TenDrills', maxXp: 10_000, gridLoad: 4,
     description: 'Alien tentacles, able to consume celestial bodies, turning them into perfectly refined resources.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}, {effectType: EffectType.IndustryFactor, baseValue: 0.02}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.10}, {effectType: EffectType.IndustryFactor, baseValue: 0.05}],
 });
 
 // Furnace
@@ -74,19 +74,19 @@ moduleOperations.Garbage = new ModuleOperation({
 moduleOperations.Diesel = new ModuleOperation({
     title: 'Diesel', maxXp: 1_000, gridLoad: 2,
     description: 'From the depths of fossilized relics to the pulse of synthesized organics, it\'s the timeless heart that beats in the mechanical chest of progress.',
-    effects: [{effectType: EffectType.Energy, baseValue: 2}],
+    effects: [{effectType: EffectType.Energy, baseValue: 3}],
 });
 moduleOperations.FuelT3 = new ModuleOperation({
     title: 'Smelly Jelly', maxXp: 2_000, gridLoad: 4,
     description: 'Super-concentrated jet fuel, thanks to Neptunium\'s kick. Beware: its potent aroma is adored by some, stomach-churning for most.',
-    effects: [{effectType: EffectType.Energy, baseValue: 4}],
+    effects: [{effectType: EffectType.Energy, baseValue: 9}],
 });
 /** Galactic Secret */
 moduleOperations.Quasarite = new ModuleOperation({
     title: 'Quasarite', maxXp: 20_000, gridLoad: 8,
     description: 'Harnessed from the remnants of distant quasar explosions it pulses with mind-boggling energy. ' +
         'Its otherworldly properties enhance resource production but require careful containment to avoid unpredictable reactions.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.05}, {effectType: EffectType.Energy, baseValue: 8}],
+    effects: [{effectType: EffectType.Energy, baseValue: 20}, {effectType: EffectType.IndustryFactor, baseValue: 0.05}, ],
 });
 
 moduleOperations.Plastics = new ModuleOperation({
@@ -97,18 +97,18 @@ moduleOperations.Plastics = new ModuleOperation({
 moduleOperations.Steel = new ModuleOperation({
     title: 'Steel', maxXp: 2_000, gridLoad: 4,
     description: 'Super tough stuff, dude! Like, armor for your space castle or sword for cosmic dragon slaying.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.02}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.03}],
 });
 moduleOperations.ProductsT3 = new ModuleOperation({
     title: 'Bouncium', maxXp: 4_000, gridLoad: 6,
     description: 'The rubbery metal that laughs at gravity. Perfect for when you need your gear to bounce back, literally.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.03}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.10}],
 });
 /** Galactic Secret */
 moduleOperations.MicroalloyGlass = new ModuleOperation({
     title: 'Microalloy Glass', maxXp: 40_000, gridLoad: 10,
     description: 'Fifteen times harder than steel and so clear that objects made out of pure microalloy glass can be considered invisible.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.05}, {effectType: EffectType.Research, baseValue: 3}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.20}, {effectType: EffectType.Research, baseValue: 0.50}],
 });
 
 //Military
@@ -120,12 +120,12 @@ moduleOperations.GlitzPlating = new ModuleOperation({
 moduleOperations.PulseShield = new ModuleOperation({
     title: 'Pulse Shield', maxXp: 4_000, gridLoad: 2,
     description: 'A shimmering barrier that not only guards against oncoming threats but sends projectiles back from whence they came.',
-    effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.02}],
+    effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.03}],
 });
 moduleOperations.BulletSponge = new ModuleOperation({
     title: 'Bullet Sponge', maxXp: 8_000, gridLoad: 4,
     description:'This enchantment laughs in the face of danger, soaking up damage like a thirsty traveler in a desert.',
-    effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.03}],
+    effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.10}],
 });
 
 moduleOperations.RapidRumbleTower = new ModuleOperation({
@@ -136,12 +136,12 @@ moduleOperations.RapidRumbleTower = new ModuleOperation({
 moduleOperations.LaserTurrets = new ModuleOperation({
     title: 'Laser Turrets', maxXp: 8_000, gridLoad: 6,
     description: 'With precision and burning intensity, these beams do to enemies what a hot knife does to butter.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
 });
 moduleOperations.AntiMissileSwarm = new ModuleOperation({
     title: 'Anti-Missile Swarm', maxXp: 16_000, gridLoad: 10,
     description: 'A cloud of alien defenders that swarm incoming missiles, dismantling them with the ferocity of piranhas.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.10}],
 });
 
 //Population
@@ -153,23 +153,23 @@ moduleOperations.Survivors = new ModuleOperation({
 moduleOperations.Recruitment = new ModuleOperation({
     title: 'Recruitment', maxXp: 8_000, gridLoad: 2,
     description: 'Broadcasting an open call across the stars. Join for adventure, stay for the camaraderie (and the occasional space burrito night).',
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.02}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.03}],
 });
 moduleOperations.SmoochSanctuary = new ModuleOperation({
     title: 'Smooch Sanctuary', maxXp: 16_000, gridLoad: 4,
     description: 'Where relationships bloom amid the stars. Encourages crew bonding and, well, let’s just say the stork visits more often.',
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.03}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.10}],
 });
 moduleOperations.MechanoMaker = new ModuleOperation({
     title: 'Mechano Maker', maxXp: 32_000, gridLoad: 8,
     description: 'Why wait for nature when you have technology? Assemble new crew members who are part metal, part moxie.',
-    effects: [{effectType: EffectType.Growth, baseValue: 0.04}],
+    effects: [{effectType: EffectType.Growth, baseValue: 0.20}],
 });
 /** Galactic Secret */
 moduleOperations.ReplicationChambers = new ModuleOperation({
     title: 'Replication Chambers', maxXp: 320_000, gridLoad: 12,
     description: 'Input DNA and watch as new life forms materialize, ready to contribute to your cosmic odyssey. Handle with care; creating life is a profound responsibility!',
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.05}, {effectType: EffectType.ResearchFactor, baseValue: 0.03}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.30}, {effectType: EffectType.Industry, baseValue: 0.50}],
 });
 
 moduleOperations.EveryoneMatters = new ModuleOperation({
@@ -180,18 +180,18 @@ moduleOperations.EveryoneMatters = new ModuleOperation({
 moduleOperations.UnitedForVictory = new ModuleOperation({
     title: 'United For Victory', maxXp: 16_000, gridLoad: 4,
     description: 'Strength in unity, victory in collaboration. This doctrine binds the crew as one, turning collective will into unstoppable force.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
 });
 moduleOperations.GuileIsStrength = new ModuleOperation({
     title: 'Guile is Strength', maxXp: 32_000, gridLoad: 6,
     description: 'Embraces cunning over brute force, teaching that the sharpest weapon is the mind. Stealth and strategy pave the way to triumph.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.10}],
 });
 /** Galactic Secret */
 moduleOperations.GloryToTheGreatHeroes = new ModuleOperation({
     title: 'Glory to the Great Heroes', maxXp: 320_000, gridLoad: 10,
     description: 'Heroes inspire, their legends propel us forward. This principle celebrates extraordinary feats, encouraging all to reach beyond the stars.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.05}, {effectType: EffectType.GrowthFactor, baseValue: 0.03}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.20}, {effectType: EffectType.Growth, baseValue: 0.50}],
 });
 
 
