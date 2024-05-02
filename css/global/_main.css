@@ -105,7 +105,7 @@ a#gameTitle {
     background-repeat: repeat-y;
     border-left: 3px solid var(--active-color);
 
-    animation: 800ms ease-in-out infinite pulse-background;
+    animation: 600ms ease-in-out infinite pulse-background;
     animation-play-state: paused;
 }
 
@@ -113,7 +113,7 @@ a#gameTitle {
     0% {
         background-size: 0 100%;
     }
-    25%, 60% {
+    10%, 60% {
         background-size: 24px 100%;
     }
     100% {
