@@ -1,0 +1,120 @@
+:root {
+    --ps-yellow: #ECA545;
+    --ps-orange: #FD7D45;
+    /*--ps-pink2: #D9557D;*/
+    --ps-pink1: #C12F5F; /*#AB016E*/
+    /*--ps-pink3: #C04D56;*/
+    --ps-red2: #CB3140;
+    --ps-red: #ED3A44;
+    --ps-purple2: #AE3EC9;
+    /*--ps-purple1: #67288F;*/
+    --ps-dark-blue: #144A8B;
+    --ps-blue: #5D8EC8;
+    --ps-cyan: #54E9D6;
+    /*--ps-green1: #48A07E;*/
+    --ps-green3: #2ABF72;
+    /*--ps-green2: #02CC72;*/
+    --ps-dark: #000000;
+    --ps-light: #FFFFFF;
+    /* TODO */
+    /*color: rgba(var(--bs-danger-rgb), var(--bs-text-opacity)) !important;*/
+    --ps-light-transparent100: #FFFFFF00;
+    --ps-light-transparent90: #FFFFFF19;
+    --ps-passive: #848484;
+
+    --active-color: var(--ps-yellow); /* #FFA500;*/
+    --active-color-subtle: #FFA5004C;
+    --clickable-interact-border-color: var(--ps-light);
+    --backdrop-color: rgba(0, 0, 0, 0.6);
+    --scrollbar-thumb-color: #686868;
+    --scrollbar-track-color: #424242;
+    --tab-button-border-color: var(--ps-passive);
+    --tab-button-interact-border-color: var(--ps-light);
+    --tab-button-active-border-color: var(--active-color);
+
+    --body-bg-color: #202020;
+    --body-font-color: white;
+    --panel-bg-color: #1F1F1F;
+    --panel-bg-color-transparent20: #1F1F1FCB;
+    --panel-bg-color-transparent05: #1F1F1FF2;
+
+
+    --progress-bg-color: var(--ps-dark-blue); /* #0C65AD;*/
+    --progress-bar-color: var(--ps-blue); /* #2E94E7;*/
+    --progress-current-bar-color: var(--active-color);
+    --progress-passive-bg-color: #575757;
+    --progress-passive-bar-color: var(--ps-passive);
+
+    --logo-border-color: var(--progress-bg-color);
+    --help-font-color: #ACACAC;
+    --warning-color: #C80000;
+
+    /* Attributes */
+    --attr-danger-color: var(--ps-orange);
+    --attr-essence-of-unknown-color: var(--ps-pink1);
+    --attr-grid-load-color: var(--progress-bar-color);
+    --attr-grid-strength-color: var(--progress-bg-color);
+    --attr-growth-color: var(--ps-green3);
+    --attr-heat-color: var(--ps-red2);
+    --attr-industry-color: var(--ps-cyan);
+    --attr-military-color: #9897A9;
+    --attr-population-color: var(--ps-blue);
+    --attr-research-color: var(--ps-purple2);
+
+    --galactic-secret-color: var(--attr-essence-of-unknown-color);
+    --battle-color: var(--ps-red);
+
+
+    /* Special purpose colors */
+    --background-fade-1-color: #033038;
+    --background-fade-2-color: #162E33;
+    --background-fade-3-color: #152124;
+    --background-fade-4-color: #0D191C;
+    --background-fade-5-color: #021012;
+    --background-fade-5-color-transparent: #02101200;
+    --stars-1-color: #D7C89C;
+    --stars-2-color: #CCBE95;
+    --stars-3-color: #C2B58D;
+}
+
+/* TODO collides with bs text-danger - prefix our attributes? */
+.text-danger {
+    /* !important to override Bootstrap style */
+    color: var(--attr-danger-color) !important;
+}
+
+.text-essence-of-unknown {
+    color: var(--attr-essence-of-unknown-color);
+}
+
+.text-grid-load {
+    color: var(--attr-grid-load-color);
+}
+
+.text-grid-strength {
+    color: var(--attr-grid-strength-color);
+}
+
+.text-growth {
+    color: var(--attr-growth-color);
+}
+
+.text-heat {
+    color: var(--attr-heat-color);
+}
+
+.text-industry {
+    color: var(--attr-industry-color);
+}
+
+.text-military {
+    color: var(--attr-military-color);
+}
+
+.text-population {
+    color: var(--attr-population-color);
+}
+
+.text-research {
+    color: var(--attr-research-color);
+}

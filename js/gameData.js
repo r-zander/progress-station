@@ -91,7 +91,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 4;
+    version = 5;
 
     /**
      * @type {string}
@@ -418,7 +418,8 @@ class GameData {
     transitionState(newState) {
         // Validate transition
         if (!this.state.validNextStates.includes(newState)) {
-            throw new Error('Invalide state transition from ' + this.state.name + ' to ' + newState.name);
+            throw new Error('Invalide state transition from ' + this.state.name + ' to ' + newState.name
+                + '. Valid states would be: ' + this.state.validNextStates.map(gameState => gameState.name).join(', '));
         }
 
         const previousState = this.stateName;

@@ -1,15 +1,16 @@
-#gameTitle {
+a#gameTitle {
     position: fixed;
     left: 0;
     top: 20%;
+
+    display: block;
+
     rotate: 270deg;
     transform-origin: left top;
     transform: translateX(-100%);
 
-    > h1 > a {
-        color: inherit;
-        text-decoration: none;
-    }
+    color: inherit;
+    text-decoration: none;
 }
 
 .logo {
@@ -28,7 +29,7 @@
         top: 0.125rem;
         left: 0;
         display: block;
-        border: 0.6rem solid #0C65AD;
+        border: 0.6rem solid var(--logo-border-color);
         width: 100%;
         aspect-ratio: 1/1;
         border-radius: 50%;
@@ -44,7 +45,8 @@
     display: none;
 
     position: absolute;
-    top: 15px;
+    top: -7px;
+    left: 0;
 
     font-size: 2.7rem;
 
@@ -99,14 +101,24 @@
     position: relative;
     max-width: var(--content-width);
 
-    background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, orange 4px, orange 8px);
-    background-size: 12px 100%;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, var(--active-color) 4px, var(--active-color) 8px);
     background-repeat: repeat-y;
-    border-left: 2px solid orange;
+    border-left: 3px solid var(--active-color);
+
+    animation: 600ms ease-in-out infinite pulse-background;
+    animation-play-state: paused;
 }
 
-#content .progress {
-    cursor: pointer;
+@keyframes pulse-background {
+    0% {
+        background-size: 0 100%;
+    }
+    10%, 60% {
+        background-size: 24px 100%;
+    }
+    100% {
+        background-size: 0 100%;
+    }
 }
 
 .panel {
@@ -123,7 +135,7 @@
 }
 
 .help-text {
-    color: rgb(172, 172, 172);
+    color: var(--help-font-color);
 }
 
 .table td,
@@ -146,23 +158,41 @@ data[data-unit]::after {
     display: none !important;
 }
 
+.clickable {
+    cursor: pointer;
+}
+
 .btn {
+    --bs-btn-disabled-color: var(--ps-passive);
+    --bs-btn-disabled-bg: var(--panel-bg-color-transparent05);
+    --bs-btn-disabled-border-color: var(--ps-passive);
+    --bs-btn-disabled-opacity: 1.0;
+
     font-family: var(--title-font-family);
     font-weight: 300;
     border-radius: 0;
+    text-shadow: 1px 1px var(--ps-dark), 1px 1px 3px var(--ps-dark);
 }
 
-.item-button {
-    background-color: white;
-    text-align: center;
-    width: 200px;
-    height: 40px;
-    padding: 8px;
+.btn-primary {
+    --bs-btn-bg: var(--ps-dark-blue);
+    --bs-btn-hover-bg: var(--ps-blue);
+    --bs-btn-active-bg: var(--ps-blue);
 }
 
-.item-button:hover {
-    cursor: pointer;
-    background-color: rgb(192, 192, 192);
+.btn-secondary {
+    --bs-btn-bg: var(--panel-bg-color-transparent20);
+    --bs-btn-hover-bg: var(--ps-passive);
+    --bs-btn-active-bg: var(--ps-passive);
+}
+
+.btn-warning {
+    --bs-btn-color: var(--ps-light);
+    --bs-btn-bg: var(--ps-orange);
+    --bs-btn-hover-color: var(--ps-light);
+    --bs-btn-hover-bg: var(--ps-yellow);
+    --bs-btn-active-color: var(--ps-light);
+    --bs-btn-active-bg: var(--ps-yellow);;
 }
 
 .radio {
@@ -201,5 +231,37 @@ a[target="_blank"]:after {
 .overflow-y-auto,
 .overflow-x-auto {
     scrollbar-width: thin;
-    scrollbar-color: #686868 #424242;
+    scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
+}
+
+.form-check {
+    cursor: pointer;
+
+    > * {
+        cursor: inherit;
+    }
+}
+
+.form-check-input:hover {
+    box-shadow: 0 0 0 0.25rem var(--active-color-subtle);
+}
+
+.rounded {
+    --bs-border-radius: var(--corner-length)
+}
+
+.rounded-top-end {
+    border-top-right-radius: var(--corner-length);
+}
+
+.rounded-top-start {
+    border-top-left-radius: var(--corner-length);
+}
+
+.rounded-bottom-end {
+    border-bottom-right-radius: var(--corner-length);
+}
+
+.rounded-bottom-start {
+    border-bottom-left-radius: var(--corner-length);
 }

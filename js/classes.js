@@ -4,7 +4,7 @@
  * @typedef {Object} AttributeDefinition
  * @property {string} [name] - identifier
  * @property {string} title - displayed name of the attribute
- * @property {string} color - font color to display the title
+ * @property {string} textClass - css class to attack to the title
  * @property {string} icon - path to the icon file#
  * @property {string} [description] - (HTML) description of the attribute
  * @property {function(): number} getValue - retrieves the current value for this attribute
@@ -360,7 +360,6 @@ class ModuleCategory extends Entity {
      * @param {{
      *     title: string,
      *     description?: string,
-     *     color: string
      *     modules: Module[],
      * }} baseData
      */
@@ -368,7 +367,6 @@ class ModuleCategory extends Entity {
         super(baseData.title, baseData.description);
 
         this.modules = baseData.modules;
-        this.color = baseData.color;
     }
 
     /**
@@ -710,14 +708,12 @@ class Sector extends Entity {
      * @param {{
      *     title: string,
      *     description?: string,
-     *     color: string,
      *     pointsOfInterest: PointOfInterest[]
      * }} baseData
      */
     constructor(baseData) {
         super(baseData.title, baseData.description);
 
-        this.color = baseData.color;
         this.pointsOfInterest = baseData.pointsOfInterest;
         for (const pointOfInterest of this.pointsOfInterest) {
             pointOfInterest.registerSector(this);
@@ -934,6 +930,14 @@ class GalacticSecret extends Entity {
     }
 }
 
+/**
+ * @typedef {Object} RequirementLike
+ * @property {function(): string} toHtml
+ */
+
+/**
+ * @extends {RequirementLike}
+ */
 class Requirement {
     /** @var {function(boolean)} */
     saveFn;
@@ -1026,12 +1030,17 @@ class Requirement {
      * @return {string}
      */
     toHtml() {
-        return '<span class="' + this.type + '">'
-            + this.requirements
-                .filter(requirement => !this.getCondition(requirement))
-                .map(requirement => this.toHtmlInternal(requirement).trim())
-                .join(', ')
-            + '</span>';
+        const innerHtml = this.requirements
+            .filter(requirement => !this.getCondition(requirement))
+            .map(requirement => this.toHtmlInternal(requirement).trim())
+            .join(', ');
+
+        // TODO pseudo-prerequisites
+        if (innerHtml === '') {
+            return '';
+        }
+
+        return `<span class="${this.type}">${innerHtml}</span>`;
     }
 
     /**
@@ -1055,6 +1064,28 @@ class Requirement {
             return null;
         }
         return openRequirements;
+    }
+
+    /**
+     * @param {{requirements: Requirement[]}} entity
+     */
+    static hasRequirementsFulfilled(entity) {
+        if (isUndefined(entity.requirements)) {
+            return true;
+        }
+
+        return entity.requirements.every(requirement => requirement.isCompleted());
+    }
+
+    /**
+     * @param {{requirements: Requirement[]}} entity
+     */
+    static hasUnfulfilledRequirements(entity) {
+        if (isUndefined(entity.requirements)) {
+            return false;
+        }
+
+        return entity.requirements.some(requirement => !requirement.isCompleted());
     }
 }
 
@@ -1080,6 +1111,11 @@ class OperationLevelRequirement extends Requirement {
      * @return {string}
      */
     toHtmlInternal(requirement) {
+        // TODO pseudo-prerequisites
+        if (Requirement.hasUnfulfilledRequirements(requirement.operation)) {
+            return '';
+        }
+
         return `
 <span class="name">${requirement.operation.title}</span>
 level 
@@ -1142,11 +1178,16 @@ class AttributeRequirement extends Requirement {
      */
     toHtmlInternal(requirement) {
         const value = requirement.attribute.getValue();
+        // TODO pseudo-prerequisites
+        if (nearlyEquals(value, 0, 0.001)) {
+            return '';
+        }
+
         // TODO format value correctly
         return `
 <span class="name">${requirement.attribute.title}</span> 
-<data value="${value}">${value.toFixed(2)}</data> /
-<data value="${requirement.requirement}">${requirement.requirement}</data>
+<data value="${value}">${formatNumber(value)}</data> /
+<data value="${requirement.requirement}">${formatNumber(requirement.requirement)}</data>
 `;
     }
 }
@@ -1173,6 +1214,11 @@ class PointOfInterestVisitedRequirement extends Requirement {
      * @return {string}
      */
     toHtmlInternal(requirement) {
+        // TODO pseudo-prerequisites
+        if (Requirement.hasUnfulfilledRequirements(requirement.pointOfInterest)) {
+            return '';
+        }
+
         return `visit <span class="name">${requirement.pointOfInterest.title}</span>`;
     }
 }
@@ -1211,7 +1257,7 @@ class GalacticSecretRequirement extends Requirement {
 class HtmlElementWithRequirement {
     /**
      * @param {{
-     *     elementsWithRequirements: HTMLElement[],
+     *     elementsWithRequirements: (HTMLElement|LazyHtmlElement|LazyHtmlElementCollection)[],
      *     requirements: Requirement[],
      *     elementsToShowRequirements?: HTMLElement[],
      *     prerequirements?: Requirement[],
@@ -1314,6 +1360,9 @@ class HtmlElementWithRequirement {
 
     reset() {
         for (const requirement of this.requirements) {
+            requirement.reset();
+        }
+        for (const requirement of this.prerequirements) {
             requirement.reset();
         }
     }

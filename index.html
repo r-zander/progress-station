@@ -15,27 +15,26 @@
     <div class="stars" id="stars3"></div>
     <div class="stars" id="stars4"></div>
     <div id="main-planet-wrapper">
-        <img id="main-planet" alt="Blue Planet Illustration" src="img/planets/blue-planet.svg">
+        <img id="main-planet" alt="Blue Planet Illustration" src="img/planets/planet07.svg">
     </div>
-    <img id="moon" alt="Moon Illustration" src="img/planets/moon.svg">
-    <img id="gas-planet" alt="Gas Planet Illustration" src="img/planets/gas-planet.svg">
+    <img id="moon" alt="Moon Illustration" src="img/planets/planet03.svg">
+    <img id="gas-planet" alt="Gas Planet Illustration" src="img/planets/planet12.svg">
     <div id="main-planet-overlay"></div>
 </section>
 
-<!-- TODO reserve horizontal space for game title -->
-<div id="gameTitle" class="d-flex panel align-items-center">
-    <a id="gameTitleLogo" class="logo me-2 order-2" href="#credits">
+<a id="gameTitle" class="d-flex panel align-items-center shortcut" href="#credits">
+    <div id="gameTitleLogo" class="logo me-2 order-2" >
         PS
-    </a>
-    <h1 class="p-2 m-0 order-1"><a href="#credits">Progress Station</a></h1>
-</div>
+    </div>
+    <h1 class="p-0 m-0 order-1">Progress Station</h1>
+</a>
 <main id="main" class="d-flex flex-column">
     <header id="stationOverview" class="mb-3 gap-1 d-flex flex-column">
-        <div class="panel px-3 pt-2 pb-1 d-flex flex-row gap-3 align-items-start">
+        <div class="panel pe-3 pt-2 d-flex flex-row gap-3 align-items-start position-relative">
             <a id="stationOverviewLogo" class="logo me-2" href="#credits">
                 PS
             </a>
-            <h2 id="nameDisplay" class="my-0 flex-fill">USS Progress</h2>
+            <h2 id="nameDisplay" class="shortcut my-0 me-auto px-3 pb-1">USS Progress</h2>
             <div id="cyclesSinceLastEncounter" class="primary-stat"
                  title="Intergalactic Cycles" data-bs-placement="bottom">
                 <span class="label">Since Last Encounter:</span>
@@ -48,14 +47,14 @@
             </div>
         </div>
 
-        <div id="energyGridDisplay" class="panel px-3 py-1 d-flex flex-row">
+        <div id="energyGridDisplay" class="panel px-3 py-1 d-flex flex-row overflow-hidden">
             <div class="d-flex flex-column mt-3">
-                <p id="gridLabel" class="grid-strength-bar d-flex align-items-center px-2" style="background-color: grey"
+                <p id="gridLabel" class="grid-strength-bar energy-label d-flex align-items-center px-2"
                      title="[Filled by JavaScript]" data-bs-placement="bottom" data-bs-html="true">
                     <img src="img/icons/grid.svg" class="icon" alt="Grid Icon" style="height: 30px;" />
                     <span class="flex-fill ms-1">Grid</span>
                 </p>
-                <p class="energy-bar d-flex align-items-center px-2" style="background-color: grey">
+                <p class="energy-bar energy-label d-flex align-items-center px-2">
                     <img src="img/icons/energy.svg" class="icon" alt="Energy Icon"/>
                     <span class="flex-fill ms-1">Energy</span>
                 </p>
@@ -105,7 +104,7 @@
             </div>
         </div>
 
-        <div id="attributesDisplay" class="panel px-3 py-1 d-flex justify-content-start gap-4" onclick="setTab('attributes');">
+        <div id="attributesDisplay" class="shortcut panel px-3 py-1 d-flex justify-content-start gap-4" onclick="setTab('attributes');">
             <div class="primary-stat" data-attribute="population"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
@@ -133,11 +132,11 @@
                 <span class="label" style=""></span>
                 <data id="growthDisplay" value="1">?</data>
             </div>
-            <div class="primary-stat" data-attribute="heat"
+            <div class="primary-stat" data-attribute="military"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
-                <data id="heatDisplay" style="color: rgb(15, 105, 207)" value="1">?%</data>
+                <data id="militaryDisplay" value="1">?</data>
             </div>
             <div class="primary-stat" data-attribute="danger"
                  data-bs-placement="bottom" data-bs-html="true">
@@ -145,19 +144,19 @@
                 <span class="label" style=""></span>
                 <data id="dangerDisplay" value="1">?</data>
             </div>
-            <div class="primary-stat" data-attribute="military"
+            <div class="primary-stat" data-attribute="heat"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
-                <data id="militaryDisplay" value="1">?</data>
+                <data id="heatDisplay" value="1">?%</data>
             </div>
         </div>
     </header>
 
-    <div id="contentWrapper" class="d-flex align-content-start" style="height: calc(100vh - 32px - 192px)"> <!-- TODO drop height here -->
-        <aside id="sidebar" class="mh-100 overflow-x-hidden overflow-y-auto d-flex flex-column me-3">
+    <div id="contentWrapper" class="d-flex align-content-start">
+        <aside id="sidebar" class="d-flex flex-column mh-100 overflow-x-hidden overflow-y-auto me-3">
             <div id="actions" class="d-flex flex-column">
-                <button class="btn btn-secondary btn-lg w-100" id="pauseButton" onClick="togglePause();">
+                <button class="btn btn-lg w-100" id="pauseButton" onClick="togglePause();">
                     Pause
                 </button>
             </div>
@@ -220,7 +219,7 @@
                     <!--suppress HtmlUnknownTag -->
                     <h3>Location</h3>
                     <!--suppress HtmlUnknownTag -->
-                    <div id="locationQuickDisplay" class="point-of-interest btn btn-warning btn-sm mt-2 w-100 d-flex"
+                    <div id="locationQuickDisplay" class="point-of-interest mt-2 w-100 px-2 d-flex"
                             title="Sector: Point of Interest" data-bs-placement="bottom">
                         <span class="sector text-truncate">Sector</span>
                         <span class="me-1">:</span>
@@ -259,8 +258,7 @@
         <div id="content" class="panel flex-fill position-relative mh-100 overflow-auto">
             <template id="level1Template">
                 <div class="level1">
-                    <div class="level1-header d-flex justify-content-start py-2 px-2 mb-0"
-                         style="background-color: rgb(199, 21, 133);">
+                    <div class="level1-header d-flex justify-content-start py-2 px-2 mb-0">
                         <div class="category" title="Component Description" data-bs-placement="right">
                             Industry
                         </div>
@@ -275,7 +273,7 @@
 
             <template id="level2Template">
                 <div class="level2 ps-3 mt-2">
-                    <div class="level2-header bg-light text-dark d-flex justify-content-start align-items-center px-2 gap-3"
+                    <div class="level2-header text-bg-light d-flex justify-content-start align-items-center px-2 gap-3"
                          style="padding-top: 5px; padding-bottom: 5px;">
                         <div class="name" title="Component Description" data-bs-placement="right">
                             Mining Bay
@@ -333,7 +331,7 @@
             <template id="level4TaskTemplate">
                 <tr class="floating-warning-container">
                     <td>
-                        <div class="progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
+                        <div class="progress progressBar descriptionTooltip clickable" role="progressbar" aria-label="Task"
                              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
                              data-bs-placement="right">
                             <div class="moduleOperation progressFill progress-bar progress-bar-striped" style="width: 54%"></div>
@@ -365,7 +363,7 @@
                 <div class="table-container ps-3 mt-2">
                     <table class="table mb-0">
                         <thead class="level3">
-                        <tr class="header-row">
+                        <tr class="header-row text-bg-light">
                             <th class="name">Battles</th>
                             <th class="level numeric">Level</th>
                             <th class="xpGain numeric">Dmg</th>
@@ -384,12 +382,12 @@
             <template id="level4BattleTemplate">
                 <tr>
                     <td>
-                        <div class="progress battle progressBar descriptionTooltip" role="progressbar" aria-label="Task"
+                        <div class="progress battle progressBar descriptionTooltip clickable" role="progressbar" aria-label="Task"
                              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Learn something about astrogoblins."
                              data-bs-placement="right">
                             <div class="progressBackground progress-background"></div>
                             <div class="battleProgress progressFill progress-bar progress-bar-striped" style="width: 54%"></div>
-                            <div class="progress-text name px-2">Wimpy Astrogoblins</div>
+                            <div class="progress-text name text-truncate px-2">Wimpy Astrogoblins</div>
                         </div>
                     </td>
                     <td class="level numeric">
@@ -414,7 +412,7 @@
                 <div class="table-container ps-3">
                     <table class="table mb-0">
                         <thead class="level3">
-                        <tr class="header-row">
+                        <tr class="header-row text-bg-light">
                             <th class="name" title="Sector Description" data-bs-placement="right">
                                 Sector
                             </th>
@@ -449,7 +447,7 @@
             <template id="level4GalacticSecretTemplate">
                 <tr>
                     <td>
-                        <div class="galactic-secret progress progressBar descriptionTooltip" role="progressbar" aria-label="Task"
+                        <div class="galactic-secret progress progressBar descriptionTooltip clickable" role="progressbar" aria-label="Task"
                              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Task Description"
                              data-bs-placement="right">
                             <div class="moduleOperation progressFill progress-bar progress-bar-striped" style="width: 54%"></div>
@@ -536,7 +534,7 @@
                             <tr>
                                 <td class="title">
                                     <img src="img/icons/industry.svg" class="icon" alt="Population Icon"/>
-                                    <span class="name" style="color: rgb(97, 173, 50)">Industry</span>
+                                    <span class="name">Industry</span>
                                 </td>
                                 <td class="value numeric">
                                     <data value="0">?</data>
@@ -607,7 +605,9 @@
                                class="stationNameInput form-control"
                                maxlength="30"
                                placeholder=""/>
-                        <button class="btn btn-light py-1 mt-3 float-end" onClick="rerollStationName();">Re-roll</button>
+                        <div class="d-flex mt-2 gap-2 justify-content-end">
+                            <button class="btn btn-dark" onClick="rerollStationName();">Re-roll</button>
+                        </div>
                     </div>
                 </div>
 
@@ -616,9 +616,9 @@
                     <div class="col-sm-10">
                         <textarea id="importExportBox" class="form-control" rows="3"></textarea>
 
-                        <div class="mt-3 float-end">
-                            <button class="btn btn-light py-1" onClick="gameData.import();">Import</button>
-                            <button class="btn btn-light py-1" onClick="gameData.export();">Export</button>
+                        <div class="d-flex mt-2 gap-2 justify-content-end">
+                            <button class="btn btn-dark" onClick="gameData.import();">Import</button>
+                            <button class="btn btn-dark" onClick="gameData.export();">Export</button>
                         </div>
                     </div>
                 </div>
@@ -744,18 +744,33 @@
                                     </li>
                                 </ul>
                             </li>
-                            <li><a href="https://getbootstrap.com/" target="_blank">Bootstrap 5</a></li>
                             <li>
-                                <a href="https://github.com/wilsonpage/fastdom" target="_blank">Fastdom</a>
-                                by <a href="https://github.com/wilsonpage" target="_blank">Wilson Page</a>
+                                JavaScript Libraries
+                                <ul>
+                                    <li><a href="https://getbootstrap.com/" target="_blank">Bootstrap 5</a></li>
+                                    <li>
+                                        <a href="https://github.com/wilsonpage/fastdom" target="_blank">Fastdom</a>
+                                        by <a href="https://github.com/wilsonpage" target="_blank">Wilson Page</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://github.com/turuslan/HackTimer" target="_blank">HackTimer</a>
+                                        by <a href="https://github.com/turuslan" target="_blank">Ruslan Tushov</a>
+                                    </li>
+                                    <li><a href="https://lodash.com/" target="_blank">Lodash</a></li>
+                                </ul>
                             </li>
                             <li>
-                                <a href="https://github.com/turuslan/HackTimer" target="_blank">HackTimer</a>
-                                by <a href="https://github.com/turuslan" target="_blank">Ruslan Tushov</a>
-                            </li>
-                            <li><a href="https://lodash.com/" target="_blank">Lodash</a></li>
-                            <li><a href="https://github.com/processing/p5.js/blob/main/src/color/p5.Color.js" target="_blank">p5.Color</a>
-                                from <a href="https://p5js.org/">p5.js</a>
+                                Images
+                                <ul>
+                                    <li>
+                                        <a href="https://www.freepik.com/free-vector/fantastic-planets-cartoon-galaxy-ui-game-asteroids_8188953.htm#">Images by upklyak</a> on Freepik
+                                        <div>
+                                            <img src="img/planets/planet07.svg" width="70" />
+                                            <img src="img/planets/planet03.svg" width="70" />
+                                            <img src="img/planets/planet12.svg" width="70" />
+                                        </div>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
                     </div>
@@ -837,7 +852,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light"><b>The Destroyer</b> attacks you</h2>
+                <h2 class="modal-title fs-4 fw-light"><b class="bossName">The Destroyer</b> attacks you</h2>
             </div>
             <div class="modal-body">
                 <p>
@@ -847,6 +862,53 @@
                     The vacuum of space around your station suppresses all noise, but you can feel the hatred of
                     the alien beast and see it's determination to destroy everything you have built up.
                 </p>
+                <ul class="help-text m-0">
+                    <li>Your damage output is multiplied by your
+                        <span class="primary-stat" data-attribute="military" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
+                        and the progress speed from
+                        <span class="primary-stat" data-attribute="population" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>.
+                    </li>
+                    <li>The boss inflicts
+                        <span class="primary-stat" data-attribute="heat" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
+                        and is directly damaging your
+                        <span class="primary-stat" data-attribute="population" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>.
+                    </li>
+                    <li><span class="primary-stat" data-attribute="growth" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
+                        is disabled during the boss battle.
+                    </li>
+                    <li>Once your
+                        <span class="primary-stat" data-attribute="population" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
+                        reaches <data value="0">0</data>,
+                        you <b>lose the battle</b>.
+                    </li>
+                    <li>The boss has <data class="bossTargetLevel" value="10">10</data> levels of defense.</li>
+                    <li>The more levels of the boss that you overcome, the more
+                        <span class="primary-stat" data-attribute="essenceOfUnknown" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>
+                        you will collect.
+                    </li>
+                    <li>Overcoming the last level of the boss will <b>win you the game</b>.</li>
+                </ul>
             </div>
             <div class="modal-footer d-flex">
                 <button type="button" class="btn btn-secondary"
@@ -863,15 +925,15 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light win-only">You defeated <b>The Destroyer</b></h2>
-                <h2 class="modal-title fs-4 fw-light loss-only"><b>The Destroyer</b> defeated you</h2>
+                <h2 class="modal-title fs-4 fw-light win-only">You defeated <b class="bossName">The Destroyer!</b></h2>
+                <h2 class="modal-title fs-4 fw-light loss-only"><b class="bossName">The Destroyer</b> defeated you!</h2>
             </div>
             <div class="modal-body win-only">
                 <p>
                     Congratulations!
                 </p>
                 <p>
-                    You managed to blast through the Destroyer's near endless defenses.
+                    You managed to blast through <b class="bossName">the Destroyer</b>'s near endless defenses.
                 </p>
                 <p>
                     The universe is safe, and it feels as if a curse was lifted of your soul.
@@ -879,25 +941,26 @@
                 <p class="mt-4">
                     On the main console you see what appears to be an ancient video game:
                 </p>
-                <p class="text-center mb-0">
+                <p class="text-center">
                     <a href="https://ihtasham-42.itch.io/progress-knight">Progress Knight</a> by ihtasham_42<br/>
                 </p>
-                <p>
-                    <em class="help-text">Check out the original game that Progress Station is based upon.</em>
+                <p class="help-text">
+                    Check out the original game that Progress Station is based upon.
                 </p>
             </div>
             <div class="modal-body loss-only">
                 <p>
-                    The Destroyer's power is overwhelming and annihilates your crew, your station, everything.
+                    <b class="bossName">The Destroyer</b>'s power is overwhelming and annihilates your crew, your station, everything.
                 </p>
                 <p>
                     With the last of your strength, you save yourself in the rescue capsule.
                 </p>
-                <p class="help-text">
-                    In the next play-through, you will progress much faster.<br/>
-                    The max level of modules equals the sum of all operations in that module.<br/>
-                    Each operation in a modules progresses X% faster, where X is the modules max level.
-                </p>
+                <ul class="help-text m-0">
+                    <li>In the next play-through, you will progress much faster.</li>
+                    <li>Each operation in a module progresses <data value="X" data-unit="%">X</data> faster,
+                        where <data value="X">X</data> is the module's max level.</li>
+                    <li>Max level of modules = sum of that module's operations max level.</li>
+                </ul>
             </div>
             <div class="modal-footer d-flex">
                 <button type="button" class="btn btn-secondary win-only" onclick="continueAfterWin();">Keep playing</button>
@@ -948,7 +1011,6 @@
 </script>
 <script type="text/javascript" src="vendor/bootstrap-5.3.1/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="vendor/lodash-4.17.15/lodash.min.js"></script>
-<script type="text/javascript" src="vendor/p5.Color.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/gameUtils.js"></script>
 <script type="text/javascript" src="js/gameEvents.js"></script>

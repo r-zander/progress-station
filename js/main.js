@@ -6,6 +6,11 @@
 let gameData;
 
 /**
+ * @type {number}
+ */
+let updateIntervalID = 0;
+
+/**
  *
  * @type {
  * {
@@ -134,6 +139,9 @@ function setTab(selectedTab) {
         tabButton.classList.remove('active');
     }
     tabButtons[selectedTab].classList.add('active');
+
+    Dom.get().byId('content').style.animationPlayState = 'running';
+
     gameData.selectedTab = selectedTab;
     gameData.save();
 
@@ -180,7 +188,7 @@ function updateConnector() {
     const contentElement = Dom.get().byId('content');
 
     const margin = 16;
-    const connectorHeight = 4;
+    const connectorHeight = 3;
 
     XFastdom.measure(() => {
         return {
@@ -220,8 +228,22 @@ function updateConnector() {
         connectorElement.style.left = Math.round(boundingClientRect.activeTabButton.right) + 'px';
         connectorElement.style.width = Math.round(boundingClientRect.contentElement.left - boundingClientRect.activeTabButton.right + 1) + 'px';
     });
+}
 
-    requestAnimationFrame(updateConnector);
+function updateLayout(){
+    /**
+     * Do some layout calculations Raoul's too stupid to do in pure CSS.
+     */
+    const headerHeight = Dom.outerHeight(Dom.get().byId('stationOverview'));
+    const contentWrapper = Dom.get().byId('contentWrapper');
+    // Ensure inner scrolling
+    contentWrapper.style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
+    // Ensure full screen usage
+    contentWrapper.style.height = `calc(100vh - 32px - ${headerHeight}px)`;
+
+    updateConnector();
+
+    requestAnimationFrame(updateLayout);
 }
 
 /**
@@ -377,9 +399,9 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
         }
         /** @var {HTMLInputElement} */
         const switchElement = level2DomGetter.byClass('moduleActivationSwitch');
-        switchElement.id = 'switch_' + module.name;
+        switchElement.id = 'switch_' + module.domId;
         switchElement.addEventListener('click', switchModuleActivation.bind(this, module));
-        level2DomGetter.byClass('moduleActivationLabel').for = switchElement.id;
+        level2DomGetter.byClass('moduleActivationLabel').htmlFor = switchElement.id;
         initTooltip(level2DomGetter.byClass('maxLevel'), {
             title: () => {
                 return `<b>x${(1 + module.maxLevel / 100).toFixed(2)} XP</b> for all operations in this module.`;
@@ -421,7 +443,6 @@ function createModulesUI(categoryDefinition, domId) {
         } else {
             categoryCell.removeAttribute('title');
         }
-        level1DomGetter.byClass('level1-header').style.backgroundColor = category.color;
 
         const level2Slot = level1DomGetter.byId('level2');
         level2Slot.replaceWith(...createModuleLevel2Elements(category.name, category, level1DomGetter.byId('level2Requirements')));
@@ -484,7 +505,6 @@ function createLevel3SectorElement(sector, sectorName) {
     level3Element.classList.remove('ps-3');
 
     const level3DomGetter = Dom.get(level3Element);
-    level3DomGetter.byClass('header-row').style.backgroundColor = sector.color;
     const nameCell = level3DomGetter.byClass('name');
     nameCell.textContent = sector.title;
     if (isDefined(sector.description)) {
@@ -589,7 +609,6 @@ function createUnfinishedBattlesUI() {
     level3Element.classList.remove('ps-3');
 
     const domGetter = Dom.get(level3Element);
-    domGetter.byClass('header-row').style.backgroundColor = colorPalette.TomatoRed;
     domGetter.byClass('name').textContent = 'Open';
 
     /** @type {HTMLElement} */
@@ -612,7 +631,8 @@ function createLevel4FinishedBattleElements(battles) {
         level4Element.classList.add('hidden');
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
-        domGetter.bySelector('.progressBar .progressBackground').style.backgroundColor = lastLayerData.color;
+        domGetter.byClass('progressBar').classList.remove('clickable');
+        domGetter.bySelector('.progressBar').dataset.layer = String(numberOfLayers);
         domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
         formatValue(
             domGetter.bySelector('.level > data'),
@@ -638,7 +658,7 @@ function createFinishedBattlesUI() {
     level3Element.classList.remove('ps-3');
 
     const domGetter = Dom.get(level3Element);
-    domGetter.byClass('header-row').style.backgroundColor = colorPalette.EasyGreen;
+    domGetter.byClass('header-row').classList.replace('text-bg-light', 'text-bg-dark');
     domGetter.byClass('name').textContent = 'Completed';
     domGetter.byClass('level').textContent = 'Defeated levels';
     domGetter.byClass('xpGain').classList.add('hidden');
@@ -764,7 +784,7 @@ function createBattlesQuickDisplay() {
  * @param {AttributeDefinition} attribute
  */
 function createAttributeInlineHTML(attribute) {
-    return `<span class="attribute" style="color: ${attribute.color}">${attribute.title}</span>`;
+    return `<span class="attribute ${attribute.textClass}">${attribute.title}</span>`;
 }
 
 /**
@@ -773,23 +793,19 @@ function createAttributeInlineHTML(attribute) {
  * @returns {HTMLElement}
  */
 function createAttributeRow(attribute) {
-    const dangerRow = Dom.new.fromTemplate('attributeRowTemplate');
-    dangerRow.classList.add(attribute.name);
-    const dangerDomGetter = Dom.get(dangerRow);
+    const attributeRow = Dom.new.fromTemplate('attributeRowTemplate');
+    attributeRow.classList.add(attribute.name);
+    const domGetter = Dom.get(attributeRow);
     if (attribute.icon === null) {
-        dangerDomGetter.byClass('icon').remove();
+        domGetter.byClass('icon').remove();
     } else {
-        dangerDomGetter.byClass('icon').src = attribute.icon;
+        domGetter.byClass('icon').src = attribute.icon;
     }
-    let nameElement = dangerDomGetter.byClass('name');
+    let nameElement = domGetter.byClass('name');
     nameElement.textContent = attribute.title;
-    if (attribute.color === null) {
-        nameElement.style.removeProperty('color');
-    } else {
-        nameElement.style.color = attribute.color;
-    }
-    dangerDomGetter.byClass('description').innerHTML = attribute.description;
-    return dangerRow;
+    nameElement.classList.add(attribute.textClass);
+    domGetter.byClass('description').innerHTML = attribute.description;
+    return attributeRow;
 }
 
 /**
@@ -939,7 +955,7 @@ function createAttributesDisplay() {
         }
         const labelElement = domGetter.byClass('label');
         if (labelElement !== null) {
-            labelElement.style.color = attribute.color;
+            labelElement.classList.add(attribute.textClass);
             labelElement.textContent = attribute.title;
         }
     }
@@ -976,9 +992,15 @@ function createAttributesUI() {
 
     // Heat
     const heatRow = createAttributeRow(attributes.heat);
+    Dom.get(heatRow).byClass('description').innerHTML += `<br />
+${createAttributeInlineHTML(attributes.military)} exceeding ${createAttributeInlineHTML(attributes.danger)} is disregarded.
+The total can never be less than <data value="0.1">0.1</data> - space is dangerous!`;
     const heatFormulaElement = Dom.get(heatRow).byClass('formula');
     heatFormulaElement.classList.remove('hidden');
-    heatFormulaElement.innerHTML = 'max(' + createAttributeInlineHTML(attributes.danger) + ' - ' + createAttributeInlineHTML(attributes.military) + ', 1)';
+    heatFormulaElement.innerHTML = `<ul class="balance m-0 list-unstyled">
+    <li class="balanceEntry">${createAttributeInlineHTML(attributes.danger)} - ${createAttributeInlineHTML(attributes.military)}</li>
+    <li><span class="operator">+</span> raw <span class="attribute ${attributes.heat.textClass}">Heat</span> from Boss</li>
+</ul>`;
     rows.push(heatRow);
 
     // Industry
@@ -1027,15 +1049,6 @@ function createEnergyGridDisplay() {
 
     Dom.get().byId('ticksTop').replaceWith(...tickElementsTop);
     Dom.get().byId('ticksBottom').replaceWith(...tickElementsBottom);
-}
-
-/**
- * Does layout calculations Raoul's too stupid to do in pure CSS.
- */
-function adjustLayout() {
-    const headerHeight = Dom.outerHeight(Dom.get().byId('stationOverview'));
-    // TODO don't
-    Dom.get().byId('contentWrapper').style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
 }
 
 function cleanUpDom() {
@@ -1087,7 +1100,7 @@ function updateModulesQuickDisplay() {
 function setBattleProgress(progressBar, battle) {
     const domGetter = Dom.get(progressBar);
     if (battle.isDone()) {
-        domGetter.byClass('progressBackground').style.backgroundColor = lastLayerData.color;
+        progressBar.dataset.layer = String(numberOfLayers);
         domGetter.byClass('progressFill').style.width = '0%';
         return;
     }
@@ -1099,13 +1112,13 @@ function setBattleProgress(progressBar, battle) {
         return;
     }
 
-    const layerLevel = battle.level % layerData.length;
-    progressBarFill.style.backgroundColor = layerData[layerLevel].color;
+    const layerLevel = battle.level % numberOfLayers;
+    progressBarFill.dataset.layer = String(layerLevel);
     if (battle.getDisplayedLevel() === 1) {
-        domGetter.byClass('progressBackground').style.backgroundColor = lastLayerData.color;
+        progressBar.dataset.layer = String(numberOfLayers);
     } else {
-        const nextLayerLevel = (battle.level + 1) % layerData.length;
-        domGetter.byClass('progressBackground').style.backgroundColor = layerData[nextLayerLevel].color;
+        const nextLayerLevel = (battle.level + 1) % numberOfLayers;
+        progressBar.dataset.layer = String(nextLayerLevel);
     }
 }
 
@@ -1187,7 +1200,7 @@ function setProgress(progressFillElement, progress, increasing = true) {
 }
 
 /**
- * @param {Requirement[]|null} unfulfilledRequirements
+ * @param {RequirementLike[]|null} unfulfilledRequirements
  * @param {{
  *     hasUnfulfilledRequirements: boolean,
  *     requirementsElement: HTMLElement,
@@ -1198,28 +1211,33 @@ function setProgress(progressFillElement, progress, increasing = true) {
  */
 function updateRequirements(unfulfilledRequirements, context) {
     // Block all following entities
+    // Only first requirement is shown
     if (context.hasUnfulfilledRequirements) {
         return false;
     }
 
-    if (unfulfilledRequirements !== null) {
-        // Only first requirement is shown
-        if (context.hasUnfulfilledRequirements !== true) {
-            const html = unfulfilledRequirements
-                .map(requirement => requirement.toHtml())
-                .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
-                .join(', ');
-            if (html !== context.getHtmlCache()) {
-                Dom.get(context.requirementsElement).byClass('rendered').innerHTML = html;
-                context.setHtmlCache(html);
-            }
-            context.hasUnfulfilledRequirements = true;
-        }
-
-        return false;
+    if (unfulfilledRequirements === null) {
+        return true;
     }
 
-    return true;
+    const html = unfulfilledRequirements
+        .map(requirement => requirement.toHtml())
+        .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
+        .join(', ');
+    // TODO pseudo-prerequisites
+    if (html === '') {
+        // Hack: don't use .hidden to not interfere with the rest of the requirements system
+        context.requirementsElement.style.display = 'none';
+    } else {
+        context.requirementsElement.style.removeProperty('display');
+        if (html !== context.getHtmlCache()) {
+            Dom.get(context.requirementsElement).byClass('rendered').innerHTML = html;
+            context.setHtmlCache(html);
+        }
+    }
+    context.hasUnfulfilledRequirements = true;
+
+    return false;
 }
 
 let moduleCategoryRequirementsHtmlCache = '';
@@ -1299,10 +1317,8 @@ function updateModuleRow(module, moduleRequirementsContext) {
 
     const domGetter = Dom.get(row);
     const level2Header = domGetter.byClass('level2-header');
-    level2Header.classList.toggle('bg-light', isActive);
-    level2Header.classList.toggle('text-dark', isActive);
-    level2Header.classList.toggle('bg-dark', !isActive);
-    level2Header.classList.toggle('text-light', !isActive);
+    level2Header.classList.toggle('text-bg-light', isActive);
+    level2Header.classList.toggle('text-bg-dark', !isActive);
 
     domGetter.byClass('moduleActivationSwitch').checked = module.isActive();
     formatValue(domGetter.byClass('level'), module.getLevel());
@@ -1397,6 +1413,58 @@ function updateModulesUI() {
     categoryRequirementsContext.requirementsElement.classList.toggle('hidden', !categoryRequirementsContext.hasUnfulfilledRequirements);
 }
 
+
+/**
+ *
+ * @param visibleFactions
+ * @param battle
+ * @param visibleBattles
+ * @param maxBattles
+ * @return {RequirementLike|null}
+ */
+function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattles, maxBattles) {
+    if (visibleFactions.hasOwnProperty(battle.faction.name)) {
+        return {
+            toHtml: () => {
+                return `${visibleFactions[battle.faction.name].title} defeated`;
+            },
+        };
+    }
+
+    if (visibleBattles < maxBattles.limit) {
+        // All good, no unfulfilled requirement
+        return null;
+    }
+
+    // The first and last maximumAvailableBattles are strings for special cases
+    if (isString(maxBattles.requirement)) {
+        return {
+            toHtml: () => {
+                return maxBattles.requirement;
+            },
+        };
+    }
+
+    // Let's get dirty for some nice UX
+    // If due to low research, only 1 battle can be shown, this battle explicitly mentioned
+    if (maxBattles.limit === 1) {
+        return {
+            toHtml: () => {
+                // Find the open battle by looking up the one value in the visible factions
+                return `${Object.values(visibleFactions)[0].title} defeated or ` +
+                    maxBattles.requirement.toHtml();
+            },
+        };
+    }
+
+    // There is more than 1 battle open but there could be more battles visible
+    return {
+        toHtml: () => {
+            return 'Win any open battle or ' + maxBattles.requirement.toHtml();
+        },
+    };
+}
+
 let battleRequirementsHtmlCache = '';
 
 function updateBattleRows() {
@@ -1431,30 +1499,11 @@ function updateBattleRows() {
 
         Dom.get().byId('row_done_' + battle.name).classList.add('hidden');
 
-        const unfulfilledRequirements = [];
-        if (visibleBattles >= maxBattles.limit) {
-            if (isString(maxBattles.requirement)) {
-                unfulfilledRequirements.push({
-                    toHtml: () => {
-                        return maxBattles.requirement;
-                    },
-                });
-            } else {
-                unfulfilledRequirements.push(maxBattles.requirement);
-            }
-        }
-
-        if (visibleFactions.hasOwnProperty(battle.faction.name)) {
-            unfulfilledRequirements.push({
-                toHtml: () => {
-                    return `${battle.faction.name} defeated`;
-                },
-            });
-        }
+        const unfulfilledRequirement = getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattles, maxBattles);
 
         if (!(battle instanceof BossBattle)) {
             if (!updateRequirements(
-                unfulfilledRequirements.length === 0 ? null : unfulfilledRequirements,
+                unfulfilledRequirement === null ? null : [unfulfilledRequirement],
                 requirementsContext)
             ) {
                 row.classList.add('hidden');
@@ -1462,7 +1511,7 @@ function updateBattleRows() {
             }
 
             visibleBattles++;
-            visibleFactions[battle.faction.name] = true;
+            visibleFactions[battle.faction.name] = battle;
 
             row.classList.remove('hidden');
         }
@@ -1557,8 +1606,7 @@ function updateSectorRows() {
 
             const domGetter = Dom.get(row);
             const isActive = pointOfInterest.isActive();
-            domGetter.byClass('point-of-interest').classList.toggle('btn-primary', !isActive);
-            domGetter.byClass('point-of-interest').classList.toggle('btn-warning', isActive);
+            domGetter.byClass('point-of-interest').classList.toggle('current', isActive);
             domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescription();
             formatValue(domGetter.bySelector('.danger > data'), pointOfInterest.getEffect(EffectType.Danger));
         }
@@ -1575,14 +1623,17 @@ function updateGalacticSecretRows() {
         const row = Dom.get().byId(galacticSecret.domId);
         const domGetter = Dom.get(row);
         const isUnlocked = galacticSecret.isUnlocked;
+        const progressBarElement = domGetter.byClass('progressBar');
         const progressFillElement = domGetter.byClass('progressFill');
         if (isUnlocked) {
             progressFillElement.classList.add('unlocked');
-            domGetter.byClass('progressBar').classList.add('unlocked');
+            progressBarElement.classList.add('unlocked');
+            progressBarElement.classList.remove('clickable');
             progressFillElement.style.removeProperty('width');
         } else {
             progressFillElement.classList.toggle('unlocked', galacticSecret.inProgress);
-            domGetter.byClass('progressBar').classList.remove('unlocked');
+            progressBarElement.classList.remove('unlocked');
+            progressBarElement.classList.add('clickable');
             setProgress(progressFillElement, galacticSecret.unlockProgress);
         }
     }
@@ -1679,39 +1730,7 @@ function updateEnergyGridBar() {
     energyGeneratedElement.style.right = `clamp(${rightLimit}px, ${relativeEnergy}%, calc(100% - ${leftLimit}px))`;
 }
 
-function updateHeatDisplay() {
-    const mediumHeat = 1000;
-    const maxHeat = 8000;
-
-    const heat = attributes.heat.getValue();
-    let heatText = (heat).toFixed(0);
-    let color;
-    if (heat < mediumHeat) {
-        color = lerpColor(
-            dangerColors[0],
-            dangerColors[1],
-            heat / mediumHeat,
-            'RGB',
-        ).toString('rgb');
-    } else {
-        color = lerpColor(
-            dangerColors[1],
-            dangerColors[2],
-            (heat - mediumHeat) / (maxHeat - mediumHeat),
-            'RGB',
-        ).toString('rgb');
-    }
-
-    const heatElement1 = Dom.get().byId('heatDisplay');
-    heatElement1.textContent = heatText;
-    heatElement1.style.color = color;
-
-    const heatElement2 = Dom.get().bySelector('#attributeRows > .heat > .value > data');
-    heatElement2.textContent = heatText;
-    heatElement2.style.color = color;
-}
-
-function updateText() {
+function updateStationOverview() {
     const cyclesSinceLastEncounterElement = Dom.get().byId('cyclesSinceLastEncounter');
     const cyclesTotalElement = Dom.get().byId('cyclesTotal');
     if (gameData.bossEncounterCount === 0) {
@@ -1721,22 +1740,29 @@ function updateText() {
     } else {
         cyclesSinceLastEncounterElement.classList.remove('hidden');
         // TODO adjust formatting & use formatValue
-        Dom.get(cyclesSinceLastEncounterElement).bySelector('data').textContent = Math.round(gameData.cycles).toLocaleString('en-US');
+        Dom.get(cyclesSinceLastEncounterElement).bySelector('data').textContent = formatNumber(Math.floor(gameData.cycles));
         cyclesTotalElement.classList.replace('primary-stat', 'secondary-stat');
         cyclesTotalElement.classList.add('help-text');
     }
     // TODO adjust formatting & use formatValue
-    Dom.get(cyclesTotalElement).bySelector('data').textContent = Math.round(startCycle + gameData.totalCycles).toLocaleString('en-US');
+    Dom.get(cyclesTotalElement).bySelector('data').textContent = formatNumber(Math.floor(startCycle + gameData.totalCycles));
+
     const pauseButton = document.getElementById('pauseButton');
     if (gameData.state === gameStates.PAUSED || gameData.state === gameStates.BOSS_FIGHT_PAUSED) {
         pauseButton.textContent = 'Play';
-        pauseButton.classList.replace('btn-secondary', 'btn-primary');
+        pauseButton.classList.remove('btn-pause', 'btn-intermission');
+        pauseButton.classList.add('btn-play');
+        pauseButton.disabled = false;
     } else if (gameData.state === gameStates.PLAYING || gameData.state === gameStates.BOSS_FIGHT) {
         pauseButton.textContent = 'Pause';
-        pauseButton.classList.replace('btn-primary', 'btn-secondary');
+        pauseButton.classList.remove('btn-play', 'btn-intermission');
+        pauseButton.classList.add('btn-pause');
+        pauseButton.disabled = false;
     } else {
         pauseButton.textContent = 'Intermission';
-        pauseButton.classList.replace('btn-primary', 'btn-secondary');
+        pauseButton.classList.remove('btn-pause', 'btn-play');
+        pauseButton.classList.add('btn-intermission');
+        pauseButton.disabled = true;
     }
 
     const danger = attributes.danger.getValue();
@@ -1760,7 +1786,9 @@ function updateText() {
     formatValue(Dom.get().byId('growthDisplay'), growth);
     formatValue(Dom.get().bySelector('#attributeRows > .growth > .value > data'), growth);
 
-    updateHeatDisplay();
+    const heat = attributes.heat.getValue();
+    formatValue(Dom.get().byId('heatDisplay'), heat, {forceInteger: true});
+    formatValue(Dom.get().bySelector('#attributeRows > .heat > .value > data'), heat);
 
     const industry = attributes.industry.getValue();
     formatValue(Dom.get().byId('industryDisplay'), industry);
@@ -1785,7 +1813,12 @@ function updateText() {
 
     const galacticSecretCost = calculateGalacticSecretCost();
     formatValue(Dom.get().byId('galacticSecretCostDisplay'), galacticSecretCost, {forceInteger: true, keepNumber: true});
+
+    // Only shot the attributes display as a shortcut link if the attributes tab is actually available
+    Dom.get().byId('attributesDisplay').classList.toggle('shortcut', !tabButtons['attributes'].classList.contains('hidden'));
 }
+
+const htmlElementRequirementsHtmlCache = {};
 
 function updateHtmlElementRequirements() {
     for (const key in htmlElementRequirements) {
@@ -1807,13 +1840,26 @@ function updateHtmlElementRequirements() {
                 element.classList.toggle('hidden', !completed);
             }
         }
-        const requirementHtml = htmlElementWithRequirement.toHtml();
-        for (const element of htmlElementWithRequirement.elementsToShowRequirements) {
-            if (completed || !visible) {
+
+        if (completed || !visible) {
+            for (const element of htmlElementWithRequirement.elementsToShowRequirements) {
                 element.classList.add('hidden');
-            } else {
+            }
+        } else {
+            const requirementHtml = htmlElementWithRequirement.toHtml();
+            let updateInnerHtml = false;
+            if (!htmlElementRequirementsHtmlCache.hasOwnProperty(key) ||
+                requirementHtml !== htmlElementRequirementsHtmlCache[key]
+            ) {
+                updateInnerHtml = true;
+                htmlElementRequirementsHtmlCache[key] = requirementHtml;
+            }
+
+            for (const element of htmlElementWithRequirement.elementsToShowRequirements) {
                 element.classList.remove('hidden');
-                element.innerHTML = requirementHtml;
+                if (updateInnerHtml) {
+                    element.innerHTML = requirementHtml;
+                }
             }
         }
     }
@@ -2229,7 +2275,7 @@ function updateUI() {
 
     updateHtmlElementRequirements();
 
-    updateText();
+    updateStationOverview();
     updateBodyClasses();
 }
 
@@ -2274,6 +2320,21 @@ function initTooltips() {
     for (const tooltipTriggerElement of tooltipTriggerElements) {
         initTooltip(tooltipTriggerElement, {});
     }
+}
+
+function initTabBehavior() {
+    if (tabButtons.hasOwnProperty(gameData.selectedTab)) {
+        setTab(gameData.selectedTab);
+    } else {
+        setTab('modules');
+    }
+
+    Dom.get().byId('content').addEventListener('animationiteration', (event) => {
+        // Ignore bubbling events from children
+        if (event.target !== event.currentTarget) return;
+
+        event.target.style.animationPlayState = 'paused';
+    });
 }
 
 /**
@@ -2374,18 +2435,12 @@ function init() {
     createModulesQuickDisplay();
     createBattlesQuickDisplay();
 
-    adjustLayout();
-
     createAttributeDescriptions(createAttributeInlineHTML);
     createAttributesDisplay();
     createAttributesUI();
     createEnergyGridDisplay();
 
-    if (tabButtons.hasOwnProperty(gameData.selectedTab)) {
-        setTab(gameData.selectedTab);
-    } else {
-        setTab('modules');
-    }
+    initTabBehavior();
     initTooltips();
     initStationName();
     initSettings();
@@ -2397,9 +2452,9 @@ function init() {
     displayLoaded();
 
     update();
-    setInterval(update, 1000 / updateSpeed);
+    updateIntervalID = setInterval(update, 1000 / updateSpeed);
     setInterval(gameData.save.bind(gameData), 3000);
-    requestAnimationFrame(updateConnector);
+    requestAnimationFrame(updateLayout);
 }
 
 init();

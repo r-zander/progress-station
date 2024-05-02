@@ -143,92 +143,6 @@ function lerp(start, stop, amt) {
     return amt * (stop - start) + start;
 }
 
-// noinspection JSValidateJSDoc
-/**
- * Blends two colors to find a third color between them. The `amount` parameter
- * specifies the amount to interpolate between the two values. 0 is equal to
- * the first color, 0.1 is very near the first color, 0.5 is halfway between
- * the two colors, and so on. Negative numbers are set to 0. Numbers greater
- * than 1 are set to 1. This differs from the behavior of
- * <a href="#/lerp">lerp</a>. It's necessary because numbers outside of the
- * interval [0, 1] will produce strange and unexpected colors.
- *
- * The way that colors are interpolated depends on the current
- * <a href="#/colorMode">colorMode()</a>.
- *
- * @method lerpColor
- * @param  {Color} color1  interpolate from this color.
- * @param  {Color} color2  interpolate to this color.
- * @param  {Number}       amount number between 0 and 1.
- * @param {'RGB'|'HSL'|'HSB'} mode
- * @return {Color}     interpolated color.
- *
- * @example
- * <div>
- * <code>
- * colorMode(RGB);
- * stroke(255);
- * background(51);
- * const from = color(218, 165, 32);
- * const to = color(72, 61, 139);
- * colorMode(RGB);
- * const interA = lerpColor(from, to, 0.33);
- * const interB = lerpColor(from, to, 0.66);
- * fill(from);
- * rect(10, 20, 20, 60);
- * fill(interA);
- * rect(30, 20, 20, 60);
- * fill(interB);
- * rect(50, 20, 20, 60);
- * fill(to);
- * rect(70, 20, 20, 60);
- * describe(
- *   'Four rectangles with white edges. From left to right, the rectangles are tan, brown, brownish purple, and purple.'
- * );
- * </code>
- * </div>
- */
-function lerpColor(color1, color2, amount, mode) {
-    const maxes = _colorMaxes;
-    let l0, l1, l2, l3;
-    let fromArray, toArray;
-
-    if (mode === 'RGB') {
-        fromArray = color1.levels.map(level => level / 255);
-        toArray = color2.levels.map(level => level / 255);
-    } else if (mode === 'HSB') {
-        color1._getBrightness(); // Cache hsba so it definitely exists.
-        color2._getBrightness();
-        fromArray = color1.hsba;
-        toArray = color2.hsba;
-    } else if (mode === 'HSL') {
-        color1._getLightness(); // Cache hsla so it definitely exists.
-        color2._getLightness();
-        fromArray = color1.hsla;
-        toArray = color2.hsla;
-    } else {
-        throw new Error(`${mode}cannot be used for interpolation.`);
-    }
-
-    // Prevent extrapolation.
-    amount = Math.max(Math.min(amount, 1), 0);
-
-    // Perform interpolation.
-    l0 = lerp(fromArray[0], toArray[0], amount);
-    l1 = lerp(fromArray[1], toArray[1], amount);
-    l2 = lerp(fromArray[2], toArray[2], amount);
-    l3 = lerp(fromArray[3], toArray[3], amount);
-
-    // Scale components.
-    l0 *= maxes[mode][0];
-    l1 *= maxes[mode][1];
-    l2 *= maxes[mode][2];
-    l3 *= maxes[mode][3];
-
-    return new Color([l0, l1, l2, l3], mode);
-}
-
-
 /**
  * @param {number} a
  * @param {number} b
@@ -237,6 +151,12 @@ function lerpColor(color1, color2, amount, mode) {
 function approximatelyEquals(a, b, epsilon = 128 * Number.EPSILON) {
     return Math.abs(a - b) <= epsilon;
 }
+
+/**
+ * Alias for approximatelyEquals
+ * @type {function(number, number, number=): boolean}
+ */
+const nearlyEquals = approximatelyEquals;
 
 const JsTypes = {
     Undefined: 'undefined',
@@ -285,6 +205,34 @@ function validateParameter(parameter, definition, context, ) {
         console.log('Context, Payload, PayloadDefinition', context, parameter, definition);
         throw new TypeError('Provided parameter does not match the parameter definition of ' + context.constructor.name + '.');
     }
+}
+
+
+/**
+ * @param {string} [localeOverride]
+ */
+function getLocale(localeOverride = undefined) {
+    if (isString(localeOverride)) {
+        return localeOverride;
+    }
+
+    // return navigator.language;
+    return 'en-US';
+}
+
+/**
+ * @param {number} value
+ * @param {string} locale
+ * @return {string}
+ */
+function formatNumber(value, locale = undefined) {
+    locale = getLocale(locale);
+
+    // noinspection JSCheckFunctionSignatures
+    return value.toLocaleString(locale, {
+        // useGrouping: false,
+        trailingZeroDisplay: 'stripIfInteger',
+    });
 }
 
 class DomGetter {

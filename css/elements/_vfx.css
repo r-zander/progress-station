@@ -9,7 +9,7 @@
 .particle {
     position: absolute;
     display: block;
-    background-color: white;
+    background-color: var(--ps-light);
     pointer-events: none;
     animation: spin 600ms infinite linear, shoot0 800ms cubic-bezier(0, 0.55, 0.45, 1) forwards;
 }
@@ -39,7 +39,7 @@
 }
 
 .battle .particle {
-    background-color: rgb(230, 57, 70);
+    background-color: var(--battle-color);
 }
 
 .particle.size0 {
@@ -175,7 +175,7 @@
         text-shadow: 0 0 0 currentColor;
     }
     50% {
-        color: rgb(200, 0, 0);
+        color: var(--warning-color);
         scale: 1.2;
         opacity: 1;
         text-shadow:
@@ -199,7 +199,7 @@
         text-shadow: 0 0 0 currentColor;
     }
     12%, 60% {
-        color: rgb(200, 0, 0);
+        color: var(--warning-color);
         scale: 1.2;
         opacity: 1;
         text-shadow:

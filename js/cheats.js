@@ -9,30 +9,6 @@ function prepareTitle(title) {
 }
 
 /**
- * @param {string} [localeOverride]
- */
-function getLocale(localeOverride = undefined) {
-    if (isString(localeOverride)) {
-        return localeOverride;
-    }
-
-    return navigator.language;
-}
-
-/**
- * @param {number} value
- * @param {string} locale
- * @return {string}
- */
-function formatNumber(value, locale) {
-    // noinspection JSCheckFunctionSignatures
-    return value.toLocaleString(locale, {
-        // useGrouping: false,
-        trailingZeroDisplay: 'stripIfInteger',
-    });
-}
-
-/**
  * @param {EffectType} effectType
  * @return {string}
  */
@@ -158,7 +134,7 @@ const cheats = {
     Game: {
         letBossAppear: () => {
             gameData.bossBattleAvailable = false;
-            cheats.Age.setToBossTime();
+            cheats.Age.setToBossTime(false);
             Object.assign(bossBattle.savedValues, BossBattle.newSavedValues());
             // Paused game stays paused, otherwise --> switch to regular playing mode
             if (gameData.state !== gameStates.PAUSED) {
@@ -168,6 +144,18 @@ const cheats = {
         reset: () => {
             gameData.reset();
         },
+        /**
+         * Useful to manipulate the DOM.
+         */
+        disableUpdates: () => {
+            clearInterval(updateIntervalID);
+        },
+        /**
+         * Inverse of disableUpdates to continue the normal game.
+         */
+        enableUpdates: () => {
+            updateIntervalID = setInterval(update, 1000 / updateSpeed);
+        }
     },
     Config: {
         printStats: () => {
@@ -187,6 +175,31 @@ const cheats = {
                 (Object.values(battles).length - 1) +
                 Object.values(pointsOfInterest).length,
             );
+        },
+        /**
+         * Use case: Wrap up all (not yet, but intended) strings in the game to give them into contextual review.
+         */
+        exportStrings: () => {
+            return JSON.stringify({
+                modules: Object.values(modules).reduce((transformedModules, module) => {
+                    transformedModules[prepareTitle(module.title)] = {
+                        description: module.description,
+                        components: Object.values(module.components).reduce((transformedComponents, component) => {
+                            transformedComponents[prepareTitle(component.title)] = {
+                                description: component.description,
+                                operations: Object.values(component.operations).reduce((transformedOperations, operation) => {
+                                    transformedOperations[prepareTitle(operation.title)] = {
+                                        description: operation.description,
+                                    };
+                                    return transformedOperations;
+                                }, {}),
+                            };
+                            return transformedComponents;
+                        }, {}),
+                    };
+                    return transformedModules;
+                }, {}),
+            }, null, 2);
         },
         ModuleOperations: {
             toTsv: (localeOverride = undefined) => {
@@ -251,7 +264,6 @@ const cheats = {
                         category.name,
                         prepareTitle(category.title),
                         category.description,
-                        category.color,
                         ...prepareRequirementsForTSV(category.requirements, locale),
                     ].join('\t');
                 }).join('\n');
@@ -318,13 +330,12 @@ const cheats = {
         Sectors: {
             toTsv: (localeOverride = undefined) => {
                 const locale = getLocale(localeOverride);
-                return Object.values(sectors).map(/** @param {ModuleCategory} category */category => {
+                return Object.values(sectors).map(/** @param {Sector} sector */sector => {
                     return [
-                        category.name,
-                        prepareTitle(category.title),
-                        category.description,
-                        category.color,
-                        ...prepareRequirementsForTSV(category.requirements, locale),
+                        sector.name,
+                        prepareTitle(sector.title),
+                        sector.description,
+                        ...prepareRequirementsForTSV(sector.requirements, locale),
                     ].join('\t');
                 }).join('\n');
             },
@@ -339,9 +350,12 @@ const cheats = {
             gameData.cycles += age;
             gameData.totalCycles += age;
         },
-        setToBossTime: () => {
-            const diff = (getBossAppearanceCycle() - 1) - gameData.cycles;
-            cheats.Age.add(diff);
+        setToBossTime: (forceBossAppearance = false) => {
+            if (forceBossAppearance) {
+                cheats.Game.letBossAppear();
+            } else {
+                cheats.Age.set(getBossAppearanceCycle() - 1);
+            }
         },
     },
     Battles: {},

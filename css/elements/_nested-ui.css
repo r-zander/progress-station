@@ -9,7 +9,7 @@
 .level1-header {
     position: sticky;
     top: 0;
-    background: inherit;
+    background-color: var(--ps-dark-blue);
     z-index: 3;
 }
 
@@ -32,15 +32,15 @@
 
 .level2.inactive {
     .progress {
-        --progress-bg-color: #575757;
+        --progress-bg-color: var(--progress-passive-bg-color);
     }
 
     .progress-bar {
-        --progress-bar-bg-color: #848484;
+        --progress-bar-color: var(--progress-passive-bar-color);
     }
 
     .progress-bar.current {
-        --progress-bar-bg-color: rgb(46, 148, 231);
+        --progress-bar-color: var(--progress-bar-color);
     }
 }
 
@@ -48,19 +48,25 @@
     position: sticky;
     top: 0;
     z-index: 2;
-}
 
-.level2-header > .name {
-    font-family: var(--title-font-family);
-    font-weight: 400;
-}
+    > .name {
+        font-family: var(--title-font-family);
+        font-weight: 400;
+    }
 
-.level2-header > .gridLoad {
-    transform-origin: right;
-}
+    > .gridLoad {
+        transform-origin: right;
+    }
 
-.level2-header > div:first-child {
-    width: var(--main-column-width);
+    > div:first-child {
+        width: var(--main-column-width);
+    }
+
+    &.bg-light {
+        .form-check-input:hover {
+            box-shadow: 0 0 0 0.25rem rgba(255, 165, 0, 0.5);
+        }
+    }
 }
 
 .level2 > .table + .table {
@@ -79,7 +85,7 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    background-color: white;
+    background-color: var(--panel-bg-color);
 }
 
 .level1 .level2-header {
@@ -121,7 +127,7 @@
         }
 
         &.help-text {
-            color: rgb(172, 172, 172);
+            color: var(--help-font-color);
         }
 
         &.requirements data {
@@ -145,6 +151,15 @@ th.numeric {
 td > data {
     display: block;
     text-align: right;
+}
+
+#attributes td.description > data {
+    display: inline;
+}
+
+tr.text-bg-light > th,
+tr.text-bg-light > td {
+    color: inherit;
 }
 
 /* Some rules to improve VFX */

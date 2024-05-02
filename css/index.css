@@ -1,5 +1,6 @@
 @import url(../vendor/bootstrap-5.3.1/bootstrap.css);
 
+@import url(global/_colors.css);
 @import url(global/_variables.css);
 @import url(global/_fonts.css);
 @import url(global/_html-tags.css);
@@ -19,5 +20,4 @@
 @import url(elements/_story-modal.css);
 @import url(elements/_vfx.css);
 
-@import url(modes/_dark.css);
 @import url(modes/_sci-fi.css);

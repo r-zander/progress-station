@@ -1,40 +1,61 @@
 #sidebar {
     width: var(--sidebar-width);
-    /*overflow: auto;*/
-    display: flex;
-    flex-direction: column;
 }
 
-.tabButton {
-    border: none;
+#pauseButton {
+    --bs-btn-color: var(--ps-light);
+
+    &.btn-pause,
+    &.btn-intermission {
+        --bs-btn-bg: var(--progress-bg-color);
+        --bs-btn-hover-bg: var(--progress-bar-color);
+        --bs-btn-active-bg: var(--progress-bar-color);
+    }
+    &.btn-play {
+        --bs-btn-bg: var(--progress-current-bar-color);
+        --bs-btn-hover-bg: var(--ps-orange);
+        --bs-btn-active-bg: var(--ps-orange);
+    }
+}
+
+.tabButton,
+.shortcut {
+    border: var(--clickable-border-width) var(--clickable-border-style) var(--tab-button-border-color);
+    border-radius: var(--corner-length-large);
     position: relative;
+
+    &:hover,
+    &:focus {
+        border-color: var(--tab-button-interact-border-color);
+    }
+
+    &:active {
+        border-color: var(--tab-button-interact-border-color);
+    }
+
+    &.active {
+        border-color: var(--tab-button-active-border-color);
+    }
+
+    > h3 {
+        font-size: var(--bs-body-font-size);
+        font-weight: 400;
+        margin: 0;
+    }
 }
 
-.tabButton:hover,
-.tabButton:focus {
-    box-shadow: inset 0 0 5px 4px grey;
-}
-
-.tabButton:active {
-    box-shadow: inset 0 0 10px 4px grey;
-}
-
-.tabButton.active {
-    box-shadow: inset 0 0 5px 4px orange;
-}
-
-.tabButton > h3 {
-    font-size: var(--bs-body-font-size);
-    font-weight: 400;
-    margin: 0;
+.shortcut {
+    cursor: pointer;
+    border-width: 0;
+    border-bottom-width: var(--clickable-border-width);
 }
 
 #connector {
     position: absolute;
     width: 26px;
-    height: 4px;
+    height: 3px;
 
-    background-color: orange;
+    background-color: var(--active-color);
     border: none;
 
     /* Remove bootstrap styling */

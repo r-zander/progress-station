@@ -1,5 +1,5 @@
 .battle > .progress-bar.current {
-    background-color: rgb(230, 57, 70);
+    --progress-bar-color: var(--battle-color);
 }
 
 .game-playing {
@@ -40,4 +40,3 @@
         }
     }
 }
-

@@ -22,7 +22,7 @@ const galacticSecrets = {
         unlocks: moduleOperations.ReplicationChambers,
     }),
     SecretWayOfLife: new GalacticSecret({
-        unlocks: moduleOperations.SecretWayOfLife,
+        unlocks: moduleOperations.GloryToTheGreatHeroes,
     }),
     AntiMissileSwarm: new GalacticSecret({
         unlocks: moduleOperations.AntiMissileSwarm,

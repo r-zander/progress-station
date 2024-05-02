@@ -112,21 +112,21 @@ const moduleOperationRequirements = {
             requirement: 100,
         }]),
     ),
-    IndividualRooms: moduleOperations.IndividualRooms.registerRequirement(
+    IndividualRooms: moduleOperations.UnitedForVictory.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
-            operation: moduleOperations.ToughLife,
+            operation: moduleOperations.EveryoneMatters,
             requirement: 10,
         }]),
     ),
-    WayOfLifeT3: moduleOperations.WayOfLifeT3.registerRequirement(
+    WayOfLifeT3: moduleOperations.GuileIsStrength.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
-            operation: moduleOperations.IndividualRooms,
+            operation: moduleOperations.UnitedForVictory,
             requirement: 10,
         }]),
     ),
-    SecretWayOfLife: moduleOperations.SecretWayOfLife.registerRequirement(
+    SecretWayOfLife: moduleOperations.GloryToTheGreatHeroes.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
-            operation: moduleOperations.WayOfLifeT3,
+            operation: moduleOperations.GuileIsStrength,
             requirement: 100,
         }]),
     ),
@@ -161,30 +161,32 @@ const moduleOperationRequirements = {
  */
 const modulesRequirements = {
     CaptainsQuarter: modules.CaptainsQuarter.registerRequirement(
-        new AttributeRequirement('playthrough', [{
-            attribute: attributes.gridStrength,
-            requirement: 1,
+        new OperationLevelRequirement('playthrough', [{
+            operation: moduleOperations.FourDPrinter,
+            requirement: 10,
         }]),
     ),
-    MiningBay: modules.MiningBay.registerRequirement(
+    MiningBay1: modules.MiningBay.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
             operation: moduleOperations.PocketLaboratory,
             requirement: 10,
         }]),
+    ),
+    MiningBay2: modules.MiningBay.registerRequirement(
         new AttributeRequirement('playthrough', [{
             attribute: attributes.gridStrength,
             requirement: 2,
         }]),
     ),
-    Furnace1: modules.Furnace.registerRequirement(
+    MiningBay3: modules.MiningBay.registerRequirement(
+        new PointOfInterestVisitedRequirement('playthrough', [{
+            pointOfInterest: pointsOfInterest.StarlightEnclave,
+        }]),
+    ),
+    Furnace: modules.Furnace.registerRequirement(
         new AttributeRequirement('playthrough', [{
             attribute: attributes.gridStrength,
             requirement: 4,
-        }]),
-    ),
-    Furnace2: modules.Furnace.registerRequirement(
-        new PointOfInterestVisitedRequirement('playthrough', [{
-            pointOfInterest: pointsOfInterest.StarlightEnclave,
         }]),
     ),
     Defensive: modules.Defensive.registerRequirement(
@@ -361,6 +363,16 @@ const htmlElementRequirements = {
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="heat"]'),
                 Dom.lazy().allBySelector('#battles .level3 .danger, #battles .level4 .danger'),
                 ...Dom.get().allByClass('battles-pose-danger'),
+            ],
+            requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{
+                faction: factions.NovaFlies,
+                requirement: battles.NovaFlies10.targetLevel,
+            }])],
+        }),
+    completedBattles: new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [
+                Dom.lazy().byId('finishedBattles'),
             ],
             requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{
                 faction: factions.NovaFlies,

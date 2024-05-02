@@ -1,12 +1,27 @@
 .progress {
     position: relative;
     height: 30px;
-    --progress-bg-color: rgb(12, 101, 173);
+    box-sizing: content-box; /* Add border on the outside */
+
     background-color: var(--progress-bg-color);
+
 
     /* Reset some bootstrap styling */
     overflow: visible;
     border-radius: 0;
+
+    &.clickable {
+        border: var(--clickable-border-width) var(--clickable-border-style) var(--progress-bar-color);
+
+        &:hover,
+        &:focus {
+            border-color: var(--clickable-interact-border-color);
+        }
+
+        &:active {
+            border-color: var(--clickable-interact-border-color);
+        }
+    }
 }
 
 .progress-text {
@@ -17,8 +32,8 @@
     font-size: var(--bs-body-font-size);
     line-height: 30px;
 
-    color: white;
-    text-shadow: 1px 1px black, 1px 1px 3px black;
+    color: var(--ps-light);
+    text-shadow: 1px 1px var(--ps-dark), 1px 1px 3px var(--ps-dark);
 
     max-width: 100%;
 
@@ -28,12 +43,11 @@
 .progress-bar {
     /* Smooth out progress bar filling */
     transition: width 50ms linear;
-    --progress-bar-bg-color: rgb(46, 148, 231);
-    background-color: var(--progress-bar-bg-color);
+    background-color: var(--progress-bar-color);
 }
 
 .progress-bar.current {
-    --progress-bar-bg-color: orange;
+    --progress-bar-color: var(--progress-current-bar-color);
 }
 
 .game-playing {
@@ -47,9 +61,12 @@
 }
 
 .btn.point-of-interest {
-    --bs-btn-color: white;
-    --bs-btn-active-color: white;
-    --bs-btn-hover-color: white;
+    --bs-btn-color: var(--ps-light);
+    --bs-btn-active-color: var(--ps-light);
+    --bs-btn-hover-color: var(--ps-light);
+    --bs-btn-bg: var(--progress-bg-color);
+    --bs-btn-hover-bg: var(--progress-bar-color);
+    --bs-btn-active-bg: var(--progress-bar-color);
 
     border-top-width: 0;
     border-bottom-width: 0;
@@ -62,9 +79,57 @@
     font-family: inherit;
     font-weight: inherit;
     font-size: var(--bs-body-font-size);
-    text-shadow: 1px 1px black, 1px 1px 3px black;
+    text-shadow: 1px 1px var(--ps-dark), 1px 1px 3px var(--ps-dark);
 
-    &.btn-primary {
-        --bs-btn-bg: rgb(12, 101, 173);
+    &.current {
+        --bs-btn-bg: var(--progress-current-bar-color);
+        --bs-btn-hover-bg: var(--progress-current-bar-color);
+        --bs-btn-active-bg: var(--progress-current-bar-color);
     }
+}
+
+#locationQuickDisplay {
+    border-radius: var(--corner-length);
+    background-color: var(--progress-current-bar-color);
+    line-height: 30px;
+}
+
+[data-layer="0"] {
+    background-color: var(--ps-yellow);
+}
+
+[data-layer="1"] {
+    background-color: var(--ps-purple2);
+}
+
+[data-layer="2"] {
+    background-color: var(--ps-orange);
+}
+
+[data-layer="3"] {
+    background-color: var(--ps-dark-blue);
+}
+
+[data-layer="4"] {
+    background-color: var(--ps-red);
+}
+
+[data-layer="5"] {
+    background-color: var(--ps-green3);
+}
+
+[data-layer="6"] {
+    background-color: var(--ps-pink1);
+}
+
+[data-layer="7"] {
+    background-color: var(--ps-cyan);
+}
+
+[data-layer="8"] {
+    background-color: var(--ps-light);
+}
+
+[data-layer="9"] {
+    background-color: var(--ps-dark);
 }
