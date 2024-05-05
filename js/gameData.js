@@ -96,6 +96,11 @@ class GameData {
     /**
      * @type {string}
      */
+    previousStateName = gameStates.NEW.name;
+
+    /**
+     * @type {string}
+     */
     stateName = gameStates.NEW.name;
 
     /**
@@ -423,6 +428,7 @@ class GameData {
         }
 
         const previousState = this.stateName;
+        this.previousStateName = previousState;
         this.stateName = newState.name;
 
         GameEvents.GameStateChanged.trigger({

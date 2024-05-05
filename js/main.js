@@ -43,6 +43,8 @@ const tabButtons = {
     settings: document.getElementById('settingsTabButton'),
 };
 
+let previousSelectedTab = 'modules';
+
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
 }
@@ -128,6 +130,14 @@ function setTab(selectedTab) {
         return;
     }
 
+    if (selectedTab === 'settings') {
+        forcePause();
+    } else {
+        if (gameData.selectedTab !== 'settings') {
+            previousSelectedTab = gameData.selectedTab;
+        }
+    }
+
     const tabs = document.getElementsByClassName('tab');
     for (const tab of tabs) {
         tab.style.display = 'none';
@@ -162,6 +172,18 @@ function togglePause() {
             break;
         case gameStates.BOSS_FIGHT_PAUSED:
             gameData.transitionState(gameStates.BOSS_FIGHT);
+            break;
+    }
+    // Any other state is ignored
+}
+
+function forcePause() {
+    switch (gameData.state) {
+        case gameStates.PLAYING:
+            gameData.transitionState(gameStates.PAUSED);
+            break;
+        case gameStates.BOSS_FIGHT:
+            gameData.transitionState(gameStates.BOSS_FIGHT_PAUSED);
             break;
     }
     // Any other state is ignored
@@ -2334,6 +2356,13 @@ function initTabBehavior() {
         if (event.target !== event.currentTarget) return;
 
         event.target.style.animationPlayState = 'paused';
+    });
+
+    Dom.get().bySelector('#settings .btn-close').addEventListener('click', (event) => {
+        event.preventDefault();
+
+        setTab(previousSelectedTab);
+        gameData.transitionState(gameStates[gameData.previousStateName]);
     });
 }
 
