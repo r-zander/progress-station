@@ -15,5 +15,5 @@ jobs:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
           CHANNEL: html5
           ITCH_GAME: progress-station
-          ITCH_USER: kringelgames
+          ITCH_USER: kringel-games
           PACKAGE: .

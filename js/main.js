@@ -1907,7 +1907,9 @@ function doTasks() {
                 // or visited it first after the battle was completed --> deactivate battle
                 battle.stop();
                 // TODO VFX should not be called, but triggered via Event
-                VFX.flash(Dom.get().bySelector('#row_done_' + battle.name + ' .progressBar'));
+                if (isBoolean(gameData.settings.vfx.flashOnLevelUp) && gameData.settings.vfx.flashOnLevelUp) {
+                    VFX.flash(Dom.get().bySelector('#row_done_' + battle.name + ' .progressBar'));
+                }
             }
 
             continue;
@@ -2147,6 +2149,30 @@ function toggleVfxFollowProgressBars(force = undefined) {
         gameData.settings.vfx.followProgressBars = force;
     }
     VFX.followProgressBars(gameData.settings.vfx.followProgressBars);
+    gameData.save();
+}
+
+/**
+ * @param {boolean} force
+ */
+function toggleVfxSplashOnLevelUp(force = undefined) {
+    if (force === undefined) {
+        gameData.settings.vfx.splashOnLevelUp = !gameData.settings.vfx.splashOnLevelUp;
+    } else {
+        gameData.settings.vfx.splashOnLevelUp = force;
+    }
+    gameData.save();
+}
+
+/**
+ * @param {boolean} force
+ */
+function toggleVfxFlashOnLevelUp(force = undefined) {
+    if (force === undefined) {
+        gameData.settings.vfx.flashOnLevelUp = !gameData.settings.vfx.flashOnLevelUp;
+    } else {
+        gameData.settings.vfx.flashOnLevelUp = force;
+    }
     gameData.save();
 }
 
@@ -2414,8 +2440,10 @@ function initSettings() {
     if (isBoolean(gameData.settings.sciFiMode)) {
         toggleSciFiMode(gameData.settings.sciFiMode);
     }
-    // gameData.settings.vfx.followProgressBars is applied in the VFX module itself - we just need to adjust the UI
+    // gameData.settings.vfx.* is applied in the VFX module itself - we just need to adjust the UI
     Dom.get().byId('vfxProgressBarFollowSwitch').checked = gameData.settings.vfx.followProgressBars;
+    Dom.get().byId('vfxSplashOnLevelUpSwitch').checked = gameData.settings.vfx.splashOnLevelUp;
+    Dom.get().byId('vfxFlashOnLevelUpSwitch').checked = gameData.settings.vfx.flashOnLevelUp;
 }
 
 function displayLoaded() {

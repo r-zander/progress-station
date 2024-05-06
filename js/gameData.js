@@ -83,6 +83,11 @@ gameStates.BOSS_FIGHT_PAUSED.validNextStates = [gameStates.BOSS_FIGHT];
 gameStates.DEAD.validNextStates = [gameStates.NEW];
 gameStates.BOSS_DEFEATED.validNextStates = [gameStates.PLAYING];
 
+/**
+ * Map of oldVersionNumber to migrationFunction that should return the gameDataSave in the next higher version.
+ */
+const gameDataMigrations = {};
+
 class GameData {
 
     /**
@@ -91,7 +96,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 5;
+    version = 6;
 
     /**
      * @type {string}
@@ -198,7 +203,9 @@ class GameData {
         sciFiMode: true,
         background: 'space',
         vfx: {
-            followProgressBars: true,
+            followProgressBars: false,
+            splashOnLevelUp: false,
+            flashOnLevelUp: false,
         },
     };
 
@@ -351,6 +358,21 @@ class GameData {
                 return true;
             }
 
+            while (gameDataSave.version < this.version) {
+                if (!gameDataMigrations.hasOwnProperty(gameDataSave.version)) {
+                    break;
+                }
+
+                console.info('Migrating game save from version ' + gameDataSave.version);
+                gameDataSave = gameDataMigrations[gameDataSave.version](gameDataSave);
+                gameDataSave.version += 1;
+                console.info('Successfully migrated to version ' + gameDataSave.version);
+            }
+
+            if (gameDataSave.version === this.version) {
+                return true;
+            }
+
             GameEvents.IncompatibleVersionFound.trigger({
                 savedVersion: gameDataSave.version,
                 expectedVersion: this.version,
@@ -451,3 +473,12 @@ class GameData {
         });
     }
 }
+
+gameDataMigrations[5] = (gameDataSave) => {
+    // Change default value of GameData.settings.vfx.followProgressBars
+    if (_.has(gameDataSave, 'settings.vfx.followProgressBars')) {
+        gameDataSave.settings.vfx.followProgressBars = false;
+    }
+
+    return gameDataSave;
+};

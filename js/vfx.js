@@ -472,6 +472,11 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
     // Only show animations if the level went up
     if (taskInfo.previousLevel >= taskInfo.nextLevel) return;
 
+    const flashOnLevelUp = isBoolean(gameData.settings.vfx.flashOnLevelUp) && gameData.settings.vfx.flashOnLevelUp;
+    const splashOnLevelUp = isBoolean(gameData.settings.vfx.splashOnLevelUp) && gameData.settings.vfx.splashOnLevelUp;
+    // No SFX desired --> break
+    if (!flashOnLevelUp && !splashOnLevelUp) return;
+
     const numberOfParticles = 15;
     const direction = taskInfo.type === 'Battle' ? 'left' : 'right';
     let taskProgressBar = undefined;
@@ -493,13 +498,21 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
         quickTaskProgressBar = document.querySelector(`.quickTaskDisplay.${taskInfo.name} .progressBar`);
     }
     if (taskProgressBar !== undefined) {
-        VFX.onetimeSplash(taskProgressBar, numberOfParticles, direction);
-        VFX.flash(taskProgressBar);
+        if (splashOnLevelUp) {
+            VFX.onetimeSplash(taskProgressBar, numberOfParticles, direction);
+        }
+        if (flashOnLevelUp) {
+            VFX.flash(taskProgressBar);
+        }
     }
 
     // Doesn't have a quick display
     if (quickTaskProgressBar === undefined) return;
 
-    VFX.onetimeSplash(quickTaskProgressBar, numberOfParticles, direction);
-    VFX.flash(quickTaskProgressBar);
+    if (splashOnLevelUp) {
+        VFX.onetimeSplash(quickTaskProgressBar, numberOfParticles, direction);
+    }
+    if (flashOnLevelUp) {
+        VFX.flash(quickTaskProgressBar);
+    }
 });
