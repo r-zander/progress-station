@@ -12,7 +12,7 @@ moduleOperations.StandbyGenerator = new ModuleOperation({
 moduleOperations.FourDPrinter = new ModuleOperation({
     title: '4D Printer', maxXp: 50, gridLoad: 1,
     description: 'Prints anything from spare parts to midnight snacks. Adds a dimension of convenience to survival.',
-    effects: [{effectType: EffectType.Industry, baseValue: 0.10}],
+    effects: [{effectType: EffectType.Industry, baseValue: 0.05}],
 });
 moduleOperations.MicroCyborgAutomat = new ModuleOperation({
     title: 'Micro Cyborg Automat', maxXp: 100, gridLoad: 1,
@@ -39,13 +39,13 @@ moduleOperations.SpaceRocks = new ModuleOperation({
 moduleOperations.HeavyGlitz = new ModuleOperation({
     title: 'Heavy Glitz', maxXp: 500, gridLoad: 2,
     description: 'It\'s shiny, it conducts sparks, it\'s surprisingly heavy and hard.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.03}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.02}],
 });
 /** Galactic Secret */
 moduleOperations.Radiance = new ModuleOperation({
     title: 'Radiance', maxXp: 5_000, gridLoad: 4,
     description: 'Tingles in your hand but glows in the dark. Even heavier than the regular glitz.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.10}, {effectType: EffectType.ResearchFactor, baseValue: 0.05}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.05}, {effectType: EffectType.ResearchFactor, baseValue: 0.05}],
 });
 
 moduleOperations.BigSpinny = new ModuleOperation({
@@ -56,13 +56,13 @@ moduleOperations.BigSpinny = new ModuleOperation({
 moduleOperations.AsteroidChomper = new ModuleOperation({
     title: 'Asteroid Chomper', maxXp: 1_000, gridLoad: 2,
     description: 'A significant upgrade in mining tech, this beast chews through smaller planetoids with ease, turning mountains into molehills and rocks into progress.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
 });
 /** Galactic Secret */
 moduleOperations.TenDrills = new ModuleOperation({
     title: 'TenDrills', maxXp: 10_000, gridLoad: 4,
     description: 'Alien tentacles, able to consume celestial bodies, turning them into perfectly refined resources.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.10}, {effectType: EffectType.IndustryFactor, baseValue: 0.05}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.05}, {effectType: EffectType.IndustryFactor, baseValue: 0.05}],
 });
 
 // Furnace
@@ -97,18 +97,18 @@ moduleOperations.Plastics = new ModuleOperation({
 moduleOperations.Steel = new ModuleOperation({
     title: 'Steel', maxXp: 2_000, gridLoad: 4,
     description: 'Super tough stuff, dude! Like, armor for your space castle or sword for cosmic dragon slaying.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.03}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.02}],
 });
 moduleOperations.ProductsT3 = new ModuleOperation({
     title: 'Bouncium', maxXp: 4_000, gridLoad: 6,
     description: 'The rubbery metal that laughs at gravity. Perfect for when you need your gear to bounce back, literally.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.10}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.04}],
 });
 /** Galactic Secret */
 moduleOperations.MicroalloyGlass = new ModuleOperation({
     title: 'Microalloy Glass', maxXp: 40_000, gridLoad: 10,
     description: 'Fifteen times harder than steel and so clear that objects made out of pure microalloy glass can be considered invisible.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.20}, {effectType: EffectType.Research, baseValue: 0.50}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.08}, {effectType: EffectType.Research, baseValue: 0.50}],
 });
 
 //Military
