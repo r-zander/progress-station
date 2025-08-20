@@ -125,7 +125,7 @@ moduleOperations.PulseShield = new ModuleOperation({
 moduleOperations.BulletSponge = new ModuleOperation({
     title: 'Bullet Sponge', maxXp: 8_000, gridLoad: 4,
     description:'This enchantment laughs in the face of danger, soaking up damage like a thirsty traveler in a desert.',
-    effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.10}],
+    effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.09}],
 });
 
 moduleOperations.RapidRumbleTower = new ModuleOperation({
@@ -141,7 +141,7 @@ moduleOperations.LaserTurrets = new ModuleOperation({
 moduleOperations.AntiMissileSwarm = new ModuleOperation({
     title: 'Anti-Missile Swarm', maxXp: 16_000, gridLoad: 10,
     description: 'A cloud of alien defenders that swarm incoming missiles, dismantling them with the ferocity of piranhas.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.10}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.09}],
 });
 
 //Population
@@ -158,7 +158,7 @@ moduleOperations.Recruitment = new ModuleOperation({
 moduleOperations.SmoochSanctuary = new ModuleOperation({
     title: 'Smooch Sanctuary', maxXp: 16_000, gridLoad: 4,
     description: 'Where relationships bloom amid the stars. Encourages crew bonding and, well, let’s just say the stork visits more often.',
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.10}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.08}],
 });
 moduleOperations.MechanoMaker = new ModuleOperation({
     title: 'Mechano Maker', maxXp: 32_000, gridLoad: 8,

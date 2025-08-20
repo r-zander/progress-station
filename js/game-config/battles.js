@@ -13,35 +13,35 @@ const factions = {
         description: 'Mischievous beings that can be found in every corner of the galaxy, Astrogoblins zip around in makeshift spacecrafts, armed with primitive weapons and a liking for interstellar chaos.'
     },
     CometCrawlers: {
-        title: 'Comet Crawlers', maxXp: 300,
+        title: 'Comet Crawlers', maxXp: 400,
         description: 'These beagle-sized beetles travel on the surface of comets as they are attracted by metal alloys that are unfortunately also commonly found in space stations. They will attack in large numbers if they sense one of their own being harmed.'
     },
     Scavengers: {
-        title: 'Scavengers', maxXp: 900,
+        title: 'Scavengers', maxXp: 2_500,
         description: 'Outcasts from civilizations across the galaxy, Scavengers form nomadic crews, dressed in distinctive leather attire. Masters of illicit trade and makeshift tech, they roam, seeking quick profits through heists and elusive alliances.'
     },
     MeteorMaws: {
-        title: 'Meteor Maws', maxXp: 2_500,
+        title: 'Meteor Maws', maxXp: 5_500,
         description: 'Gigantic, worm-like beings that burrow through meteors and small moons, leaving characteristic holes. They are attracted to the vibrations of engines and can engulf smaller vessels whole.'
     },
     SpacePirates: {
-        title: 'Space Pirates', maxXp: 8_000,
+        title: 'Space Pirates', maxXp: 15_000,
         description: 'Buccaneers sailing the astral seas, Space Pirates are notorious for their flashy ships, over-the-top personalities, and the relentless pursuit of rare space booty.'
     },
     StarMantas: {
-        title: 'Star Mantas', maxXp: 25_000,
+        title: 'Star Mantas', maxXp: 45_000,
         description: 'Majestic creatures that glide through the vacuum of space, their vast wingspans absorb cosmic radiation. Often mistaken for celestial phenomena, they can be fiercely territorial.'
     },
     VoidVikings: {
-        title: 'Void Vikings', maxXp: 75_000,
+        title: 'Void Vikings', maxXp: 175_000,
         description: 'Clad in dark matter armor, Void Vikings raid across the galaxy in search of glory and cosmic runes. Their battle cries resonate through the vacuum, freezing the hearts of their foes.'
     },
     ThunderDragon: {
-        title: 'Thunder Dragon', maxXp: 200_000,
+        title: 'Thunder Dragon', maxXp: 500_000,
         description: 'Roaming the storm nebula, Thunder Dragons are colossal beings of electric energy. Lightning crackles across their scales as they soar through the interstellar space.'
     },
     AstralSharks: {
-        title: 'Astral Sharks', maxXp: 500_000,
+        title: 'Astral Sharks', maxXp: 1_500_000,
         description: 'Legends of the cosmic deep, Astral Sharks glide through space with celestial fins and stardust-infused teeth. They\'re the titans of the galactic oceans.'
     },
 
@@ -362,7 +362,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 485}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 28},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     Scavengers50: new Battle({
@@ -372,7 +372,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 555}],
         rewards: [
             {effectType: EffectType.Research, baseValue: 12},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     NovaFlies1000: new Battle({
@@ -382,7 +382,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 630}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 60},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     Astrogoblins500: new Battle({
@@ -392,7 +392,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 715}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 57},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     MeteorMaws20: new Battle({
@@ -402,7 +402,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 810}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 7},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     CometCrawlers200: new Battle({
@@ -412,7 +412,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 920}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 41},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     Scavengers75: new Battle({
@@ -422,7 +422,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 18},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     Astrogoblins750: new Battle({
@@ -432,7 +432,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1_200}],
         rewards: [
             {effectType: EffectType.Research, baseValue: 83},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     MeteorMaws30: new Battle({
@@ -442,7 +442,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1_300}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 11},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     SpacePirates10: new Battle({
@@ -452,7 +452,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1_500}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 6},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     CometCrawlers300: new Battle({
@@ -462,7 +462,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1_700}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 59},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     Scavengers100: new Battle({
@@ -472,7 +472,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1_900}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 26},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     Astrogoblins1000: new Battle({
@@ -482,7 +482,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 2_200}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 120},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     MeteorMaws50: new Battle({
@@ -492,7 +492,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 2_400}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 15},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     Scavengers150: new Battle({
@@ -502,7 +502,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 2_700}],
         rewards: [
             {effectType: EffectType.Research, baseValue: 37},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     CometCrawlers500: new Battle({
@@ -512,7 +512,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 3_100}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 86},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     SpacePirates20: new Battle({
@@ -522,7 +522,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 3_500}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 9},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     Scavengers200: new Battle({
@@ -532,7 +532,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 3_900}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 54},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     MeteorMaws75: new Battle({
@@ -542,7 +542,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 4_400}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 22},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     CometCrawlers750: new Battle({
@@ -552,7 +552,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 4_900}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 124},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     SpacePirates30: new Battle({
@@ -562,7 +562,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 5_500}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 13},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     MeteorMaws100: new Battle({
@@ -572,7 +572,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 6_200}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 32},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     StarMantas10: new Battle({
@@ -582,7 +582,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 7_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 7},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     Scavengers300: new Battle({
@@ -592,7 +592,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 7_800}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 79},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     CometCrawlers1000: new Battle({
@@ -602,7 +602,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 8_800}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 180},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     MeteorMaws150: new Battle({
@@ -612,7 +612,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 9_900}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 47},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     SpacePirates50: new Battle({
@@ -622,7 +622,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 11_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 18},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     Scavengers500: new Battle({
@@ -632,7 +632,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 12_000}],
         rewards: [
             {effectType: EffectType.Research, baseValue: 114},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     MeteorMaws200: new Battle({
@@ -642,7 +642,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 14_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 68},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     StarMantas20: new Battle({
@@ -652,7 +652,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 16_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 10},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     SpacePirates75: new Battle({
@@ -662,7 +662,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 17_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 27},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     Scavengers750: new Battle({
@@ -672,7 +672,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 19_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 165},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     MeteorMaws300: new Battle({
@@ -682,7 +682,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 22_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 98},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     StarMantas30: new Battle({
@@ -692,7 +692,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 24_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 15},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     VoidVikings10: new Battle({
@@ -702,7 +702,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 27_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 8},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     SpacePirates100: new Battle({
@@ -712,7 +712,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 30_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 39},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     Scavengers1000: new Battle({
@@ -722,7 +722,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 34_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 240},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     SpacePirates150: new Battle({
@@ -732,7 +732,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 38_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 56},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     MeteorMaws500: new Battle({
@@ -742,7 +742,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 43_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 143},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     StarMantas50: new Battle({
@@ -752,7 +752,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 47_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 21},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     VoidVikings20: new Battle({
@@ -762,7 +762,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 53_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 12},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     SpacePirates200: new Battle({
@@ -772,7 +772,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 59_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 81},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     MeteorMaws750: new Battle({
@@ -782,7 +782,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 66_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 207},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     StarMantas75: new Battle({
@@ -792,7 +792,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 74_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 31},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     ThunderDragon10: new Battle({
@@ -802,7 +802,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 82_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 9},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     VoidVikings30: new Battle({
@@ -812,7 +812,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 92_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 17},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     SpacePirates300: new Battle({
@@ -822,7 +822,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 100_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 118},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     MeteorMaws1000: new Battle({
@@ -832,7 +832,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 110_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 300},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     StarMantas100: new Battle({
@@ -842,7 +842,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 130_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 45},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     StarMantas150: new Battle({
@@ -852,7 +852,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 140_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 65},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     VoidVikings50: new Battle({
@@ -862,7 +862,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 160_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 24},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     SpacePirates500: new Battle({
@@ -872,7 +872,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 180_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 171},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     ThunderDragon20: new Battle({
@@ -882,7 +882,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 200_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 13},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     StarMantas200: new Battle({
@@ -892,7 +892,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 220_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 95},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     AstralSharks10: new Battle({
@@ -902,7 +902,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 240_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 10},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     VoidVikings75: new Battle({
@@ -912,7 +912,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 270_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 35},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     SpacePirates750: new Battle({
@@ -922,7 +922,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 300_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 248},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     ThunderDragon30: new Battle({
@@ -932,7 +932,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 340_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 19},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     StarMantas300: new Battle({
@@ -942,7 +942,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 380_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 138},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     VoidVikings100: new Battle({
@@ -952,7 +952,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 420_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 51},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     SpacePirates1000: new Battle({
@@ -962,7 +962,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 470_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 360},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     ThunderDragon50: new Battle({
@@ -972,7 +972,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 520_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 27},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     AstralSharks20: new Battle({
@@ -982,7 +982,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 580_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 15},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     VoidVikings150: new Battle({
@@ -992,7 +992,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 640_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 75},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     StarMantas500: new Battle({
@@ -1002,7 +1002,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 710_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 200},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     VoidVikings200: new Battle({
@@ -1012,7 +1012,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 800_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 108},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     ThunderDragon75: new Battle({
@@ -1022,7 +1022,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 880_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 40},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     AstralSharks30: new Battle({
@@ -1032,7 +1032,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 980_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 21},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     StarMantas750: new Battle({
@@ -1042,7 +1042,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1_100_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 290},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     ThunderDragon100: new Battle({
@@ -1052,7 +1052,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1_200_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 58},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     VoidVikings300: new Battle({
@@ -1062,7 +1062,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1_400_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 157},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     StarMantas1000: new Battle({
@@ -1072,7 +1072,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1_500_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 420},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     AstralSharks50: new Battle({
@@ -1082,7 +1082,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1_700_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 31},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     ThunderDragon150: new Battle({
@@ -1092,7 +1092,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 1_900_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 84},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     VoidVikings500: new Battle({
@@ -1102,7 +1102,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 2_100_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 228},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     AstralSharks75: new Battle({
@@ -1112,7 +1112,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 2_300_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 44},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     ThunderDragon200: new Battle({
@@ -1122,7 +1122,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 2_600_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 122},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     AstralSharks100: new Battle({
@@ -1132,7 +1132,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 2_800_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 64},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     VoidVikings750: new Battle({
@@ -1142,7 +1142,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 3_200_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 331},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     ThunderDragon300: new Battle({
@@ -1152,7 +1152,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 3_500_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 177},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     VoidVikings1000: new Battle({
@@ -1162,7 +1162,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 3_900_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 480},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     AstralSharks150: new Battle({
@@ -1172,7 +1172,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 4_300_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 93},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     ThunderDragon500: new Battle({
@@ -1182,7 +1182,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 4_800_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 257},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     AstralSharks200: new Battle({
@@ -1192,7 +1192,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 5_300_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 135},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     ThunderDragon750: new Battle({
@@ -1202,7 +1202,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 5_900_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 372},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     AstralSharks300: new Battle({
@@ -1212,7 +1212,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 6_600_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 196},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     ThunderDragon1000: new Battle({
@@ -1222,7 +1222,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 7_300_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 540},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     AstralSharks500: new Battle({
@@ -1232,7 +1232,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 8_100_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 285},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     AstralSharks750: new Battle({
@@ -1242,7 +1242,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 9_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 414},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
     AstralSharks1000: new Battle({
@@ -1252,7 +1252,7 @@ const battles = {
         effects: [{effectType: EffectType.Danger, baseValue: 10_000_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 600},
-            {effectType: EffectType.MilitaryFactor, baseValue: 0.1},
+            {effectType: EffectType.MilitaryFactor, baseValue: 0.05},
         ],
     }),
 
