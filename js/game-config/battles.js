@@ -52,6 +52,8 @@ const factions = {
     },
 };
 
+// TODO move recurring reward into referenced constant
+
 /**
  * @type {Object<Battle>}
  */
