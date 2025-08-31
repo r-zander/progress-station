@@ -41,6 +41,22 @@ a#gameTitle {
     rotate: 90deg;
 }
 
+.version-label {
+    font-weight: 300;
+
+    &.alpha {
+        color: var(--ps-red2);
+    }
+
+    &.beta {
+        color: var(--ps-yellow);
+    }
+
+    &.final {
+        color: var(--ps-green3);
+    }
+}
+
 #stationOverviewLogo {
     display: none;
 
@@ -51,6 +67,15 @@ a#gameTitle {
     font-size: 2.7rem;
 
     z-index: 1; /* Keep the background-ring over the panel background */
+
+    & + .version-label {
+        position: absolute;
+        left: 65px;
+        top: 50%;
+        margin: 0;
+        font-size: 1.1rem;
+        transform: translateY(-50%) translateX(-50%) rotate(-90deg);
+    }
 }
 
 #main {
@@ -93,7 +118,7 @@ a#gameTitle {
     }
 
     #nameDisplay {
-        margin-left: calc(65px + 1rem) !important;
+        margin-left: calc(65px + 22px + 0.5rem) !important;
     }
 }
 
