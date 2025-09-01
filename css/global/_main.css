@@ -174,7 +174,15 @@ a#gameTitle {
 }
 
 data[data-unit]::after {
+    content: " " attr(data-unit);
+}
+
+data[data-suffix]::after {
     content: attr(data-unit);
+}
+
+data[data-unit]::after,
+data[data-suffix]::after {
     font-family: var(--body-font-family);
     font-size: var(--bs-body-font-size);
     font-weight: var(--bs-body-font-weight);
