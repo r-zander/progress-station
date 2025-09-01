@@ -159,6 +159,8 @@ class GameData {
     essenceOfUnknown = 0;
 
     /**
+     * Values from {@link Entity}s that are saved.
+     *
      * @var {{
      *     gridStrength: TaskSavedValues,
      *
