@@ -150,7 +150,19 @@ function setTab(selectedTab) {
     }
     tabButtons[selectedTab].classList.add('active');
 
-    Dom.get().byId('content').style.animationPlayState = 'running';
+    Dom.get().byId('content').animate(
+        [
+            {offset: 0.0, backgroundSize: '0 100%'},
+            {offset: 0.1, backgroundSize: '24px 100%'},
+            {offset: 0.6, backgroundSize: '24px 100%'},
+            {offset: 1.0, backgroundSize: '0 100%'},
+        ],
+        {
+            duration: 600,
+            easing: 'ease-in-out',
+            iterations: 1,
+        },
+    );
 
     gameData.selectedTab = selectedTab;
     gameData.save();
@@ -2376,13 +2388,6 @@ function initTabBehavior() {
     } else {
         setTab('modules');
     }
-
-    Dom.get().byId('content').addEventListener('animationiteration', (event) => {
-        // Ignore bubbling events from children
-        if (event.target !== event.currentTarget) return;
-
-        event.target.style.animationPlayState = 'paused';
-    });
 
     Dom.get().bySelector('#settings .btn-close').addEventListener('click', (event) => {
         event.preventDefault();
