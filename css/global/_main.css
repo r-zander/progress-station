@@ -69,6 +69,7 @@ a#gameTitle {
     z-index: 1; /* Keep the background-ring over the panel background */
 
     & + .version-label {
+        display: none;
         position: absolute;
         left: 65px;
         top: 50%;
@@ -111,6 +112,10 @@ a#gameTitle {
 
     #stationOverviewLogo {
         display: block;
+
+        & + .version-label {
+            display: block;
+        }
     }
 
     #main {
