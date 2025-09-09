@@ -190,7 +190,7 @@
                     </template>
                     <slot id="modulesQuickTaskDisplay"></slot>
                 </button>
-                <div id="battleTabButtonRequirements" class="p-3">
+                <div id="battleTabButtonRequirements" class="requirements-container m-2">
                     <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
                 </div>
                 <button id="battleTabButton" class="tabButton panel p-3" onClick="setTab('battles');">
@@ -213,7 +213,7 @@
                     </template>
                     <slot id="battlesQuickTaskDisplay"></slot>
                 </button>
-                <div id="locationTabButtonRequirements" class="p-3">
+                <div id="locationTabButtonRequirements" class="requirements-container m-2">
                     <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
                 </div>
                 <button id="locationTabButton" class="tabButton panel p-3" onClick="setTab('location');">
@@ -227,7 +227,7 @@
                         <span class="pointOfInterest text-truncate">Point of Interest</span>
                     </div>
                 </button>
-                <div id="attributesTabButtonRequirements" class="p-3">
+                <div id="attributesTabButtonRequirements" class="requirements-container m-2">
                     <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
                 </div>
                 <button id="attributesTabButton" class="tabButton panel p-3" onClick="setTab('attributes');">
@@ -266,7 +266,7 @@
                     </div>
 
                     <slot id="level2"></slot>
-                    <div class="ps-4">
+                    <div class="requirements-container ms-4">
                         <slot id="level2Requirements"></slot>
                     </div>
                 </div>
@@ -301,7 +301,7 @@
                     </div>
 
                     <slot id="level3"></slot>
-                    <div class="ps-4">
+                    <div class="requirements-container ms-4">
                         <slot id="level3Requirements"></slot>
                     </div>
                 </div>
@@ -473,10 +473,14 @@
             </template>
 
             <template id="level4RequiredTemplate">
-                <tr>
-                    <td class="requirements help-text ps-3" colspan="100%">
-                        Next unlock at:
-                        <span class="rendered"></span>
+                <tr class="level4-requirements">
+                    <td  colspan="100%">
+                        <div class="requirements-container">
+                            <div class="requirements help-text">
+                                Next unlock at:
+                                <span class="rendered"></span>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             </template>
@@ -490,7 +494,9 @@
 
             <div id="modules" class="tab p-3">
                 <slot id="modulesTable"></slot>
-                <slot id="moduleCategoryRequirements"></slot>
+                <div class="requirements-container">
+                    <slot id="moduleCategoryRequirements"></slot>
+                </div>
             </div>
 
             <div id="battles" class="tab p-3 overflow-hidden">
@@ -516,7 +522,9 @@
 
             <div id="location" class="tab p-3">
                 <slot id="sectorTable"></slot>
-                <slot id="sectorRequirements"></slot>
+                <div class="requirements-container">
+                    <slot id="sectorRequirements"></slot>
+                </div>
             </div>
 
             <div id="attributes" class="tab p-3">

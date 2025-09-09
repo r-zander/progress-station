@@ -1,0 +1,35 @@
+.requirements-container {
+    --req-background-color: var(--attr-research-color);
+    --req-background-color-2: var(--ps-light);
+    --req-font-color: var(--req-background-color-2);
+
+    background-image: linear-gradient(45deg,
+        var(--req-background-color) 25%,
+        var(--req-background-color-2) 25%, var(--req-background-color-2) 50%,
+        var(--req-background-color) 50%, var(--req-background-color) 75%,
+        var(--req-background-color-2) 75%, var(--req-background-color-2));
+    background-size: 30px 30px;
+    border-top-right-radius: var(--corner-length);
+    border-bottom-left-radius: var(--corner-length);
+    display: flex;
+    background-position-x: 18px;
+
+    > .requirements {
+        flex: 1 1 100%;
+
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
+
+        padding-top: 2px;
+        padding-left: 0.5rem;
+        padding-bottom: 3px;
+
+        background-color: var(--req-background-color);
+        color: var(--req-font-color);
+
+        border-top-right-radius: 12px;
+        border-bottom-left-radius: 6px;
+
+        line-height: 1;
+    }
+}

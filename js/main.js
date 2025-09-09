@@ -334,7 +334,6 @@ function tryActivateOperation(component, operation) {
 function createRequiredRow(domId) {
     const requirementsElement = Dom.new.fromTemplate('level4RequiredTemplate');
     requirementsElement.id = domId;
-    requirementsElement.classList.add('level4-requirements');
     return requirementsElement;
 }
 
