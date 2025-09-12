@@ -209,6 +209,12 @@ class GameData {
             splashOnLevelUp: false,
             flashOnLevelUp: false,
         },
+        audio: {
+            enabled: false,
+            masterVolume: 0.7,
+            enableBackgroundAudio: false,
+            // musicVolume: 1.0,
+        }
     };
 
     skipSave = false;

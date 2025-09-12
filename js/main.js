@@ -2153,6 +2153,32 @@ function getPointOfInterestElement(name) {
 /**
  * @param {boolean} force
  */
+function toggleAudioEnabled(force = undefined) {
+    if (force === undefined) {
+        gameData.settings.audio.enabled = !gameData.settings.audio.enabled;
+    } else {
+        gameData.settings.audio.enabled = force;
+    }
+    // TODO enable / disable audio
+    gameData.save();
+}
+
+/**
+ * @param {boolean} force
+ */
+function toggleAudioBackgroundAudioEnabled(force = undefined) {
+    if (force === undefined) {
+        gameData.settings.audio.enableBackgroundAudio = !gameData.settings.audio.enableBackgroundAudio;
+    } else {
+        gameData.settings.audio.enableBackgroundAudio = force;
+    }
+    // TODO enable / disable background audio
+    gameData.save();
+}
+
+/**
+ * @param {boolean} force
+ */
 function toggleVfxFollowProgressBars(force = undefined) {
     if (force === undefined) {
         gameData.settings.vfx.followProgressBars = !gameData.settings.vfx.followProgressBars;
