@@ -54,10 +54,16 @@ Use your favorite browser to view `index.html`
 ``` 
 into index.html
 
-2. Zip everything but
+2. Remove
+```html
+<script type="text/javascript" src="js/cheats.js"></script>
+``` 
+from index.html
+
+3. Zip everything but
    - .git
    - .idea
    - name-generator.html
    - README.md
    - web-components.html
-3. Upload the Zip to itch.io
+4. Upload the Zip to itch.io
