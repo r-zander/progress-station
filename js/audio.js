@@ -12,6 +12,7 @@ function toggleAudioEnabled(force = undefined) {
         gameData.settings.audio.enabled = !gameData.settings.audio.enabled;
     } else {
         gameData.settings.audio.enabled = force;
+        Dom.get().byId('audioEnabledSwitch').checked = force;
     }
     Howler.mute(!gameData.settings.audio.enabled);
     if (!wasAudioEnabled && gameData.settings.audio.enabled) {
@@ -29,6 +30,7 @@ function toggleAudioBackgroundAudioEnabled(force = undefined) {
         gameData.settings.audio.enableBackgroundAudio = !gameData.settings.audio.enableBackgroundAudio;
     } else {
         gameData.settings.audio.enableBackgroundAudio = force;
+        Dom.get().byId('audioBackgroundAudioEnabledSwitch').checked = force;
     }
     // TODO enable / disable background audio
     gameData.save();
@@ -42,7 +44,7 @@ function initAudio() {
     Howler.volume(gameData.settings.audio.masterVolume);
 
     audioEvents['mainTheme'] = new Howl({
-        src: ['../audio/main-theme.mp3'],
+        src: ['./audio/main-theme.mp3'],
         html5: true,
         preload: 'metadata',
         loop: true,
