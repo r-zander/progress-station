@@ -2535,8 +2535,8 @@ function init() {
     initTabBehavior();
     initTooltips();
     initStationName();
-    initSettings();
     initAudio();
+    initSettings();
 
     cleanUpDom();
 
