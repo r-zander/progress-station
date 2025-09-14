@@ -2150,30 +2150,18 @@ function getPointOfInterestElement(name) {
     return document.getElementById(pointOfInterest.domId);
 }
 
-/**
- * @param {boolean} force
- */
-function toggleAudioEnabled(force = undefined) {
-    if (force === undefined) {
-        gameData.settings.audio.enabled = !gameData.settings.audio.enabled;
-    } else {
-        gameData.settings.audio.enabled = force;
-    }
-    // TODO enable / disable audio
-    gameData.save();
+function disableAudioFromToast() {
+    gameData.settings.audio.toastAnswered = true;
+    toggleAudioEnabled(false);
+    const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
+    toast.hide();
 }
 
-/**
- * @param {boolean} force
- */
-function toggleAudioBackgroundAudioEnabled(force = undefined) {
-    if (force === undefined) {
-        gameData.settings.audio.enableBackgroundAudio = !gameData.settings.audio.enableBackgroundAudio;
-    } else {
-        gameData.settings.audio.enableBackgroundAudio = force;
-    }
-    // TODO enable / disable background audio
-    gameData.save();
+function enableAudioFromToast() {
+    gameData.settings.audio.toastAnswered = true;
+    toggleAudioEnabled(true);
+    const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
+    toast.hide();
 }
 
 /**
@@ -2474,6 +2462,23 @@ function initSettings() {
     Dom.get().byId('vfxProgressBarFollowSwitch').checked = gameData.settings.vfx.followProgressBars;
     Dom.get().byId('vfxSplashOnLevelUpSwitch').checked = gameData.settings.vfx.splashOnLevelUp;
     Dom.get().byId('vfxFlashOnLevelUpSwitch').checked = gameData.settings.vfx.flashOnLevelUp;
+
+    // gameData.settings.audio.* is applied in the audio module itself - we just need to adjust the UI
+    Dom.get().byId('audioEnabledSwitch').checked = gameData.settings.audio.enabled;
+    const rangeInput = Dom.get().byId('range4');
+    const rangeOutput = Dom.get().byId('rangeValue');
+    rangeInput.value = gameData.settings.audio.masterVolume;
+    rangeOutput.textContent = (parseFloat(gameData.settings.audio.masterVolume) * 100).toFixed(0) + '%';
+
+    rangeInput.addEventListener('input', function() {
+        const newValue = parseFloat(this.value);
+        gameData.settings.audio.masterVolume = newValue;
+        // noinspection JSCheckFunctionSignatures
+        Howler.volume(newValue);
+        rangeOutput.textContent = (newValue * 100).toFixed(0) + '%';
+        gameData.save();
+    });
+
 }
 
 function displayLoaded() {
@@ -2531,6 +2536,7 @@ function init() {
     initTooltips();
     initStationName();
     initSettings();
+    initAudio();
 
     cleanUpDom();
 

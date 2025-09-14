@@ -211,6 +211,7 @@ class GameData {
         },
         audio: {
             enabled: false,
+            toastAnswered: false,
             masterVolume: 0.7,
             enableBackgroundAudio: false,
             // musicVolume: 1.0,
