@@ -2473,8 +2473,7 @@ function initSettings() {
     rangeInput.addEventListener('input', function() {
         const newValue = parseFloat(this.value);
         gameData.settings.audio.masterVolume = newValue;
-        // noinspection JSCheckFunctionSignatures
-        Howler.volume(newValue);
+        setAudioVolume(newValue);
         rangeOutput.textContent = (newValue * 100).toFixed(0) + '%';
         gameData.save();
     });
