@@ -137,6 +137,7 @@ class BossBattle extends Battle {
      * @param {{
      *     titleGenerator: NameGenerator,
      *     targetLevel: number,
+     *     difficulty: number,
      *     faction: FactionDefinition,
      *     effects: EffectDefinition[],
      *     rewards: EffectDefinition[],
