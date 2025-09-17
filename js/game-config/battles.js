@@ -46,7 +46,7 @@ const factions = {
     },
 
     Boss: {
-        title: 'Boss', maxXp: 5_000_000_000,
+        title: 'Boss', maxXp: 1_000_000_000,
         description: 'An immense, dark mass of writhing tentacles, teeth and a thousand eyes. The vacuum of space around the station suppresses all noise, ' +
             'but you can feel the hatred of the alien beast and see it\'s determination to destroy everything you have built up.'
     },
@@ -1292,7 +1292,7 @@ const battles = {
     ThunderDragon500: new Battle({
         title: 'Hyper',
         targetLevel: 500,
-        difficulty: 1_000_000,
+        difficulty: 100_000,
         faction: factions.ThunderDragon,
         effects: [{effectType: EffectType.Danger, baseValue: 60_000_000_000}],
         rewards: [
@@ -1314,7 +1314,7 @@ const battles = {
     ThunderDragon750: new Battle({
         title: 'Fusion Powered',
         targetLevel: 750,
-        difficulty: 17_000_000,
+        difficulty: 10_000,
         faction: factions.ThunderDragon,
         effects: [{effectType: EffectType.Danger, baseValue: 65_000_000_000}],
         rewards: [
@@ -1325,7 +1325,7 @@ const battles = {
     AstralSharks300: new Battle({
         title: 'Faster than Light',
         targetLevel: 300,
-        difficulty: 28_000_000,
+        difficulty: 200_000,
         faction: factions.AstralSharks,
         effects: [{effectType: EffectType.Danger, baseValue: 70_000_000_000}],
         rewards: [
@@ -1336,7 +1336,7 @@ const battles = {
     ThunderDragon1000: new Battle({
         title: 'Anti-Matter',
         targetLevel: 1000,
-        difficulty: 16_000_000,
+        difficulty: 100_000,
         faction: factions.ThunderDragon,
         effects: [{effectType: EffectType.Danger, baseValue: 70_000_000_000}],
         rewards: [
@@ -1347,7 +1347,7 @@ const battles = {
     AstralSharks500: new Battle({
         title: 'The Last',
         targetLevel: 500,
-        difficulty: 25_000_000,
+        difficulty: 200_000,
         faction: factions.AstralSharks,
         effects: [{effectType: EffectType.Danger, baseValue: 75_000_000_000}],
         rewards: [
@@ -1358,7 +1358,7 @@ const battles = {
     AstralSharks750: new Battle({
         title: 'Apex',
         targetLevel: 750,
-        difficulty: 28_000_000,
+        difficulty: 1_000_000,
         faction: factions.AstralSharks,
         effects: [{effectType: EffectType.Danger, baseValue: 80_000_000_000}],
         rewards: [

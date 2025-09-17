@@ -62,7 +62,7 @@ moduleOperations.AsteroidChomper = new ModuleOperation({
 moduleOperations.TenDrills = new ModuleOperation({
     title: 'TenDrills', maxXp: 10_000, gridLoad: 4,
     description: 'Alien tentacles, able to consume celestial bodies, turning them into perfectly refined resources.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.05}, {effectType: EffectType.IndustryFactor, baseValue: 0.05}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.06}, {effectType: EffectType.IndustryFactor, baseValue: 0.05}],
 });
 
 // Furnace
@@ -141,7 +141,7 @@ moduleOperations.LaserTurrets = new ModuleOperation({
 moduleOperations.AntiMissileSwarm = new ModuleOperation({
     title: 'Anti-Missile Swarm', maxXp: 16_000, gridLoad: 10,
     description: 'A cloud of alien defenders that swarm incoming missiles, dismantling them with the ferocity of piranhas.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.09}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.10}],
 });
 
 //Population
