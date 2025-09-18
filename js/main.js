@@ -130,12 +130,11 @@ function setTab(selectedTab) {
         return;
     }
 
-    if (selectedTab === 'settings') {
-        forcePause();
-    } else {
-        if (gameData.selectedTab !== 'settings') {
-            previousSelectedTab = gameData.selectedTab;
-        }
+    if (gameData.selectedTab !== 'settings') {
+        previousSelectedTab = gameData.selectedTab;
+    } else if (selectedTab === 'settings') {
+        // Current tab is settings and new tab is also settings --> switch back out of settings
+        selectedTab = previousSelectedTab;
     }
 
     const tabs = document.getElementsByClassName('tab');
