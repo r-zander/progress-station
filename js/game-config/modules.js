@@ -68,7 +68,7 @@ moduleOperations.TenDrills = new ModuleOperation({
 // Furnace
 moduleOperations.Garbage = new ModuleOperation({
     title: 'Garbage', maxXp: 500, gridLoad: 1,
-    description: 'It\'s not about efficiency, it\'s about sustainability. Or just getting rid of all that trash lying around the station.',
+    description: 'Lets get rid of all that trash lying around the station. It\'s neither efficient nor sustainable, but it smells even worse.',
     effects: [{effectType: EffectType.Energy, baseValue: 1}],
 });
 moduleOperations.Diesel = new ModuleOperation({
