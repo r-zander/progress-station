@@ -4,7 +4,7 @@
 
 ---
 
-In **Progress Station** you are the commander of a space station traveling through the vastness of space.
+In **Progress Station** you are the captain of a space station traveling through the vastness of space.
 
 You configure modules, level up operations, grow your crew and explore space in a quirky and light-hearted science fantasy setting.
 
