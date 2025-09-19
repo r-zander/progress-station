@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breakpoint Manager Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-box {
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ccc;
+            background: #f9f9f9;
+        }
+        .p-1 { padding: 0.25rem !important; }
+        .p-2 { padding: 0.5rem !important; }
+        .p-3 { padding: 0.75rem !important; }
+        .p-4 { padding: 1rem !important; }
+        .p-5 { padding: 1.25rem !important; }
+        .bg-primary { background-color: #007bff !important; color: white; }
+        .bg-success { background-color: #28a745 !important; color: white; }
+        .bg-warning { background-color: #ffc107 !important; color: black; }
+        .bg-danger { background-color: #dc3545 !important; color: white; }
+        .text-center { text-align: center !important; }
+        .fw-bold { font-weight: bold !important; }
+        .d-none { display: none !important; }
+        .d-block { display: block !important; }
+        .fs-1 { font-size: 2.5rem !important; }
+        .fs-3 { font-size: 1.75rem !important; }
+        .fs-4 { font-size: 1.5rem !important; }
+        .fs-5 { font-size: 1.25rem !important; }
+        .fs-6 { font-size: 1rem !important; }
+        .bg-info { background-color: #0dcaf0 !important; color: black; }
+        .d-flex { display: flex !important; }
+        .d-inline-block { display: inline-block !important; }
+        .flex-row { flex-direction: row !important; }
+        .flex-column { flex-direction: column !important; }
+        .gap-2 { gap: 0.5rem !important; }
+        .text-start { text-align: left !important; }
+        .text-end { text-align: right !important; }
+        .text-white { color: white !important; }
+        .text-dark { color: black !important; }
+        .col-12 { width: 100% !important; }
+        .col-6 { width: 50% !important; }
+        .col-4 { width: 33.333% !important; }
+        .col-3 { width: 25% !important; }
+        .m-1 { margin: 0.25rem !important; }
+        .m-3 { margin: 0.75rem !important; }
+        .m-5 { margin: 1.25rem !important; }
+    </style>
+</head>
+<body>
+    <h1>BreakpointCssClasses Test</h1>
+
+    <div id="status"></div>
+
+    <h2>Test Cases - Exclusive Breakpoint Behavior</h2>
+    <p><em>Only the widest matching breakpoint with defined classes applies (no layering)</em></p>
+
+    <!-- Test 1: Exclusive padding (only one breakpoint applies) -->
+    <div class="test-box p-1" class-md="p-3" class-lg="p-4" class-xl="p-5">
+        <strong>Test 1:</strong> Exclusive padding<br>
+        XS-SM: p-1 | MD: p-1 p-3 | LG: p-1 p-4 | XL+: p-1 p-5<br>
+        <small>(Notice how only one padding class applies at each breakpoint)</small>
+    </div>
+
+    <!-- Test 2: Exclusive background colors (conflicting classes) -->
+    <div class="test-box bg-primary" class-sm="bg-success" class-md="bg-warning" class-lg="bg-danger">
+        <strong>Test 2:</strong> Exclusive backgrounds<br>
+        XS: blue | SM: green | MD: yellow | LG+: red<br>
+        <small>(Only one background color at a time)</small>
+    </div>
+
+    <!-- Test 3: Layout direction changes (flex-row vs flex-column) -->
+    <div class="test-box d-flex flex-row gap-2" class-md="flex-column" class-lg="flex-row">
+        <div class="bg-primary p-2 text-white">Item 1</div>
+        <div class="bg-success p-2 text-white">Item 2</div>
+        <div class="bg-warning p-2 text-dark">Item 3</div>
+        <strong>Test 3:</strong> Flex direction<br>
+        XS-SM: row | MD: column | LG+: row<br>
+        <small>(Prevents flex-row and flex-column conflicts)</small>
+    </div>
+
+    <!-- Test 4: Text alignment changes -->
+    <div class="test-box text-start" class-sm="text-center" class-md="text-end" class-lg="text-center">
+        <strong>Test 4:</strong> Text alignment<br>
+        XS: left | SM: center | MD: right | LG+: center<br>
+        <small>(Only one text alignment active)</small>
+    </div>
+
+    <!-- Test 5: Display mode changes -->
+    <div class="test-box d-block" class-sm="d-flex" class-md="d-none" class-lg="d-inline-block">
+        <strong>Test 5:</strong> Display modes<br>
+        XS: block | SM: flex | MD: hidden | LG+: inline-block<br>
+        <small>(Exclusive display properties)</small>
+    </div>
+
+    <!-- Test 6: Bootstrap grid classes (exclusive) -->
+    <div class="test-box col-12" class-sm="col-6" class-md="col-4" class-lg="col-3">
+        <strong>Test 6:</strong> Grid columns<br>
+        XS: 12/12 width | SM: 6/12 width | MD: 4/12 width | LG+: 3/12 width<br>
+        <small>(Column widths don't stack)</small>
+    </div>
+
+    <!-- Test 7: Font size progression -->
+    <div class="test-box fs-6" class-sm="fs-5" class-md="fs-4" class-lg="fs-3" class-xl="fs-1">
+        <strong>Test 7:</strong> Font sizes<br>
+        XS: smallest | SM: small | MD: medium | LG: large | XL+: largest<br>
+        <small>(One font size at a time)</small>
+    </div>
+
+    <!-- Test 8: Spacing with conflicting margin/padding -->
+    <div class="test-box m-1 p-1" class-sm="m-3 p-2" class-lg="m-5 p-4">
+        <strong>Test 8:</strong> Spacing combinations<br>
+        XS-SM: m-1 p-1 | SM-LG: m-1 m-3 p-1 p-2 | LG+: m-1 m-5 p-1 p-4<br>
+        <small>(Notice: SM applies margin+padding from sm, LG applies margin+padding from lg)</small>
+    </div>
+
+    <!-- Test 9: Gap in breakpoint definitions (skips md) -->
+    <div class="test-box bg-info" class-sm="bg-warning" class-lg="bg-danger">
+        <strong>Test 9:</strong> Skipped MD breakpoint<br>
+        XS: info blue | SM-LG: warning yellow | LG+: danger red<br>
+        <small>(SM classes apply until LG, even though MD breakpoint matches)</small>
+    </div>
+
+    <!-- Test 10: No base classes -->
+    <div class-sm="test-box bg-primary" class-md="bg-success" class-lg="bg-warning">
+        <strong>Test 10:</strong> No base classes<br>
+        XS: invisible | SM: blue box | MD: green box | LG+: yellow box<br>
+        <small>(Only breakpoint classes, no base styling)</small>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        // Initialize the breakpoint manager
+        BreakpointCssClasses.init();
+
+        // Update status display
+        function updateStatus() {
+            const status = document.getElementById('status');
+            status.innerHTML = `
+                <p><strong>Status:</strong> ${BreakpointCssClasses.initialized ? 'Initialized' : 'Not initialized'}</p>
+                <p><strong>Tracked Elements:</strong> ${BreakpointCssClasses.trackedElementsCount}</p>
+                <p><strong>Active Breakpoint:</strong> ${BreakpointCssClasses.activeBreakpoint || 'none'}</p>
+                <p><strong>Screen Width:</strong> ${window.innerWidth}px</p>
+            `;
+        }
+
+        // Update status on load and resize
+        updateStatus();
+        window.addEventListener('resize', updateStatus);
+
+        // Also update when breakpoints change
+        window.addEventListener('resize', () => {
+            setTimeout(updateStatus, 100); // Small delay to ensure breakpoint changes are processed
+        });
+
+        console.log('BreakpointManager test initialized');
+        console.log('Resize the window to see breakpoint changes');
+    </script>
+</body>
+</html>
