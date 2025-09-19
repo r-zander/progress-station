@@ -2537,6 +2537,8 @@ function init() {
     initSettings();
 
     cleanUpDom();
+    BreakpointCssClasses.init();
+    BreakpointCssClasses.setDebugEnabled(true);
 
     gameData.skipSave = false;
     gameData.save();

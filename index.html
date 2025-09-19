@@ -155,19 +155,27 @@
     </header>
 
     <div id="contentWrapper" class="d-flex align-content-start">
-        <aside id="sidebar" class="d-flex flex-column mh-100 overflow-x-hidden overflow-y-auto me-3">
-            <div id="actions" class="d-flex flex-column">
+        <aside id="sidebar"
+               class="d-flex"
+               class-xs="flex-row w-100 position-fixed bottom-0 start-0"
+               class-lg="flex-column mh-100 overflow-x-hidden overflow-y-auto me-3">
+            <div id="actions"
+                 class="d-flex flex-column">
                 <button class="btn btn-lg w-100" id="pauseButton" onClick="togglePause();">
-                    Pause
+<!--                    <img class="icon-pause" src="img/icons/buttons/pause.svg" />-->
+<!--                    <img class="icon-play" src="img/icons/buttons/play.svg" />-->
+                    <span>Pause</span>
                 </button>
             </div>
-            <nav class="d-flex flex-column flex-fill mt-3 gap-1">
+            <nav class="d-flex flex-fill"
+                 class-xs="flex-row"
+                 class-lg="flex-column mt-3 gap-1" >
                 <button id="modulesTabButton" class="tabButton panel p-3" onClick="setTab('modules');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Modules</h3>
 
                     <template id="moduleQuickTaskDisplayTemplate">
-                        <div class="quickTaskDisplayContainer hidden">
+                        <div class="quickTaskDisplayContainer hidden d-none d-lg-block">
                             <h4 class="fs-6 text-start moduleName mb-0 mt-3 fw-light">Module</h4>
                             <slot id="componentsQuickTaskDisplay"></slot>
                         </div>
@@ -190,6 +198,7 @@
                     </template>
                     <slot id="modulesQuickTaskDisplay"></slot>
                 </button>
+                <!-- TODO how to display requirements on mobile? -->
                 <div id="battleTabButtonRequirements" class="requirements-container m-2">
                     <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
                 </div>
@@ -197,7 +206,7 @@
                     <!--suppress HtmlUnknownTag -->
                     <h3>Battle</h3>
                     <template id="battleQuickTaskDisplayTemplate">
-                        <div class="quickTaskDisplay mt-2">
+                        <div class="quickTaskDisplay mt-2 d-none d-lg-block">
                             <div class="progress battle progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
                                  aria-valuemin="0" aria-valuemax="100">
                                 <div class="progressBackground progress-background"></div>
@@ -220,7 +229,7 @@
                     <!--suppress HtmlUnknownTag -->
                     <h3>Location</h3>
                     <!--suppress HtmlUnknownTag -->
-                    <div id="locationQuickDisplay" class="point-of-interest mt-2 w-100 px-2 d-flex"
+                    <div id="locationQuickDisplay" class="point-of-interest mt-2 w-100 px-2 d-none d-lg-flex"
                             title="Sector: Point of Interest" data-bs-placement="bottom">
                         <span class="sector text-truncate">Sector</span>
                         <span class="me-1">:</span>
@@ -238,7 +247,7 @@
                     <!--suppress HtmlUnknownTag -->
                     <h3>Galactic Secrets</h3>
                     <!--suppress HtmlUnknownTag -->
-                    <div class="primary-stat d-flex justify-content-center mt-2" data-attribute="essenceOfUnknown"
+                    <div class="primary-stat d-flex justify-content-center mt-2 d-none d-lg-block" data-attribute="essenceOfUnknown"
                          data-bs-placement="bottom" data-bs-html="true">
                         <img src="" class="icon me-1" alt=""/>
                         <span class="label" style=""></span>
@@ -1067,15 +1076,15 @@
          aria-live="assertive" aria-atomic="true"
          data-bs-autohide="false">
         <div class="toast-body">
-            <img src="img/icons/sound.svg" class="me-2" />
+            <img src="img/icons/buttons/sound.svg" class="me-2" />
             <span>This browser game offers sound!</span>
             <div class="mt-2 pt-2 d-flex border-top">
                 <button type="button" class="btn btn-info" onclick="disableAudioFromToast();">
-                    <img src="img/icons/sound-off.svg" />
+                    <img src="img/icons/buttons/sound-off.svg" />
                     <span>Keep off</span>
                 </button>
                 <button type="button" class="btn btn-warning ms-auto" onclick="enableAudioFromToast();">
-                    <img src="img/icons/sound-on.svg" />
+                    <img src="img/icons/buttons/sound-on.svg" />
                     <span>Turn on!</span>
                 </button>
             </div>
@@ -1112,6 +1121,9 @@
             </div>
         </div>
     </div>
+</div>
+<div id="breakpointCssClassesDebug" class="position-fixed start-0 p-3 text-bg-dark hidden" style="bottom: 60px; z-index: 2000;">
+
 </div>
 
 <script type="text/javascript" src="vendor/fastdom-1.0.11/fastdom.min.js"></script>
