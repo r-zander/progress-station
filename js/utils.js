@@ -515,6 +515,7 @@ const Dom = {
  */
 const BreakpointCssClasses = (() => {
     // Bootstrap 5 breakpoints - exact pixel values
+    // Note: xs is implicit (max-width: 575.98px) and handled separately
     const BREAKPOINTS = {
         sm: '(min-width: 576px)',
         md: '(min-width: 768px)',
@@ -523,8 +524,12 @@ const BreakpointCssClasses = (() => {
         xxl: '(min-width: 1400px)'
     };
 
+    // All supported breakpoints including xs
+    const ALL_BREAKPOINTS = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+
     // Internal state
     let initialized = false;
+    let debugEnabled = false;
     const mediaQueries = new Map(); // breakpoint name -> MediaQueryList
     const trackedElements = new Map(); // element -> { baseClasses: string[], breakpointClasses: Map(breakpoint -> string[]) }
 
@@ -547,11 +552,18 @@ const BreakpointCssClasses = (() => {
             mql.addEventListener('change', () => updateElementClasses());
         }
 
+        // Add resize listener for debug display updates
+        window.addEventListener('resize', () => {
+            if (debugEnabled) {
+                updateDebugDisplay();
+            }
+        });
+
         // Scan DOM for elements with breakpoint attributes
         scanDomForBreakpointElements();
 
         // Apply initial classes based on current breakpoints
-        updateElementClasses();
+        updateElementClasses(true);
 
         initialized = true;
     }
@@ -579,9 +591,8 @@ const BreakpointCssClasses = (() => {
      * Scan the DOM for elements with class-[breakpoint] attributes
      */
     function scanDomForBreakpointElements() {
-        // Find all elements with any breakpoint class attribute
-        const breakpointNames = Object.keys(BREAKPOINTS);
-        const selector = breakpointNames.map(bp => `[class-${bp}]`).join(',');
+        // Find all elements with any breakpoint class attribute (including xs)
+        const selector = ALL_BREAKPOINTS.map(bp => `[class-${bp}]`).join(',');
 
         const elements = document.querySelectorAll(selector);
 
@@ -600,8 +611,8 @@ const BreakpointCssClasses = (() => {
             breakpointClasses: new Map()
         };
 
-        // Parse all breakpoint class attributes
-        for (const breakpointName of Object.keys(BREAKPOINTS)) {
+        // Parse all breakpoint class attributes (including xs)
+        for (const breakpointName of ALL_BREAKPOINTS) {
             const attrName = `class-${breakpointName}`;
             const classValue = element.getAttribute(attrName);
 
@@ -625,8 +636,8 @@ const BreakpointCssClasses = (() => {
     /**
      * Update classes for all tracked elements based on current breakpoint matches
      */
-    function updateElementClasses() {
-        if (!initialized) {
+    function updateElementClasses(force = false) {
+        if (!force && !initialized) {
             return;
         }
 
@@ -638,11 +649,61 @@ const BreakpointCssClasses = (() => {
             const newClasses = buildClassList(elementData, activeBreakpoint);
             element.className = newClasses.join(' ');
         }
+
+        // Update debug display if enabled
+        updateDebugDisplay();
+    }
+
+    /**
+     * Enable or disable debug mode
+     * @param {boolean} enabled - Whether to enable debug mode
+     */
+    function setDebugEnabled(enabled) {
+        debugEnabled = enabled;
+
+        if (enabled) {
+            updateDebugDisplay();
+        } else {
+            hideDebugDisplay();
+        }
+    }
+
+    /**
+     * Update the debug display with current breakpoint info
+     */
+    function updateDebugDisplay() {
+        if (!debugEnabled) {
+            return;
+        }
+
+        const debugDiv = document.getElementById('breakpointCssClassesDebug');
+        if (!debugDiv) {
+            return;
+        }
+
+        // Remove hidden attribute and update content
+        debugDiv.classList.remove('hidden');
+        debugDiv.innerHTML = `
+            <p><strong>Status:</strong> ${initialized ? 'Initialized' : 'Not initialized'}</p>
+            <p><strong>Tracked Elements:</strong> ${trackedElements.size}</p>
+            <p><strong>Active Breakpoint:</strong> ${initialized ? getActiveBreakpoint() : 'none'}</p>
+            <p><strong>Screen Width:</strong> ${window.innerWidth}px</p>
+        `;
+    }
+
+    /**
+     * Hide the debug display
+     */
+    function hideDebugDisplay() {
+        const debugDiv = document.getElementById('breakpointCssClassesDebug');
+        if (debugDiv) {
+            debugDiv.classList.add('hidden');
+        }
     }
 
     /**
      * Get the widest matching breakpoint name for exclusive application
-     * @returns {string|null} The widest matching breakpoint name, or null if none match
+     * @returns {string} The widest matching breakpoint name, including 'xs' for small screens
      */
     function getActiveBreakpoint() {
         // Check breakpoints from widest to narrowest
@@ -655,7 +716,7 @@ const BreakpointCssClasses = (() => {
             }
         }
 
-        return null; // No breakpoints match (screen is smaller than sm)
+        return 'xs'; // Screen is smaller than sm, so it's xs
     }
 
     /**
@@ -665,12 +726,8 @@ const BreakpointCssClasses = (() => {
      * @returns {string|null} The widest breakpoint with defined classes, or null
      */
     function getWidestDefinedBreakpoint(elementData, activeBreakpoint) {
-        if (!activeBreakpoint) {
-            return null;
-        }
-
-        // Check from the active breakpoint down to narrower ones
-        const breakpointOrder = ['xxl', 'xl', 'lg', 'md', 'sm'];
+        // Check from the active breakpoint down to narrower ones (including xs)
+        const breakpointOrder = ['xxl', 'xl', 'lg', 'md', 'sm', 'xs'];
         const activeIndex = breakpointOrder.indexOf(activeBreakpoint);
 
         // Check from active breakpoint down to narrower breakpoints
@@ -710,10 +767,12 @@ const BreakpointCssClasses = (() => {
     return {
         init,
         destroy,
+        setDebugEnabled,
 
         // Expose for debugging/testing
         get initialized() { return initialized; },
         get trackedElementsCount() { return trackedElements.size; },
-        get activeBreakpoint() { return initialized ? getActiveBreakpoint() : null; }
+        get activeBreakpoint() { return initialized ? getActiveBreakpoint() : null; },
+        get debugEnabled() { return debugEnabled; }
     };
 })();
