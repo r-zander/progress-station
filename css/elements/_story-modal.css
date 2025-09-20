@@ -62,3 +62,9 @@
 #enableAudioToast.toast {
     font-size: inherit;
 }
+
+@media (max-width: 991.98px) {
+    .modal {
+        padding-right: 0 !important;
+    }
+}

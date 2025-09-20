@@ -271,16 +271,16 @@ function updateLayout(){
     const contentWrapper = Dom.get().byId('contentWrapper');
 
     // TODO dirty-ass mobile-layout detection
-    if (Dom.get().byId('sidebar').classList.contains('position-fixed')) {
-        // Ensure inner scrolling
-        contentWrapper.style.maxHeight = `calc(100vh - 59px - ${headerHeight}px)`;
-        // Ensure full screen usage
-        contentWrapper.style.height = `calc(100vh - 59px - ${headerHeight}px)`;
-    } else {
+    if (Dom.get().byId('sidebar').classList.contains('flex-column')) {
         // Ensure inner scrolling
         contentWrapper.style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
         // Ensure full screen usage
         contentWrapper.style.height = `calc(100vh - 32px - ${headerHeight}px)`;
+    } else {
+        // Ensure inner scrolling
+        contentWrapper.style.maxHeight = `calc(100vh - 8px - 55px - ${headerHeight}px)`;
+        // Ensure full screen usage
+        contentWrapper.style.height = `calc(100vh - 8px - 55px - ${headerHeight}px)`;
     }
 
     updateConnector();
