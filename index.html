@@ -1134,6 +1134,32 @@
         </div>
     </div>
 </div>
+<div id="rebalanceWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-4 fw-light">Older Save Game found</h2>
+            </div>
+            <div class="modal-body">
+                <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
+                <p>The game has evolved a lot since then. Our recommendation is to start
+                    with a fresh game. But you can also keep playing with your older save game.</p>
+            </div>
+            <div class="modal-footer d-flex">
+                <div>
+                    <button type="button" class="btn btn-warning" onclick="continueWithRebalancedVersion();">
+                        Keep save
+                    </button>
+                </div>
+                <div class="ms-auto">
+                    <button type="button" class="btn btn-primary" onclick="gameData.reset();">
+                        Start new game
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="breakpointCssClassesDebug" class="position-fixed start-0 p-3 text-bg-dark hidden" style="bottom: 60px; z-index: 2000;">
 
 </div>

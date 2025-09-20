@@ -30,6 +30,36 @@ function initVersionWarning() {
     };
 }
 
+function initRebalanceWarning() {
+    const modal = new bootstrap.Modal(document.getElementById('rebalanceWarningModal'));
+    const versionUpgrade = {
+        savedVersion: undefined,
+        expectedVersion: undefined
+    };
+
+    GameEvents.RebalancedVersionFound.subscribe((payload) => {
+        modal.show();
+        versionUpgrade.savedVersion = payload.savedVersion;
+        versionUpgrade.expectedVersion = payload.expectedVersion;
+    });
+
+    withCheats(cheats => {
+        cheats.Story['RebalanceWarning'] = {
+            trigger: (savedVersion = 6, expectedVersion = 7) => {
+                GameEvents.RebalancedVersionFound.trigger({
+                    savedVersion: savedVersion,
+                    expectedVersion: expectedVersion
+                });
+            }
+        };
+    });
+
+    window.continueWithRebalancedVersion = function () {
+        modal.hide();
+        gameData.ignoreCurrentVersionUpgrade(versionUpgrade.savedVersion, versionUpgrade.expectedVersion);
+    };
+}
+
 function initIntro() {
     const modal = new bootstrap.Modal(document.getElementById('storyIntroModal'));
 
@@ -168,6 +198,7 @@ function initGameOver() {
 
 function initStory() {
     initVersionWarning();
+    initRebalanceWarning();
     initIntro();
     initBossAppearance();
     initBossFightIntro();
