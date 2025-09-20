@@ -269,10 +269,19 @@ function updateLayout(){
      */
     const headerHeight = Dom.outerHeight(Dom.get().byId('stationOverview'));
     const contentWrapper = Dom.get().byId('contentWrapper');
-    // Ensure inner scrolling
-    contentWrapper.style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
-    // Ensure full screen usage
-    contentWrapper.style.height = `calc(100vh - 32px - ${headerHeight}px)`;
+
+    // TODO dirty-ass mobile-layout detection
+    if (Dom.get().byId('sidebar').classList.contains('position-fixed')) {
+        // Ensure inner scrolling
+        contentWrapper.style.maxHeight = `calc(100vh - 59px - ${headerHeight}px)`;
+        // Ensure full screen usage
+        contentWrapper.style.height = `calc(100vh - 59px - ${headerHeight}px)`;
+    } else {
+        // Ensure inner scrolling
+        contentWrapper.style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
+        // Ensure full screen usage
+        contentWrapper.style.height = `calc(100vh - 32px - ${headerHeight}px)`;
+    }
 
     updateConnector();
 
@@ -2538,7 +2547,7 @@ function init() {
 
     cleanUpDom();
     BreakpointCssClasses.init();
-    BreakpointCssClasses.setDebugEnabled(true);
+    // BreakpointCssClasses.setDebugEnabled(true);
 
     gameData.skipSave = false;
     gameData.save();

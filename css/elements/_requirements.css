@@ -33,3 +33,9 @@
         line-height: 1;
     }
 }
+
+@media (max-width: 991.98px) {
+    #locationTabButtonRequirements {
+        min-width: 12rem;
+    }
+}
