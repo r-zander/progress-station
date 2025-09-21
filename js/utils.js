@@ -508,3 +508,271 @@ const Dom = {
         return !this.isVisible(element);
     },
 };
+
+/**
+ * Responsive class system that applies breakpoint-specific classes using Bootstrap 5 breakpoints
+ * and Window.matchMedia API for consistent behavior with CSS media queries.
+ */
+const BreakpointCssClasses = (() => {
+    // Bootstrap 5 breakpoints - exact pixel values
+    // Note: xs is implicit (max-width: 575.98px) and handled separately
+    const BREAKPOINTS = {
+        sm: '(min-width: 576px)',
+        md: '(min-width: 768px)',
+        lg: '(min-width: 992px)',
+        xl: '(min-width: 1200px)',
+        xxl: '(min-width: 1400px)'
+    };
+
+    // All supported breakpoints including xs
+    const ALL_BREAKPOINTS = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+
+    // Internal state
+    let initialized = false;
+    let debugEnabled = false;
+    const mediaQueries = new Map(); // breakpoint name -> MediaQueryList
+    const trackedElements = new Map(); // element -> { baseClasses: string[], breakpointClasses: Map(breakpoint -> string[]) }
+
+    /**
+     * Initialize the breakpoint manager system
+     * Scans the DOM for elements with class-[breakpoint] attributes and sets up listeners
+     */
+    function init() {
+        if (initialized) {
+            console.warn('BreakpointCssClasses is already initialized');
+            return;
+        }
+
+        // Create MediaQueryList objects for each breakpoint
+        for (const [name, query] of Object.entries(BREAKPOINTS)) {
+            const mql = window.matchMedia(query);
+            mediaQueries.set(name, mql);
+
+            // Add change listener for this breakpoint
+            mql.addEventListener('change', () => updateElementClasses());
+        }
+
+        // Add resize listener for debug display updates
+        window.addEventListener('resize', () => {
+            if (debugEnabled) {
+                updateDebugDisplay();
+            }
+        });
+
+        // Scan DOM for elements with breakpoint attributes
+        scanDomForBreakpointElements();
+
+        // Apply initial classes based on current breakpoints
+        updateElementClasses(true);
+
+        initialized = true;
+    }
+
+    /**
+     * Cleanup the breakpoint manager (removes listeners and clears state)
+     */
+    function destroy() {
+        if (!initialized) {
+            return;
+        }
+
+        // Remove all MediaQueryList listeners
+        for (const [name, mql] of mediaQueries) {
+            mql.removeEventListener('change', updateElementClasses);
+        }
+
+        // Clear all tracked data
+        mediaQueries.clear();
+        trackedElements.clear();
+        initialized = false;
+    }
+
+    /**
+     * Scan the DOM for elements with class-[breakpoint] attributes
+     */
+    function scanDomForBreakpointElements() {
+        // Find all elements with any breakpoint class attribute (including xs)
+        const selector = ALL_BREAKPOINTS.map(bp => `[class-${bp}]`).join(',');
+
+        const elements = document.querySelectorAll(selector);
+
+        for (const element of elements) {
+            trackElement(element);
+        }
+    }
+
+    /**
+     * Track an element for breakpoint class management
+     * @param {HTMLElement} element - Element to track
+     */
+    function trackElement(element) {
+        const elementData = {
+            baseClasses: parseClasses(element.getAttribute('class') || ''),
+            breakpointClasses: new Map()
+        };
+
+        // Parse all breakpoint class attributes (including xs)
+        for (const breakpointName of ALL_BREAKPOINTS) {
+            const attrName = `class-${breakpointName}`;
+            const classValue = element.getAttribute(attrName);
+
+            if (classValue) {
+                elementData.breakpointClasses.set(breakpointName, parseClasses(classValue));
+            }
+        }
+
+        trackedElements.set(element, elementData);
+    }
+
+    /**
+     * Parse a class string into an array of individual class names
+     * @param {string} classString - Space-separated class names
+     * @returns {string[]} Array of class names
+     */
+    function parseClasses(classString) {
+        return classString.trim().split(/\s+/).filter(cls => cls.length > 0);
+    }
+
+    /**
+     * Update classes for all tracked elements based on current breakpoint matches
+     */
+    function updateElementClasses(force = false) {
+        if (!force && !initialized) {
+            return;
+        }
+
+        // Get currently matching breakpoint
+        const activeBreakpoint = getActiveBreakpoint();
+
+        // Update each tracked element
+        for (const [element, elementData] of trackedElements) {
+            const newClasses = buildClassList(elementData, activeBreakpoint);
+            element.className = newClasses.join(' ');
+        }
+
+        // Update debug display if enabled
+        updateDebugDisplay();
+    }
+
+    /**
+     * Enable or disable debug mode
+     * @param {boolean} enabled - Whether to enable debug mode
+     */
+    function setDebugEnabled(enabled) {
+        debugEnabled = enabled;
+
+        if (enabled) {
+            updateDebugDisplay();
+        } else {
+            hideDebugDisplay();
+        }
+    }
+
+    /**
+     * Update the debug display with current breakpoint info
+     */
+    function updateDebugDisplay() {
+        if (!debugEnabled) {
+            return;
+        }
+
+        const debugDiv = document.getElementById('breakpointCssClassesDebug');
+        if (!debugDiv) {
+            return;
+        }
+
+        // Remove hidden attribute and update content
+        debugDiv.classList.remove('hidden');
+        debugDiv.innerHTML = `
+            <p><strong>Status:</strong> ${initialized ? 'Initialized' : 'Not initialized'}</p>
+            <p><strong>Tracked Elements:</strong> ${trackedElements.size}</p>
+            <p><strong>Active Breakpoint:</strong> ${initialized ? getActiveBreakpoint() : 'none'}</p>
+            <p><strong>Screen Width:</strong> ${window.innerWidth}px</p>
+        `;
+    }
+
+    /**
+     * Hide the debug display
+     */
+    function hideDebugDisplay() {
+        const debugDiv = document.getElementById('breakpointCssClassesDebug');
+        if (debugDiv) {
+            debugDiv.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Get the widest matching breakpoint name for exclusive application
+     * @returns {string} The widest matching breakpoint name, including 'xs' for small screens
+     */
+    function getActiveBreakpoint() {
+        // Check breakpoints from widest to narrowest
+        const breakpointOrder = ['xxl', 'xl', 'lg', 'md', 'sm'];
+
+        for (const breakpointName of breakpointOrder) {
+            const mql = mediaQueries.get(breakpointName);
+            if (mql && mql.matches) {
+                return breakpointName;
+            }
+        }
+
+        return 'xs'; // Screen is smaller than sm, so it's xs
+    }
+
+    /**
+     * Get the widest breakpoint that has classes defined for an element
+     * @param {Object} elementData - Element's stored class data
+     * @param {string} activeBreakpoint - Currently matching breakpoint name
+     * @returns {string|null} The widest breakpoint with defined classes, or null
+     */
+    function getWidestDefinedBreakpoint(elementData, activeBreakpoint) {
+        // Check from the active breakpoint down to narrower ones (including xs)
+        const breakpointOrder = ['xxl', 'xl', 'lg', 'md', 'sm', 'xs'];
+        const activeIndex = breakpointOrder.indexOf(activeBreakpoint);
+
+        // Check from active breakpoint down to narrower breakpoints
+        for (let i = activeIndex; i < breakpointOrder.length; i++) {
+            const breakpointName = breakpointOrder[i];
+            if (elementData.breakpointClasses.has(breakpointName)) {
+                return breakpointName;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Build the complete class list for an element based on the widest matching breakpoint
+     * @param {Object} elementData - Element's stored class data
+     * @param {string|null} activeBreakpoint - Currently matching breakpoint name
+     * @returns {string[]} Complete array of class names to apply
+     */
+    function buildClassList(elementData, activeBreakpoint) {
+        const classes = [...elementData.baseClasses]; // Start with base classes
+
+        // Find the widest breakpoint with defined classes
+        const targetBreakpoint = getWidestDefinedBreakpoint(elementData, activeBreakpoint);
+
+        if (targetBreakpoint) {
+            const breakpointClasses = elementData.breakpointClasses.get(targetBreakpoint);
+            if (breakpointClasses) {
+                classes.push(...breakpointClasses);
+            }
+        }
+
+        return classes;
+    }
+
+    // Public API
+    return {
+        init,
+        destroy,
+        setDebugEnabled,
+
+        // Expose for debugging/testing
+        get initialized() { return initialized; },
+        get trackedElementsCount() { return trackedElements.size; },
+        get activeBreakpoint() { return initialized ? getActiveBreakpoint() : null; },
+        get debugEnabled() { return debugEnabled; }
+    };
+})();

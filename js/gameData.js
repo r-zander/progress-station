@@ -96,7 +96,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 6;
+    version = 7;
 
     /**
      * @type {string}
@@ -159,6 +159,8 @@ class GameData {
     essenceOfUnknown = 0;
 
     /**
+     * Values from {@link Entity}s that are saved.
+     *
      * @var {{
      *     gridStrength: TaskSavedValues,
      *
@@ -207,6 +209,13 @@ class GameData {
             splashOnLevelUp: false,
             flashOnLevelUp: false,
         },
+        audio: {
+            enabled: false,
+            toastAnswered: false,
+            masterVolume: 0.7,
+            enableBackgroundAudio: false,
+            // musicVolume: 1.0,
+        }
     };
 
     skipSave = false;
@@ -479,6 +488,16 @@ gameDataMigrations[5] = (gameDataSave) => {
     if (_.has(gameDataSave, 'settings.vfx.followProgressBars')) {
         gameDataSave.settings.vfx.followProgressBars = false;
     }
+
+    return gameDataSave;
+};
+
+gameDataMigrations[6] = (gameDataSave) => {
+    GameEvents.RebalancedVersionFound.trigger({
+        savedVersion: gameDataSave.version,
+        // TODO post-beta please fix
+        expectedVersion: 7,
+    });
 
     return gameDataSave;
 };

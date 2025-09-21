@@ -130,12 +130,11 @@ function setTab(selectedTab) {
         return;
     }
 
-    if (selectedTab === 'settings') {
-        forcePause();
-    } else {
-        if (gameData.selectedTab !== 'settings') {
-            previousSelectedTab = gameData.selectedTab;
-        }
+    if (gameData.selectedTab !== 'settings') {
+        previousSelectedTab = gameData.selectedTab;
+    } else if (selectedTab === 'settings') {
+        // Current tab is settings and new tab is also settings --> switch back out of settings
+        selectedTab = previousSelectedTab;
     }
 
     const tabs = document.getElementsByClassName('tab');
@@ -150,7 +149,19 @@ function setTab(selectedTab) {
     }
     tabButtons[selectedTab].classList.add('active');
 
-    Dom.get().byId('content').style.animationPlayState = 'running';
+    Dom.get().byId('content').animate(
+        [
+            {offset: 0.0, backgroundSize: '0 100%'},
+            {offset: 0.1, backgroundSize: '24px 100%'},
+            {offset: 0.6, backgroundSize: '24px 100%'},
+            {offset: 1.0, backgroundSize: '0 100%'},
+        ],
+        {
+            duration: 600,
+            easing: 'ease-in-out',
+            iterations: 1,
+        },
+    );
 
     gameData.selectedTab = selectedTab;
     gameData.save();
@@ -258,10 +269,19 @@ function updateLayout(){
      */
     const headerHeight = Dom.outerHeight(Dom.get().byId('stationOverview'));
     const contentWrapper = Dom.get().byId('contentWrapper');
-    // Ensure inner scrolling
-    contentWrapper.style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
-    // Ensure full screen usage
-    contentWrapper.style.height = `calc(100vh - 32px - ${headerHeight}px)`;
+
+    // TODO dirty-ass mobile-layout detection
+    if (Dom.get().byId('sidebar').classList.contains('flex-column')) {
+        // Ensure inner scrolling
+        contentWrapper.style.maxHeight = `calc(100vh - 32px - ${headerHeight}px)`;
+        // Ensure full screen usage
+        contentWrapper.style.height = `calc(100vh - 32px - ${headerHeight}px)`;
+    } else {
+        // Ensure inner scrolling
+        contentWrapper.style.maxHeight = `calc(100vh - 8px - 55px - ${headerHeight}px)`;
+        // Ensure full screen usage
+        contentWrapper.style.height = `calc(100vh - 8px - 55px - ${headerHeight}px)`;
+    }
 
     updateConnector();
 
@@ -322,7 +342,6 @@ function tryActivateOperation(component, operation) {
 function createRequiredRow(domId) {
     const requirementsElement = Dom.new.fromTemplate('level4RequiredTemplate');
     requirementsElement.id = domId;
-    requirementsElement.classList.add('level4-requirements');
     return requirementsElement;
 }
 
@@ -2139,6 +2158,20 @@ function getPointOfInterestElement(name) {
     return document.getElementById(pointOfInterest.domId);
 }
 
+function disableAudioFromToast() {
+    gameData.settings.audio.toastAnswered = true;
+    toggleAudioEnabled(false);
+    const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
+    toast.hide();
+}
+
+function enableAudioFromToast() {
+    gameData.settings.audio.toastAnswered = true;
+    toggleAudioEnabled(true);
+    const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
+    toast.hide();
+}
+
 /**
  * @param {boolean} force
  */
@@ -2377,13 +2410,6 @@ function initTabBehavior() {
         setTab('modules');
     }
 
-    Dom.get().byId('content').addEventListener('animationiteration', (event) => {
-        // Ignore bubbling events from children
-        if (event.target !== event.currentTarget) return;
-
-        event.target.style.animationPlayState = 'paused';
-    });
-
     Dom.get().bySelector('#settings .btn-close').addEventListener('click', (event) => {
         event.preventDefault();
 
@@ -2444,6 +2470,22 @@ function initSettings() {
     Dom.get().byId('vfxProgressBarFollowSwitch').checked = gameData.settings.vfx.followProgressBars;
     Dom.get().byId('vfxSplashOnLevelUpSwitch').checked = gameData.settings.vfx.splashOnLevelUp;
     Dom.get().byId('vfxFlashOnLevelUpSwitch').checked = gameData.settings.vfx.flashOnLevelUp;
+
+    // gameData.settings.audio.* is applied in the audio module itself - we just need to adjust the UI
+    Dom.get().byId('audioEnabledSwitch').checked = gameData.settings.audio.enabled;
+    const rangeInput = Dom.get().byId('range4');
+    const rangeOutput = Dom.get().byId('rangeValue');
+    rangeInput.value = gameData.settings.audio.masterVolume;
+    rangeOutput.textContent = (parseFloat(gameData.settings.audio.masterVolume) * 100).toFixed(0) + '%';
+
+    rangeInput.addEventListener('input', function() {
+        const newValue = parseFloat(this.value);
+        gameData.settings.audio.masterVolume = newValue;
+        setAudioVolume(newValue);
+        rangeOutput.textContent = (newValue * 100).toFixed(0) + '%';
+        gameData.save();
+    });
+
 }
 
 function displayLoaded() {
@@ -2500,9 +2542,12 @@ function init() {
     initTabBehavior();
     initTooltips();
     initStationName();
+    initAudio();
     initSettings();
 
     cleanUpDom();
+    BreakpointCssClasses.init();
+    // BreakpointCssClasses.setDebugEnabled(true);
 
     gameData.skipSave = false;
     gameData.save();

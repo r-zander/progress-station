@@ -1,23 +1,36 @@
 # Progress Station
 
-### Introduction
-Progress Station is a text-based incremental game, originally [developed by Ihtasham42](https://github.com/ihtasham42/progress-knight) and reimagined by Kringel Games, which can be played on your browser.
+**Enjoy numbers going big in this quirky sci-fi auto-idler!**
 
-### What is Progress Station about?
-Progress Station is a space-station-sim incremental based in a quirky sci-fi setting, where you must progress through the ~~career ladder and acquire new skills to become the ultimate being.~~
+---
 
-~~You first start off as a beggar, barely being able to feed yourself as the days go by. However, over the years you learn new skills and gain plenty of work experience to enter new high paying jobs while managing your living expenses...~~
+In **Progress Station** you are the captain of a space station traveling through the vastness of space.
 
-~~Will you decide to take the easy route of doing simple commoner work? Or will you go through harsh training to climb the ranks within the military? Or maybe will you decide to study hard and enrol in a magic academy, learning life-impacting spells? Your career path is open-ended, the decision is up to you.~~
+You configure modules, level up operations, grow your crew and explore space in a quirky and light-hearted science fantasy setting.
 
-~~Eventually, your age will catch up to you. You will be given an option to prestige and gain xp multipliers (based on the performance of your current life) for your next life at the cost of losing all your levels and assets. Fear not though, as you will re-gain your levels much, much more quickly than in your previous life...~~
+But be careful: bound to you by a sinister curse, an ultra powerful alien entity, known to some as _The Destroyer_, is ever looking for you.
 
-### Where can I play Progress Station?
-Progress Station can be played on the following sites:
+If you like the world building of Adventure Time or the epic space saga of Gloryhammer you will feel right at home.
 
-TBD
+### FEATURES
+- A total of 83 game elements wait for you to level them to the maximum
+  - 6 modules containing 10 components with 34 operations
+  - 10 factions allowing for 120 battles
+  - 4 sectors with 13 points of interest
+- A boss battle leading into unlockable Galactic Secrets and a roguelite gameplay
+- Adaptive UI
 
-- [Site Name](https://example.com/progress-station/)
+### HOW TO PLAY
+- Click progress bars to activate elements and let them level up
+- Manage the gained attributes to improve your progress speed
+- Ramp up far enough to be able to defeat the galactic boss
+- Or start a new playthrough with increased progress speed based on your previous levels
+
+### WHERE TO PLAY
+
+- [Itch.io](https://kringel-games.itch.io/progress-station)
+
+---
 
 ### Development
 
@@ -41,10 +54,16 @@ Use your favorite browser to view `index.html`
 ``` 
 into index.html
 
-2. Zip everything but
+2. Remove
+```html
+<script type="text/javascript" src="js/cheats.js"></script>
+``` 
+from index.html
+
+3. Zip everything but
    - .git
    - .idea
    - name-generator.html
    - README.md
    - web-components.html
-3. Upload the Zip to itch.io
+4. Upload the Zip to itch.io

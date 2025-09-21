@@ -8,7 +8,7 @@
 
     <title>Progress Station</title>
 </head>
-<body id="body" class="sci-fi background-space">
+<body id="body" class="sci-fi background-space p-1 p-lg-2 p-xxl-3">
 <section id="star-background" class="stars-active">
     <div class="stars" id="stars1"></div>
     <div class="stars" id="stars2"></div>
@@ -22,39 +22,45 @@
     <div id="main-planet-overlay"></div>
 </section>
 
-<a id="gameTitle" class="d-flex panel align-items-center shortcut" href="#credits">
-    <div id="gameTitleLogo" class="logo me-2 order-2" >
+<a id="gameTitle" class="d-flex panel align-items-center shortcut px-3 gap-2" href="#credits">
+    <div id="gameTitleLogo" class="logo order-3" >
         PS
     </div>
     <h1 class="p-0 m-0 order-1">Progress Station</h1>
+    <span class="h1 p-0 m-0 order-2 version-label beta" title="Beta Version. Full release on 13th Nov 2025!">Beta</span>
 </a>
 <main id="main" class="d-flex flex-column">
     <header id="stationOverview" class="mb-3 gap-1 d-flex flex-column">
-        <div class="panel pe-3 pt-2 d-flex flex-row gap-3 align-items-start position-relative">
-            <a id="stationOverviewLogo" class="logo me-2" href="#credits">
+        <div class="panel position-relative
+                    pe-3 pt-2 row-gap-1
+                    d-flex flex-row align-items-start flex-wrap flex-lg-nowrap">
+            <a id="stationOverviewLogo" class="logo" href="#credits">
                 PS
             </a>
-            <h2 id="nameDisplay" class="shortcut my-0 me-auto px-3 pb-1">USS Progress</h2>
-            <div id="cyclesSinceLastEncounter" class="primary-stat"
-                 title="Intergalactic Cycles" data-bs-placement="bottom">
-                <span class="label">Since Last Encounter:</span>
-                <data value="14" data-unit="IC">14</data>
-            </div>
-            <div id="cyclesTotal" class="secondary-stat help-text"
-                 title="Intergalactic Cycles" data-bs-placement="bottom">
-                <span class="label">Date:</span>
-                <data value="70" data-unit="IC">0</data>
+            <span class="h2 ms-2 version-label beta" title="Beta Version. Full release on 13th Nov 2025">Beta</span>
+            <h2 id="nameDisplay" class="shortcut my-0 px-3 pb-1 text-nowrap overflow-x-hidden">USS Progress</h2>
+            <div class="ms-auto d-flex flex-row gap-3">
+                <div id="cyclesSinceLastEncounter" class="primary-stat"
+                     title="Intergalactic Cycles" data-bs-placement="bottom">
+                    <span class="label">Since Last Encounter:</span>
+                    <data value="14" data-unit="IC">14</data>
+                </div>
+                <div id="cyclesTotal" class="secondary-stat help-text"
+                     title="Intergalactic Cycles" data-bs-placement="bottom">
+                    <span class="label">Date:</span>
+                    <data value="70" data-unit="IC">0</data>
+                </div>
             </div>
         </div>
 
-        <div id="energyGridDisplay" class="panel px-3 py-1 d-flex flex-row overflow-hidden">
+        <div id="energyGridDisplay" class="panel px-1 px-lg-3 py-1 d-flex flex-row overflow-hidden">
             <div class="d-flex flex-column mt-3">
-                <p id="gridLabel" class="grid-strength-bar energy-label d-flex align-items-center px-2"
+                <p id="gridLabel" class="grid-strength-bar energy-label d-flex align-items-center px-1 px-lg-2"
                      title="[Filled by JavaScript]" data-bs-placement="bottom" data-bs-html="true">
                     <img src="img/icons/grid.svg" class="icon" alt="Grid Icon" style="height: 30px;" />
                     <span class="flex-fill ms-1">Grid</span>
                 </p>
-                <p class="energy-bar energy-label d-flex align-items-center px-2">
+                <p class="energy-bar energy-label d-flex align-items-center px-1 px-lg-2">
                     <img src="img/icons/energy.svg" class="icon" alt="Energy Icon"/>
                     <span class="flex-fill ms-1">Energy</span>
                 </p>
@@ -89,8 +95,7 @@
                      aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                     <div class="progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
                     <div class="progress-text energyGenerated px-2">
-                        <data value="0" data-unit="W">+0</data>
-                        <span>/cycle</span>
+                        <data value="0" data-unit="W">+0</data><span>/cycle</span>
                     </div>
                     <div class="progress-text energyLeft px-2 end-0">
                         <data value="0" data-unit="W">+0</data>
@@ -104,7 +109,9 @@
             </div>
         </div>
 
-        <div id="attributesDisplay" class="shortcut panel px-3 py-1 d-flex justify-content-start gap-4" onclick="setTab('attributes');">
+        <div id="attributesDisplay"
+             class="shortcut panel px-3 py-1 d-flex justify-content-start gap-4 overflow-x-auto"
+             onclick="setTab('attributes');">
             <div class="primary-stat" data-attribute="population"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
@@ -153,20 +160,34 @@
         </div>
     </header>
 
-    <div id="contentWrapper" class="d-flex align-content-start">
-        <aside id="sidebar" class="d-flex flex-column mh-100 overflow-x-hidden overflow-y-auto me-3">
-            <div id="actions" class="d-flex flex-column">
-                <button class="btn btn-lg w-100" id="pauseButton" onClick="togglePause();">
-                    Pause
+    <div id="contentWrapper"
+         class="d-flex align-content-start"
+         class-xs="flex-column"
+         class-lg="flex-row">
+        <aside id="sidebar"
+               class="d-flex flex-shrink-0"
+               class-xs="flex-row align-items-stretch w-100 overflow-x-auto order-3 mt-1"
+               class-lg="flex-column mh-100 overflow-x-hidden overflow-y-auto me-3">
+            <div id="actions"
+                 class="d-flex flex-column">
+                <button class="btn btn-lg w-100"
+                        class-xs="h-100"
+                        class-lg="h-auto"
+                        id="pauseButton" onClick="togglePause();">
+<!--                    <img class="icon-pause" src="img/icons/buttons/pause.svg" />-->
+<!--                    <img class="icon-play" src="img/icons/buttons/play.svg" />-->
+                    <span>Pause</span>
                 </button>
             </div>
-            <nav class="d-flex flex-column flex-fill mt-3 gap-1">
+            <nav class="d-flex flex-fill"
+                 class-xs="flex-row align-items-center"
+                 class-lg="flex-column mt-3 gap-1" >
                 <button id="modulesTabButton" class="tabButton panel p-3" onClick="setTab('modules');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Modules</h3>
 
                     <template id="moduleQuickTaskDisplayTemplate">
-                        <div class="quickTaskDisplayContainer hidden">
+                        <div class="quickTaskDisplayContainer hidden d-none d-lg-block">
                             <h4 class="fs-6 text-start moduleName mb-0 mt-3 fw-light">Module</h4>
                             <slot id="componentsQuickTaskDisplay"></slot>
                         </div>
@@ -189,14 +210,15 @@
                     </template>
                     <slot id="modulesQuickTaskDisplay"></slot>
                 </button>
-                <div id="battleTabButtonRequirements" class="p-3">
+                <!-- TODO how to display requirements on mobile? -->
+                <div id="battleTabButtonRequirements" class="requirements-container m-2">
                     <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
                 </div>
                 <button id="battleTabButton" class="tabButton panel p-3" onClick="setTab('battles');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Battle</h3>
                     <template id="battleQuickTaskDisplayTemplate">
-                        <div class="quickTaskDisplay mt-2">
+                        <div class="quickTaskDisplay mt-2 d-none d-lg-block">
                             <div class="progress battle progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
                                  aria-valuemin="0" aria-valuemax="100">
                                 <div class="progressBackground progress-background"></div>
@@ -212,21 +234,21 @@
                     </template>
                     <slot id="battlesQuickTaskDisplay"></slot>
                 </button>
-                <div id="locationTabButtonRequirements" class="p-3">
+                <div id="locationTabButtonRequirements" class="requirements-container m-2">
                     <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
                 </div>
                 <button id="locationTabButton" class="tabButton panel p-3" onClick="setTab('location');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Location</h3>
                     <!--suppress HtmlUnknownTag -->
-                    <div id="locationQuickDisplay" class="point-of-interest mt-2 w-100 px-2 d-flex"
+                    <div id="locationQuickDisplay" class="point-of-interest mt-2 w-100 px-2 d-none d-lg-flex"
                             title="Sector: Point of Interest" data-bs-placement="bottom">
                         <span class="sector text-truncate">Sector</span>
                         <span class="me-1">:</span>
                         <span class="pointOfInterest text-truncate">Point of Interest</span>
                     </div>
                 </button>
-                <div id="attributesTabButtonRequirements" class="p-3">
+                <div id="attributesTabButtonRequirements" class="requirements-container m-2">
                     <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
                 </div>
                 <button id="attributesTabButton" class="tabButton panel p-3" onClick="setTab('attributes');">
@@ -237,7 +259,7 @@
                     <!--suppress HtmlUnknownTag -->
                     <h3>Galactic Secrets</h3>
                     <!--suppress HtmlUnknownTag -->
-                    <div class="primary-stat d-flex justify-content-center mt-2" data-attribute="essenceOfUnknown"
+                    <div class="primary-stat d-flex justify-content-center mt-2 d-none d-lg-block" data-attribute="essenceOfUnknown"
                          data-bs-placement="bottom" data-bs-html="true">
                         <img src="" class="icon me-1" alt=""/>
                         <span class="label" style=""></span>
@@ -253,7 +275,7 @@
             </nav>
         </aside>
 
-        <hr id="connector" />
+        <hr id="connector" class="d-none d-lg-block" />
 
         <div id="content" class="panel flex-fill position-relative mh-100 overflow-auto">
             <template id="level1Template">
@@ -265,14 +287,14 @@
                     </div>
 
                     <slot id="level2"></slot>
-                    <div class="ps-4">
+                    <div class="requirements-container ms-4">
                         <slot id="level2Requirements"></slot>
                     </div>
                 </div>
             </template>
 
             <template id="level2Template">
-                <div class="level2 ps-3 mt-2">
+                <div class="level2 ps-0 ps-lg-3 mt-2">
                     <div class="level2-header text-bg-light d-flex justify-content-start align-items-center px-2 gap-3"
                          style="padding-top: 5px; padding-bottom: 5px;">
                         <div class="name" title="Component Description" data-bs-placement="right">
@@ -300,14 +322,14 @@
                     </div>
 
                     <slot id="level3"></slot>
-                    <div class="ps-4">
+                    <div class="requirements-container ms-4">
                         <slot id="level3Requirements"></slot>
                     </div>
                 </div>
             </template>
 
             <template id="level3TaskTemplate">
-                <div class="table-container ps-3 mt-2">
+                <div class="table-container ps-0 ps-lg-3 mt-2">
                     <table class="table mb-0">
                         <thead class="level3">
                         <tr class="header-row">
@@ -345,10 +367,10 @@
                         x1.13 Industry
                     </td>
                     <td class="xpGain numeric">
-                        <data value="1600" data-unit="k">1.6</data>
+                        <data value="1600" data-suffix="k">1.6</data>
                     </td>
                     <td class="xpLeft numeric">
-                        <data value="4550" data-unit="k">45.5</data>
+                        <data value="4550" data-suffix="k">45.5</data>
                     </td>
                     <td class="gridLoad numeric">
                         <data value="1">1</data>
@@ -360,7 +382,7 @@
             </template>
 
             <template id="level3BattleTemplate">
-                <div class="table-container ps-3 mt-2">
+                <div class="table-container ps-0 ps-lg-3 mt-2">
                     <table class="table mb-0">
                         <thead class="level3">
                         <tr class="header-row text-bg-light">
@@ -394,10 +416,10 @@
                         <data value="53">53</data>
                     </td>
                     <td class="xpGain numeric">
-                        <data value="1600" data-unit="k">1.6</data>
+                        <data value="1600" data-suffix="k">1.6</data>
                     </td>
                     <td class="xpLeft numeric">
-                        <data value="4550" data-unit="k">45.5</data>
+                        <data value="4550" data-suffix="k">45.5</data>
                     </td>
                     <td class="danger numeric">
                         <data value="200">200</data>
@@ -409,7 +431,7 @@
             </template>
 
             <template id="level3PointOfInterestTemplate">
-                <div class="table-container ps-3">
+                <div class="table-container ps-0 ps-lg-3">
                     <table class="table mb-0">
                         <thead class="level3">
                         <tr class="header-row text-bg-light">
@@ -472,10 +494,14 @@
             </template>
 
             <template id="level4RequiredTemplate">
-                <tr>
-                    <td class="requirements help-text ps-3" colspan="100%">
-                        Next unlock at:
-                        <span class="rendered"></span>
+                <tr class="level4-requirements">
+                    <td  colspan="100%">
+                        <div class="requirements-container">
+                            <div class="requirements help-text">
+                                Next unlock at:
+                                <span class="rendered"></span>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             </template>
@@ -487,12 +513,14 @@
                 </div>
             </template>
 
-            <div id="modules" class="tab p-3">
+            <div id="modules" class="tab p-1 p-lg-3">
                 <slot id="modulesTable"></slot>
-                <slot id="moduleCategoryRequirements"></slot>
+                <div class="requirements-container">
+                    <slot id="moduleCategoryRequirements"></slot>
+                </div>
             </div>
 
-            <div id="battles" class="tab p-3 overflow-hidden">
+            <div id="battles" class="tab p-1 p-lg-3 overflow-hidden">
                 <ul class="tab-help-text help-text m-0">
                     <li class="battles-pose-danger">
                         Engaged battles pose a
@@ -513,12 +541,14 @@
                 <slot id="battlesTable"></slot>
             </div>
 
-            <div id="location" class="tab p-3">
+            <div id="location" class="tab p-1 p-lg-3">
                 <slot id="sectorTable"></slot>
-                <slot id="sectorRequirements"></slot>
+                <div class="requirements-container">
+                    <slot id="sectorRequirements"></slot>
+                </div>
             </div>
 
-            <div id="attributes" class="tab p-3">
+            <div id="attributes" class="tab p-1 p-lg-3">
                 <!-- TODO: boxed design for mobile -> be able to have 1 attribute per row -->
                 <div class="table-container">
                     <table class="table">
@@ -564,7 +594,7 @@
                 </div>
             </div>
 
-            <div id="galacticSecrets" class="tab p-3">
+            <div id="galacticSecrets" class="tab p-1 p-lg-3">
                 <ul class="tab-help-text help-text m-0">
                     <li>Unravel a Galactic Secret by long pressing its progress bar.</li>
                     <li style="transform-origin: left">Each Secret costs
@@ -577,7 +607,7 @@
                     </li>
                     <li>After unraveling a Secret, the cost per Secret will increase <data value="3" class="text-body">x3</data>.</li>
                 </ul>
-                <div class="table-container ps-3">
+                <div class="table-container ps-0 ps-lg-3">
                     <table class="table mb-0">
                         <thead class="level3">
                         <tr class="header-row">
@@ -596,7 +626,7 @@
                 </div>
             </div>
 
-            <div id="settings" class="tab p-3">
+            <div id="settings" class="tab p-1 p-lg-3">
                 <div class="d-flex align-items-start">
                     <h3>Settings</h3>
                     <button type="button" class="btn-close ms-auto" aria-label="Close"></button>
@@ -623,6 +653,39 @@
                         <div class="d-flex mt-2 gap-2 justify-content-end">
                             <button class="btn btn-dark" onClick="gameData.import();">Import</button>
                             <button class="btn btn-dark" onClick="gameData.export();">Export</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-sm-12 d-flex align-items-baseline justify-content-between">
+                        <h3>Sound</h3>
+                    </div>
+                    <div class="col-sm-2">General</div>
+                    <div class="col-sm-10">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox"
+                                   role="switch" id="audioEnabledSwitch"
+                                   onclick="toggleAudioEnabled();">
+                            <label class="form-check-label" for="audioEnabledSwitch">
+                                Enable
+                            </label>
+                        </div>
+                        <!--<div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox"
+                                   role="switch" id="audioBackgroundAudioEnabledSwitch"
+                                   onclick="toggleAudioBackgroundAudioEnabled();">
+                            <label class="form-check-label" for="audioBackgroundAudioEnabledSwitch">
+                                Play audio in background
+                            </label>
+                        </div>-->
+                    </div>
+                    <div class="col-sm-2"><label for="range4" class="form-label">Master Volume</label></div>
+                    <div class="col-sm-10">
+                        <div class="d-flex">
+                            <input type="range" class="form-range" id="range4" style="max-width: 20em"
+                                   min="0.0" max="1.0" step="0.01" />
+                            <output for="range4" id="rangeValue" aria-hidden="true">6</output>
                         </div>
                     </div>
                 </div>
@@ -712,9 +775,11 @@
                 </div>
 
                 <div class="row mt-3">
-                    <div id="credits" class="col-sm-2 col-form-label">Credits</div>
-                    <div class="col-sm-10" style="padding-top: 10px">
-                        <h5>Team</h5>
+                    <div class="col-sm-12 d-flex align-items-baseline justify-content-between">
+                        <h3>Credits</h3>
+                    </div>
+                    <div id="credits" class="col-sm-2">Team</div>
+                    <div class="col-sm-10">
                         <p>
                             A game by <a href="http://kringel.games/" target="_blank">Kringel Games</a>.
                         </p>
@@ -735,72 +800,90 @@
                                     <td>Janik</td>
                                 </tr>
                                 <tr>
+                                    <th class="ps-0">Producer</th>
+                                    <td>Momo</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-0">Audio Designer &amp; Game Balance Designer</th>
+                                    <td>Lenard</td>
+                                </tr>
+                                <tr>
                                     <th class="ps-0">Dev Ops</th>
                                     <td>Pauline</td>
                                 </tr>
                                 </tbody>
                             </table>
                         </div>
-
-                        <h5>Origin</h5>
+                    </div>
+                    <div class="col-sm-2">Support</div>
+                    <div class="col-sm-10">
+                        <div class="table-container">
+                            <table class="table table-borderless table-striped align-middle w-auto">
+                                <tbody>
+                                <tr>
+                                    <th class="ps-0">Trailer Production</th>
+                                    <td>Sofakartoffel</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="origin" class="col-sm-2">Origin</div>
+                    <div class="col-sm-10">
                         <p class="mb-3">
                             Based on the captivating <a href="https://ihtasham-42.itch.io/progress-knight" target="_blank">Progress Knight</a>
                             (<a href="https://github.com/ihtasham42/progress-knight" target="_blank">source</a>)
                             by <b>Ihtasham 42</b>. Check it out!
                         </p>
-
-                        <h5>3rd Party Assets</h5>
+                    </div>
+                    <div id="3rdPartyAssets" class="col-sm-2">3rd Party Assets</div>
+                    <div class="col-sm-10">
+                        Fonts
                         <ul>
                             <li>
-                                Fonts
-                                <ul>
-                                    <li>
-                                        <a href="https://typodermicfonts.com/syndra/">Syndra</a>
-                                        by <a href="https://typodermicfonts.com/">Raymond Larabie</a>
-                                    </li>
-                                    <li>
-                                        <a href="https://fonts.google.com/specimen/Exo+2">Exo 2</a>
-                                        by <a href="https://ndiscover.com/">Natanael Gama</a>
-                                    </li>
-                                    <li>
-                                        <a href="https://www.behance.net/gallery/77648235/Typori-Font">Typori</a>
-                                        by <a href="https://www.behance.net/erikyin">Tzu-yuan Yin</a>
-                                    </li>
-                                </ul>
+                                <a href="https://typodermicfonts.com/syndra/">Syndra</a>
+                                by <a href="https://typodermicfonts.com/">Raymond Larabie</a>
                             </li>
                             <li>
-                                JavaScript Libraries
-                                <ul>
-                                    <li><a href="https://getbootstrap.com/" target="_blank">Bootstrap 5</a></li>
-                                    <li>
-                                        <a href="https://github.com/wilsonpage/fastdom" target="_blank">Fastdom</a>
-                                        by <a href="https://github.com/wilsonpage" target="_blank">Wilson Page</a>
-                                    </li>
-                                    <li>
-                                        <a href="https://github.com/turuslan/HackTimer" target="_blank">HackTimer</a>
-                                        by <a href="https://github.com/turuslan" target="_blank">Ruslan Tushov</a>
-                                    </li>
-                                    <li><a href="https://lodash.com/" target="_blank">Lodash</a></li>
-                                </ul>
+                                <a href="https://fonts.google.com/specimen/Exo+2">Exo 2</a>
+                                by <a href="https://ndiscover.com/">Natanael Gama</a>
                             </li>
                             <li>
-                                Images
-                                <ul>
-                                    <li>
-                                        <a href="https://www.freepik.com/free-vector/fantastic-planets-cartoon-galaxy-ui-game-asteroids_8188953.htm#">Images by upklyak</a> on Freepik
-                                        <div>
-                                            <img src="img/planets/planet07.svg" width="70" />
-                                            <img src="img/planets/planet03.svg" width="70" />
-                                            <img src="img/planets/planet12.svg" width="70" />
-                                        </div>
-                                    </li>
-                                </ul>
+                                <a href="https://www.behance.net/gallery/77648235/Typori-Font">Typori</a>
+                                by <a href="https://www.behance.net/erikyin">Tzu-yuan Yin</a>
+                            </li>
+                        </ul>
+                        JavaScript Libraries
+                        <ul>
+                            <li><a href="https://getbootstrap.com/" target="_blank">Bootstrap 5</a></li>
+                            <li>
+                                <a href="https://github.com/wilsonpage/fastdom" target="_blank">Fastdom</a>
+                                by <a href="https://github.com/wilsonpage" target="_blank">Wilson Page</a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/turuslan/HackTimer" target="_blank">HackTimer</a>
+                                by <a href="https://github.com/turuslan" target="_blank">Ruslan Tushov</a>
+                            </li>
+                            <li><a href="https://lodash.com/" target="_blank">Lodash</a></li>
+                        </ul>
+                        Images
+                        <ul>
+                            <li>
+                                <a href="https://www.freepik.com/free-vector/fantastic-planets-cartoon-galaxy-ui-game-asteroids_8188953.htm#">Images by upklyak</a> on Freepik
+                                <div>
+                                    <img src="img/planets/planet07.svg" width="70" />
+                                    <img src="img/planets/planet03.svg" width="70" />
+                                    <img src="img/planets/planet12.svg" width="70" />
+                                </div>
                             </li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="row mt-3">
+                    <div class="col-sm-12 d-flex align-items-baseline justify-content-between">
+                        <h3>Careful now!</h3>
+                    </div>
                     <div class="col-sm-2 col-form-label">Hard reset game</div>
                     <div class="col-sm-10">
                         <button class="btn btn-danger py-1" onClick="gameData.reset();">Reset</button>
@@ -903,7 +986,12 @@
                             <img src="" class="icon" alt="" />
                             <span class="label"></span>
                         </span>
-                        and is directly damaging your
+                        (not just
+                        <span class="primary-stat" data-attribute="danger" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span>!)
+                        and thus directly damaging your
                         <span class="primary-stat" data-attribute="population" data-bs-html="true">
                             <img src="" class="icon" alt="" />
                             <span class="label"></span>
@@ -995,6 +1083,27 @@
     </div>
 </div>
 
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="enableAudioToast" class="toast text-bg-info" role="alert"
+         aria-live="assertive" aria-atomic="true"
+         data-bs-autohide="false">
+        <div class="toast-body">
+            <img src="img/icons/buttons/sound.svg" class="me-2" />
+            <span>This browser game offers sound!</span>
+            <div class="mt-2 pt-2 d-flex border-top">
+                <button type="button" class="btn btn-info" onclick="disableAudioFromToast();">
+                    <img src="img/icons/buttons/sound-off.svg" />
+                    <span>Keep off</span>
+                </button>
+                <button type="button" class="btn btn-warning ms-auto" onclick="enableAudioFromToast();">
+                    <img src="img/icons/buttons/sound-on.svg" />
+                    <span>Turn on!</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Needs to be the last of all modals, as it's supposed to overlap any other open modals -->
 <!-- Not really elegant, but it's just an intermediate solution until with have game save migrations -->
 <div id="versionWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
@@ -1025,6 +1134,35 @@
         </div>
     </div>
 </div>
+<div id="rebalanceWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-4 fw-light">Older Save Game found</h2>
+            </div>
+            <div class="modal-body">
+                <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
+                <p>The game has evolved a lot since then. Our recommendation is to start
+                    with a fresh game. But you can also keep playing with your older save game.</p>
+            </div>
+            <div class="modal-footer d-flex">
+                <div>
+                    <button type="button" class="btn btn-warning" onclick="continueWithRebalancedVersion();">
+                        Keep save
+                    </button>
+                </div>
+                <div class="ms-auto">
+                    <button type="button" class="btn btn-primary" onclick="gameData.reset();">
+                        Start new game
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="breakpointCssClassesDebug" class="position-fixed start-0 p-3 text-bg-dark hidden" style="bottom: 60px; z-index: 2000;">
+
+</div>
 
 <script type="text/javascript" src="vendor/hacktimer-1.1.3/HackTimer.min.js"></script>
 <script type="text/javascript" src="vendor/fastdom-1.0.11/fastdom.min.js"></script>
@@ -1035,11 +1173,13 @@
 </script>
 <script type="text/javascript" src="vendor/bootstrap-5.3.1/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="vendor/lodash-4.17.15/lodash.min.js"></script>
+<script type="text/javascript" src="vendor/howler.js-2.2.4/howler.core.min.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/gameUtils.js"></script>
 <script type="text/javascript" src="js/gameEvents.js"></script>
 <script type="text/javascript" src="js/nameGenerator.dictionary.lighthearted.js"></script>
 <script type="text/javascript" src="js/nameGenerator.js"></script>
+<script type="text/javascript" src="js/audio.js"></script>
 <script type="text/javascript" src="js/effects.js"></script>
 <script type="text/javascript" src="js/classes.js"></script>
 <script type="text/javascript" src="js/battle.js"></script>

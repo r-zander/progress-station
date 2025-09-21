@@ -41,6 +41,22 @@ a#gameTitle {
     rotate: 90deg;
 }
 
+.version-label {
+    font-weight: 300;
+
+    &.alpha {
+        color: var(--ps-red2);
+    }
+
+    &.beta {
+        color: var(--ps-yellow);
+    }
+
+    &.final {
+        color: var(--ps-green3);
+    }
+}
+
 #stationOverviewLogo {
     display: none;
 
@@ -51,6 +67,16 @@ a#gameTitle {
     font-size: 2.7rem;
 
     z-index: 1; /* Keep the background-ring over the panel background */
+
+    & + .version-label {
+        display: none;
+        position: absolute;
+        left: 65px;
+        top: 50%;
+        margin: 0;
+        font-size: 1.1rem;
+        transform: translateY(-50%) translateX(-50%) rotate(-90deg);
+    }
 }
 
 #main {
@@ -86,6 +112,10 @@ a#gameTitle {
 
     #stationOverviewLogo {
         display: block;
+
+        & + .version-label {
+            display: block;
+        }
     }
 
     #main {
@@ -93,7 +123,7 @@ a#gameTitle {
     }
 
     #nameDisplay {
-        margin-left: calc(65px + 1rem) !important;
+        margin-left: calc(65px + 22px + 0.5rem) !important;
     }
 }
 
@@ -103,22 +133,8 @@ a#gameTitle {
 
     background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, var(--active-color) 4px, var(--active-color) 8px);
     background-repeat: repeat-y;
+    background-size: 0 100%;
     border-left: 3px solid var(--active-color);
-
-    animation: 600ms ease-in-out infinite pulse-background;
-    animation-play-state: paused;
-}
-
-@keyframes pulse-background {
-    0% {
-        background-size: 0 100%;
-    }
-    10%, 60% {
-        background-size: 24px 100%;
-    }
-    100% {
-        background-size: 0 100%;
-    }
 }
 
 .panel {
@@ -144,7 +160,15 @@ a#gameTitle {
 }
 
 data[data-unit]::after {
+    content: " " attr(data-unit);
+}
+
+data[data-suffix]::after {
     content: attr(data-unit);
+}
+
+data[data-unit]::after,
+data[data-suffix]::after {
     font-family: var(--body-font-family);
     font-size: var(--bs-body-font-size);
     font-weight: var(--bs-body-font-weight);

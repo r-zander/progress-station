@@ -8,7 +8,7 @@
 
 #attributesDisplay {
     .primary-stat {
-        font-size: large;
+        font-size: 1.125rem;
 
         > .label {
             font-weight: 300;
@@ -19,6 +19,15 @@
         }
     }
 }
+
+@media (max-width: 991.98px) {
+    #attributesDisplay {
+        .primary-stat {
+            font-size: 1rem;
+        }
+    }
+}
+
 
 #attributes {
     .table {

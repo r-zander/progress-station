@@ -52,16 +52,22 @@ class Battle extends LayeredTask {
      * @param {{
      *     title: string,
      *     targetLevel: number,
+     *     difficulty: number,
      *     faction: FactionDefinition,
      *     effects: EffectDefinition[],
      *     rewards: EffectDefinition[],
      * }} baseData
      */
     constructor(baseData) {
+        console.assert(_.isObject(baseData.faction), 'Faction must be a config object.');
+        console.assert(isNumber(baseData.faction.maxXp), 'Faction.maxXp must be a number.');
+        console.assert(isNumber(baseData.targetLevel), 'targetLevel must be a number.');
+        console.assert(isNumber(baseData.difficulty), 'difficulty must be a number.');
+
         super({
             title: baseData.title + ' ' + baseData.faction.title,
             description: baseData.faction.description,
-            maxXp: baseData.faction.maxXp * baseData.targetLevel,
+            maxXp: baseData.faction.maxXp * baseData.targetLevel * baseData.difficulty,
             effects: baseData.effects,
             targetLevel: baseData.targetLevel,
             requirements: undefined,
@@ -136,6 +142,7 @@ class BossBattle extends Battle {
      * @param {{
      *     titleGenerator: NameGenerator,
      *     targetLevel: number,
+     *     difficulty: number,
      *     faction: FactionDefinition,
      *     effects: EffectDefinition[],
      *     rewards: EffectDefinition[],
@@ -145,6 +152,7 @@ class BossBattle extends Battle {
         super({
             title: '',
             targetLevel: baseData.targetLevel,
+            difficulty: baseData.difficulty,
             faction: baseData.faction,
             effects: baseData.effects,
             rewards: baseData.rewards,

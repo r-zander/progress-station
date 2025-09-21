@@ -36,3 +36,35 @@
         background-color: var(--ps-light-transparent90);
     }
 }
+
+.toast-body {
+    > img {
+        height: 1.5em;
+        vertical-align: bottom;
+    }
+
+    button > img {
+        height: 1.5em;
+        vertical-align: bottom;
+    }
+
+    .btn {
+        text-shadow: none;
+
+        &.btn-warning {
+            --bs-btn-color: var(--ps-dark);
+            --bs-btn-hover-color: var(--ps-dark);
+            --bs-btn-active-color: var(--ps-dark);
+        }
+    }
+}
+
+#enableAudioToast.toast {
+    font-size: inherit;
+}
+
+@media (max-width: 991.98px) {
+    .modal {
+        padding-right: 0 !important;
+    }
+}

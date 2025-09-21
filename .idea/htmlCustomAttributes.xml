@@ -1,0 +1,9 @@
+<application>
+    <component name="HtmlCustomAttributesProvider">
+      <attribute name="class-sm" />
+      <attribute name="class-md" />
+      <attribute name="class-lg" />
+      <attribute name="class-xl" />
+      <attribute name="class-xxl" />
+    </component>
+  </application>

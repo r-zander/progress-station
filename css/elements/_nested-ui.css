@@ -58,8 +58,10 @@
         transform-origin: right;
     }
 
-    > div:first-child {
-        width: var(--main-column-width);
+    @media (min-width: 992px) {
+        > div:first-child {
+            width: var(--main-column-width);
+        }
     }
 
     &.bg-light {

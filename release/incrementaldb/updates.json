@@ -1,0 +1,29 @@
+{
+  "updates": [
+    {
+      "version": "1.1.1-beta",
+      "title": "Beta release improvements 1",
+      "content": "Game suggests returning players to reset their game save."
+    },
+    {
+      "version": "1.1.0-beta",
+      "title": "Beta release",
+      "content": "Beta version of the game with new balancing, soundtrack and an early mobile version."
+    },
+    {
+      "version": "1.0.2",
+      "title": "Alpha release improvements 2",
+      "content": "Made all intensive VFX optional."
+    },
+    {
+      "version": "1.0.1",
+      "title": "Alpha Release improvements 1",
+      "content": "Treat settings tab more like an overlay."
+    },
+    {
+      "version": "1.0.0",
+      "title": "Alpha release",
+      "content": "The first public alpha version of the game."
+    }
+  ]
+}
