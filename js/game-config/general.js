@@ -18,3 +18,10 @@ const units = {
     energy: 'W',
     storedEnergy: 'Wh'
 };
+
+/**
+ * Base heat that is always present.
+ *
+ * @type {number}
+ */
+const SPACE_BASE_HEAT = 0.1;

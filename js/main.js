@@ -65,7 +65,7 @@ function calculateHeat() {
     const rawHeat = Effect.getTotalValue([EffectType.Heat]);
     const calculatedHeat = Math.max(danger - military, 0) + rawHeat;
 
-    return Math.max(0.1, calculatedHeat);
+    return Math.max(SPACE_BASE_HEAT, calculatedHeat);
 }
 
 function populationDelta() {
