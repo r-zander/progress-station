@@ -163,7 +163,7 @@ moduleOperations.SmoochSanctuary = new ModuleOperation({
 moduleOperations.MechanoMaker = new ModuleOperation({
     title: 'Mechano Maker', maxXp: 32_000, gridLoad: 8,
     description: 'Why wait for nature when you have technology? Assemble new crew members who are part metal, part moxie.',
-    effects: [{effectType: EffectType.Growth, baseValue: 0.20}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.20}],
 });
 /** Galactic Secret */
 moduleOperations.ReplicationChambers = new ModuleOperation({
@@ -299,6 +299,13 @@ const defaultModules = [
 const moduleCategories = {
     StationCore: new ModuleCategory({
         title: 'Station Core',
-        modules: [modules.ISASM, modules.CaptainsQuarter, modules.MiningBay, modules.Furnace, modules.Defensive, modules.Quarters],
+        modules: [
+            modules.ISASM,
+            modules.CaptainsQuarter,
+            modules.MiningBay,
+            modules.Furnace,
+            modules.Defensive,
+            modules.Quarters
+        ],
     }),
 };
