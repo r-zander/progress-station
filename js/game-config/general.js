@@ -23,5 +23,6 @@ const units = {
  * Base heat that is always present.
  *
  * @type {number}
+ * @since 1.1.2 Reduced base heat from 0.1 to 0.0
  */
-const SPACE_BASE_HEAT = 0.1;
+const SPACE_BASE_HEAT = 0.0;
