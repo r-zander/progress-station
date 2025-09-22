@@ -1034,8 +1034,8 @@ function createAttributesUI() {
     // Heat
     const heatRow = createAttributeRow(attributes.heat);
     Dom.get(heatRow).byClass('description').innerHTML += `<br />
-${createAttributeInlineHTML(attributes.military)} exceeding ${createAttributeInlineHTML(attributes.danger)} is disregarded.
-The total can never be less than <data value="0.1">0.1</data> - space is dangerous!`;
+${createAttributeInlineHTML(attributes.military)} exceeding ${createAttributeInlineHTML(attributes.danger)} is disregarded.`
++ (SPACE_BASE_HEAT > 0.0 ? `The total can never be less than <data value="${SPACE_BASE_HEAT.toFixed(0.1)}">${formatNumber(SPACE_BASE_HEAT)}</data> - space is dangerous!` : '');
     const heatFormulaElement = Dom.get(heatRow).byClass('formula');
     heatFormulaElement.classList.remove('hidden');
     heatFormulaElement.innerHTML = `<ul class="balance m-0 list-unstyled">
