@@ -152,6 +152,10 @@ function approximatelyEquals(a, b, epsilon = 128 * Number.EPSILON) {
     return Math.abs(a - b) <= epsilon;
 }
 
+function getBaseLog(x, y) {
+    return Math.log(y) / Math.log(x);
+}
+
 /**
  * Alias for approximatelyEquals
  * @type {function(number, number, number=): boolean}

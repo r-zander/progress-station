@@ -45,80 +45,11 @@ const tabButtons = {
 
 let previousSelectedTab = 'modules';
 
-function getBaseLog(x, y) {
-    return Math.log(y) / Math.log(x);
-}
-
-function applyMultipliers(value, multipliers) {
-    const finalMultiplier = multipliers.reduce((final, multiplierFn) => final * multiplierFn(), 1);
-
-    return Math.round(value * finalMultiplier);
-}
-
-function applySpeed(value) {
-    return value * getGameSpeed() / updateSpeed;
-}
-
-function calculateHeat() {
-    const danger = attributes.danger.getValue();
-    const military = attributes.military.getValue();
-    const rawHeat = Effect.getTotalValue([EffectType.Heat]);
-    const calculatedHeat = Math.max(danger - military, 0) + rawHeat;
-
-    return Math.max(SPACE_BASE_HEAT, calculatedHeat);
-}
-
-function populationDelta() {
-    const growth = attributes.growth.getValue();
-    const heat = attributes.heat.getValue();
-    const population = attributes.population.getValue();
-    return (0.1 * growth) - (0.01 * population * heat);
-}
-
-function updatePopulation() {
-    if (!gameData.state.areAttributesUpdated) return;
-
-    const rawDelta = populationDelta();
-    // TODO inertia is not scaled with game speed
-    const inertDelta = populationDeltaInertia * gameData.lastPopulationDelta + (1 - populationDeltaInertia) * rawDelta;
-    gameData.population = Math.max(gameData.population + applySpeed(inertDelta), 1);
-    gameData.lastPopulationDelta = inertDelta;
-
-    if (gameData.state === gameStates.BOSS_FIGHT && Math.round(gameData.population) === 1) {
-        gameData.transitionState(gameStates.DEAD);
-    }
-}
-
-function getPopulationProgressSpeedMultiplier() {
-    // Random ass formula ᕕ( ᐛ )ᕗ
-    // Pop 1 = x1
-    // Pop 10 ~= x3.4
-    // Pop 100 ~= x12
-    // Pop 1000 ~= x40
-    // Pop 10000 ~= x138
-    // Pop 40000 ~= x290
-    return Math.max(1, Math.pow(Math.round(gameData.population), 1 / 1.869));
-}
-
-function getGameSpeed() {
-    return baseGameSpeed;
-}
-
 function hideAllTooltips() {
     for (const tooltipTriggerElement of visibleTooltips) {
         // noinspection JSUnresolvedReference
         bootstrap.Tooltip.getInstance(tooltipTriggerElement).hide();
     }
-}
-
-/**
- *
- * @param {MouseEvent} event
- */
-function showCredits(event) {
-    event.preventDefault();
-    setTab('settings');
-    Dom.get().byId('credits').scrollIntoView(true);
 }
 
 /**
@@ -169,37 +100,6 @@ function setTab(selectedTab) {
     hideAllTooltips();
 }
 
-// noinspection JSUnusedGlobalSymbols -- used in HTML
-function togglePause() {
-    switch (gameData.state) {
-        case gameStates.PLAYING:
-            gameData.transitionState(gameStates.PAUSED);
-            break;
-        case gameStates.PAUSED:
-            gameData.transitionState(gameStates.PLAYING);
-            break;
-        case gameStates.BOSS_FIGHT:
-            gameData.transitionState(gameStates.BOSS_FIGHT_PAUSED);
-            break;
-        case gameStates.BOSS_FIGHT_PAUSED:
-            gameData.transitionState(gameStates.BOSS_FIGHT);
-            break;
-    }
-    // Any other state is ignored
-}
-
-function forcePause() {
-    switch (gameData.state) {
-        case gameStates.PLAYING:
-            gameData.transitionState(gameStates.PAUSED);
-            break;
-        case gameStates.BOSS_FIGHT:
-            gameData.transitionState(gameStates.BOSS_FIGHT_PAUSED);
-            break;
-    }
-    // Any other state is ignored
-}
-
 function setPointOfInterest(name) {
     if (!gameData.state.canChangeActivation) {
         VFX.shakePlayButton();
@@ -207,12 +107,6 @@ function setPointOfInterest(name) {
     }
 
     gameData.activeEntities.pointOfInterest = name;
-}
-
-function createLinkBehavior() {
-    Dom.get().allBySelector('a[href="#credits"]').forEach(linkElement => {
-        linkElement.addEventListener('click', showCredits);
-    });
 }
 
 function updateConnector() {
@@ -1698,19 +1592,6 @@ function updateAttributeRows() {
     }
 }
 
-/**
- *
- * @param {number} amount
- * @param {HTMLDataElement} dataElement
- * @param {{prefixes?: string[], unit?: string, forceSign?: boolean}} formatConfig
- */
-function formatEnergyValue(amount, dataElement, formatConfig = {}) {
-    formatValue(dataElement, amount, Object.assign({
-        unit: units.energy,
-        prefixes: metricPrefixes,
-    }, formatConfig));
-}
-
 function updateEnergyGridBar() {
     const energyDisplayElement = Dom.get().byId('energyGridDisplay');
     const domGetter = Dom.get(energyDisplayElement);
@@ -1911,41 +1792,6 @@ function updateBodyClasses() {
     document.getElementById('body').classList.toggle('game-playing', gameData.state === gameStates.PLAYING);
 }
 
-function doTasks() {
-    for (const key of gameData.activeEntities.operations) {
-        const operation = moduleOperations[key];
-        if (!operation.isActive('parent')) continue;
-        operation.do();
-    }
-
-    for (const battleName of gameData.activeEntities.battles) {
-        const battle = battles[battleName];
-        if (battle.isDone()) {
-            if (gameData.selectedTab === 'battles') {
-                // Quality of life - a battle is done and the player is already on the battles tab
-                // or visited it first after the battle was completed --> deactivate battle
-                battle.stop();
-                // TODO VFX should not be called, but triggered via Event
-                if (isBoolean(gameData.settings.vfx.flashOnLevelUp) && gameData.settings.vfx.flashOnLevelUp) {
-                    VFX.flash(Dom.get().bySelector('#row_done_' + battle.name + ' .progressBar'));
-                }
-            }
-
-            continue;
-        }
-
-        battle.do();
-        if (gameData.state === gameStates.PLAYING &&
-            isBossBattleAvailable() &&
-            battle.isDone()
-        ) {
-            bossBattle.decrementDistance();
-        }
-    }
-
-    gridStrength.do();
-}
-
 function getGeneratedEnergy() {
     return Effect.getTotalValue([EffectType.Energy, EffectType.EnergyFactor]);
 }
@@ -2049,87 +1895,6 @@ function activateComponentOperations() {
     }
 }
 
-/**
- *
- * @param {HTMLDataElement} dataElement
- * @param {number} value
- * @param {{
- *     prefixes?: string[],
- *     unit?: string,
- *     forceSign?: boolean,
- *     keepNumber?: boolean,
- *     forceInteger?: boolean,
- *     toStringFn?: function(number): string,
- * }} config
- */
-function formatValue(dataElement, value, config = {}) {
-    // TODO render full number + unit into dataElement.title
-    dataElement.value = String(value);
-
-    const defaultConfig = {
-        prefixes: magnitudes,
-        unit: '',
-        forceSign: false,
-        keepNumber: false,
-        forceInteger: false,
-        toStringFn: undefined,
-    };
-    config = Object.assign({}, defaultConfig, config);
-
-    const toString = (value) => {
-        if (config.forceInteger || Number.isInteger(value)) {
-            return value.toFixed(0);
-        } else if (isFunction(config.toStringFn)) {
-            return config.toStringFn(value);
-        } else if (Math.abs(value) < 1) {
-            return value.toFixed(2);
-        } else {
-            return value.toPrecision(3);
-        }
-    };
-
-    // what tier? (determines SI symbol)
-    const tier = Math.max(0, Math.log10(Math.abs(value)) / 3 | 0);
-
-    let prefix = '';
-    if (config.forceSign) {
-        if (Math.abs(value) <= 0.001) {
-            prefix = '±';
-            value = Math.abs(value);
-        } else if (value > 0) {
-            prefix = '+';
-        }
-    }
-
-    if (config.keepNumber) {
-        dataElement.textContent = prefix + value;
-        delete dataElement.dataset.unit;
-        return;
-    }
-
-    // get suffix and determine scale
-    let suffix = config.prefixes[tier];
-    if (typeof config.unit === 'string' && config.unit.length > 0) {
-        dataElement.dataset.unit = suffix + config.unit;
-    } else if (suffix.length > 0) {
-        dataElement.dataset.unit = suffix;
-    } else {
-        delete dataElement.dataset.unit;
-    }
-
-    if (tier === 0) {
-        dataElement.textContent = prefix + toString(value);
-        return;
-    }
-    const scale = Math.pow(10, tier * 3);
-
-    // scale the number
-    const scaled = value / scale;
-
-    // format number and add suffix
-    dataElement.textContent = prefix + toString(scaled);
-}
-
 function getModuleOperationElement(operationName) {
     if (!moduleOperations.hasOwnProperty(operationName)) {
         console.log('ModuleOperation not found in data: ' + operationName);
@@ -2156,185 +1921,6 @@ function getPointOfInterestElement(name) {
 
     const pointOfInterest = pointsOfInterest[name];
     return document.getElementById(pointOfInterest.domId);
-}
-
-function disableAudioFromToast() {
-    gameData.settings.audio.toastAnswered = true;
-    toggleAudioEnabled(false);
-    const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
-    toast.hide();
-}
-
-function enableAudioFromToast() {
-    gameData.settings.audio.toastAnswered = true;
-    toggleAudioEnabled(true);
-    const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
-    toast.hide();
-}
-
-/**
- * @param {boolean} force
- */
-function toggleVfxFollowProgressBars(force = undefined) {
-    if (force === undefined) {
-        gameData.settings.vfx.followProgressBars = !gameData.settings.vfx.followProgressBars;
-    } else {
-        gameData.settings.vfx.followProgressBars = force;
-    }
-    VFX.followProgressBars(gameData.settings.vfx.followProgressBars);
-    gameData.save();
-}
-
-/**
- * @param {boolean} force
- */
-function toggleVfxSplashOnLevelUp(force = undefined) {
-    if (force === undefined) {
-        gameData.settings.vfx.splashOnLevelUp = !gameData.settings.vfx.splashOnLevelUp;
-    } else {
-        gameData.settings.vfx.splashOnLevelUp = force;
-    }
-    gameData.save();
-}
-
-/**
- * @param {boolean} force
- */
-function toggleVfxFlashOnLevelUp(force = undefined) {
-    if (force === undefined) {
-        gameData.settings.vfx.flashOnLevelUp = !gameData.settings.vfx.flashOnLevelUp;
-    } else {
-        gameData.settings.vfx.flashOnLevelUp = force;
-    }
-    gameData.save();
-}
-
-/**
- * @param {boolean} force
- */
-function toggleLightDarkMode(force = undefined) {
-    if (force === undefined) {
-        gameData.settings.darkMode = !gameData.settings.darkMode;
-    } else {
-        gameData.settings.darkMode = force;
-    }
-    document.documentElement.dataset['bsTheme'] = gameData.settings.darkMode ? 'dark' : 'light';
-    gameData.save();
-}
-
-/**
- * @param {boolean} force
- */
-function toggleSciFiMode(force = undefined) {
-    const body = document.getElementById('body');
-    gameData.settings.sciFiMode = body.classList.toggle('sci-fi', force);
-    gameData.save();
-}
-
-function setBackground(background) {
-    const body = document.getElementById('body');
-    body.classList.forEach((cssClass, index, classList) => {
-        if (cssClass.startsWith('background-')) {
-            classList.remove(cssClass);
-        }
-    });
-
-    body.classList.add('background-' + background);
-    document.querySelector(`.background-${background} > input[type="radio"]`).checked = true;
-    gameData.settings.background = background;
-    gameData.save();
-}
-
-function resetBattle(name) {
-    const battle = battles[name];
-    battle.level = 0;
-    battle.xp = 0;
-}
-
-function startNewPlaythrough() {
-    gameData.bossEncounterCount += 1;
-
-    // grant Essence Of Unknown
-    for (let level = 0; level < bossBattle.level; level++) {
-        gameData.essenceOfUnknown += Math.pow(2, level);
-    }
-
-    playthroughReset('UPDATE_MAX_LEVEL');
-}
-
-// function rebirthTwo() {
-//     gameData.rebirthTwoCount += 1;
-//     playthroughReset('RESET_MAX_LEVEL');
-// }
-
-/**
- * @param {MaxLevelBehavior} maxLevelBehavior
- */
-function playthroughReset(maxLevelBehavior) {
-    gameData.initValues();
-    gameData.resetCurrentValues();
-
-    for (const key in moduleCategories) {
-        const category = moduleCategories[key];
-        category.reset(maxLevelBehavior);
-    }
-
-    for (const key in modules) {
-        const module = modules[key];
-        module.reset(maxLevelBehavior);
-    }
-
-    for (const key in moduleComponents) {
-        const component = moduleComponents[key];
-        component.reset(maxLevelBehavior);
-    }
-
-    for (const key in moduleOperations) {
-        const operation = moduleOperations[key];
-        operation.reset(maxLevelBehavior);
-    }
-
-    gridStrength.reset(maxLevelBehavior);
-
-    for (const key in battles) {
-        const battle = battles[key];
-        battle.reset(maxLevelBehavior);
-    }
-
-    for (const key in moduleCategories) {
-        const category = moduleCategories[key];
-        category.reset(maxLevelBehavior);
-    }
-
-    for (const key in sectors) {
-        const sector = sectors[key];
-        sector.reset(maxLevelBehavior);
-    }
-
-    for (const key in pointsOfInterest) {
-        const pointOfInterest = pointsOfInterest[key];
-        pointOfInterest.reset(maxLevelBehavior);
-    }
-
-    for (const key in htmlElementRequirements) {
-        const elementRequirement = htmlElementRequirements[key];
-        elementRequirement.reset();
-    }
-
-    setTab('modules');
-    gameData.transitionState(gameStates.NEW);
-}
-
-function getBossAppearanceCycle() {
-    //Lifespan not defined in station design, if years are not reset this will break the game
-    //const immortality = gameData.taskData['Immortality'];
-    //const superImmortality = gameData.taskData['Super immortality'];
-    //return bossAppearanceCycle * immortality.getEffect() * superImmortality.getEffect();
-    return bossAppearanceCycle;
-}
-
-function isBossBattleAvailable() {
-    return gameData.bossBattleAvailable;
 }
 
 function updateUI() {
@@ -2391,7 +1977,7 @@ function initTooltip(tooltipTriggerElement, tooltipConfig) {
     tooltipTriggerElement.addEventListener('hide.bs.tooltip', () => {
         let indexOf = visibleTooltips.indexOf(tooltipTriggerElement);
         if (indexOf !== -1) {
-            visibleTooltips.splice(indexOf);
+            visibleTooltips.splice(indexOf, 1);
         }
     });
 }
@@ -2452,40 +2038,6 @@ function initStationName() {
             setStationName(event.target.value);
         });
     }
-}
-
-function initSettings() {
-    const background = gameData.settings.background;
-    if (isString(background)) {
-        setBackground(background);
-    }
-
-    if (isBoolean(gameData.settings.darkMode)) {
-        toggleLightDarkMode(gameData.settings.darkMode);
-    }
-    if (isBoolean(gameData.settings.sciFiMode)) {
-        toggleSciFiMode(gameData.settings.sciFiMode);
-    }
-    // gameData.settings.vfx.* is applied in the VFX module itself - we just need to adjust the UI
-    Dom.get().byId('vfxProgressBarFollowSwitch').checked = gameData.settings.vfx.followProgressBars;
-    Dom.get().byId('vfxSplashOnLevelUpSwitch').checked = gameData.settings.vfx.splashOnLevelUp;
-    Dom.get().byId('vfxFlashOnLevelUpSwitch').checked = gameData.settings.vfx.flashOnLevelUp;
-
-    // gameData.settings.audio.* is applied in the audio module itself - we just need to adjust the UI
-    Dom.get().byId('audioEnabledSwitch').checked = gameData.settings.audio.enabled;
-    const rangeInput = Dom.get().byId('range4');
-    const rangeOutput = Dom.get().byId('rangeValue');
-    rangeInput.value = gameData.settings.audio.masterVolume;
-    rangeOutput.textContent = (parseFloat(gameData.settings.audio.masterVolume) * 100).toFixed(0) + '%';
-
-    rangeInput.addEventListener('input', function() {
-        const newValue = parseFloat(this.value);
-        gameData.settings.audio.masterVolume = newValue;
-        setAudioVolume(newValue);
-        rangeOutput.textContent = (newValue * 100).toFixed(0) + '%';
-        gameData.save();
-    });
-
 }
 
 function displayLoaded() {
