@@ -1,3 +1,5 @@
+'use strict';
+
 const audioEvents = {};
 /**
  * ... during this session.
