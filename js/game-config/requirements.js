@@ -361,7 +361,7 @@ const htmlElementRequirements = {
             elementsWithRequirements: [
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="danger"]'),
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="heat"]'),
-                Dom.lazy().allBySelector('#battles .level3 .danger, #battles .level4 .danger'),
+                Dom.lazy().allBySelector('#unfinishedBattles .level3 .danger, #unfinishedBattles .level4 .danger'),
                 ...Dom.get().allByClass('battles-pose-danger'),
             ],
             requirements: [new FactionLevelsDefeatedRequirement('playthrough', [{
