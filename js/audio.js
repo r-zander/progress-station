@@ -7,6 +7,45 @@ const audioEvents = {};
 let wasAudioEnabled = false;
 
 /**
+ * Manages trigger intervals to prevent audio spam by tracking the last trigger time
+ * and enforcing minimum intervals between triggers for named events.
+ */
+class TriggerIntervalMap {
+    constructor() {
+        this.lastTriggeredMap = new Map();
+    }
+
+    /**
+     * Check if a trigger can be activated based on its interval
+     * @param {string} triggerName - Name of the trigger to check
+     * @return {boolean} True if the trigger can be activated
+     */
+    canTrigger(triggerName) {
+        const currentTime = Date.now();
+        const soundData = this.lastTriggeredMap.get(triggerName);
+
+        return isUndefined(soundData) ||
+            (currentTime - soundData.lastTriggered) >= soundData.interval;
+    }
+
+    /**
+     * Attempt to trigger a named event with a specified interval
+     * @param {string} triggerName - Name of the trigger
+     * @param {number} interval - Minimum interval in milliseconds between triggers
+     * @return {boolean} True if the trigger was activated, false if still in cooldown
+     */
+    trigger(triggerName, interval) {
+        if (!this.canTrigger(triggerName)) {
+            return false;
+        }
+        this.lastTriggeredMap.set(triggerName, {lastTriggered: Date.now(), interval: interval});
+        return true;
+    }
+}
+
+
+
+/**
  * @param {boolean} force
  */
 function toggleAudioEnabled(force = undefined) {
