@@ -90,7 +90,16 @@ function prepareRequirementsForTSV(requirements, locale) {
     return result;
 }
 
+const _cheatConfig = {
+    showStateTransitions: false,
+};
+
 const cheats = {
+    Debug: {
+        showStateTransitions: (enabled = true) => {
+            _cheatConfig.showStateTransitions = enabled;
+        }
+    },
     GameSpeed: {
         /**
          * @param {number} [factor=2]
@@ -409,5 +418,7 @@ const cheats = {
 
 // Debugging output
 GameEvents.GameStateChanged.subscribe((payload) => {
+    if (!_cheatConfig.showStateTransitions) return;
+
     console.log('Transition game state from ' + payload.previousState + ' to ' + payload.newState);
 });
