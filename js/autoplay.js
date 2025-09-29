@@ -1,9 +1,21 @@
 'use strict';
 
 /**
+ * @typedef {Object} AutoplayAction
+ * @property {'operation'|'location'|'battle'} type
+ * @property {HTMLElement} element
+ * @property {number} score
+ * @property {string} name
+ * @property {PointOfInterest} [location]
+ * @property {ModuleOperation} [operation]
+ * @property {Battle} [battle]
+ * @property {boolean} isActive
+ */
+
+/**
  * Progress Station Autoplay System
  *
- * A self-contained autoplay implementation using a Greedy Hill Climber algorithm
+ * A self-contained autoplay implementation using a **Greedy Hill Climber algorithm**
  * with prioritized queue for automated gameplay.
  *
  * Features:
@@ -15,14 +27,20 @@
  */
 class AutoplaySystem {
     constructor() {
-        // TODO back with local storage
-        this.enabled = true;
+        this.enabled = this.loadEnabledState();
         this.evaluationTimer = null;
         // this.currentActions = {
         //     operation: null,
         //     battle: null,
         //     location: null
         // };
+        /**
+         * @type {{
+         *  operation: AutoplayAction[],
+         *  battle: AutoplayAction[],
+         *  location: AutoplayAction[]
+         * }}
+         */
         this.priorityQueues = {
             operation: [],
             battle: [],
@@ -46,7 +64,6 @@ class AutoplaySystem {
         };
 
         this.actionHistory = [];
-        this.lastScores = new Map();
 
         // Initialize the system
         this.init();
@@ -70,6 +87,8 @@ class AutoplaySystem {
         }
 
         const actionsDiv = pauseButton.parentElement;
+        actionsDiv.classList.add('panel');
+        actionsDiv.style.borderRadius = '16px';
 
         // Create autoplay toggle container
         const autoplayContainer = document.createElement('div');
@@ -112,6 +131,7 @@ class AutoplaySystem {
      */
     toggle(enabled) {
         this.enabled = enabled;
+        this.saveEnabledState();
 
         if (this.enabled) {
             this.start();
@@ -146,11 +166,11 @@ class AutoplaySystem {
             this.evaluationTimer = null;
         }
 
-        this.currentActions = {
-            operation: null,
-            battle: null,
-            location: null
-        };
+        // this.currentActions = {
+        //     operation: null,
+        //     battle: null,
+        //     location: null
+        // };
         this.priorityQueues = {
             operation: [],
             battle: [],
@@ -328,6 +348,7 @@ class AutoplaySystem {
                 continue;
             }
 
+            /** @var {HTMLElement} */
             const progressBar = element.querySelector('.progressBar');
             if (!progressBar) continue;
 
@@ -338,7 +359,8 @@ class AutoplaySystem {
                     element: progressBar,
                     operation: operation,
                     score: score,
-                    name: `${operation.component.title}: ${operation.title}`
+                    name: `${operation.component.title}: ${operation.title}`,
+                    isActive: operation.isActive('self'),
                 });
             }
         }
@@ -356,6 +378,7 @@ class AutoplaySystem {
                 continue;
             }
 
+            /** @var {HTMLElement} */
             const progressBar = element.querySelector('.progressBar');
             if (!progressBar) continue;
 
@@ -366,7 +389,8 @@ class AutoplaySystem {
                     element: progressBar,
                     battle: battle,
                     score: score,
-                    name: `Battle: ${battle.title}`
+                    name: `Battle: ${battle.title}`,
+                    isActive: battle.isActive('self'),
                 });
             }
         }
@@ -376,8 +400,6 @@ class AutoplaySystem {
      * Evaluates all available locations (points of interest)
      */
     evaluateLocations() {
-        const activePoI = gameData.activeEntities.pointOfInterest;
-
         for (const poiName in pointsOfInterest) {
             const poi = pointsOfInterest[poiName];
 
@@ -397,6 +419,7 @@ class AutoplaySystem {
                 continue;
             }
 
+            /** @var {HTMLElement} */
             const button = element.querySelector('.point-of-interest');
             if (!button) continue;
 
@@ -407,7 +430,8 @@ class AutoplaySystem {
                     element: button,
                     location: poi,
                     score: score,
-                    name: `Location: ${poi.title}`
+                    name: `Location: ${poi.title}`,
+                    isActive: poi.isActive(),
                 });
             }
         }
@@ -449,13 +473,6 @@ class AutoplaySystem {
             this.log(`Error calculating operation score for ${operation.title}: ${error.message}`);
             return 0;
         }
-    }
-
-    /**
-     * Calculates score for switching to a different operation
-     */
-    calculateSwitchScore(operation) {
-
     }
 
     /**
@@ -661,15 +678,13 @@ class AutoplaySystem {
 
     /**
      * Executes the chosen action
+     *
+     * @param {AutoplayAction} action
      */
     executeAction(action) {
         try {
             // Check if we're already doing this action
-            // const currentAction = this.currentActions[action.type];
-            // if (currentAction && currentAction.name === action.name) {
-            //     return;
-            // }
-            // TODO is the current action already active? --> nothing to do
+            if (action.isActive) return;
 
             this.log(`Executing action: ${action.name} (score: ${action.score.toFixed(3)})`);
 
@@ -735,12 +750,28 @@ class AutoplaySystem {
         this.config.debug = enable;
         this.log(`Debug logging ${enable ? 'enabled' : 'disabled'}`);
     }
+
+    /**
+     * Loads the enabled state from localStorage
+     */
+    loadEnabledState() {
+        const stored = localStorage.getItem(storageKey);
+        return stored === 'true';
+    }
+
+    /**
+     * Saves the enabled state to localStorage
+     */
+    saveEnabledState() {
+        localStorage.setItem(storageKey, this.enabled.toString());
+    }
 }
 
 // Global autoplay instance
 let autoplay = null;
 
 const consolePrefix = '[🤖 Autoplay] ';
+const storageKey = 'ps_autoplayEnabled';
 
 // Initialize when DOM is ready
 function initAutoplay() {
@@ -785,6 +816,7 @@ if (document.readyState === 'loading') {
 }
 
 // Debugging utilities
+// noinspection JSUnusedGlobalSymbols
 window.autoplayDebug = {
     enable: () => autoplay?.enableDebug(true),
     disable: () => autoplay?.enableDebug(false),
