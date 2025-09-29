@@ -3,7 +3,7 @@
 /**
  * @type {GameData}
  */
-let gameData;
+let gameData = null;
 
 /**
  * @type {number}
@@ -106,7 +106,17 @@ function setPointOfInterest(name) {
         return;
     }
 
+    GameEvents.TaskActivityChanged.trigger({
+        type: PointOfInterest.name,
+        name: gameData.activeEntities.pointOfInterest,
+        newActivityState: false,
+    });
     gameData.activeEntities.pointOfInterest = name;
+    GameEvents.TaskActivityChanged.trigger({
+        type: PointOfInterest.name,
+        name: name,
+        newActivityState: true,
+    });
 }
 
 function updateConnector() {

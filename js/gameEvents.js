@@ -114,6 +114,11 @@ const GameEvents = {
         previousState: JsTypes.String,
         newState: JsTypes.String,
     }),
+    TaskActivityChanged: new GameEvent({
+        type: JsTypes.String,
+        name: JsTypes.String,
+        newActivityState: JsTypes.Boolean,
+    }),
     TaskLevelChanged: new GameEvent({
         type: JsTypes.String,
         name: JsTypes.String,

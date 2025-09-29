@@ -676,6 +676,11 @@ class ModuleOperation extends Task {
         } else {
             gameData.activeEntities.operations.delete(this.name);
         }
+        GameEvents.TaskActivityChanged.trigger({
+            type: this.type,
+            name: this.name,
+            newActivityState: active,
+        });
     }
 
     /**

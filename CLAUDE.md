@@ -58,3 +58,40 @@ This is a pure client-side HTML/JS/CSS project with no build system:
 - The `js/cheats.js` file is removed for production builds
 - Game uses FastDOM for performance-optimized DOM operations
 - No package.json - this is a vanilla JavaScript project
+
+## Game Mechanics & Interaction
+
+### Core Game Loop
+- **Main Update**: `update()` function in `main.js` runs every 1000/updateSpeed ms (default ~50ms)
+- **Time Progression**: `increaseCycle()` advances game state, triggers boss battles, updates population
+- **State Management**: Game states include PLAYING, PAUSED, BOSS_FIGHT, etc. managed via `gameData.transitionState()`
+
+### Player Actions
+- **Operations**: Click `.progressBar` elements to activate/switch operations via `tryActivateOperation()`
+- **Battles**: Click battle progress bars to toggle engagement via `battle.toggle()`
+- **Locations**: Click `.point-of-interest` buttons to change active location via `setPointOfInterest()`
+- **Modules**: Use module activation switches to enable/disable entire modules
+
+### Attributes System
+- **Population**: Core resource, affected by Growth and Heat, calculated via `populationDelta()`
+- **Growth**: Drives population increase, prioritized when population < 95% of theoretical max
+- **Military**: Defense stat, must exceed Danger to prevent Heat damage
+- **Danger**: Risk level from battles/locations, causes Heat if > Military
+- **Heat**: Population damage %, calculated as `max(danger - military, 0) + rawHeat`
+- **Industry/Research**: Primary progression stats for unlocking content
+
+### Safety Constraints
+- Danger should never exceed Military to prevent population loss from Heat
+- Population approaches `growth / (0.01 * heat)` in steady state
+- Boss battles disable Growth and inflict direct Heat damage
+
+### Modal System
+- Game shows Bootstrap modals for story events, boss encounters, and game over
+- Default behavior: click `.btn-primary` to dismiss
+- Game over modal (`#gameOverModal`) appears on win/loss with `.win-only` elements for victory
+
+### Autoplay Integration
+- `js/autoplay.js` provides automated gameplay via Greedy Hill Climber algorithm
+- Toggle appears under Play button, evaluates actions every 1 second by efficiency score
+- Prioritizes Growth effects unless population near theoretical maximum
+- Respects safety constraints and handles modals automatically

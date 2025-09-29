@@ -102,10 +102,20 @@ class Battle extends LayeredTask {
         }
 
         gameData.activeEntities.battles.add(this.name);
+        GameEvents.TaskActivityChanged.trigger({
+            type: this.type,
+            name: this.name,
+            newActivityState: true,
+        });
     }
 
     stop() {
         gameData.activeEntities.battles.delete(this.name);
+        GameEvents.TaskActivityChanged.trigger({
+            type: this.type,
+            name: this.name,
+            newActivityState: false,
+        });
     }
 
     /**
