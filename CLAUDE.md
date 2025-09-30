@@ -90,8 +90,18 @@ This is a pure client-side HTML/JS/CSS project with no build system:
 - Default behavior: click `.btn-primary` to dismiss
 - Game over modal (`#gameOverModal`) appears on win/loss with `.win-only` elements for victory
 
+### Module/Operation System Architecture
+- **Module Categories**: Visual groupings with no gameplay impact
+- **Modules**: Can be activated/deactivated independently, any number can be active simultaneously
+- **Components**: Each module has components (typically 2), all active when module is active
+- **Operations**: Each component has multiple operations (typically 3-4), exactly one active per component
+- **Grid System**: Operations consume `gridLoad`, total cannot exceed `gridStrength` attribute
+- **Optimization**: Higher gridLoad operations typically have better effects but same XP requirements
+- **Special Priority**: "Standby Generator" should be prioritized until 10 Grid Strength OR 1,000,000 Energy generated
+
 ### Autoplay Integration
 - `js/autoplay.js` provides automated gameplay via Greedy Hill Climber algorithm
 - Toggle appears under Play button, evaluates actions every 1 second by efficiency score
 - Prioritizes Growth effects unless population near theoretical maximum
 - Respects safety constraints and handles modals automatically
+- **Action Types**: Operations, Battles, Locations, and Module activation/deactivation

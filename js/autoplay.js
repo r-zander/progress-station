@@ -2,13 +2,14 @@
 
 /**
  * @typedef {Object} AutoplayAction
- * @property {'operation'|'location'|'battle'} type
+ * @property {'operation'|'location'|'battle'|'module'} type
  * @property {HTMLElement} element
  * @property {number} score
  * @property {string} name
  * @property {PointOfInterest} [location]
  * @property {ModuleOperation} [operation]
  * @property {Battle} [battle]
+ * @property {Module} [module]
  * @property {boolean} isActive
  */
 
@@ -38,13 +39,15 @@ class AutoplaySystem {
          * @type {{
          *  operation: AutoplayAction[],
          *  battle: AutoplayAction[],
-         *  location: AutoplayAction[]
+         *  location: AutoplayAction[],
+         *  module: AutoplayAction[]
          * }}
          */
         this.priorityQueues = {
             operation: [],
             battle: [],
-            location: []
+            location: [],
+            module: []
         };
         this.lastActionTime = 0;
         this.config = {
@@ -174,7 +177,8 @@ class AutoplaySystem {
         this.priorityQueues = {
             operation: [],
             battle: [],
-            location: []
+            location: [],
+            module: []
         };
         this.log('Autoplay stopped');
     }
@@ -208,8 +212,10 @@ class AutoplaySystem {
             this.priorityQueues.operation = [];
             this.priorityQueues.battle = [];
             this.priorityQueues.location = [];
+            this.priorityQueues.module = [];
 
             // Evaluate each action type into its own queue
+            this.evaluateModules();
             this.evaluateOperations();
             this.evaluateBattles();
             this.evaluateLocations();
@@ -337,6 +343,42 @@ class AutoplaySystem {
     // }
 
     /**
+     * Evaluates all available modules for activation/deactivation
+     */
+    evaluateModules() {
+        for (const moduleName in modules) {
+            const module = modules[moduleName];
+            const element = document.getElementById(module.domId);
+
+            if (!element || element.classList.contains('hidden')) {
+                continue;
+            }
+
+            // Check if module has unfulfilled requirements
+            if (module.getUnfulfilledRequirements && module.getUnfulfilledRequirements() !== null) {
+                continue;
+            }
+
+            // Find the module toggle switch
+            /** @var {HTMLElement} */
+            const toggleSwitch = element.querySelector('.form-check-input[type="checkbox"]');
+            if (!toggleSwitch) continue;
+
+            const score = this.calculateModuleScore(module);
+            if (score > 0) {
+                this.priorityQueues.module.push({
+                    name: `Module: ${module.title}`,
+                    score: score,
+                    isActive: module.isActive(),
+                    type: 'module',
+                    element: toggleSwitch,
+                    module: module,
+                });
+            }
+        }
+    }
+
+    /**
      * Evaluates all available module operations
      */
     evaluateOperations() {
@@ -344,7 +386,7 @@ class AutoplaySystem {
             const operation = moduleOperations[operationName];
             const element = document.getElementById(operation.domId);
 
-            if (!element || element.classList.contains('hidden') || !this.isOperationAvailable(operation)) {
+            if (!element || element.classList.contains('hidden') || !this.isOperationAvailable(operation, true)) {
                 continue;
             }
 
@@ -352,15 +394,15 @@ class AutoplaySystem {
             const progressBar = element.querySelector('.progressBar');
             if (!progressBar) continue;
 
-            const score = this.calculateOperationScore(operation);
+            const score = this.calculateOperationScore(operation, true);
             if (score > 0) {
                 this.priorityQueues.operation.push({
+                    name: `${operation.component.title}: ${operation.title}`,
+                    score: score,
+                    isActive: operation.isActive('self'),
                     type: 'operation',
                     element: progressBar,
                     operation: operation,
-                    score: score,
-                    name: `${operation.component.title}: ${operation.title}`,
-                    isActive: operation.isActive('self'),
                 });
             }
         }
@@ -385,12 +427,12 @@ class AutoplaySystem {
             const score = this.calculateBattleScore(battle);
             if (score > 0) {
                 this.priorityQueues.battle.push({
+                    name: `Battle: ${battle.title}`,
+                    score: score,
+                    isActive: battle.isActive('self'),
                     type: 'battle',
                     element: progressBar,
                     battle: battle,
-                    score: score,
-                    name: `Battle: ${battle.title}`,
-                    isActive: battle.isActive('self'),
                 });
             }
         }
@@ -426,14 +468,76 @@ class AutoplaySystem {
             const score = this.calculateLocationScore(poi);
             if (score > 0) {
                 this.priorityQueues.location.push({
+                    name: `Location: ${poi.title}`,
+                    score: score,
+                    isActive: poi.isActive(),
                     type: 'location',
                     element: button,
                     location: poi,
-                    score: score,
-                    name: `Location: ${poi.title}`,
-                    isActive: poi.isActive(),
                 });
             }
+        }
+    }
+
+    /**
+     * Calculates score for a module activation/deactivation
+     */
+    calculateModuleScore(module) {
+        try {
+            // If module is already active, don't score it for activation
+            if (module.isActive()) {
+                // TODO: Could add logic to score deactivation if it would free up beneficial grid load
+                return 0;
+            }
+
+            // Calculate the potential benefit of activating this module
+            let totalScore = 0;
+            let totalGridLoad = 0;
+
+            // Check if we can afford the grid load
+            const currentGridLoad = attributes.gridLoad.getValue();
+            const gridStrength = attributes.gridStrength.getValue();
+
+            // Look at all operations in this module to estimate value
+            if (module.components) {
+                for (const component of module.components) {
+                    if (component.operations) {
+                        // Find the best operation in this component
+                        let bestOperationScore = 0;
+                        let bestOperationGridLoad = 0;
+
+                        for (const operation of component.operations) {
+                            if (this.isOperationAvailable(operation, false)) {
+                                const operationScore = this.calculatePotentialOperationScore(operation);
+                                const gridLoad = operation.getGridLoad ? operation.getGridLoad() : 0;
+
+                                if (operationScore > bestOperationScore) {
+                                    bestOperationScore = operationScore;
+                                    bestOperationGridLoad = gridLoad;
+                                }
+                            }
+                        }
+
+                        totalScore += bestOperationScore;
+                        totalGridLoad += bestOperationGridLoad;
+                    }
+                }
+            }
+
+            if (currentGridLoad + totalGridLoad > gridStrength) {
+                return 0; // Can't afford this module
+            }
+
+            // Apply Growth priority boost if module has growth effects
+            if (this.moduleHasGrowthEffect(module) && this.shouldPrioritizeGrowth()) {
+                totalScore *= 2.0;
+            }
+
+            return totalScore;
+
+        } catch (error) {
+            this.log(`Error calculating module score for ${module.title}: ${error.message}`);
+            return 0;
         }
     }
 
@@ -442,29 +546,30 @@ class AutoplaySystem {
      */
     calculateOperationScore(operation) {
         try {
-            // Check if operation is available
-            if (!this.isOperationAvailable(operation)) {
-                return 0;
-            }
-
             // Check grid load constraints
             if (this.wouldExceedGridLoad(operation)) {
                 return 0;
             }
 
             // Get base efficiency (progress per cycle)
-            let efficiency = 0;
-            if (operation.getMaxXp && operation.getXpGain) {
-                const maxXp = operation.getMaxXp();
-                const xpGain = operation.getXpGain();
-                if (maxXp > 0 && xpGain > 0) {
-                    efficiency = xpGain / maxXp; // fraction of progress per cycle
-                }
+            let efficiency = this.calculatePotentialOperationScore(operation);
+
+            // Special priority for Standby Generator until 10 Grid Strength OR 1,000,000 Energy
+            if (this.isStandbyGenerator(operation) && this.shouldPrioritizeStandbyGenerator()) {
+                efficiency *= 1.5; // Very high priority
             }
 
             // Apply Growth priority boost
             if (this.hasGrowthEffect(operation) && this.shouldPrioritizeGrowth()) {
                 efficiency *= 2.0; // 2x boost for Growth
+            }
+
+            // Apply grid efficiency bonus - operations with higher grid load should be preferred
+            // if they have proportionally better effects (more bang for your grid buck)
+            const gridLoad = operation.getGridLoad ? operation.getGridLoad() : 1;
+            if (gridLoad > 1) {
+                // Slight bonus for using grid efficiently
+                efficiency *= (1 + (gridLoad - 1) * 0.05);
             }
 
             return efficiency;
@@ -579,7 +684,7 @@ class AutoplaySystem {
     /**
      * Checks if an operation is available (not blocked by requirements)
      */
-    isOperationAvailable(operation) {
+    isOperationAvailable(operation, checkModule) {
         try {
             // Check if operation has unfulfilled requirements
             const requirements = operation.getUnfulfilledRequirements ?
@@ -600,7 +705,7 @@ class AutoplaySystem {
             }
 
             // Check if module is active
-            if (module && module.isActive && !module.isActive()) {
+            if (checkModule && module && !module.isActive()) {
                 return false;
             }
 
@@ -663,7 +768,7 @@ class AutoplaySystem {
 
             // Calculate theoretical maximum population based on current Growth
             // Using the formula from the game: population approaches growth/heat in steady state
-            const currentHeat = attributes.heat.getValue() / 100; // Convert percentage to decimal
+            const currentHeat = Math.max(0.5, attributes.heat.getValue()); // Convert percentage to decimal
             const theoreticalMax = growth / (0.01 * currentHeat); // From the population delta formula
 
             const populationRatio = currentPopulation / theoreticalMax;
@@ -719,7 +824,7 @@ class AutoplaySystem {
     log(message) {
         if (!this.config.debug) return;
 
-        console.log(consolePrefix + ' ' + message);
+        console.log(consolePrefix + message);
     }
 
     /**
@@ -731,7 +836,8 @@ class AutoplaySystem {
             queueLengths: {
                 operation: this.priorityQueues.operation.length,
                 battle: this.priorityQueues.battle.length,
-                location: this.priorityQueues.location.length
+                location: this.priorityQueues.location.length,
+                module: this.priorityQueues.module.length
             },
             // currentActions: {
             //     operation: this.currentActions.operation?.name || null,
@@ -765,9 +871,100 @@ class AutoplaySystem {
     saveEnabledState() {
         localStorage.setItem(storageKey, this.enabled.toString());
     }
+
+    /**
+     * Calculates potential operation score without grid load constraints
+     */
+    calculatePotentialOperationScore(operation) {
+        // Get base efficiency (progress per cycle)
+        let efficiency = 0;
+        if (operation.getMaxXp && operation.getXpGain) {
+            const maxXp = operation.getMaxXp();
+            const xpGain = operation.getXpGain();
+            if (maxXp > 0 && xpGain > 0) {
+                efficiency = xpGain / maxXp;
+            }
+        }
+
+        // Multiply by effect value to get total impact score
+        if (operation.getEffects) {
+            const effects = operation.getEffects();
+            let effectScore = 0;
+            effects.forEach(effect => {
+                if (effect.baseValue > 0) {
+                    effectScore += effect.baseValue;
+                }
+            });
+            efficiency *= (1 + effectScore * 0.1); // Scale effect impact
+        }
+
+        return efficiency;
+    }
+
+    /**
+     * Checks if a module has growth effects in any of its operations
+     */
+    moduleHasGrowthEffect(module) {
+        try {
+            if (module.components) {
+                for (const component of module.components) {
+                    if (component.operations) {
+                        for (const operation of component.operations) {
+                            if (this.hasGrowthEffect(operation)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if an operation is the Standby Generator
+     */
+    isStandbyGenerator(operation) {
+        try {
+            return operation.title && operation.title.toLowerCase().includes('standby generator');
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+     * Determines if Standby Generator should be prioritized
+     */
+    shouldPrioritizeStandbyGenerator() {
+        try {
+            const gridStrength = attributes.gridStrength.getValue();
+
+            // Priority condition 1: Grid Strength < 10
+            if (gridStrength < 10) {
+                return true;
+            }
+
+            // Priority condition 2: Energy < 1,000,000
+            const energy = attributes.energy ? attributes.energy.getValue() : 0;
+            if (energy < 1_000_000) {
+                return true;
+            }
+
+            return false;
+
+        } catch (error) {
+            this.log(`Error checking Standby Generator priority: ${error.message}`);
+            return true; // Default to prioritizing on error
+        }
+    }
 }
 
 // Global autoplay instance
+/**
+ * @type {AutoplaySystem}
+ */
 let autoplay = null;
 
 const consolePrefix = '[🤖 Autoplay] ';
@@ -846,5 +1043,21 @@ window.autoplayDebug = {
         autoplay.priorityQueues.location = [];
         autoplay.evaluateLocations();
         return autoplay.priorityQueues.location;
+    },
+
+    testModules: () => {
+        if (!autoplay) return 'Autoplay not initialized';
+        autoplay.priorityQueues.module = [];
+        autoplay.evaluateModules();
+        return autoplay.priorityQueues.module;
     }
 };
+
+/* TODO
+ * - disengange battles when danger > military
+ * - respect that there is more than 1 module --> one operation queue per component
+ * - iwie haut das mit dem Greedy Hill nicht so wirklich hin. Das scheint eher ein Maximierungs-Problem
+ *      (wie kriegen wir maximalen progress speed mit den gegebenen Resourcen raus?) zu sein
+ * - wenn man nicht mehr Grid Load als Grid Strength haben kann, sinkt die Prio des Standby Generators gegen 0
+ * - alles was Research gibt, hat niedrigere Prio
+ */
