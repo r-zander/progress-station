@@ -310,26 +310,28 @@ class AutoplaySystem {
             if (!this.enabled) return;
 
             mutations.forEach((mutation) => {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                    const target = mutation.target;
-                    if (target.classList.contains('modal') &&
-                        target.style.display !== 'none' &&
-                        !target.classList.contains('hidden')) {
-                        // Small delay to let modal fully show
-                        setTimeout(() => {
-                            if (this.enabled) {
-                                this.handleModalDialogs();
-                            }
-                        }, 100);
-                    }
+                if (!(mutation.type === 'attributes' && mutation.attributeName === 'class')) {
+                    return;
                 }
+
+                const target = mutation.target;
+                if (!(target.classList.contains('modal') &&
+                    target.classList.contains('show'))) {
+                    return;
+                }
+
+                setTimeout(() => {
+                    if (!this.enabled) return;
+
+                    this.handleModalDialogs();
+                }, 500);
             });
         });
 
         // Observe all modals
         const modals = document.querySelectorAll('.modal');
         modals.forEach(modal => {
-            observer.observe(modal, { attributes: true, attributeFilter: ['style', 'class'] });
+            observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
         });
     }
 

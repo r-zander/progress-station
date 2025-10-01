@@ -31,6 +31,9 @@ class ConfigurationOptimizer {
             debug: true,
             traceNextTick: false,
             modalOverrides: {},
+            toastOverrides: {
+                'enableAudioToast': '.btn-info',
+            },
             stateBlacklist: [
                 gameStates.PAUSED,
                 gameStates.BOSS_FIGHT_PAUSED
@@ -76,7 +79,6 @@ class ConfigurationOptimizer {
 
     init() {
         this.createAutoplayToggle();
-        this.setupModalHandler();
         this.log('Configuration Optimizer initialized');
     }
 
@@ -198,6 +200,7 @@ class ConfigurationOptimizer {
             if (this.handleModalDialogs()) {
                 return; // Skip configuration evaluation if we handled a modal
             }
+            this.handleToasts();
 
             // Generate all valid configurations
             const startEnum = performance.now();
@@ -319,7 +322,7 @@ class ConfigurationOptimizer {
         const available = [];
         for (const moduleName in modules) {
             const module = modules[moduleName];
-            if (module.getUnfulfilledRequirements() === null) {
+            if (!Dom.get().byId(module.domId).classList.contains('hidden')) {
                 available.push(moduleName);
             }
         }
@@ -515,17 +518,7 @@ class ConfigurationOptimizer {
      * Checks if a battle is available
      */
     isBattleAvailable(battle) {
-        // Check requirements
-        if (battle.getUnfulfilledRequirements && battle.getUnfulfilledRequirements() !== null) {
-            return false;
-        }
-
-        // Check if visible based on research
-        const maxBattles = maximumAvailableBattles(attributes.research.getValue());
-        // Simple visibility check - in reality the game has complex logic
-        // For now, assume it's available if not done
-
-        return true;
+        return !Dom.get().byId(battle.domId).classList.contains('hidden');
     }
 
     /**
@@ -880,13 +873,11 @@ class ConfigurationOptimizer {
      * Handles modal dialogs by clicking appropriate buttons
      */
     handleModalDialogs() {
-        const modals = document.querySelectorAll('.modal');
+        const modals = document.querySelectorAll('.modal.show');
         for (const modal of modals) {
-            if (!modal.classList.contains('show')) continue;
-
-            this.log('Seeing modal #' + modal.id);
-
             const modalId = modal.id;
+
+            this.log('Seeing modal #' + modalId);
 
             // Check for specific override
             if (this.config.modalOverrides[modalId]) {
@@ -911,35 +902,35 @@ class ConfigurationOptimizer {
     }
 
     /**
-     * Sets up global modal handler for future modals
+     * Handles toasts by clicking appropriate buttons
      */
-    setupModalHandler() {
-        // Monitor for new modals using mutation observer
-        const observer = new MutationObserver((mutations) => {
-            if (!this.enabled) return;
+    handleToasts() {
+        const toasts = document.querySelectorAll('.toast.show');
+        for (const toast of toasts) {
+            const toastId = toast.id;
 
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                    const target = mutation.target;
-                    if (target.classList.contains('modal') &&
-                        target.style.display !== 'none' &&
-                        !target.classList.contains('hidden')) {
-                        // Small delay to let modal fully show
-                        setTimeout(() => {
-                            if (this.enabled) {
-                                this.handleModalDialogs();
-                            }
-                        }, 100);
-                    }
+            this.log('Seeing toast #' + toastId);
+
+            // Check for specific override
+            if (this.config.toastOverrides[toastId]) {
+                const selector = this.config.toastOverrides[toastId];
+                const button = toast.querySelector(selector);
+                if (button) {
+                    this.log(`Clicking toast override: ${selector} in #${toastId}`);
+                    button.click();
+                    return true;
                 }
-            });
-        });
+            }
 
-        // Observe all modals
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            observer.observe(modal, { attributes: true, attributeFilter: ['style', 'class'] });
-        });
+            // Default: click primary button
+            const primaryButton = toast.querySelector('.btn-primary');
+            if (primaryButton) {
+                this.log(`Clicking .btn-primary in toast: #${toastId}`);
+                primaryButton.click();
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -1068,6 +1059,8 @@ window.autoplay2Debug = {
 };
 
 // TODO s
-// Don't cheat with Battles :D currently not available battles are happily engaged
-// ESPECIALLY NOT THE BOSS :D :D :D
+// Locations should be visited once when they are un-visited
+// Log actual "decisions" aka when the station config changes
 // Battles are not disengaged when there is heat
+// Smaller issue: NovaFlies10 are engaged even if battle tab is not yet available
+// #Believability: Switch to tabs to actually click something
