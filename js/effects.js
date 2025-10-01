@@ -65,6 +65,10 @@ class EffectType {
             return a + b;
         }
     }
+
+    toString() {
+        return this.operator + this.description;
+    }
 }
 
 class Modifier {
