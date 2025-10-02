@@ -24,13 +24,17 @@ class ConfigurationOptimizer {
         this.evaluationTimer = null;
         this.currentConfiguration = null;
         this.lastActionTime = 0;
+        this.visitedLocations = new Set(); // Track visited locations for exploration
+        this.visitedLocations.add(pointsOfInterest.SafeZone.name); // start zone can always be considered "visited"
         this.config = {
             populationThreshold: 0.95, // 95% of theoretical max
             evaluationInterval: 1500,  // 1.5 seconds
             actionCooldown: 100,       // Minimum time between actions
             debug: true,
             traceNextTick: false,
-            modalOverrides: {},
+            modalOverrides: {
+                'gameOverModal': '.btn-primary.loss-only',
+            },
             toastOverrides: {
                 'enableAudioToast': '.btn-info',
             },
@@ -136,8 +140,13 @@ class ConfigurationOptimizer {
      * Toggles autoplay on/off
      */
     toggle(enabled) {
-        this.enabled = enabled;
+        if (isUndefined(enabled)) {
+            this.enabled = !this.enabled;
+        } else {
+            this.enabled = enabled;
+        }
         this.saveEnabledState();
+        Dom.get().byId('autoplaySwitch2').checked = this.enabled;
 
         if (this.enabled) {
             this.start();
@@ -186,6 +195,12 @@ class ConfigurationOptimizer {
                 return;
             }
 
+            // Handle any open modals first
+            if (this.handleModalDialogs()) {
+                return; // Skip configuration evaluation if we handled a modal
+            }
+            this.handleToasts();
+
             // Check if game over
             if (this.isGameWon()) {
                 this.log('Game over detected, stopping autoplay');
@@ -196,11 +211,10 @@ class ConfigurationOptimizer {
                 return;
             }
 
-            // Handle any open modals first
-            if (this.handleModalDialogs()) {
-                return; // Skip configuration evaluation if we handled a modal
+            // Check if game state allows changes
+            if (!gameData.state.canChangeActivation) {
+                return false;
             }
-            this.handleToasts();
 
             // Generate all valid configurations
             const startEnum = performance.now();
@@ -464,6 +478,12 @@ class ConfigurationOptimizer {
     selectBattles(opConfig, location) {
         const engagedBattles = new Set();
 
+        // Check if battle tab is available - if not, don't engage any battles
+        const battleTabButton = document.getElementById('battleTabButton');
+        if (!battleTabButton || battleTabButton.classList.contains('hidden')) {
+            return engagedBattles; // Return empty set if battles not available yet
+        }
+
         // Calculate base danger from location
         let totalDanger = location.getEffect(EffectType.Danger) || 0;
 
@@ -566,8 +586,6 @@ class ConfigurationOptimizer {
                     });
                 }
             }
-
-
         }
 
         // Score engaged battles
@@ -589,6 +607,19 @@ class ConfigurationOptimizer {
                         source: battleName + ' ' + reward.effectType,
                     });
                 }
+            }
+        }
+
+        // Bonus for unvisited locations (exploration requirement)
+        if (!this.visitedLocations.has(config.location)) {
+            const explorationBonus = 1000000; // Huge bonus to ensure unvisited locations get visited
+            score += explorationBonus;
+
+            if (scoreBreakdown !== null) {
+                scoreBreakdown.push({
+                    score: explorationBonus,
+                    source: 'EXPLORATION BONUS for unvisited location: ' + config.location,
+                });
             }
         }
 
@@ -759,12 +790,28 @@ class ConfigurationOptimizer {
      * Applies a configuration to the game state
      */
     applyConfiguration(config) {
-        if (!this.canAct()) return;
-
         // Track if we made any changes
         let changed = false;
+        const changes = []; // Track what changed for logging
 
-        // 1. Apply module activation states
+        // 1. Apply operation selections
+        for (const [componentName, operationName] of config.operations) {
+            const component = moduleComponents[componentName];
+            const operation = moduleOperations[operationName];
+
+            if (!operation.isActive('self')) {
+                // Find currently active operation for logging
+                const currentOp = component.operations.find(op => op.isActive('self'));
+                const currentOpName = currentOp ? currentOp.name : 'None';
+
+                tryActivateOperation(component, operation);
+                changes.push(`Operation ${componentName}: ${currentOpName} → ${operationName}`);
+                changed = true;
+                this.lastActionTime = Date.now();
+            }
+        }
+
+        // 2. Apply module activation states
         for (const moduleName in modules) {
             const module = modules[moduleName];
             const shouldBeActive = config.modules.has(moduleName);
@@ -772,18 +819,7 @@ class ConfigurationOptimizer {
 
             if (shouldBeActive !== isActive) {
                 switchModuleActivation(module);
-                changed = true;
-                this.lastActionTime = Date.now();
-            }
-        }
-
-        // 2. Apply operation selections
-        for (const [componentName, operationName] of config.operations) {
-            const component = moduleComponents[componentName];
-            const operation = moduleOperations[operationName];
-
-            if (!operation.isActive('self')) {
-                tryActivateOperation(component, operation);
+                changes.push(`Module ${moduleName}: ${isActive ? 'ON' : 'OFF'} → ${shouldBeActive ? 'ON' : 'OFF'}`);
                 changed = true;
                 this.lastActionTime = Date.now();
             }
@@ -791,7 +827,10 @@ class ConfigurationOptimizer {
 
         // 3. Apply location
         if (gameData.activeEntities.pointOfInterest !== config.location) {
+            const currentLocation = gameData.activeEntities.pointOfInterest || 'None';
             setPointOfInterest(config.location);
+            this.visitedLocations.add(config.location); // Mark as visited
+            changes.push(`Location: ${currentLocation} → ${config.location}`);
             changed = true;
             this.lastActionTime = Date.now();
         }
@@ -806,12 +845,15 @@ class ConfigurationOptimizer {
 
             if (shouldEngage !== isEngaged) {
                 battle.toggle();
+                changes.push(`Battle ${battleName}: ${isEngaged ? 'Engaged' : 'Disengaged'} → ${shouldEngage ? 'Engaged' : 'Disengaged'}`);
                 changed = true;
                 this.lastActionTime = Date.now();
             }
         }
 
-        if (changed) {
+        // Log decisions if any changes were made
+        if (changed && changes.length > 0) {
+            this.log('🔄 DECISION - Station configuration changed:', changes);
             this.currentConfiguration = config;
         }
     }
@@ -841,11 +883,6 @@ class ConfigurationOptimizer {
     canAct() {
         // Check if game is loaded
         if (gameData === null || !gameData.state) {
-            return false;
-        }
-
-        // Check if game state allows changes
-        if (!gameData.state.canChangeActivation) {
             return false;
         }
 
@@ -1059,8 +1096,5 @@ window.autoplay2Debug = {
 };
 
 // TODO s
-// Locations should be visited once when they are un-visited
-// Log actual "decisions" aka when the station config changes
 // Battles are not disengaged when there is heat
-// Smaller issue: NovaFlies10 are engaged even if battle tab is not yet available
 // #Believability: Switch to tabs to actually click something
