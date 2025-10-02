@@ -1835,7 +1835,7 @@ function increaseCycle() {
 
     if (!isBossBattleAvailable() && gameData.cycles >= getBossAppearanceCycle()) {
         gameData.bossBattleAvailable = true;
-        gameData.transitionState(gameStates.PAUSED);
+        gameData.transitionState(gameStates.TUTORIAL_PAUSED);
         GameEvents.BossAppearance.trigger(undefined);
     }
 }
