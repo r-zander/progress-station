@@ -38,6 +38,13 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
     },
+    TUTORIAL_PAUSED: {
+        isTimeProgressing: false,
+        areAttributesUpdated: false,
+        areTasksProgressing: false,
+        isBossBattleProgressing: false,
+        canChangeActivation: true,
+    },
     BOSS_FIGHT_INTRO: {
         isTimeProgressing: false,
         areAttributesUpdated: false,
