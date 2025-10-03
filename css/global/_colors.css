@@ -49,6 +49,11 @@
     --help-font-color: #ACACAC;
     --warning-color: #C80000;
 
+    /* Requirements */
+    --requirement-background-color: #3c3c3c;
+    --requirement-background-color-2: #2e2e33;
+    --requirement-font-color: #b0b0b0;
+
     /* Attributes */
     --attr-danger-color: var(--ps-orange);
     --attr-energy-color: var(--ps-yellow);
