@@ -46,6 +46,26 @@ class LayeredTask extends Task {
     }
 }
 
+function showDangerModal(onConfirm, onCancel) {
+    const modalElement = document.getElementById('dangerModal');
+    const modal = new bootstrap.Modal(modalElement);
+    const proceedBtn = document.getElementById('confirmDangerBtn');
+
+    proceedBtn.onclick = null;
+    modalElement.removeEventListener('hidden.bs.modal', onCancel);
+
+    proceedBtn.onclick = () => {
+        modal.hide();
+        if (onConfirm) onConfirm();
+    };
+
+    modalElement.addEventListener('hidden.bs.modal', () => {
+        if (onCancel) onCancel();
+    }, { once: true });
+
+    modal.show();
+}
+
 class Battle extends LayeredTask {
     /**
      *
@@ -92,12 +112,13 @@ class Battle extends LayeredTask {
             this.stop();
         } else {
             if (!this.isBattleSafe()) {
-                const proceed = confirm("⚠️ Danger level exceeds your military strength. Do you want to proceed?");
-                if (!proceed) {
-                    return;
-                }
+                showDangerModal(
+                    () => this.start(),   // onConfirm
+                    () => {}              // onCancel (do nothing)
+                );
+            } else {
+                this.start();
             }
-            this.start();
         }
     }
 
