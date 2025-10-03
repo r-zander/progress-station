@@ -51,6 +51,7 @@
 
     /* Attributes */
     --attr-danger-color: var(--ps-orange);
+    --attr-energy-color: var(--ps-yellow);
     --attr-essence-of-unknown-color: var(--ps-pink1);
     --attr-grid-load-color: var(--progress-bar-color);
     --attr-grid-strength-color: var(--progress-bg-color);
@@ -81,6 +82,10 @@
 .text-danger {
     /* !important to override Bootstrap style */
     color: var(--attr-danger-color) !important;
+}
+
+.text-energy {
+    color: var(--attr-energy-color);
 }
 
 .text-essence-of-unknown {
