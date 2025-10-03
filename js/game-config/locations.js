@@ -5,7 +5,7 @@
  */
 const pointsOfInterest = {
     SafeZone: new PointOfInterest({
-        title: 'Nova Mines',
+        title: 'Ex-Nova Mines',
         description: "Long-abandoned extraction facilities orbiting in a stable sector. Safe from hostile activity, they continue to yield basic resources through dormant automated systems.",
         effects: [
             /*
