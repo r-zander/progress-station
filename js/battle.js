@@ -145,21 +145,11 @@ class Battle extends LayeredTask {
     }
 
     isBattleSafe() {
-        try {
-            if (!this.getEffect) {
-                return false;
-            }
+        const currentDanger = attributes.danger.getValue();
+        const currentMilitary = attributes.military.getValue();
+        const battleDanger = this.getEffect(EffectType.Danger);
 
-            const currentDanger = attributes.danger.getValue();
-            const currentMilitary = attributes.military.getValue();
-            const battleDanger = this.getEffect(EffectType.Danger) || 0;
-
-            const totalDanger = currentDanger + battleDanger;
-
-            return totalDanger <= currentMilitary;
-        } catch {
-            return false;
-        }
+        return currentDanger + battleDanger <= currentMilitary;
     }
 }
 
