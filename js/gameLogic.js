@@ -7,7 +7,7 @@ function applyMultipliers(value, multipliers) {
 }
 
 function applySpeed(value) {
-    return value * getGameSpeed() / updateSpeed;
+    return value * getGameSpeed() / targetTicksPerSecond;
 }
 
 function calculateHeat() {

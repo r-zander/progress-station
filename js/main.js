@@ -1829,7 +1829,7 @@ function calculateGalacticSecretCost() {
 function increaseCycle() {
     if (!gameData.state.isTimeProgressing) return;
 
-    const increase = applySpeed(1);
+    const increase = applySpeed(cycleDurationInSeconds);
     gameData.cycles += increase;
     gameData.totalCycles += increase;
 
@@ -2116,7 +2116,7 @@ function init() {
     displayLoaded();
 
     update();
-    updateIntervalID = setInterval(update, 1000 / updateSpeed);
+    updateIntervalID = setInterval(update, 1000 / targetTicksPerSecond);
     setInterval(gameData.save.bind(gameData), 3000);
     requestAnimationFrame(updateLayout);
 }

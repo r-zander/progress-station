@@ -1,8 +1,8 @@
 'use strict';
 
-// TODO replace with requestAnimationFrame for smoothest experience
-const updateSpeed = 20;
+const targetTicksPerSecond = 20;
 
+const cycleDurationInSeconds = 1; /* At gameSpeed of 1. It gets divided by the actual game speed. */
 const startCycle = 100000;
 const bossAppearanceCycle = 15_000;
 

@@ -165,7 +165,7 @@ const cheats = {
          * Inverse of disableUpdates to continue the normal game.
          */
         enableUpdates: () => {
-            updateIntervalID = setInterval(update, 1000 / updateSpeed);
+            updateIntervalID = setInterval(update, 1000 / targetTicksPerSecond);
         }
     },
     Config: {

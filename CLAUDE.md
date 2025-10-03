@@ -62,7 +62,7 @@ This is a pure client-side HTML/JS/CSS project with no build system:
 ## Game Mechanics & Interaction
 
 ### Core Game Loop
-- **Main Update**: `update()` function in `main.js` runs every 1000/updateSpeed ms (default ~50ms)
+- **Main Update**: `update()` function in `main.js` runs every 1000/targetTicksPerSecond ms (default ~50ms)
 - **Time Progression**: `increaseCycle()` advances game state, triggers boss battles, updates population
 - **State Management**: Game states include PLAYING, PAUSED, BOSS_FIGHT, etc. managed via `gameData.transitionState()`
 
