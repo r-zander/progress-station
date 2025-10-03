@@ -5,8 +5,8 @@
  */
 const pointsOfInterest = {
     SafeZone: new PointOfInterest({
-        title: 'Safe Zone',
-        description: 'Let\'s take a breather and regroup.',
+        title: 'Nova Mines',
+        description: "Long-abandoned extraction facilities orbiting in a stable sector. Safe from hostile activity, they continue to yield basic resources through dormant automated systems.",
         effects: [
             /*
              * Not IndustryFactor as the player doesn't have any industry
@@ -22,7 +22,6 @@ const pointsOfInterest = {
             'Additionally, this point of interest is known for advanced stargazing technology, attracting astronomers and enthusiasts from across the galaxy.',
         effects: [
             {effectType: EffectType.Energy, baseValue: 10},
-            {effectType: EffectType.GrowthFactor, baseValue: 0},
             {effectType: EffectType.ResearchFactor, baseValue: 0.5},
             {effectType: EffectType.Danger, baseValue: 5}],
         modifiers: [],
