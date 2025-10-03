@@ -518,7 +518,7 @@ function createLevel4BattleElements(battles) {
         level4Element.id = battle.domId;
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
-        domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
+        domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
         domGetter.byClass('progressBar').addEventListener('click', () => {
             if (!gameData.state.canChangeActivation) {
                 VFX.shakePlayButton();
@@ -587,7 +587,7 @@ function createLevel4FinishedBattleElements(battles) {
         domGetter.byClass('xpGain').classList.add('hidden');
         domGetter.byClass('xpLeft').classList.add('hidden');
         domGetter.byClass('danger').classList.add('hidden');
-        domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
+        domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
 
         // unshift --> battles in reverse order
         level4Elements.unshift(level4Element);
@@ -641,7 +641,7 @@ function createGalacticSecretsUI() {
         domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
 
         domGetter.byClass('parent').textContent = galacticSecret.unlocks.module.title;
-        domGetter.byClass('effect').textContent = galacticSecret.unlocks.getEffectDescription(1);
+        domGetter.byClass('effect').innerHTML = galacticSecret.unlocks.getEffectDescription(1);
         formatValue(domGetter.bySelector('.gridLoad > data'), galacticSecret.unlocks.getGridLoad());
 
         domGetter.byClass('progressBar').addEventListener('pointerdown', (event) => {
@@ -723,13 +723,6 @@ function createBattlesQuickDisplay() {
     }
 
     slot.replaceWith(...quickDisplayElements);
-}
-
-/**
- * @param {AttributeDefinition} attribute
- */
-function createAttributeInlineHTML(attribute) {
-    return `<span class="attribute ${attribute.textClass}">${attribute.title}</span>`;
 }
 
 /**
@@ -884,6 +877,21 @@ function createGridLoadBalance(rowElement) {
     }
 }
 
+function createAttributesHTML() {
+    for (const attributeName in attributes) {
+        const attribute = attributes[attributeName];
+
+        const inlineHTML = `<span class="attribute ${attribute.textClass}">${attribute.title}</span>`;
+
+        attribute.inlineHtml = inlineHTML;
+        if (attribute.icon === null) {
+            attribute.inlineHtmlWithIcon = inlineHTML;
+        } else {
+            attribute.inlineHtmlWithIcon = `<img src="${attribute.icon}" class="icon" alt="${attribute.title} icon">` + inlineHTML;
+        }
+    }
+}
+
 function createAttributesDisplay() {
     const attributeContainers = Dom.get().allBySelector('[data-attribute]');
     for (/** @var {HTMLElement} */ const attributeContainer of attributeContainers) {
@@ -937,14 +945,16 @@ function createAttributesUI() {
 
     // Heat
     const heatRow = createAttributeRow(attributes.heat);
-    Dom.get(heatRow).byClass('description').innerHTML += `<br />
-${createAttributeInlineHTML(attributes.military)} exceeding ${createAttributeInlineHTML(attributes.danger)} is disregarded.`
-+ (SPACE_BASE_HEAT > 0.0 ? `The total can never be less than <data value="${SPACE_BASE_HEAT.toFixed(0.1)}">${formatNumber(SPACE_BASE_HEAT)}</data> - space is dangerous!` : '');
+    Dom.get(heatRow).byClass('description').innerHTML +=
+        `<br />${attributes.military.inlineHtml} exceeding ${attributes.danger.inlineHtml} is disregarded.`
+        + (SPACE_BASE_HEAT > 0.0
+            ? `The total can never be less than <data value="${SPACE_BASE_HEAT.toFixed(0.1)}">${formatNumber(SPACE_BASE_HEAT)}</data> - space is dangerous!`
+            : '');
     const heatFormulaElement = Dom.get(heatRow).byClass('formula');
     heatFormulaElement.classList.remove('hidden');
     heatFormulaElement.innerHTML = `<ul class="balance m-0 list-unstyled">
-    <li class="balanceEntry">${createAttributeInlineHTML(attributes.danger)} - ${createAttributeInlineHTML(attributes.military)}</li>
-    <li><span class="operator">+</span> raw <span class="attribute ${attributes.heat.textClass}">Heat</span> from Boss</li>
+    <li class="balanceEntry">${attributes.danger.inlineHtml} - ${attributes.military.inlineHtml}</li>
+    <li><span class="operator">+</span> raw ${attributes.heat.inlineHtml} from Boss</li>
 </ul>`;
     rows.push(heatRow);
 
@@ -965,10 +975,10 @@ ${createAttributeInlineHTML(attributes.military)} exceeding ${createAttributeInl
     const populationFormulaElement = Dom.get(populationRow).byClass('formula');
     populationFormulaElement.classList.remove('hidden');
     populationFormulaElement.innerHTML =
-        '(0.1 * ' +  createAttributeInlineHTML(attributes.growth) +
+        '(0.1 * ' +  attributes.growth.inlineHtml +
         ') - (0.01 * ' +
-        createAttributeInlineHTML(attributes.population) + ' * ' +
-        createAttributeInlineHTML(attributes.heat) + ')<br />&wedgeq; <data value="0" class="delta">?</data> per cycle';
+        attributes.population.inlineHtml + ' * ' +
+        attributes.heat.inlineHtml + ')<br />&wedgeq; <data value="0" class="delta">?</data> per cycle';
     rows.push(populationRow);
 
     // Research
@@ -981,7 +991,7 @@ ${createAttributeInlineHTML(attributes.military)} exceeding ${createAttributeInl
 }
 
 function createEnergyGridDisplay() {
-    const tooltipText = createGridStrengthAndLoadDescription(createAttributeInlineHTML);
+    const tooltipText = createGridStrengthAndLoadDescription();
     Dom.get().byId('gridLabel').title = tooltipText;
     Dom.get().byId('gridStrength').title = tooltipText;
 
@@ -1190,6 +1200,16 @@ const moduleRequirementsHtmlCache = {};
 const moduleComponentRequirementsHtmlCache = {};
 const moduleOperationRequirementsHtmlCache = {};
 
+/**
+ *
+ * @param {ModuleOperation} operation
+ * @param {{
+ *     hasUnfulfilledRequirements: boolean,
+ *     requirementsElement: HTMLElement,
+ *     setHtmlCache: function(string),
+ *     getHtmlCache: function(): string,
+ * }} operationRequirementsContext
+ */
 function updateModuleOperationRow(operation, operationRequirementsContext) {
     const row = Dom.get().byId(operation.domId);
 
@@ -1208,7 +1228,7 @@ function updateModuleOperationRow(operation, operationRequirementsContext) {
     setProgress(progressFillElement, operation.xp / operation.getMaxXp());
     progressFillElement.classList.toggle('current', operation.isActive('self'));
 
-    domGetter.byClass('effect').textContent = operation.getEffectDescription();
+    domGetter.byClass('effect').innerHTML = operation.getEffectDescription();
     domGetter.byClass('gridLoad').classList.toggle('hidden', attributes.gridStrength.getValue() === 0);
 }
 
@@ -1552,7 +1572,7 @@ function updateSectorRows() {
             const domGetter = Dom.get(row);
             const isActive = pointOfInterest.isActive();
             domGetter.byClass('point-of-interest').classList.toggle('current', isActive);
-            domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescription();
+            domGetter.byClass('effect').innerHTML = pointOfInterest.getEffectDescription();
             formatValue(domGetter.bySelector('.danger > data'), pointOfInterest.getEffect(EffectType.Danger));
         }
 
@@ -1800,10 +1820,6 @@ function updateHtmlElementRequirements() {
 function updateBodyClasses() {
     document.getElementById('body').classList.toggle('game-paused', gameData.state === gameStates.PAUSED);
     document.getElementById('body').classList.toggle('game-playing', gameData.state === gameStates.PLAYING);
-}
-
-function getGeneratedEnergy() {
-    return Effect.getTotalValue([EffectType.Energy, EffectType.EnergyFactor]);
 }
 
 function calculateGridLoad() {
@@ -2077,6 +2093,8 @@ function initConfigNames() {
 
 function init() {
     initConfigNames();
+    createAttributesHTML();
+    createAttributeDescriptions();
 
     gameData = new GameData();
     /*
@@ -2096,7 +2114,6 @@ function init() {
     createModulesQuickDisplay();
     createBattlesQuickDisplay();
 
-    createAttributeDescriptions(createAttributeInlineHTML);
     createAttributesDisplay();
     createAttributesUI();
     createEnergyGridDisplay();

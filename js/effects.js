@@ -21,27 +21,27 @@
  */
 
 class EffectType {
-    static Danger = new EffectType('+', 'Danger');
-    static DangerFactor = new EffectType('x', 'Danger');
-    static Heat = new EffectType('+', 'Heat');
-    static Energy = new EffectType('+', 'Energy');
-    static EnergyFactor = new EffectType('x', 'Energy');
-    static Growth = new EffectType('+', 'Growth');
-    static GrowthFactor = new EffectType('x', 'Growth');
-    static Industry = new EffectType('+', 'Industry');
-    static IndustryFactor = new EffectType('x', 'Industry');
-    static Military = new EffectType('+', 'Military');
-    static MilitaryFactor = new EffectType('x', 'Military');
-    static Research = new EffectType('+', 'Research');
-    static ResearchFactor = new EffectType('x', 'Research');
+    static Danger = new EffectType('+', attributes.danger);
+    static DangerFactor = new EffectType('x', attributes.danger);
+    static Heat = new EffectType('+', attributes.heat);
+    static Energy = new EffectType('+', attributes.energy);
+    static EnergyFactor = new EffectType('x', attributes.energy);
+    static Growth = new EffectType('+', attributes.growth);
+    static GrowthFactor = new EffectType('x', attributes.growth);
+    static Industry = new EffectType('+', attributes.industry);
+    static IndustryFactor = new EffectType('x', attributes.industry);
+    static Military = new EffectType('+', attributes.military);
+    static MilitaryFactor = new EffectType('x', attributes.military);
+    static Research = new EffectType('+', attributes.research);
+    static ResearchFactor = new EffectType('x', attributes.research);
 
     /**
      * @param {'+'|'x'} operator
-     * @param {string} description
+     * @param {AttributeDefinition} attribute
      */
-    constructor(operator, description) {
+    constructor(operator, attribute) {
         this.operator = operator;
-        this.description = description;
+        this.attribute = attribute;
     }
 
     /**
@@ -67,7 +67,7 @@ class EffectType {
     }
 
     toString() {
-        return this.operator + this.description;
+        return this.operator + this.attribute.title;
     }
 }
 
@@ -88,7 +88,7 @@ class Modifier {
         return modifier.modifies
                 .map((effectHolder) => effectHolder.title)
                 .join(', ') + '\n'
-            + modifier.from.description + ' \u2B9E ' /* Shows: ⮞ */ + modifier.to.description;
+            + modifier.from.attribute.title + ' \u2B9E ' /* Shows: ⮞ */ + modifier.to.attribute.title;
     }
 }
 
@@ -222,7 +222,7 @@ class Effect {
             const actualEffectType = Effect.#getActualEffectType(holder, effect, modifiers);
             return actualEffectType.operator +
                 Effect.#calculateEffectValue(actualEffectType, effect.baseValue, level).toFixed(2) +
-                ' ' + actualEffectType.description;
+                ' ' + actualEffectType.attribute.inlineHtmlWithIcon;
         }, this).join('\n');
     }
 

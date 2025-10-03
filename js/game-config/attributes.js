@@ -8,7 +8,13 @@ const attributes = {
         title: 'Danger',
         icon: 'img/icons/danger.svg',
         textClass: 'text-danger',
-        getValue: Effect.getTotalValue.bind(this, [EffectType.Danger, EffectType.DangerFactor]),
+        getValue: () => Effect.getTotalValue( [EffectType.Danger, EffectType.DangerFactor]),
+    },
+    energy: {
+        title: 'Energy',
+        icon: 'img/icons/energy.svg',
+        textClass: 'text-energy',
+        getValue: () => Effect.getTotalValue( [EffectType.Energy, EffectType.EnergyFactor]),
     },
     essenceOfUnknown: {
         title: 'Essence of Unknown',
@@ -32,7 +38,7 @@ const attributes = {
         title: 'Growth',
         icon: 'img/icons/growth.svg',
         textClass: 'text-growth',
-        getValue: Effect.getTotalValue.bind(this, [EffectType.Growth, EffectType.GrowthFactor]),
+        getValue: () => Effect.getTotalValue([EffectType.Growth, EffectType.GrowthFactor]),
     },
     heat: {
         title: 'Heat',
@@ -44,13 +50,13 @@ const attributes = {
         title: 'Industry',
         icon: 'img/icons/industry.svg',
         textClass: 'text-industry',
-        getValue: Effect.getTotalValue.bind(this, [EffectType.Industry, EffectType.IndustryFactor]),
+        getValue: () => Effect.getTotalValue([EffectType.Industry, EffectType.IndustryFactor]),
     },
     military: {
         title: 'Military',
         icon: 'img/icons/military.svg',
         textClass: 'text-military',
-        getValue: Effect.getTotalValue.bind(this, [EffectType.Military, EffectType.MilitaryFactor]),
+        getValue: () => Effect.getTotalValue([EffectType.Military, EffectType.MilitaryFactor]),
     },
     population: {
         title: 'Population',
@@ -62,7 +68,7 @@ const attributes = {
         title: 'Research',
         icon: 'img/icons/research.svg',
         textClass: 'text-research',
-        getValue: Effect.getTotalValue.bind(this, [EffectType.Research, EffectType.ResearchFactor]),
+        getValue: () => Effect.getTotalValue([EffectType.Research, EffectType.ResearchFactor]),
     },
 };
 
@@ -73,29 +79,28 @@ const attributes = {
 const populationDeltaInertia = 0.98; // 98% inertia ≙ 10sec speed delay at targetTicksPerSecond 20 and baseGameSpeed 4
 
 /**
- * @param {function(AttributeDefinition): string} printAttribute renders the provided attribute nicely.
+ * Define the descriptions of attributes, referencing each other.
  */
-function createAttributeDescriptions(printAttribute) {
-    attributes.danger.description = 'More ' + printAttribute(attributes.danger) + ' than ' + printAttribute(attributes.military) + ' increases ' + printAttribute(attributes.heat) + '.';
-    attributes.gridLoad.description = 'Amount of ' + printAttribute(attributes.gridStrength) + ' currently assigned.';
+function createAttributeDescriptions() {
+    attributes.danger.description = 'More ' + attributes.danger.inlineHtml + ' than ' + attributes.military.inlineHtml + ' increases ' + attributes.heat.inlineHtml + '.';
+    attributes.gridLoad.description = 'Amount of ' + attributes.gridStrength.inlineHtml + ' currently assigned.';
     attributes.gridStrength.description = 'Limits the number of concurrently active operations.';
-    attributes.growth.description = 'Increases ' + printAttribute(attributes.population) + '.';
-    attributes.heat.description = 'Reduces ' + printAttribute(attributes.population) + '.';
+    attributes.growth.description = 'Increases ' + attributes.population.inlineHtml + '.';
+    attributes.heat.description = 'Reduces ' + attributes.population.inlineHtml + '.';
     attributes.industry.description = 'Speeds up operations progress.';
-    attributes.military.description = 'Counteracts ' + printAttribute(attributes.danger) + ' and increases damage in Battles.';
+    attributes.military.description = 'Counteracts ' + attributes.danger.inlineHtml + ' and increases damage in Battles.';
     attributes.population.description = 'Affects all progress speed.';
     attributes.research.description = 'Unlocks new knowledge.';
     attributes.essenceOfUnknown.description = 'Invest to learn Galactic Secrets.';
 }
 
 /**
- * @param {function(AttributeDefinition): string} printAttribute renders the provided attribute nicely.
  *
  * @return {string}
  */
-function createGridStrengthAndLoadDescription(printAttribute) {
-    return `Each active module needs ${printAttribute(attributes.gridLoad)} but you can't use more than your 
-    ${printAttribute(attributes.gridStrength)}. Try deactivating modules to free up the energy grid!`;
+function createGridStrengthAndLoadDescription() {
+    return `Each active module needs ${attributes.gridLoad.inlineHtmlWithIcon} but you can't use more than your 
+    ${attributes.gridStrength.inlineHtmlWithIcon}. Try deactivating modules to free up the energy grid!`;
 }
 
 const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 500});

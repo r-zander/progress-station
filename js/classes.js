@@ -7,6 +7,8 @@
  * @property {string} textClass - css class to attack to the title
  * @property {string} icon - path to the icon file#
  * @property {string} [description] - (HTML) description of the attribute
+ * @property {string} [inlineHtml] - inline display of the attribute, only text
+ * @property {string} [inlineHtmlWithIcon] - inline display of the attribute, with icon
  * @property {function(): number} getValue - retrieves the current value for this attribute
  */
 
@@ -332,7 +334,7 @@ class GridStrength extends Task {
     }
 
     getXpGain() {
-        return getGeneratedEnergy();
+        return attributes.energy.getValue();
     }
 
     /**
