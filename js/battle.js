@@ -91,6 +91,12 @@ class Battle extends LayeredTask {
         if (this.isActive()) {
             this.stop();
         } else {
+            if (!this.isBattleSafe()) {
+                const proceed = confirm("⚠️ Danger level exceeds your military strength. Do you want to proceed?");
+                if (!proceed) {
+                    return;
+                }
+            }
             this.start();
         }
     }
@@ -136,6 +142,24 @@ class Battle extends LayeredTask {
 
     getRewardsDescription() {
         return Effect.getDescription(this, this.rewards, 1);
+    }
+
+    isBattleSafe() {
+        try {
+            if (!this.getEffect) {
+                return false;
+            }
+
+            const currentDanger = attributes.danger.getValue();
+            const currentMilitary = attributes.military.getValue();
+            const battleDanger = this.getEffect(EffectType.Danger) || 0;
+
+            const totalDanger = currentDanger + battleDanger;
+
+            return totalDanger <= currentMilitary;
+        } catch {
+            return false;
+        }
     }
 }
 
