@@ -23,9 +23,9 @@ const moduleOperationRequirements = {
         }]),
     ),
     PocketLaboratory: moduleOperations.PocketLaboratory.registerRequirement(
-        new AttributeRequirement('playthrough', [{
-            attribute: attributes.research,
-            requirement: 0.01,
+        new FactionLevelsDefeatedRequirement('playthrough', [{
+            faction: factions.NovaFlies,
+            requirement: 20,
         }]),
     ),
     HeavyGlitz: moduleOperations.HeavyGlitz.registerRequirement(
