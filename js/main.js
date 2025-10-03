@@ -1672,7 +1672,7 @@ function updateEnergyGridBar() {
     formatEnergyValue(gridStrength.getXpLeft(), Dom.get(energyLeftElement).bySelector('data'));
 
     const progressFillElement = domGetter.byClass('progressFill');
-    progressFillElement.classList.toggle('current', getGeneratedEnergy() > 0);
+    progressFillElement.classList.toggle('current', attributes.energy.getValue() > 0);
     const energyProgress = setProgress(progressFillElement, gridStrength.xp / gridStrength.getMaxXp());
 
     // Using right alignment to respect the energyLeft element
