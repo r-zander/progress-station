@@ -1186,9 +1186,6 @@ class AttributeRequirement extends Requirement {
     toHtmlInternal(requirement) {
         const value = requirement.attribute.getValue();
         // TODO pseudo-prerequisites
-        if (nearlyEquals(value, 0, 0.001)) {
-            return '';
-        }
 
         // TODO format value correctly
         return `

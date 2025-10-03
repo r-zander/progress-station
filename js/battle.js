@@ -46,6 +46,26 @@ class LayeredTask extends Task {
     }
 }
 
+function showDangerModal(onConfirm, onCancel) {
+    const modalElement = document.getElementById('dangerModal');
+    const modal = new bootstrap.Modal(modalElement);
+    const proceedBtn = document.getElementById('confirmDangerBtn');
+
+    proceedBtn.onclick = null;
+    modalElement.removeEventListener('hidden.bs.modal', onCancel);
+
+    proceedBtn.onclick = () => {
+        modal.hide();
+        if (onConfirm) onConfirm();
+    };
+
+    modalElement.addEventListener('hidden.bs.modal', () => {
+        if (onCancel) onCancel();
+    }, { once: true });
+
+    modal.show();
+}
+
 class Battle extends LayeredTask {
     /**
      *
@@ -91,7 +111,14 @@ class Battle extends LayeredTask {
         if (this.isActive()) {
             this.stop();
         } else {
-            this.start();
+            if (!this.isBattleSafe()) {
+                showDangerModal(
+                    () => this.start(),   // onConfirm
+                    () => {}              // onCancel (do nothing)
+                );
+            } else {
+                this.start();
+            }
         }
     }
 
@@ -136,6 +163,14 @@ class Battle extends LayeredTask {
 
     getRewardsDescription() {
         return Effect.getDescription(this, this.rewards, 1);
+    }
+
+    isBattleSafe() {
+        const currentDanger = attributes.danger.getValue();
+        const currentMilitary = attributes.military.getValue();
+        const battleDanger = this.getEffect(EffectType.Danger);
+
+        return currentDanger + battleDanger <= currentMilitary;
     }
 }
 
