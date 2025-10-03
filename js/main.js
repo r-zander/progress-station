@@ -1822,10 +1822,6 @@ function updateBodyClasses() {
     document.getElementById('body').classList.toggle('game-playing', gameData.state === gameStates.PLAYING);
 }
 
-function getGeneratedEnergy() {
-    return Effect.getTotalValue([EffectType.Energy, EffectType.EnergyFactor]);
-}
-
 function calculateGridLoad() {
     let gridLoad = 0;
 
