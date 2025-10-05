@@ -82,8 +82,9 @@ const gameStates = {
     },
 };
 gameStates.NEW.validNextStates = [gameStates.PLAYING];
-gameStates.PLAYING.validNextStates = [gameStates.PAUSED, gameStates.BOSS_FIGHT_INTRO];
+gameStates.PLAYING.validNextStates = [gameStates.PAUSED, gameStates.TUTORIAL_PAUSED, gameStates.BOSS_FIGHT_INTRO];
 gameStates.PAUSED.validNextStates = [gameStates.PLAYING];
+gameStates.TUTORIAL_PAUSED.validNextStates = [gameStates.PLAYING];
 gameStates.BOSS_FIGHT_INTRO.validNextStates = [gameStates.PLAYING, gameStates.BOSS_FIGHT];
 gameStates.BOSS_FIGHT.validNextStates = [gameStates.DEAD, gameStates.BOSS_FIGHT_PAUSED, gameStates.BOSS_DEFEATED];
 gameStates.BOSS_FIGHT_PAUSED.validNextStates = [gameStates.BOSS_FIGHT];
