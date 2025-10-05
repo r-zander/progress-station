@@ -5,6 +5,7 @@ const localStorageKey = 'ps_gameDataSave';
 /**
  * @typedef {Object} GameState
  * @property {string} [name] name of the game state in the gameStates dictionary
+ * @property {boolean} gameLoopRunning
  * @property {boolean} isTimeProgressing
  * @property {boolean} areAttributesUpdated
  * @property {boolean} areTasksProgressing
@@ -18,6 +19,7 @@ const localStorageKey = 'ps_gameDataSave';
  */
 const gameStates = {
     NEW: {
+        gameLoopRunning: false,
         isTimeProgressing: false,
         areAttributesUpdated: false,
         areTasksProgressing: false,
@@ -25,6 +27,7 @@ const gameStates = {
         canChangeActivation: false,
     },
     PLAYING: {
+        gameLoopRunning: true,
         isTimeProgressing: true,
         areAttributesUpdated: true,
         areTasksProgressing: true,
@@ -32,6 +35,7 @@ const gameStates = {
         canChangeActivation: true,
     },
     PAUSED: {
+        gameLoopRunning: false,
         isTimeProgressing: false,
         areAttributesUpdated: false,
         areTasksProgressing: false,
@@ -39,6 +43,7 @@ const gameStates = {
         canChangeActivation: true,
     },
     TUTORIAL_PAUSED: {
+        gameLoopRunning: false,
         isTimeProgressing: false,
         areAttributesUpdated: false,
         areTasksProgressing: false,
@@ -46,6 +51,7 @@ const gameStates = {
         canChangeActivation: true,
     },
     BOSS_FIGHT_INTRO: {
+        gameLoopRunning: false,
         isTimeProgressing: false,
         areAttributesUpdated: false,
         areTasksProgressing: false,
@@ -53,6 +59,7 @@ const gameStates = {
         canChangeActivation: false,
     },
     BOSS_FIGHT: {
+        gameLoopRunning: true,
         isTimeProgressing: false,
         areAttributesUpdated: true,
         areTasksProgressing: false,
@@ -60,6 +67,7 @@ const gameStates = {
         canChangeActivation: true,
     },
     BOSS_FIGHT_PAUSED: {
+        gameLoopRunning: false,
         isTimeProgressing: false,
         areAttributesUpdated: false,
         areTasksProgressing: false,
@@ -67,6 +75,7 @@ const gameStates = {
         canChangeActivation: true,
     },
     DEAD: {
+        gameLoopRunning: false,
         isTimeProgressing: false,
         areAttributesUpdated: false,
         areTasksProgressing: false,
@@ -74,6 +83,7 @@ const gameStates = {
         canChangeActivation: false,
     },
     BOSS_DEFEATED: {
+        gameLoopRunning: false,
         isTimeProgressing: false,
         areAttributesUpdated: false,
         areTasksProgressing: false,
@@ -445,6 +455,9 @@ class GameData {
         importExportBox.value = window.btoa(gameData.serializeAsJson());
     }
 
+    /**
+     * @return {GameState}
+     */
     get state() {
         return gameStates[this.stateName];
     }

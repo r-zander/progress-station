@@ -193,6 +193,11 @@ function playthroughReset(maxLevelBehavior) {
     }
 
     setTab('modules');
+    if (gameData.state.gameLoopRunning === false && gameStates.NEW.gameLoopRunning === false) {
+        // Both states don't have the gameLoopRunning --> explicitly run update()
+        // once to ensure the UI matches the game state
+        update();
+    }
     gameData.transitionState(gameStates.NEW);
 }
 

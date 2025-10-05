@@ -6,9 +6,9 @@
 let gameData = null;
 
 /**
- * @type {number}
+ * @type {GameLoop}
  */
-let updateIntervalID = 0;
+let gameLoop = null;
 
 /**
  *
@@ -188,8 +188,6 @@ function updateLayout(){
     }
 
     updateConnector();
-
-    requestAnimationFrame(updateLayout);
 }
 
 /**
@@ -1980,6 +1978,11 @@ function update() {
     doTasks();
     updatePopulation();
     updateUI();
+    // Could be triggered via GameEvents.GameStateChanged but then we are
+    // missing our necessary update to show the game as paused etc.
+    if (!gameData.state.gameLoopRunning) {
+        gameLoop.stop();
+    }
 }
 
 function rerollStationName() {
@@ -2132,10 +2135,35 @@ function init() {
     gameData.save();
     displayLoaded();
 
-    update();
-    updateIntervalID = setInterval(update, 1000 / targetTicksPerSecond);
+    // Implications are a bit hard to see here:
+    // - gameLoop is set to immediateTick --> update + updateLayout will run when gameLoop.start is called
+    // - update will stop the gameLoop again - should the gameState require to do so
+    // - the set-up GameStateChanged listener afterward take care of
+    //   re-starting the gameLoop, should the gameState require to do so
+    gameLoop = new GameLoop({
+        targetTicksPerSecond: targetTicksPerSecond,
+        maxUpdatesPerTick: 2 * 60 * 1000 / targetTicksPerSecond, // up to 2min catch-up
+        immediateTick: true,
+        onUpdate: update,
+        onRender: updateLayout,
+        onPanic: (gameLoop) => {
+            // Discard remaining missing time - we won't catch up for more than 2 minutes
+            gameLoop.timing.lag = 0;
+        }
+    });
+
+    gameLoop.start();
+
+    GameEvents.GameStateChanged.subscribe((/** @var {{previousState: string, newState: string}} */ payload) => {
+        const newGameState = gameStates[payload.newState];
+
+        // Only starting - stopping happens at the end of update()
+        if (newGameState.gameLoopRunning) {
+            gameLoop.start();
+        }
+    });
+
     setInterval(gameData.save.bind(gameData), 3000);
-    requestAnimationFrame(updateLayout);
 }
 
 init();

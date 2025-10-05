@@ -159,13 +159,14 @@ const cheats = {
          * Useful to manipulate the DOM.
          */
         disableUpdates: () => {
-            clearInterval(updateIntervalID);
+            gameLoop.stop();
         },
+
         /**
          * Inverse of disableUpdates to continue the normal game.
          */
         enableUpdates: () => {
-            updateIntervalID = setInterval(update, 1000 / targetTicksPerSecond);
+            gameLoop.start();
         }
     },
     Config: {
