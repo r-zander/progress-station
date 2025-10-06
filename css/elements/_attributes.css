@@ -50,3 +50,54 @@
     font-family: var(--title-font-family);
     font-weight: 400;
 }
+
+/* For: Colored font + white icons.png */
+.inline-attribute.icon {
+    height: 1.1rem;
+    vertical-align: bottom;
+    margin-inline-end: 0.25rem;
+}
+
+/* For: Colored font + icon.png */
+.icon-container {
+    display: inline-block;
+    width: 1.1rem;
+    height: 1.1rem;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    background-color: currentColor;
+    vertical-align: bottom;
+    margin-inline-end: 0.25rem;
+}
+
+/* For: Colored font + icon.png */
+.icon-container2 {
+    display: inline-block;
+    width: 1.1rem;
+    height: 1.1rem;
+    background-color: currentColor;
+    vertical-align: bottom;
+    margin-inline-end: 0.25rem;
+    border-radius: 50%;
+
+    > .inline-attribute.icon {
+        height: 80%;
+        margin: 10%;
+    }
+}
+
+/* For: White font + icon + badge */
+.inline-attribute2 {
+    display: inline-block;
+    background-color: currentColor;
+    border-radius: 0.6rem;
+    padding-inline: 0.25rem;
+    padding-top: 1px;
+    padding-bottom: 2px;
+
+    > .attribute {
+        color: var(--ps-light);
+        vertical-align: text-top;
+        text-shadow: 0px 0px 1px black;
+    }
+}
