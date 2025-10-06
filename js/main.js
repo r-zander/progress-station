@@ -885,7 +885,17 @@ function createAttributesHTML() {
         if (attribute.icon === null) {
             attribute.inlineHtmlWithIcon = inlineHTML;
         } else {
-            attribute.inlineHtmlWithIcon = `<img src="${attribute.icon}" class="icon" alt="${attribute.title} icon">` + inlineHTML;
+            /* For: Colored font + white icons.png */
+            // attribute.inlineHtmlWithIcon = `<img src="${attribute.icon}" class="inline-attribute icon" alt="${attribute.title} icon" />` + inlineHTML;
+
+            /* For: Colored font + icon.png */
+            attribute.inlineHtmlWithIcon = `<span class="icon-container ${attribute.textClass}" style="mask-image: url('${attribute.icon}');"></span>` + inlineHTML;
+
+            /* For: Colored font + white icon + bg */
+            // attribute.inlineHtmlWithIcon = `<span class="icon-container2 ${attribute.textClass}"><img src="${attribute.icon}" class="inline-attribute icon" alt="${attribute.title} icon" /></span>` + inlineHTML;
+
+            /* For: White font + icon + badge */
+            // attribute.inlineHtmlWithIcon = `<span class="inline-attribute2 ${attribute.textClass}"><img src="${attribute.icon}" class="inline-attribute icon" alt="${attribute.title} icon" /><span class="attribute">${attribute.title}</span></span>`;
         }
     }
 }
