@@ -399,20 +399,6 @@ const htmlElementRequirements = {
             elementsToShowRequirements: [Dom.get().byId('locationTabButtonRequirements')],
             prerequirements: [moduleOperationRequirements.PocketLaboratory],
         }),
-    attributesTabButton: new HtmlElementWithRequirement(
-        {
-            elementsWithRequirements: [Dom.get().byId('attributesTabButton')],
-            requirements: [new AttributeRequirement('playthrough', [{
-                attribute: attributes.research,
-                requirement: 10,
-            }])],
-            elementsToShowRequirements: [Dom.get().byId('attributesTabButtonRequirements')],
-            // Same as for LocationTabButton
-            prerequirements: [new OperationLevelRequirement('playthrough', [{
-                operation: moduleOperations.PocketLaboratory,
-                requirement: 10,
-            }])],
-        }),
     battleMultiEngageHelp: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [

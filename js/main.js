@@ -39,7 +39,7 @@ const tabButtons = {
     location: document.getElementById('locationTabButton'),
     battles: document.getElementById('battleTabButton'),
     galacticSecrets: document.getElementById('galacticSecretsTabButton'),
-    attributes: document.getElementById('attributesTabButton'),
+    attributes: document.getElementById('attributesDisplay'),
     settings: document.getElementById('settingsTabButton'),
 };
 
@@ -61,6 +61,15 @@ function setTab(selectedTab) {
         return;
     }
 
+    let isVerticalBarAnimation = true;
+
+    if (gameData.selectedTab === 'attributes' && selectedTab === 'attributes') {
+        // Current tab is attributes and new tab is also attributes --> switch back out of attributes
+        selectedTab = previousSelectedTab;
+    } else if (selectedTab === 'attributes') {
+        isVerticalBarAnimation = false;
+    }
+
     if (gameData.selectedTab !== 'settings') {
         previousSelectedTab = gameData.selectedTab;
     } else if (selectedTab === 'settings') {
@@ -80,20 +89,47 @@ function setTab(selectedTab) {
     }
     tabButtons[selectedTab].classList.add('active');
 
-    Dom.get().byId('content').animate(
-        [
-            {offset: 0.0, backgroundSize: '0 100%'},
-            {offset: 0.1, backgroundSize: '24px 100%'},
-            {offset: 0.6, backgroundSize: '24px 100%'},
-            {offset: 1.0, backgroundSize: '0 100%'},
-        ],
-        {
-            duration: 600,
-            easing: 'ease-in-out',
-            iterations: 1,
-        },
-    );
+    const content = Dom.get().byId('content');
+    const animBar = content.querySelector('.bar-animation');
 
+    if(isVerticalBarAnimation) {
+        content.style.borderTop = 'none';
+        content.style.borderLeft = '3px solid var(--active-color)';
+        animBar.className = 'bar-animation vertical';
+        animBar.animate(
+            [
+                {offset: 0.0, backgroundSize: '0 100%'},
+                {offset: 0.1, backgroundSize: '24px 100%'},
+                {offset: 0.6, backgroundSize: '24px 100%'},
+                {offset: 1.0, backgroundSize: '0 100%'},
+            ],
+            {
+                duration: 600,
+                easing: 'ease-in-out',
+                iterations: 1,
+            },
+        );
+      
+    }
+    else {
+        content.style.borderLeft = 'none';
+        content.style.borderTop = '3px solid var(--active-color)';
+        animBar.className = 'bar-animation horizontal';
+        animBar.animate(
+            [
+                {offset: 0.0, backgroundSize: '100% 0'},
+                {offset: 0.1, backgroundSize: '100% 24px'},
+                {offset: 0.6, backgroundSize: '100% 24px'},
+                {offset: 1.0, backgroundSize: '100% 0'},
+            ],
+            {
+                duration: 600,
+                easing: 'ease-in-out',
+                iterations: 1,
+            },
+        );
+    }
+    
     gameData.selectedTab = selectedTab;
     gameData.save();
 
@@ -124,46 +160,57 @@ function updateConnector() {
     const connectorElement = Dom.get().byId('connector');
     const contentElement = Dom.get().byId('content');
 
-    const margin = 16;
-    const connectorHeight = 3;
+    if (!activeTabButton || !connectorElement || !contentElement) return;
 
-    XFastdom.measure(() => {
-        return {
-            activeTabButton: activeTabButton.getBoundingClientRect(),
-            contentElement: contentElement.getBoundingClientRect(),
-        };
-    }).then(/** @param {Object<DOMRect>} boundingClientRect */ (boundingClientRect) => {
-        // Way too complicated positioning logic. Raoul, don't you have other things to do?
+    const connectorThickness = 3;
 
-        // Element still within clipping bounds?
-        if (boundingClientRect.contentElement.bottom - boundingClientRect.activeTabButton.top <= connectorHeight) {
-            connectorElement.classList.add('hidden');
-            return;
-        }
-        if (boundingClientRect.activeTabButton.bottom - boundingClientRect.contentElement.top <= connectorHeight) {
-            connectorElement.classList.add('hidden');
-            return;
-        }
+    XFastdom.measure(() => ({
+        tab: activeTabButton.getBoundingClientRect(),
+        content: contentElement.getBoundingClientRect(),
+    }))
+    .then(({ tab, content }) => {
         connectorElement.classList.remove('hidden');
 
-        // Determine vertical position
-        if (boundingClientRect.contentElement.bottom - boundingClientRect.activeTabButton.top < margin)
-        {
-            connectorElement.style.top = Math.round(boundingClientRect.activeTabButton.top) + 'px';
-        } else if (boundingClientRect.activeTabButton.bottom - boundingClientRect.contentElement.top < margin) {
-            connectorElement.style.top = Math.round(boundingClientRect.activeTabButton.bottom - connectorHeight) + 'px';
-        } else {
-            connectorElement.style.top = Math.round(
-                _.clamp(
-                    boundingClientRect.activeTabButton.top + boundingClientRect.activeTabButton.height / 2,
-                    boundingClientRect.contentElement.top + margin,
-                    boundingClientRect.contentElement.bottom - margin,
-                )) + 'px';
-        }
+        const tabCenterX = tab.left + tab.width / 2;
+        const tabCenterY = tab.top + tab.height / 2;
+        const contentCenterX = content.left + content.width / 2;
+        const contentCenterY = content.top + content.height / 2;
 
-        // Determine horizontal position and size
-        connectorElement.style.left = Math.round(boundingClientRect.activeTabButton.right) + 'px';
-        connectorElement.style.width = Math.round(boundingClientRect.contentElement.left - boundingClientRect.activeTabButton.right + 1) + 'px';
+        const diffX = Math.abs(tabCenterX - contentCenterX);
+        const diffY = Math.abs(tabCenterY - contentCenterY);
+        const isHorizontal = diffX > diffY;
+
+        if (isHorizontal) {
+            const y = tabCenterY;
+
+            const xStart = tab.right;
+            const xEnd = content.left;
+
+            if (xEnd <= xStart) {
+                connectorElement.classList.add('hidden');
+                return;
+            }
+
+            connectorElement.style.top = `${Math.round(y - connectorThickness / 2)}px`;
+            connectorElement.style.left = `${Math.round(xStart)}px`;
+            connectorElement.style.width = `${Math.round(xEnd - xStart)}px`;
+            connectorElement.style.height = `${connectorThickness}px`;
+        } else {
+            const x = tabCenterX;
+
+            const yStart = tab.bottom;
+            const yEnd = content.top;
+
+            if (yEnd <= yStart) {
+                connectorElement.classList.add('hidden');
+                return;
+            }
+
+            connectorElement.style.left = `${Math.round(x - connectorThickness / 2)}px`;
+            connectorElement.style.top = `${Math.round(yStart)}px`;
+            connectorElement.style.height = `${Math.round(yEnd - yStart)}px`;
+            connectorElement.style.width = `${connectorThickness}px`;
+        }
     });
 }
 

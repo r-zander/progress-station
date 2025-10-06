@@ -110,7 +110,7 @@
         </div>
 
         <div id="attributesDisplay"
-             class="shortcut panel px-3 py-1 d-flex justify-content-start gap-4 overflow-x-auto"
+             class="shortcut tabButton panel px-3 py-1 d-flex justify-content-start gap-4 overflow-x-auto"
              onclick="setTab('attributes');">
             <div class="primary-stat" data-attribute="population"
                  data-bs-placement="bottom" data-bs-html="true">
@@ -248,13 +248,6 @@
                         <span class="pointOfInterest text-truncate">Point of Interest</span>
                     </div>
                 </button>
-                <div id="attributesTabButtonRequirements" class="requirements-container m-2">
-                    <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
-                </div>
-                <button id="attributesTabButton" class="tabButton panel p-3" onClick="setTab('attributes');">
-                    <!--suppress HtmlUnknownTag -->
-                    <h3>Attributes</h3>
-                </button>
                 <button id="galacticSecretsTabButton" class="tabButton panel p-3" onClick="setTab('galacticSecrets');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Galactic Secrets</h3>
@@ -278,6 +271,7 @@
         <hr id="connector" class="d-none d-lg-block" />
 
         <div id="content" class="panel flex-fill position-relative mh-100 overflow-auto">
+            <div class="bar-animation"></div>
             <template id="level1Template">
                 <div class="level1">
                     <div class="level1-header d-flex justify-content-start py-2 px-2 mb-0">
