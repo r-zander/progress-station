@@ -23,9 +23,9 @@ const moduleOperationRequirements = {
         }]),
     ),
     PocketLaboratory: moduleOperations.PocketLaboratory.registerRequirement(
-        new AttributeRequirement('playthrough', [{
-            attribute: attributes.research,
-            requirement: 0.01,
+        new FactionLevelsDefeatedRequirement('playthrough', [{
+            faction: factions.NovaFlies,
+            requirement: 20,
         }]),
     ),
     HeavyGlitz: moduleOperations.HeavyGlitz.registerRequirement(
@@ -208,10 +208,10 @@ const modulesRequirements = {
  */
 const pointsOfInterestRequirements = {
     StarlightEnclave: pointsOfInterest.StarlightEnclave.registerRequirement(
-        new FactionLevelsDefeatedRequirement('playthrough', [{
-            faction: factions.Astrogoblins,
-            requirement: 20, // Target: 20
-            // equals Battle #5
+        //Same as Locations tab
+        new OperationLevelRequirement('playthrough', [{
+            operation: moduleOperations.PocketLaboratory,
+            requirement: 10,
         }]),
     ),
     GrowthLocationLow: pointsOfInterest.GrowthLocationLow.registerRequirement(
