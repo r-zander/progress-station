@@ -316,9 +316,8 @@ class GameData {
      */
     tryLoading() {
         const localStorageItem = localStorage.getItem(localStorageKey);
-        let saveGameFound = false;
-        if (localStorageItem) {
-            saveGameFound = true;
+        let saveGameFound = localStorageItem !== '' && localStorageItem !== null;
+        if (saveGameFound) {
             const gameDataSave = JSON.parse(localStorageItem);
 
             this.#checkSaveGameVersion(gameDataSave);
@@ -453,7 +452,7 @@ class GameData {
             const decoded = window.atob(rawValue);
             const parsed = JSON.parse(decoded);
 
-            if (!parsed || typeof parsed !== "object" || Object.keys(parsed).length === 0) {
+            if (!_.isObjectLike(parsed) || Object.keys(parsed).length === 0) {
                 throw new Error("Invalid save data format.");
             }
 
@@ -465,12 +464,6 @@ class GameData {
             console.error("Import failed:", e);
             alert("Invalid save data. Please check and try again.");
         }
-    }
-
-    import2() {
-        const importExportBox = document.getElementById('importExportBox');
-        localStorage.setItem(localStorageKey, window.atob(importExportBox.value));
-        location.reload();
     }
 
     export() {

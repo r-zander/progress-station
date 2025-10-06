@@ -620,7 +620,7 @@ class AutoplaySystem {
     calculateBattleScore(battle) {
         try {
             // Check safety constraint first
-            if (!this.isBattleSafe(battle)) {
+            if (!battle.isSafeToEngage()) {
                 return 0;
             }
 
@@ -714,27 +714,6 @@ class AutoplaySystem {
             return requirements === null;
         } catch (error) {
             this.log(`Error checking operation availability: ${error.message}`);
-            return false;
-        }
-    }
-
-    /**
-     * Checks if a battle is safe (Danger <= Military constraint)
-     */
-    isBattleSafe(battle) {
-        try {
-            if (!battle.getEffect) {
-                return false;
-            }
-
-            const currentDanger = attributes.danger.getValue();
-            const currentMilitary = attributes.military.getValue();
-            const battleDanger = battle.getEffect(EffectType.Danger) || 0;
-
-            const totalDanger = currentDanger + battleDanger;
-
-            return totalDanger <= currentMilitary;
-        } catch {
             return false;
         }
     }

@@ -46,22 +46,53 @@ class LayeredTask extends Task {
     }
 }
 
+/**
+ * Shows a reusable danger confirmation modal with callbacks for user decision.
+ * @param {function()} onConfirm - Callback executed when user clicks proceed button
+ * @param {function()} onCancel - Callback executed when user closes modal without proceeding
+ * @return {void}
+ */
 function showDangerModal(onConfirm, onCancel) {
     const modalElement = document.getElementById('dangerModal');
-    const modal = new bootstrap.Modal(modalElement);
+
+    // Safety check: if modal is already visible, call onCancel immediately
+    if (modalElement.classList.contains('show')) {
+        if (isFunction(onCancel)) onCancel();
+        return;
+    }
+
+    // Get existing modal instance or create new one
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
     const proceedBtn = document.getElementById('confirmDangerBtn');
+    let callbackHandled = false;
 
-    proceedBtn.onclick = null;
-    modalElement.removeEventListener('hidden.bs.modal', onCancel);
-
-    proceedBtn.onclick = () => {
-        modal.hide();
-        if (onConfirm) onConfirm();
+    // Cleanup function to remove all event handlers
+    const cleanup = () => {
+        proceedBtn.removeEventListener('click', handleProceed);
+        modalElement.removeEventListener('hidden.bs.modal', handleCancel);
     };
 
-    modalElement.addEventListener('hidden.bs.modal', () => {
-        if (onCancel) onCancel();
-    }, { once: true });
+    // Handler for proceed button
+    const handleProceed = () => {
+        if (callbackHandled) return;
+        callbackHandled = true;
+        cleanup();
+        modal.hide();
+        if (isFunction(onConfirm)) onConfirm();
+    };
+
+    // Handler for modal close/cancel
+    const handleCancel = () => {
+        if (callbackHandled) return;
+        callbackHandled = true;
+        cleanup();
+        if (isFunction(onCancel)) onCancel();
+    };
+
+    // Add event listeners
+    proceedBtn.addEventListener('click', handleProceed);
+    modalElement.addEventListener('hidden.bs.modal', handleCancel, { once: true });
 
     modal.show();
 }
@@ -111,7 +142,7 @@ class Battle extends LayeredTask {
         if (this.isActive()) {
             this.stop();
         } else {
-            if (!this.isBattleSafe()) {
+            if (!this.isSafeToEngage()) {
                 showDangerModal(
                     () => this.start(),   // onConfirm
                     () => {}              // onCancel (do nothing)
@@ -165,7 +196,7 @@ class Battle extends LayeredTask {
         return Effect.getDescription(this, this.rewards, 1);
     }
 
-    isBattleSafe() {
+    isSafeToEngage() {
         const currentDanger = attributes.danger.getValue();
         const currentMilitary = attributes.military.getValue();
         const battleDanger = this.getEffect(EffectType.Danger);

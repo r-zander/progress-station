@@ -59,6 +59,12 @@ This is a pure client-side HTML/JS/CSS project with no build system:
 - Game uses FastDOM for performance-optimized DOM operations
 - No package.json - this is a vanilla JavaScript project
 
+### Code Style
+- **No falsy/truthy checks**: Always use explicit type checks instead of relying on falsy/truthy values
+  - Use `isFunction()`, `isNumber()`, `isString()`, etc. for type checking
+  - Use explicit comparisons: `!== null`, `!== undefined`, `=== 0`, etc.
+  - Example: Use `if (isFunction(callback))` instead of `if (callback)`
+
 ## Game Mechanics & Interaction
 
 ### Core Game Loop
