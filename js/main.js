@@ -98,6 +98,10 @@ function setTab(selectedTab) {
     gameData.save();
 
     hideAllTooltips();
+    if (!gameData.state.gameLoopRunning) {
+        // Won't be called otherwise
+        updateConnector();
+    }
 }
 
 function setPointOfInterest(name) {
@@ -2026,6 +2030,11 @@ function initTooltips() {
     for (const tooltipTriggerElement of tooltipTriggerElements) {
         initTooltip(tooltipTriggerElement, {});
     }
+
+    // Prevent tooltips from interfering with modals
+    document.body.addEventListener('show.bs.modal', event => {
+        hideAllTooltips();
+    });
 }
 
 function initTabBehavior() {
