@@ -132,6 +132,7 @@ function setAudioVolume(newValue) {
 
 function initAudio() {
     // TODO needs special handling to circumvent brower's audio auto-play blocking
+    const savedValueAudioEnabled = gameData.settings.audio.enabled;
     gameData.settings.audio.enabled = false;
 
     Howler.mute(gameData.settings.audio.enabled);
@@ -158,10 +159,15 @@ function initAudio() {
     //     wasAudioEnabled = true;
     // }
 
-
-    // Potentially show "Enable Audio?" toast
-    // if (gameData.settings.audio.toastAnswered === false) {
+    if (gameData.settings.audio.toastAnswered) {
+        if (savedValueAudioEnabled) {
+            // "Welcome back, re-enable audio?"
+            const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('reEnableAudioToast'));
+            toast.show();
+        } // else don't annoy player and devs :)
+    } else {
+        // "Hello, would you like audio?"
         const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
         toast.show();
-    // }
+    }
 }

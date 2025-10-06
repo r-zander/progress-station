@@ -1111,11 +1111,29 @@
             <img src="img/icons/buttons/sound.svg" class="me-2" />
             <span>This browser game offers sound!</span>
             <div class="mt-2 pt-2 d-flex border-top">
-                <button type="button" class="btn btn-info" onclick="disableAudioFromToast();">
+                <button type="button" class="btn btn-info" onclick="disableAudioFromToast('enableAudioToast');">
                     <img src="img/icons/buttons/sound-off.svg" />
                     <span>Keep off</span>
                 </button>
-                <button type="button" class="btn btn-warning ms-auto" onclick="enableAudioFromToast();">
+                <button type="button" class="btn btn-warning ms-auto" onclick="enableAudioFromToast('enableAudioToast');">
+                    <img src="img/icons/buttons/sound-on.svg" />
+                    <span>Turn on!</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="reEnableAudioToast" class="toast text-bg-info" role="alert"
+         aria-live="assertive" aria-atomic="true"
+         data-bs-autohide="false">
+        <div class="toast-body">
+            <img src="img/icons/buttons/sound.svg" class="me-2" />
+            <span>Browser failed to automatically re-enable sounds.</span>
+            <div class="mt-2 pt-2 d-flex border-top">
+                <button type="button" class="btn btn-info" onclick="disableAudioFromToast('reEnableAudioToast');">
+                    <img src="img/icons/buttons/sound-off.svg" />
+                    <span>Keep off</span>
+                </button>
+                <button type="button" class="btn btn-warning ms-auto" onclick="enableAudioFromToast('reEnableAudioToast');">
                     <img src="img/icons/buttons/sound-on.svg" />
                     <span>Turn on!</span>
                 </button>
