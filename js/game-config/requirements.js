@@ -1,5 +1,19 @@
 'use strict';
 
+const prerequisites = {
+    attributeUnlocked: {
+        // TODO better save container?
+        research: [moduleOperations.PocketLaboratory.registerRequirement(new AttributeRequirement('playthrough', [{
+            attribute: attributes.research,
+            requirement: 0.01,
+        }]))],
+        gridStrength: [gridStrength.registerRequirement(new AttributeRequirement('playthrough', [{
+            attribute: attributes.gridStrength,
+            requirement: 0.01,
+        }]))],
+    }
+};
+
 /**
  * @type {Object<Requirement>}
  */
@@ -306,7 +320,10 @@ const htmlElementRequirements = {
                 Dom.get().byId('energyGridDisplay'),
             ],
             requirements: [new OperationLevelRequirement('playthrough',
-                [{operation: moduleOperations.StandbyGenerator, requirement: 1}]),
+                [{
+                    operation: moduleOperations.StandbyGenerator,
+                    requirement: 1
+                }]),
             ],
         }),
     gridStrengthElements: new HtmlElementWithRequirement(
@@ -316,7 +333,10 @@ const htmlElementRequirements = {
                 Dom.get().byId('gridStrength'),
             ],
             requirements: [new AttributeRequirement('playthrough',
-                [{attribute: attributes.gridStrength, requirement: 1}]),
+                [{
+                    attribute: attributes.gridStrength,
+                    requirement: 1
+                }]),
             ],
         }),
     industryDisplay: new HtmlElementWithRequirement(
@@ -354,7 +374,7 @@ const htmlElementRequirements = {
                 requirement: 10,
             }])],
             elementsToShowRequirements: [Dom.get().byId('battleTabButtonRequirements')],
-            prerequirements: [moduleOperationRequirements.KungFuManual],
+            prerequisites: [moduleOperationRequirements.KungFuManual],
         }),
     dangerDisplay: new HtmlElementWithRequirement(
         {
@@ -397,18 +417,22 @@ const htmlElementRequirements = {
                 requirement: 10,
             }])],
             elementsToShowRequirements: [Dom.get().byId('locationTabButtonRequirements')],
-            prerequirements: [moduleOperationRequirements.PocketLaboratory],
+            prerequisites: [moduleOperationRequirements.PocketLaboratory],
         }),
     attributesTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('attributesTabButton')],
-            requirements: [new AttributeRequirement('playthrough', [{
-                attribute: attributes.research,
-                requirement: 10,
-            }])],
+            requirements: [new AttributeRequirement(
+                'playthrough',
+                [{
+                    attribute: attributes.research,
+                    requirement: 10,
+                }],
+                prerequisites.attributeUnlocked.research,
+            )],
             elementsToShowRequirements: [Dom.get().byId('attributesTabButtonRequirements')],
             // Same as for LocationTabButton
-            prerequirements: [new OperationLevelRequirement('playthrough', [{
+            prerequisites: [new OperationLevelRequirement('playthrough', [{
                 operation: moduleOperations.PocketLaboratory,
                 requirement: 10,
             }])],

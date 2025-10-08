@@ -940,6 +940,7 @@ class GalacticSecret extends Entity {
 /**
  * @typedef {Object} RequirementLike
  * @property {function(): string} toHtml
+ * @property {function(): boolean} isVisible
  */
 
 /**
@@ -956,11 +957,19 @@ class Requirement {
      * @param {string} type
      * @param {'permanent'|'playthrough'|'update'} scope
      * @param {*[]} requirements
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(type, scope, requirements) {
+    constructor(type, scope, requirements, prerequisites) {
         this.type = type;
         this.scope = scope;
         this.requirements = requirements;
+        this.prerequisites = prerequisites;
+
+        if (Array.isArray(prerequisites)) {
+            this.prerequisites = prerequisites;
+        } else {
+            this.prerequisites = [];
+        }
     }
 
     /**
@@ -1012,6 +1021,13 @@ class Requirement {
         return true;
     }
 
+    /**
+     * @return {boolean}
+     */
+    isVisible() {
+        return this.prerequisites.every(requirement => requirement.isCompleted());
+    }
+
     reset() {
         switch (this.scope) {
             case 'permanent':
@@ -1042,10 +1058,7 @@ class Requirement {
             .map(requirement => this.toHtmlInternal(requirement).trim())
             .join(', ');
 
-        // TODO pseudo-prerequisites
-        if (innerHtml === '') {
-            return '';
-        }
+        console.assert(innerHtml !== '', 'Empty requirement html', this);
 
         return `<span class="${this.type}">${innerHtml}</span>`;
     }
@@ -1054,7 +1067,7 @@ class Requirement {
      * @return {string}
      */
     toHtmlInternal(requirement) {
-        throw new TypeError('toHtml not implemented.');
+        throw new TypeError('toHtmlInternal not implemented.');
     }
 
     /**
@@ -1096,13 +1109,68 @@ class Requirement {
     }
 }
 
+/**
+ *
+ * @param {Requirement[]} requirements
+ * @return {'permanent'|'playthrough'|'update'}
+ */
+function findShortestScope(requirements) {
+    let scope = 'permanent';
+    for (const requirement of requirements) {
+        switch (requirement.scope) {
+            case 'permanent':
+                break;
+            case 'playthrough':
+                if (scope === 'permanent') {
+                    scope = 'playthrough';
+                }
+                break;
+            case 'update':
+                return 'update'; // can instantly return, there is no shorter scope
+        }
+    }
+
+    return scope;
+}
+
+/**
+ * Usually used as Prerequisites to check if the requirements of another entity are fulfilled.
+ *
+ * The scope is automatically set to the shortest scope among requirements of the provided entity to ensure accurate checking.
+ */
+class EntityUnlockedRequirement extends Requirement {
+    /**
+     * @param {{requirements: Requirement[]}} entity
+     */
+    constructor(entity) {
+        super('EntityUnlockedRequirement', findShortestScope(entity.requirements), [entity]);
+    }
+
+    /**
+     * @param {{requirements: Requirement[]}} entity
+     * @return {boolean}
+     */
+    getCondition(entity) {
+        return Requirement.hasRequirementsFulfilled(entity);
+    }
+
+    /**
+     * @param {{requirements: Requirement[]}} entity
+     * @return {string}
+     */
+    toHtmlInternal(entity) {
+        throw new TypeError('toHtmlInternal not supported.');
+    }
+}
+
 class OperationLevelRequirement extends Requirement {
     /**
      * @param {'permanent'|'playthrough'|'update'} scope
      * @param {{operation: ModuleOperation, requirement: number}[]} requirements
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements) {
-        super('OperationLevelRequirement', scope, requirements);
+    constructor(scope, requirements, prerequisites) {
+        super('OperationLevelRequirement', scope, requirements, prerequisites);
     }
 
     /**
@@ -1113,16 +1181,16 @@ class OperationLevelRequirement extends Requirement {
         return requirement.operation.level >= requirement.requirement;
     }
 
+    isVisible() {
+        return this.requirements.every((requirement) => Requirement.hasRequirementsFulfilled(requirement.operation))
+            && super.isVisible();
+    }
+
     /**
      * @param {{operation: ModuleOperation, requirement: number}} requirement
      * @return {string}
      */
     toHtmlInternal(requirement) {
-        // TODO pseudo-prerequisites
-        if (Requirement.hasUnfulfilledRequirements(requirement.operation)) {
-            return '';
-        }
-
         return `
 <span class="name">${requirement.operation.title}</span>
 level 
@@ -1136,9 +1204,10 @@ class AgeRequirement extends Requirement {
     /**
      * @param {'permanent'|'playthrough'|'update'} scope
      * @param {{requirement: number}[]} requirements
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements) {
-        super('AgeRequirement', scope, requirements);
+    constructor(scope, requirements, prerequisites) {
+        super('AgeRequirement', scope, requirements, prerequisites);
     }
 
     /**
@@ -1166,9 +1235,10 @@ class AttributeRequirement extends Requirement {
     /**
      * @param {'permanent'|'playthrough'|'update'} scope
      * @param {{attribute: AttributeDefinition, requirement: number}[]} requirements
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements) {
-        super('AttributeRequirement', scope, requirements);
+    constructor(scope, requirements, prerequisites) {
+        super('AttributeRequirement', scope, requirements, prerequisites);
     }
 
     /**
@@ -1185,7 +1255,6 @@ class AttributeRequirement extends Requirement {
      */
     toHtmlInternal(requirement) {
         const value = requirement.attribute.getValue();
-        // TODO pseudo-prerequisites
 
         // TODO format value correctly
         return `
@@ -1200,9 +1269,10 @@ class PointOfInterestVisitedRequirement extends Requirement {
       /**
      * @param {'permanent'|'playthrough'|'update'} scope
      * @param {{pointOfInterest: PointOfInterest}[]} requirements
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements) {
-        super('PointOfInterestVisitedRequirement', scope, requirements);
+    constructor(scope, requirements, prerequisites) {
+        super('PointOfInterestVisitedRequirement', scope, requirements, prerequisites);
     }
 
     /**
@@ -1213,16 +1283,16 @@ class PointOfInterestVisitedRequirement extends Requirement {
         return requirement.pointOfInterest.isActive();
     }
 
+    isVisible() {
+        return this.requirements.every((requirement) => Requirement.hasRequirementsFulfilled(requirement.pointOfInterest))
+            && super.isVisible();
+    }
+
     /**
      * @param {{pointOfInterest: PointOfInterest}} requirement
      * @return {string}
      */
     toHtmlInternal(requirement) {
-        // TODO pseudo-prerequisites
-        if (Requirement.hasUnfulfilledRequirements(requirement.pointOfInterest)) {
-            return '';
-        }
-
         return `visit <span class="name">${requirement.pointOfInterest.title}</span>`;
     }
 }
@@ -1230,9 +1300,10 @@ class PointOfInterestVisitedRequirement extends Requirement {
 class GalacticSecretRequirement extends Requirement {
     /**
      * @param {{galacticSecret: GalacticSecret}[]} requirements
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(requirements) {
-        super('GalacticSecretRequirement', 'permanent', requirements);
+    constructor(requirements, prerequisites) {
+        super('GalacticSecretRequirement', 'permanent', requirements, prerequisites);
     }
 
     /**
@@ -1259,19 +1330,20 @@ class GalacticSecretRequirement extends Requirement {
  */
 
 class HtmlElementWithRequirement {
+
     /**
      * @param {{
      *     elementsWithRequirements: (HTMLElement|LazyHtmlElement|LazyHtmlElementCollection)[],
      *     requirements: Requirement[],
      *     elementsToShowRequirements?: HTMLElement[],
-     *     prerequirements?: Requirement[],
+     *     prerequisites?: Requirement[],
      * }} baseData
      */
     constructor(baseData) {
         this.elementsWithRequirements = baseData.elementsWithRequirements;
         this.requirements = baseData.requirements;
         this.elementsToShowRequirements = isUndefined(baseData.elementsToShowRequirements) ? [] : baseData.elementsToShowRequirements;
-        this.prerequirements = baseData.prerequirements;
+        this.prerequisites = baseData.prerequisites;
 
         if (Array.isArray(this.requirements)) {
             // Use Array.prototype.forEach to a) have an index and b) capture it
@@ -1279,11 +1351,11 @@ class HtmlElementWithRequirement {
         } else {
             this.requirements = [];
         }
-        if (Array.isArray(this.prerequirements)) {
+        if (Array.isArray(this.prerequisites)) {
             // Use Array.prototype.forEach to a) have an index and b) capture it
-            this.prerequirements.forEach(this.registerPrerequirementInternal, this);
+            this.prerequisites.forEach(this.registerPrerequirementInternal, this);
         } else {
-            this.prerequirements = [];
+            this.prerequisites = [];
         }
     }
 
@@ -1337,18 +1409,18 @@ class HtmlElementWithRequirement {
      * @return {boolean}
      */
     isVisible() {
-        return this.prerequirements.every(requirement => requirement.isCompleted());
+        return this.prerequisites.every(requirement => requirement.isCompleted());
     }
 
     /**
      * @return {string}
      */
     toHtml() {
-        // TODO use #requirementsTemplate
         const requirementsString = this.requirements
             .map(requirement => requirement.toHtml())
             .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
             .join(', ');
+        // This HTML should match the content of <template id="requirementsTemplate">
         return `<div class="requirements help-text">
             Next unlock at:
             <span class="rendered">${requirementsString}</span>
@@ -1366,7 +1438,7 @@ class HtmlElementWithRequirement {
         for (const requirement of this.requirements) {
             requirement.reset();
         }
-        for (const requirement of this.prerequirements) {
+        for (const requirement of this.prerequisites) {
             requirement.reset();
         }
     }

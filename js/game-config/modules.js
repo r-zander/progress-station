@@ -280,7 +280,10 @@ const modules = {
         title: 'Defensive Module',
         description: 'The station\'s shield and sword. Whether repelling invaders or standing guard, peace is made by those prepared for war.',
         components: [moduleComponents.Protection, moduleComponents.Turrets],
-        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 6}])],
+        requirements: [new AttributeRequirement('playthrough', [{
+            attribute: attributes.gridStrength,
+            requirement: 6
+        }])],
     }),
     Quarters: new Module({
         title: 'Quarters Module',
