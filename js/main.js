@@ -90,13 +90,11 @@ function setTab(selectedTab) {
     tabButtons[selectedTab].classList.add('active');
 
     const content = Dom.get().byId('content');
-    const animBar = content.querySelector('.bar-animation');
 
-    if(isVerticalBarAnimation) {
-        content.style.borderTop = 'none';
-        content.style.borderLeft = '3px solid var(--active-color)';
-        animBar.className = 'bar-animation vertical';
-        animBar.animate(
+    if (isVerticalBarAnimation) {
+        content.classList.add('vertical');
+        content.classList.remove('horizontal');
+        content.animate(
             [
                 {offset: 0.0, backgroundSize: '0 100%'},
                 {offset: 0.1, backgroundSize: '24px 100%'},
@@ -110,12 +108,10 @@ function setTab(selectedTab) {
             },
         );
       
-    }
-    else {
-        content.style.borderLeft = 'none';
-        content.style.borderTop = '3px solid var(--active-color)';
-        animBar.className = 'bar-animation horizontal';
-        animBar.animate(
+    } else {
+        content.classList.add('horizontal');
+        content.classList.remove('vertical');
+        content.animate(
             [
                 {offset: 0.0, backgroundSize: '100% 0'},
                 {offset: 0.1, backgroundSize: '100% 24px'},
@@ -159,8 +155,6 @@ function updateConnector() {
     const activeTabButton = Dom.get().bySelector('.tabButton.active');
     const connectorElement = Dom.get().byId('connector');
     const contentElement = Dom.get().byId('content');
-
-    if (!activeTabButton || !connectorElement || !contentElement) return;
 
     const connectorThickness = 3;
 

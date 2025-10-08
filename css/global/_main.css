@@ -137,25 +137,12 @@ a#gameTitle {
     border-left: 3px solid var(--active-color);
 }
 
-.bar-animation {
-    position: absolute;
-    inset: 0;
-    background-image: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 4px,
-        var(--active-color) 4px,
-        var(--active-color) 8px
-    );
-    pointer-events: none;
-}
-
-.bar-animation.horizontal {
+#content.horizontal {
     background-repeat: repeat-x;
     background-size: 100% 0;
 }
 
-.bar-animation.vertical {
+#content.vertical {
     background-repeat: repeat-y;
     background-size: 0 100%;
 }
