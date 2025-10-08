@@ -1834,50 +1834,6 @@ function updateBodyClasses() {
     document.getElementById('body').classList.toggle('game-playing', gameData.state === gameStates.PLAYING);
 }
 
-function calculateGridLoad() {
-    let gridLoad = 0;
-
-    for (const key of gameData.activeEntities.operations) {
-        const operation = moduleOperations[key];
-        if (!operation.isActive('parent')) continue;
-
-        gridLoad += operation.getGridLoad();
-    }
-
-    return gridLoad;
-}
-
-function calculateGalacticSecretCost() {
-    const unlockedGalacticSecrets = Object.values(galacticSecrets)
-        .filter(galacticSecret => galacticSecret.isUnlocked)
-        .length;
-    return Math.pow(3, unlockedGalacticSecrets);
-}
-
-function increaseCycle() {
-    if (!gameData.state.isTimeProgressing) return;
-
-    const increase = applySpeed(cycleDurationInSeconds);
-    gameData.cycles += increase;
-    gameData.totalCycles += increase;
-
-    if (!isBossBattleAvailable() && gameData.cycles >= getBossAppearanceCycle()) {
-        gameData.bossBattleAvailable = true;
-        gameData.transitionState(gameStates.TUTORIAL_PAUSED);
-        GameEvents.BossAppearance.trigger(undefined);
-    }
-}
-
-function updateBossDistance() {
-    if (gameData.state !== gameStates.PLAYING) return;
-    if (!isBossBattleAvailable()) return;
-
-    // How much time has past since the boss' arrival?
-    const overtime = gameData.cycles - getBossAppearanceCycle();
-    // Translate the elapsed time into distance according to config
-    bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
-}
-
 function visuallyDenyGalacticSecretUnlock(galacticSecret) {
     VFX.shakeElement(Dom.get().bySelector(`#${galacticSecret.domId} .progress`), galacticSecret.domId);
     VFX.highlightText(Dom.get().byId('galacticSecretCostDisplay').parentElement, 'flash-text-denied', 'flash-text-denied');

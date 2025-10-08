@@ -55,6 +55,50 @@ function getGameSpeed() {
     return baseGameSpeed;
 }
 
+function calculateGridLoad() {
+    let gridLoad = 0;
+
+    for (const key of gameData.activeEntities.operations) {
+        const operation = moduleOperations[key];
+        if (!operation.isActive('parent')) continue;
+
+        gridLoad += operation.getGridLoad();
+    }
+
+    return gridLoad;
+}
+
+function calculateGalacticSecretCost() {
+    const unlockedGalacticSecrets = Object.values(galacticSecrets)
+        .filter(galacticSecret => galacticSecret.isUnlocked)
+        .length;
+    return Math.pow(3, unlockedGalacticSecrets);
+}
+
+function increaseCycle() {
+    if (!gameData.state.isTimeProgressing) return;
+
+    const increase = applySpeed(cycleDurationInSeconds);
+    gameData.cycles += increase;
+    gameData.totalCycles += increase;
+
+    if (!isBossBattleAvailable() && gameData.cycles >= getBossAppearanceCycle()) {
+        gameData.bossBattleAvailable = true;
+        gameData.transitionState(gameStates.TUTORIAL_PAUSED);
+        GameEvents.BossAppearance.trigger(undefined);
+    }
+}
+
+function updateBossDistance() {
+    if (gameData.state !== gameStates.PLAYING) return;
+    if (!isBossBattleAvailable()) return;
+
+    // How much time has past since the boss' arrival?
+    const overtime = gameData.cycles - getBossAppearanceCycle();
+    // Translate the elapsed time into distance according to config
+    bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
+}
+
 // noinspection JSUnusedGlobalSymbols -- used in HTML
 function togglePause() {
     switch (gameData.state) {
