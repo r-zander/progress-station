@@ -80,6 +80,7 @@ class Entity {
         this.domId = 'row_' + this.type + '_' + name;
     }
 
+    // TODO why not save requirements via some identifier directly?
     registerRequirementInternal(requirement, index) {
         requirement.registerSaveAndLoad((completed) => {
             this.getSavedValues().requirementCompleted[index] = completed;
@@ -1283,17 +1284,18 @@ class PointOfInterestVisitedRequirement extends Requirement {
         return requirement.pointOfInterest.isActive();
     }
 
-    isVisible() {
-        return this.requirements.every((requirement) => Requirement.hasRequirementsFulfilled(requirement.pointOfInterest))
-            && super.isVisible();
-    }
-
     /**
      * @param {{pointOfInterest: PointOfInterest}} requirement
      * @return {string}
      */
     toHtmlInternal(requirement) {
-        return `visit <span class="name">${requirement.pointOfInterest.title}</span>`;
+        const poiUnlocked = this.requirements.every((requirement) => Requirement.hasRequirementsFulfilled(requirement.pointOfInterest));
+        if (poiUnlocked) {
+            return `visit <span class="name">${requirement.pointOfInterest.title}</span>`;
+        } else {
+            // Instead of completely hiding this requirement, we mask it a bit
+            return `visit <span class="name"><i>Undiscovered Location</i></span>`;
+        }
     }
 }
 
@@ -1312,6 +1314,12 @@ class GalacticSecretRequirement extends Requirement {
      */
     getCondition(requirement) {
         return requirement.galacticSecret.isUnlocked;
+    }
+
+    isVisible() {
+        // Hide Galactic Secret requirements, unless the player currently has Essence of Unknown available
+        return attributes.essenceOfUnknown.getValue() > 0
+            && super.isVisible();
     }
 
     /**

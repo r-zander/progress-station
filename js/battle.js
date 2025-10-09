@@ -358,9 +358,10 @@ class FactionLevelsDefeatedRequirement extends Requirement {
      *     faction: FactionDefinition,
      *     requirement: number
      * }[]} requirements
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements) {
-        super('FactionLevelsDefeatedRequirement', scope, requirements);
+    constructor(scope, requirements, prerequisites) {
+        super('FactionLevelsDefeatedRequirement', scope, requirements, prerequisites);
     }
 
     /**

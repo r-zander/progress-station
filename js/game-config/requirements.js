@@ -2,16 +2,24 @@
 
 const prerequisites = {
     attributeUnlocked: {
-        // TODO better save container?
-        research: [moduleOperations.PocketLaboratory.registerRequirement(new AttributeRequirement('playthrough', [{
+        // This is "registered" to the attributes tab currently
+        research: [new AttributeRequirement('playthrough', [{
             attribute: attributes.research,
             requirement: 0.01,
-        }]))],
+        }])],
         gridStrength: [gridStrength.registerRequirement(new AttributeRequirement('playthrough', [{
             attribute: attributes.gridStrength,
             requirement: 0.01,
         }]))],
-    }
+    },
+    KungFuManualLvl10: [new OperationLevelRequirement('playthrough', [{
+        operation: moduleOperations.KungFuManual,
+        requirement: 10,
+    }])],
+    AstrogoblinsLvl75:   new FactionLevelsDefeatedRequirement('playthrough', [{
+        faction: factions.Astrogoblins,
+        requirement: 10 + 20 + 30 + 50 + 75, // All battles before Lvl 100
+    }]),
 };
 
 /**
@@ -40,7 +48,7 @@ const moduleOperationRequirements = {
         new FactionLevelsDefeatedRequirement('playthrough', [{
             faction: factions.NovaFlies,
             requirement: 20,
-        }]),
+        }], prerequisites.KungFuManualLvl10),
     ),
     HeavyGlitz: moduleOperations.HeavyGlitz.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
@@ -51,7 +59,7 @@ const moduleOperationRequirements = {
     Radiance: moduleOperations.Radiance.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
             operation: moduleOperations.HeavyGlitz,
-            requirement: 100,
+            requirement: 500,
         }]),
     ),
     AsteroidChomper: moduleOperations.AsteroidChomper.registerRequirement(
@@ -63,7 +71,7 @@ const moduleOperationRequirements = {
     TenDrills: moduleOperations.TenDrills.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
             operation: moduleOperations.AsteroidChomper,
-            requirement: 100,
+            requirement: 500,
         }]),
     ),
     Diesel: moduleOperations.Diesel.registerRequirement(
@@ -72,7 +80,7 @@ const moduleOperationRequirements = {
             requirement: 10,
         }]),
     ),
-    FuelT3: moduleOperations.FuelT3.registerRequirement(
+    SmellyJelly: moduleOperations.SmellyJelly.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
             operation: moduleOperations.Diesel,
             requirement: 10,
@@ -80,8 +88,8 @@ const moduleOperationRequirements = {
     ),
     Quasarite: moduleOperations.Quasarite.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
-            operation: moduleOperations.FuelT3,
-            requirement: 100,
+            operation: moduleOperations.SmellyJelly,
+            requirement: 500,
         }]),
     ),
     Steel: moduleOperations.Steel.registerRequirement(
@@ -99,7 +107,7 @@ const moduleOperationRequirements = {
     MicroalloyGlass: moduleOperations.MicroalloyGlass.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
             operation: moduleOperations.ProductsT3,
-            requirement: 100,
+            requirement: 500,
         }]),
     ),
     Recruitment: moduleOperations.Recruitment.registerRequirement(
@@ -123,7 +131,7 @@ const moduleOperationRequirements = {
     ReplicationChambers: moduleOperations.ReplicationChambers.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
             operation: moduleOperations.MechanoMaker,
-            requirement: 100,
+            requirement: 500,
         }]),
     ),
     IndividualRooms: moduleOperations.UnitedForVictory.registerRequirement(
@@ -141,7 +149,7 @@ const moduleOperationRequirements = {
     SecretWayOfLife: moduleOperations.GloryToTheGreatHeroes.registerRequirement(
         new OperationLevelRequirement('playthrough', [{
             operation: moduleOperations.GuileIsStrength,
-            requirement: 100,
+            requirement: 500,
         }]),
     ),
     PulseShield: moduleOperations.PulseShield.registerRequirement(
@@ -197,22 +205,37 @@ const modulesRequirements = {
             pointOfInterest: pointsOfInterest.StarlightEnclave,
         }]),
     ),
-    Furnace: modules.Furnace.registerRequirement(
+    Furnace1: modules.Furnace.registerRequirement(
         new AttributeRequirement('playthrough', [{
             attribute: attributes.gridStrength,
             requirement: 4,
         }]),
     ),
-    Defensive: modules.Defensive.registerRequirement(
+    Furnace2: modules.Furnace.registerRequirement(
+        new PointOfInterestVisitedRequirement('playthrough', [{
+            pointOfInterest: pointsOfInterest.GrowthLocationLow,
+        }]),
+    ),
+    Defensive1: modules.Defensive.registerRequirement(
         new AttributeRequirement('playthrough', [{
             attribute: attributes.gridStrength,
             requirement: 6,
         }]),
     ),
-    Quarters: modules.Quarters.registerRequirement(
+    Defensive2: modules.Defensive.registerRequirement(
+        new PointOfInterestVisitedRequirement('playthrough', [{
+            pointOfInterest: pointsOfInterest.GrowthLocationMedium,
+        }]),
+    ),
+    Quarters1: modules.Quarters.registerRequirement(
         new AttributeRequirement('playthrough', [{
             attribute: attributes.gridStrength,
             requirement: 8,
+        }]),
+    ),
+    Quarters2: modules.Quarters.registerRequirement(
+        new PointOfInterestVisitedRequirement('playthrough', [{
+            pointOfInterest: pointsOfInterest.IndustryLocationHigh,
         }]),
     ),
 };
@@ -286,12 +309,16 @@ const pointsOfInterestRequirements = {
  * @type {Object<Requirement>}
  */
 const sectorsRequirements = {
-    BetaSector: sectors.BetaSector.registerRequirement(
+    // Register onto BetaSector as well, otherwise this won't work as prerequisit
+    BetaSector1: sectors.BetaSector.registerRequirement(
+        prerequisites.AstrogoblinsLvl75
+    ),
+    BetaSector2: sectors.BetaSector.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
             faction: factions.Astrogoblins,
             requirement: 250, // Target: 100
             // equals Battle #18
-        }]),
+        }], [prerequisites.AstrogoblinsLvl75]),
     ),
     GammaSector: sectors.GammaSector.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', [{
@@ -369,10 +396,7 @@ const htmlElementRequirements = {
     battleTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('battleTabButton')],
-            requirements: [new OperationLevelRequirement('playthrough', [{
-                operation: moduleOperations.KungFuManual,
-                requirement: 10,
-            }])],
+            requirements: prerequisites.KungFuManualLvl10,
             elementsToShowRequirements: [Dom.get().byId('battleTabButtonRequirements')],
             prerequisites: [moduleOperationRequirements.KungFuManual],
         }),
