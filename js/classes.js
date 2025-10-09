@@ -334,7 +334,6 @@ class GridStrength extends Task {
     }
 }
 
-
 class ModuleCategory extends Entity {
 
     /**
@@ -794,12 +793,6 @@ class GalacticSecret extends Entity {
 }
 
 /**
- * Global registry of all requirements by auto-generated name
- * @type {Object<string, Requirement>}
- */
-const requirementRegistry = {};
-
-/**
  * @typedef {Object} RequirementLike
  * @property {function(): string} toHtml
  * @property {function(): boolean} isVisible
@@ -815,10 +808,22 @@ const requirementRegistry = {};
  */
 class Requirement {
     /**
+     * This list is only used during initialization. Afterward its 
+     * discarded, and you have to use the global `requirementRegistry`.
+     * 
+     * @type {Requirement[]}
+     */
+    static allRequirements = [];
+
+    /**
      * @readonly
      * @var {string}
      */
     #name;
+
+    get name() {
+        return this.#name;
+    }
 
     /**
      *
@@ -839,26 +844,25 @@ class Requirement {
             this.prerequisites = [];
         }
 
+        Requirement.allRequirements.push(this);
+    }
+
+    /**
+     * @param {Object<string, Requirement>} requirementRegistry
+     */
+    register(requirementRegistry){
         // Auto-generate name and self-register
         const generatedName = this.generateName();
 
-        // Check if this requirement already exists
         if (requirementRegistry.hasOwnProperty(generatedName)) {
-            console.warn(
+            throw new Error(
                 `Duplicate requirement detected: "${generatedName}". Reusing existing instance.`,
-                '\nStack trace:',
-                new Error().stack
             );
-            return requirementRegistry[generatedName];
         }
 
         // New requirement - register it
         this.#name = generatedName;
         requirementRegistry[generatedName] = this;
-    }
-
-    get name() {
-        return this.#name;
     }
 
     /**
@@ -928,7 +932,7 @@ class Requirement {
     isCompleted() {
         if (this.completed) return true;
 
-        if (!this.#getCondition(this.baseData)) {
+        if (!this.getCondition(this.baseData)) {
             return false;
         }
         this.completed = true;
@@ -960,15 +964,15 @@ class Requirement {
      * @param {*} baseData - The data object for this requirement
      * @return {boolean}
      */
-    #getCondition(baseData) {
-        throw new TypeError('#getCondition not implemented.');
+    getCondition(baseData) {
+        throw new TypeError('getCondition not implemented.');
     }
 
     /**
      * @return {string}
      */
     toHtml() {
-        if (this.#getCondition(this.baseData)) {
+        if (this.getCondition(this.baseData)) {
             return '';
         }
 
@@ -1018,11 +1022,7 @@ class Requirement {
      * @param {{requirements: Requirement[]}} entity
      */
     static hasUnfulfilledRequirements(entity) {
-        if (isUndefined(entity.requirements)) {
-            return false;
-        }
-
-        return entity.requirements.some(requirement => !requirement.isCompleted());
+        return !Requirement.hasRequirementsFulfilled(entity);
     }
 }
 
@@ -1072,7 +1072,7 @@ class EntityUnlockedRequirement extends Requirement {
      * @param {{requirements: Requirement[]}} entity
      * @return {boolean}
      */
-    #getCondition(entity) {
+    getCondition(entity) {
         return Requirement.hasRequirementsFulfilled(entity);
     }
 
@@ -1103,7 +1103,7 @@ class OperationLevelRequirement extends Requirement {
      * @param {{operation: ModuleOperation, requirement: number}} baseData
      * @return {boolean}
      */
-    #getCondition(baseData) {
+    getCondition(baseData) {
         return baseData.operation.level >= baseData.requirement;
     }
 
@@ -1144,7 +1144,7 @@ class CyclesPassedRequirement extends Requirement {
      * @param {{requirement: number}} baseData
      * @return {boolean}
      */
-    #getCondition(baseData) {
+    getCondition(baseData) {
         return gameData.cycles >= baseData.requirement;
     }
 
@@ -1178,7 +1178,7 @@ class AttributeRequirement extends Requirement {
      * @param {{attribute: AttributeDefinition, requirement: number}} baseData
      * @return {boolean}
      */
-    #getCondition(baseData) {
+    getCondition(baseData) {
         return baseData.attribute.getValue() >= baseData.requirement;
     }
 
@@ -1216,7 +1216,7 @@ class PointOfInterestVisitedRequirement extends Requirement {
      * @param {{pointOfInterest: PointOfInterest}} baseData
      * @return {boolean}
      */
-    #getCondition(baseData) {
+    getCondition(baseData) {
         return baseData.pointOfInterest.isActive();
     }
 
@@ -1252,7 +1252,7 @@ class GalacticSecretRequirement extends Requirement {
      * @param {{galacticSecret: GalacticSecret}} baseData
      * @return {boolean}
      */
-    #getCondition(baseData) {
+    getCondition(baseData) {
         return baseData.galacticSecret.isUnlocked;
     }
 

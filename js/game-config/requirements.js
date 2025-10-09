@@ -6,13 +6,24 @@
  * @type {Object<Requirement>}
  */
 const sharedRequirements = {};
+sharedRequirements.attributeGridStrengthUnlocked = new AttributeRequirement('playthrough', {
+    attribute: attributes.gridStrength,
+    requirement: 0.01,
+});
+sharedRequirements.attributeGridStrength1 = new AttributeRequirement('playthrough', {
+    attribute: attributes.gridStrength,
+    requirement: 1,
+});
+
 sharedRequirements.attributeResearchUnlocked = new AttributeRequirement('playthrough', {
     attribute: attributes.research,
     requirement: 0.01,
 });
-sharedRequirements.attributeGridStrengthUnlocked = new AttributeRequirement('playthrough', {
-    attribute: attributes.gridStrength,
-    requirement: 0.01,
+sharedRequirements.attributeResearch10 = battleRequirements[1];
+
+sharedRequirements.FourDPrinterLvl10 = new OperationLevelRequirement('playthrough', {
+    operation: moduleOperations.FourDPrinter,
+    requirement: 10,
 });
 sharedRequirements.KungFuManualLvl10 = new OperationLevelRequirement('playthrough', {
     operation: moduleOperations.KungFuManual,
@@ -36,7 +47,6 @@ sharedRequirements.PocketLaboratoryLvl10 = new OperationLevelRequirement(
         operation: moduleOperations.PocketLaboratory,
         requirement: 10,
     },
-    // TODO
     [sharedRequirements.NovaFliesLvl20],
 );
 sharedRequirements.AstrogoblinsLvl75 = new FactionLevelsDefeatedRequirement('playthrough', {
@@ -49,16 +59,10 @@ sharedRequirements.AstrogoblinsLvl75 = new FactionLevelsDefeatedRequirement('pla
  */
 const moduleOperationRequirements = {
     FourDPrinter: moduleOperations.FourDPrinter.registerRequirement(
-        new AttributeRequirement('playthrough', {
-            attribute: attributes.gridStrength,
-            requirement: 1,
-        }),
+        sharedRequirements.attributeGridStrength1
     ),
     MicroCyborgAutomat: moduleOperations.MicroCyborgAutomat.registerRequirement(
-        new OperationLevelRequirement('playthrough', {
-            operation: moduleOperations.FourDPrinter,
-            requirement: 10,
-        }),
+        sharedRequirements.FourDPrinterLvl10
     ),
     KungFuManual: moduleOperations.KungFuManual.registerRequirement(
         new OperationLevelRequirement('playthrough', {
@@ -202,10 +206,7 @@ const moduleOperationRequirements = {
  */
 const modulesRequirements = {
     CaptainsQuarter: modules.CaptainsQuarter.registerRequirement(
-        new OperationLevelRequirement('playthrough', {
-            operation: moduleOperations.FourDPrinter,
-            requirement: 10,
-        }),
+        sharedRequirements.FourDPrinterLvl10
     ),
     MiningBay1: modules.MiningBay.registerRequirement(
         sharedRequirements.PocketLaboratoryLvl10
@@ -369,10 +370,7 @@ const htmlElementRequirements = {
                 Dom.get().byId('gridLabel'),
                 Dom.get().byId('gridStrength'),
             ],
-            requirements: [new AttributeRequirement('playthrough', {
-                attribute: attributes.gridStrength,
-                requirement: 1
-            })],
+            requirements: [sharedRequirements.attributeGridStrength1],
         }),
     industryDisplay: new HtmlElementWithRequirement(
         {
@@ -410,9 +408,8 @@ const htmlElementRequirements = {
     battleTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('battleTabButton')],
-            requirements: sharedRequirements.KungFuManualLvl10,
+            requirements: [sharedRequirements.KungFuManualLvl10],
             elementsToShowRequirements: [Dom.get().byId('battleTabButtonRequirements')],
-            prerequisites: [moduleOperationRequirements.KungFuManual],
         }),
     dangerDisplay: new HtmlElementWithRequirement(
         {
@@ -436,10 +433,7 @@ const htmlElementRequirements = {
             elementsWithRequirements: [
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="research"]'),
             ],
-            requirements: [new AttributeRequirement('playthrough', {
-                attribute: attributes.research,
-                requirement: 0.01,
-            })],
+            requirements: [sharedRequirements.attributeResearchUnlocked],
         }),
     locationTabButton: new HtmlElementWithRequirement(
         {
@@ -450,17 +444,7 @@ const htmlElementRequirements = {
     attributesTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('attributesTabButton')],
-            requirements: [new AttributeRequirement(
-                'playthrough',
-                {
-                    attribute: attributes.research,
-                    requirement: 10,
-                },
-                [
-                    sharedRequirements.attributeResearchUnlocked,
-                    sharedRequirements.PocketLaboratory,
-                ],
-            )],
+            requirements: [sharedRequirements.attributeResearch10],
             elementsToShowRequirements: [Dom.get().byId('attributesTabButtonRequirements')],
         }),
     battleMultiEngageHelp: new HtmlElementWithRequirement(

@@ -375,7 +375,7 @@ class FactionLevelsDefeatedRequirement extends Requirement {
      * }} baseData
      * @return {boolean}
      */
-    #getCondition(baseData) {
+    getCondition(baseData) {
         return this.#getDefeatedLevels(baseData.faction) >= baseData.requirement;
     }
 

@@ -31,6 +31,12 @@ const attributeBalanceEntries = [];
 const gridLoadBalanceEntries = [];
 
 /**
+ * Global registry of all requirements by auto-generated name
+ * @type {Object<string, Requirement>}
+ */
+const requirementRegistry = {};
+
+/**
  *
  * @type {Object<HTMLElement>}
  */
@@ -2060,6 +2066,14 @@ function assignNames(data) {
         val.name = key;
     }
 }
+function initRequirements() {
+    for (const requirement of Requirement.allRequirements) {
+        requirement.register(requirementRegistry);
+    }
+
+    // Discard intermediate list
+    Requirement.allRequirements = null;
+}
 
 function initConfigNames() {
     assignNames(gameStates);
@@ -2078,6 +2092,7 @@ function initConfigNames() {
 
 function init() {
     initConfigNames();
+    initRequirements();
     createAttributesHTML();
     createAttributeDescriptions();
 
