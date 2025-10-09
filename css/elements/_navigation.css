@@ -24,10 +24,6 @@
     border-radius: var(--corner-length-large);
     position: relative;
 
-    cursor: pointer;
-    border-width: 0;
-    border-bottom-width: var(--clickable-border-width);
-
     &:hover,
     &:focus {
         border-color: var(--tab-button-interact-border-color);
@@ -48,6 +44,7 @@
     }
 }
 
+.shortcut,
 #attributesDisplay.tabButton {
     cursor: pointer;
     border-width: 0;
