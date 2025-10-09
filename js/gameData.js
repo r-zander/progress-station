@@ -181,20 +181,11 @@ class GameData {
      *
      * @var {{
      *     gridStrength: TaskSavedValues,
-     *
-     *     moduleCategories: Object<ModuleCategorySavedValues>,
      *     modules: Object<ModuleSavedValues>,
-     *     moduleComponents: Object<EmptySavedValues>,
      *     moduleOperations: Object<TaskSavedValues>,
-     *
      *     battles: Object<TaskSavedValues>,
-     *
-     *     sectors: Object<SectorSavedValues>,
-     *     pointsOfInterest: Object<PointOfInterestSavedValues>,
-     *
      *     galacticSecrets: Object<GalacticSecretSavedValues>,
-     *
-     *     htmlElementsWithRequirement: Object<HtmlElementWithRequirementSavedValues>
+     *     requirements: Object<RequirementSavedValues>
      * }}
      */
     savedValues;
@@ -253,22 +244,15 @@ class GameData {
         this.bossBattleAvailable = false;
     }
 
+    // TODO lots of changes - do we need a migration?
     initSavedValues() {
         this.savedValues = {};
 
         this.savedValues.gridStrength = GridStrength.newSavedValues();
 
-        this.savedValues.moduleCategories = {};
-        for (const key in moduleCategories) {
-            this.savedValues.moduleCategories[key] = ModuleCategory.newSavedValues();
-        }
         this.savedValues.modules = {};
         for (const key in modules) {
             this.savedValues.modules[key] = Module.newSavedValues();
-        }
-        this.savedValues.moduleComponents = {};
-        for (const key in moduleComponents) {
-            this.savedValues.moduleComponents[key] = ModuleComponent.newSavedValues();
         }
         this.savedValues.moduleOperations = {};
         for (const key in moduleOperations) {
@@ -281,23 +265,14 @@ class GameData {
         }
         this.savedValues.battles[bossBattle.name] = BossBattle.newSavedValues();
 
-        this.savedValues.sectors = {};
-        for (const key in sectors) {
-            this.savedValues.sectors[key] = Sector.newSavedValues();
-        }
-        this.savedValues.pointsOfInterest = {};
-        for (const key in pointsOfInterest) {
-            this.savedValues.pointsOfInterest[key] = PointOfInterest.newSavedValues();
-        }
-
         this.savedValues.galacticSecrets = {};
         for (const key in galacticSecrets) {
             this.savedValues.galacticSecrets[key] = GalacticSecret.newSavedValues();
         }
 
-        this.savedValues.htmlElementsWithRequirement = {};
-        for (const key in htmlElementRequirements) {
-            this.savedValues.htmlElementsWithRequirement[key] = HtmlElementWithRequirement.newSavedValues();
+        this.savedValues.requirements = {};
+        for (const key in requirementRegistry) {
+            this.savedValues.requirements[key] = Requirement.newSavedValues();
         }
     }
 
@@ -332,37 +307,23 @@ class GameData {
 
         gridStrength.loadValues(this.savedValues.gridStrength);
 
-        // Inverse order of hierarchy during loading --> allows for data propagation
         for (const key in moduleOperations) {
             moduleOperations[key].loadValues(this.savedValues.moduleOperations[key]);
         }
-        for (const key in moduleComponents) {
-            moduleComponents[key].loadValues(this.savedValues.moduleComponents[key]);
-        }
         for (const key in modules) {
             modules[key].loadValues(this.savedValues.modules[key]);
-        }
-        for (const key in moduleCategories) {
-            moduleCategories[key].loadValues(this.savedValues.moduleCategories[key]);
         }
 
         for (const key in battles) {
             battles[key].loadValues(this.savedValues.battles[key]);
         }
 
-        for (const key in sectors) {
-            sectors[key].loadValues(this.savedValues.sectors[key]);
-        }
-        for (const key in pointsOfInterest) {
-            pointsOfInterest[key].loadValues(this.savedValues.pointsOfInterest[key]);
-        }
-
         for (const key in galacticSecrets) {
             galacticSecrets[key].loadValues(this.savedValues.galacticSecrets[key]);
         }
 
-        for (const key in htmlElementRequirements) {
-            htmlElementRequirements[key].loadValues(this.savedValues.htmlElementsWithRequirement[key]);
+        for (const key in requirementRegistry) {
+            requirementRegistry[key].loadValues(this.savedValues.requirements[key]);
         }
 
         GameEvents.GameStateChanged.trigger({

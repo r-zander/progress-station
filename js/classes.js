@@ -80,29 +80,12 @@ class Entity {
         this.domId = 'row_' + this.type + '_' + name;
     }
 
-    // TODO why not save requirements via some identifier directly?
-    /**
-     * @param {Requirement} requirement
-     * @param {number} index
-     */
-    registerRequirementInternal(requirement, index) {
-        requirement.registerSaveAndLoad((completed) => {
-            this.getSavedValues().requirementCompleted[index] = completed;
-        }, () => {
-            if (isUndefined(this.getSavedValues().requirementCompleted[index])) {
-                this.getSavedValues().requirementCompleted[index] = false;
-            }
-            return this.getSavedValues().requirementCompleted[index];
-        });
-    }
-
     /**
      * @param {Requirement} requirement
      * @return {Requirement} the passed in requirement
      */
     registerRequirement(requirement) {
-        const index = this.requirements.push(requirement) - 1;
-        this.registerRequirementInternal(requirement, index);
+        this.requirements.push(requirement);
         return requirement;
     }
 
@@ -112,9 +95,7 @@ class Entity {
     }
 
     /**
-     * @return {{
-     *     requirementCompleted: boolean[]
-     * }}
+     * @return {Object}
      */
     getSavedValues() {
         throw new TypeError('getSavedValues not implemented by ' + this.constructor.name);
@@ -139,7 +120,6 @@ class Entity {
  * @property {number} level
  * @property {number} maxLevel
  * @property {number} xp
- * @property {boolean[]} requirementCompleted
  */
 
 /**
@@ -173,7 +153,6 @@ class Task extends Entity {
             level: JsTypes.Number,
             maxLevel: JsTypes.Number,
             xp: JsTypes.Number,
-            requirementCompleted: JsTypes.Array,
         }, this);
         this.savedValues = savedValues;
     }
@@ -187,7 +166,6 @@ class Task extends Entity {
             level: 0,
             maxLevel: 0,
             xp: 0,
-            requirementCompleted: [],
         };
     }
 
@@ -359,11 +337,6 @@ class GridStrength extends Task {
 }
 
 
-/**
- * @typedef {Object} ModuleCategorySavedValues
- * @property {boolean[]} requirementCompleted
- */
-
 class ModuleCategory extends Entity {
 
     /**
@@ -379,38 +352,11 @@ class ModuleCategory extends Entity {
 
         this.modules = baseData.modules;
     }
-
-    /**
-     * @param {ModuleCategorySavedValues} savedValues
-     */
-    loadValues(savedValues) {
-        validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array,
-        }, this);
-        this.savedValues = savedValues;
-    }
-
-    /**
-     * @return {ModuleCategorySavedValues}
-     */
-    static newSavedValues() {
-        return {
-            requirementCompleted: [],
-        };
-    }
-
-    /**
-     * @return {ModuleCategorySavedValues}
-     */
-    getSavedValues() {
-        return this.savedValues;
-    }
 }
 
 /**
  * @typedef {Object} ModuleSavedValues
  * @property {number} maxLevel
- * @property {boolean[]} requirementCompleted
  */
 
 class Module extends Entity {
@@ -439,7 +385,6 @@ class Module extends Entity {
     loadValues(savedValues) {
         validateParameter(savedValues, {
             maxLevel: JsTypes.Number,
-            requirementCompleted: JsTypes.Array,
         }, this);
         this.savedValues = savedValues;
     }
@@ -450,7 +395,6 @@ class Module extends Entity {
     static newSavedValues() {
         return {
             maxLevel: 0,
-            requirementCompleted: [],
         };
     }
 
@@ -524,11 +468,6 @@ class Module extends Entity {
     }
 }
 
-/**
- * @typedef {Object} ModuleComponentSavedValues
- * @property {boolean[]} requirementCompleted
- */
-
 class ModuleComponent extends Entity {
 
     /** @var {Module} */
@@ -559,32 +498,6 @@ class ModuleComponent extends Entity {
         for (const operation of this.operations) {
             operation.registerModule(module, this);
         }
-    }
-
-    /**
-     * @param {ModuleComponentSavedValues} savedValues
-     */
-    loadValues(savedValues) {
-        validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array,
-        }, this);
-        this.savedValues = savedValues;
-    }
-
-    /**
-     * @return {ModuleComponentSavedValues}
-     */
-    static newSavedValues() {
-        return {
-            requirementCompleted: [],
-        };
-    }
-
-    /**
-     * @return {ModuleComponentSavedValues}
-     */
-    getSavedValues() {
-        return this.savedValues;
     }
 
     /**
@@ -714,11 +627,6 @@ class ModuleOperation extends Task {
 }
 
 
-/**
- * @typedef {Object} SectorSavedValues
- * @property {boolean[]} requirementCompleted
- */
-
 class Sector extends Entity {
     /**
      * @param {{
@@ -735,40 +643,8 @@ class Sector extends Entity {
             pointOfInterest.registerSector(this);
         }
     }
-
-    /**
-     * @param {SectorSavedValues} savedValues
-     */
-    loadValues(savedValues) {
-        validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array,
-        }, this);
-        this.savedValues = savedValues;
-    }
-
-    /**
-     * @return {SectorSavedValues}
-     */
-    static newSavedValues() {
-        return {
-            requirementCompleted: [],
-        };
-    }
-
-    /**
-     *
-     * @return {SectorSavedValues}
-     */
-    getSavedValues() {
-        return this.savedValues;
-    }
 }
 
-
-/**
- * @typedef {Object} PointOfInterestSavedValues
- * @property {boolean[]} requirementCompleted
- */
 
 /**
  * @implements EffectsHolder
@@ -799,30 +675,6 @@ class PointOfInterest extends Entity {
     registerSector(sector) {
         console.assert(this.sector === null, 'Sector already registered.');
         this.sector = sector;
-    }
-
-    /**
-     * @param {PointOfInterestSavedValues} savedValues
-     */
-    loadValues(savedValues) {
-        validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array,
-        }, this);
-        this.savedValues = savedValues;
-    }
-
-    /**
-     * @return {PointOfInterestSavedValues}
-     */
-    static newSavedValues() {
-        return {requirementCompleted: []};
-    }
-
-    /**
-     * @return {PointOfInterestSavedValues}
-     */
-    getSavedValues() {
-        return this.savedValues;
     }
 
     /**
@@ -859,7 +711,6 @@ class PointOfInterest extends Entity {
 /**
  * @typedef {Object} GalacticSecretSavedValues
  * @property {boolean} unlocked
- * @property {boolean[]} requirementCompleted
  */
 
 class GalacticSecret extends Entity {
@@ -896,7 +747,6 @@ class GalacticSecret extends Entity {
     loadValues(savedValues) {
         validateParameter(savedValues, {
             unlocked: JsTypes.Boolean,
-            requirementCompleted: JsTypes.Array,
         }, this);
         this.savedValues = savedValues;
     }
@@ -907,7 +757,6 @@ class GalacticSecret extends Entity {
     static newSavedValues() {
         return {
             unlocked: false,
-            requirementCompleted: [],
         };
     }
 
@@ -947,19 +796,31 @@ class GalacticSecret extends Entity {
 }
 
 /**
+ * Global registry of all requirements by auto-generated name
+ * @type {Object<string, Requirement>}
+ */
+const requirementRegistry = {};
+
+/**
  * @typedef {Object} RequirementLike
  * @property {function(): string} toHtml
  * @property {function(): boolean} isVisible
  */
 
 /**
+ * @typedef {Object} RequirementSavedValues
+ * @property {boolean} completed
+ */
+
+/**
  * @extends {RequirementLike}
  */
 class Requirement {
-    /** @var {function(boolean)} */
-    saveFn;
-    /** @var {function(): boolean} */
-    loadFn;
+    /**
+     * @readonly
+     * @var {string}
+     */
+    #name;
 
     /**
      *
@@ -979,22 +840,70 @@ class Requirement {
         } else {
             this.prerequisites = [];
         }
+
+        // Auto-generate name and self-register
+        const generatedName = this.generateName();
+
+        // Check if this requirement already exists
+        if (requirementRegistry.hasOwnProperty(generatedName)) {
+            console.warn(
+                `Duplicate requirement detected: "${generatedName}". Reusing existing instance.`,
+                '\nStack trace:',
+                new Error().stack
+            );
+            return requirementRegistry[generatedName];
+        }
+
+        // New requirement - register it
+        this.#name = generatedName;
+        requirementRegistry[generatedName] = this;
+    }
+
+    get name() {
+        return this.#name;
     }
 
     /**
-     * @param {function(boolean)} saveFn
-     * @param {function(): boolean} loadFn
+     * Generate a unique name for this requirement based on its type, scope, and content.
+     * Must be implemented by each subclass.
+     * @abstract
+     * @return {string}
      */
-    registerSaveAndLoad(saveFn, loadFn) {
-        this.saveFn = saveFn;
-        this.loadFn = loadFn;
+    generateName() {
+        throw new TypeError('generateName() not implemented by ' + this.constructor.name);
+    }
+
+    /**
+     * @param {RequirementSavedValues} savedValues
+     */
+    loadValues(savedValues) {
+        validateParameter(savedValues, {
+            completed: JsTypes.Boolean,
+        }, this);
+        this.savedValues = savedValues;
+    }
+
+    /**
+     * @return {RequirementSavedValues}
+     */
+    static newSavedValues() {
+        return {
+            completed: false,
+        };
+    }
+
+    /**
+     * @return {RequirementSavedValues}
+     */
+    getSavedValues() {
+        return this.savedValues;
     }
 
     set completed(completed) {
         switch (this.scope) {
             case 'permanent':
             case 'playthrough':
-                this.saveFn(completed);
+                this.getSavedValues().completed = completed;
                 break;
             case 'update':
                 // discard
@@ -1009,7 +918,7 @@ class Requirement {
         switch (this.scope) {
             case 'permanent':
             case 'playthrough':
-                return this.loadFn();
+                return this.getSavedValues().completed;
             case 'update':
                 return false;
         }
@@ -1043,7 +952,7 @@ class Requirement {
                 // Keep value
                 break;
             case 'playthrough':
-                this.saveFn(false);
+                this.getSavedValues().completed = false;
                 break;
             case 'update':
                 // discarded anyway
@@ -1155,6 +1064,11 @@ class EntityUnlockedRequirement extends Requirement {
         super('EntityUnlockedRequirement', findShortestScope(entity.requirements), [entity]);
     }
 
+    generateName() {
+        const entityName = this.requirements[0].name;
+        return `EntityUnlocked_${this.scope}_${entityName}`;
+    }
+
     /**
      * @param {{requirements: Requirement[]}} entity
      * @return {boolean}
@@ -1180,6 +1094,13 @@ class OperationLevelRequirement extends Requirement {
      */
     constructor(scope, requirements, prerequisites) {
         super('OperationLevelRequirement', scope, requirements, prerequisites);
+    }
+
+    generateName() {
+        const parts = this.requirements
+            .map(req => req.operation.name + '_' + req.requirement)
+            .join('_');
+        return `OperationLevel_${this.scope}_${parts}`;
     }
 
     /**
@@ -1219,6 +1140,10 @@ class AgeRequirement extends Requirement {
         super('AgeRequirement', scope, requirements, prerequisites);
     }
 
+    generateName() {
+        return `Age_${this.scope}_${this.requirements[0].requirement}`;
+    }
+
     /**
      *
      * @param {{requirement: number}} requirement
@@ -1248,6 +1173,13 @@ class AttributeRequirement extends Requirement {
      */
     constructor(scope, requirements, prerequisites) {
         super('AttributeRequirement', scope, requirements, prerequisites);
+    }
+
+    generateName() {
+        const parts = this.requirements
+            .map(req => req.attribute.name + '_' + req.requirement)
+            .join('_');
+        return `Attribute_${this.scope}_${parts}`;
     }
 
     /**
@@ -1284,6 +1216,13 @@ class PointOfInterestVisitedRequirement extends Requirement {
         super('PointOfInterestVisitedRequirement', scope, requirements, prerequisites);
     }
 
+    generateName() {
+        const parts = this.requirements
+            .map(req => req.pointOfInterest.name)
+            .join('_');
+        return `PointOfInterestVisited_${this.scope}_${parts}`;
+    }
+
     /**
      * @param {{pointOfInterest: PointOfInterest}} requirement
      * @return {boolean}
@@ -1316,6 +1255,10 @@ class GalacticSecretRequirement extends Requirement {
         super('GalacticSecretRequirement', 'permanent', requirements, prerequisites);
     }
 
+    generateName() {
+        return `GalacticSecret_${this.requirements[0].galacticSecret.name}`;
+    }
+
     /**
      * @param {{galacticSecret: GalacticSecret}} requirement
      * @return {boolean}
@@ -1339,12 +1282,6 @@ class GalacticSecretRequirement extends Requirement {
     }
 }
 
-/**
- * @typedef {Object} HtmlElementWithRequirementSavedValues
- * @property {boolean[]} requirementCompleted
- * @property {boolean[]} prerequirementCompleted
- */
-
 class HtmlElementWithRequirement {
 
     /**
@@ -1361,57 +1298,12 @@ class HtmlElementWithRequirement {
         this.elementsToShowRequirements = isUndefined(baseData.elementsToShowRequirements) ? [] : baseData.elementsToShowRequirements;
         this.prerequisites = baseData.prerequisites;
 
-        if (Array.isArray(this.requirements)) {
-            // Use Array.prototype.forEach to a) have an index and b) capture it
-            this.requirements.forEach(this.registerRequirementInternal, this);
-        } else {
+        if (!Array.isArray(this.requirements)) {
             this.requirements = [];
         }
-        if (Array.isArray(this.prerequisites)) {
-            // Use Array.prototype.forEach to a) have an index and b) capture it
-            this.prerequisites.forEach(this.registerPrerequirementInternal, this);
-        } else {
+        if (!Array.isArray(this.prerequisites)) {
             this.prerequisites = [];
         }
-    }
-
-    registerPrerequirementInternal(requirement, index) {
-        requirement.registerSaveAndLoad((completed) => {
-            this.getSavedValues().prerequirementCompleted[index] = completed;
-        }, () => {
-            if (isUndefined(this.getSavedValues().prerequirementCompleted[index])) {
-                this.getSavedValues().prerequirementCompleted[index] = false;
-            }
-            return this.getSavedValues().prerequirementCompleted[index];
-        });
-    }
-
-    /**
-     * @param {HtmlElementWithRequirementSavedValues} savedValues
-     */
-    loadValues(savedValues) {
-        validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array,
-        }, this);
-        this.savedValues = savedValues;
-    }
-
-    /**
-     * @return {HtmlElementWithRequirementSavedValues}
-     */
-    static newSavedValues() {
-        return {
-            requirementCompleted: [],
-            prerequirementCompleted: [],
-        };
-    }
-
-    /**
-     *
-     * @return {HtmlElementWithRequirementSavedValues}
-     */
-    getSavedValues() {
-        return this.savedValues;
     }
 
     /**
@@ -1459,6 +1351,3 @@ class HtmlElementWithRequirement {
         }
     }
 }
-
-// Funky cross-extension aka "Trait"
-HtmlElementWithRequirement.prototype.registerRequirementInternal = Entity.prototype.registerRequirementInternal;

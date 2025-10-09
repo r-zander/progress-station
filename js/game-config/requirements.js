@@ -1,22 +1,22 @@
 'use strict';
 
+// TODO still required?
 const prerequisites = {
     attributeUnlocked: {
-        // This is "registered" to the attributes tab currently
         research: [new AttributeRequirement('playthrough', [{
             attribute: attributes.research,
             requirement: 0.01,
         }])],
-        gridStrength: [gridStrength.registerRequirement(new AttributeRequirement('playthrough', [{
+        gridStrength: [new AttributeRequirement('playthrough', [{
             attribute: attributes.gridStrength,
             requirement: 0.01,
-        }]))],
+        }])],
     },
     KungFuManualLvl10: [new OperationLevelRequirement('playthrough', [{
         operation: moduleOperations.KungFuManual,
         requirement: 10,
     }])],
-    AstrogoblinsLvl75:   new FactionLevelsDefeatedRequirement('playthrough', [{
+    AstrogoblinsLvl75: new FactionLevelsDefeatedRequirement('playthrough', [{
         faction: factions.Astrogoblins,
         requirement: 10 + 20 + 30 + 50 + 75, // All battles before Lvl 100
     }]),
@@ -309,7 +309,6 @@ const pointsOfInterestRequirements = {
  * @type {Object<Requirement>}
  */
 const sectorsRequirements = {
-    // Register onto BetaSector as well, otherwise this won't work as prerequisit
     BetaSector1: sectors.BetaSector.registerRequirement(
         prerequisites.AstrogoblinsLvl75
     ),

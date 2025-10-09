@@ -364,6 +364,13 @@ class FactionLevelsDefeatedRequirement extends Requirement {
         super('FactionLevelsDefeatedRequirement', scope, requirements, prerequisites);
     }
 
+    generateName() {
+        const parts = this.requirements
+            .map(req => req.faction.name + '_' + req.requirement)
+            .join('_');
+        return `FactionLevelsDefeated_${this.scope}_${parts}`;
+    }
+
     /**
      * @param {{
      *     faction: FactionDefinition,
