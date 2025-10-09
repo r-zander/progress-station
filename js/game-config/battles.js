@@ -1422,11 +1422,11 @@ const bossBattleApproachInterval = 200; // Cycles
 const bossBattle = battles.Boss10;
 
 const battleRequirements = [
-    new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 1.5}]),
-    new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 10}]),
-    new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 20}]),
-    new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 50}]),
-    new AttributeRequirement('playthrough', [{attribute: attributes.research, requirement: 100}]),
+    new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 1.5}),
+    new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 10}),
+    new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 20}),
+    new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 50}),
+    new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 100}),
 ];
 
 /**

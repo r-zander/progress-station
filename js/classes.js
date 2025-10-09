@@ -109,9 +109,7 @@ class Entity {
     }
 
     reset() {
-        for (const requirement of this.requirements) {
-            requirement.reset();
-        }
+        // Nothing to do - requirements get centrally reset
     }
 }
 
@@ -731,7 +729,7 @@ class GalacticSecret extends Entity {
         super(GalacticSecret.#createTitle(baseData.unlocks), baseData.unlocks.description);
 
         this.unlocks = baseData.unlocks;
-        this.unlocks.registerRequirement(new GalacticSecretRequirement([{galacticSecret: this}]));
+        this.unlocks.registerRequirement(new GalacticSecretRequirement({galacticSecret: this}));
     }
 
     /**
@@ -826,13 +824,13 @@ class Requirement {
      *
      * @param {string} type
      * @param {'permanent'|'playthrough'|'update'} scope
-     * @param {*[]} requirements
+     * @param {*} baseData - The data object for this requirement (previously an array)
      * @param {Requirement[]} [prerequisites]
      */
-    constructor(type, scope, requirements, prerequisites) {
+    constructor(type, scope, baseData, prerequisites) {
         this.type = type;
         this.scope = scope;
-        this.requirements = requirements;
+        this.baseData = baseData;
         this.prerequisites = prerequisites;
 
         if (Array.isArray(prerequisites)) {
@@ -930,10 +928,8 @@ class Requirement {
     isCompleted() {
         if (this.completed) return true;
 
-        for (const requirement of this.requirements) {
-            if (!this.getCondition(requirement)) {
-                return false;
-            }
+        if (!this.#getCondition(this.baseData)) {
+            return false;
         }
         this.completed = true;
         return true;
@@ -961,20 +957,22 @@ class Requirement {
     }
 
     /**
+     * @param {*} baseData - The data object for this requirement
      * @return {boolean}
      */
-    getCondition(requirement) {
-        throw new TypeError('getCondition not implemented.');
+    #getCondition(baseData) {
+        throw new TypeError('#getCondition not implemented.');
     }
 
     /**
      * @return {string}
      */
     toHtml() {
-        const innerHtml = this.requirements
-            .filter(requirement => !this.getCondition(requirement))
-            .map(requirement => this.toHtmlInternal(requirement).trim())
-            .join(', ');
+        if (this.#getCondition(this.baseData)) {
+            return '';
+        }
+
+        const innerHtml = this.toHtmlInternal(this.baseData).trim();
 
         console.assert(innerHtml !== '', 'Empty requirement html', this);
 
@@ -982,9 +980,10 @@ class Requirement {
     }
 
     /**
+     * @param {*} baseData - The data object for this requirement
      * @return {string}
      */
-    toHtmlInternal(requirement) {
+    toHtmlInternal(baseData) {
         throw new TypeError('toHtmlInternal not implemented.');
     }
 
@@ -1061,11 +1060,11 @@ class EntityUnlockedRequirement extends Requirement {
      * @param {{requirements: Requirement[]}} entity
      */
     constructor(entity) {
-        super('EntityUnlockedRequirement', findShortestScope(entity.requirements), [entity]);
+        super('EntityUnlockedRequirement', findShortestScope(entity.requirements), entity);
     }
 
     generateName() {
-        const entityName = this.requirements[0].name;
+        const entityName = this.baseData.name;
         return `EntityUnlocked_${this.scope}_${entityName}`;
     }
 
@@ -1073,7 +1072,7 @@ class EntityUnlockedRequirement extends Requirement {
      * @param {{requirements: Requirement[]}} entity
      * @return {boolean}
      */
-    getCondition(entity) {
+    #getCondition(entity) {
         return Requirement.hasRequirementsFulfilled(entity);
     }
 
@@ -1089,43 +1088,40 @@ class EntityUnlockedRequirement extends Requirement {
 class OperationLevelRequirement extends Requirement {
     /**
      * @param {'permanent'|'playthrough'|'update'} scope
-     * @param {{operation: ModuleOperation, requirement: number}[]} requirements
+     * @param {{operation: ModuleOperation, requirement: number}} baseData
      * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements, prerequisites) {
-        super('OperationLevelRequirement', scope, requirements, prerequisites);
+    constructor(scope, baseData, prerequisites) {
+        super('OperationLevelRequirement', scope, baseData, prerequisites);
     }
 
     generateName() {
-        const parts = this.requirements
-            .map(req => req.operation.name + '_' + req.requirement)
-            .join('_');
-        return `OperationLevel_${this.scope}_${parts}`;
+        return `OperationLevel_${this.scope}_${this.baseData.operation.name}_${this.baseData.requirement}`;
     }
 
     /**
-     * @param {{operation: ModuleOperation, requirement: number}} requirement
+     * @param {{operation: ModuleOperation, requirement: number}} baseData
      * @return {boolean}
      */
-    getCondition(requirement) {
-        return requirement.operation.level >= requirement.requirement;
+    #getCondition(baseData) {
+        return baseData.operation.level >= baseData.requirement;
     }
 
     isVisible() {
-        return this.requirements.every((requirement) => Requirement.hasRequirementsFulfilled(requirement.operation))
+        return Requirement.hasRequirementsFulfilled(this.baseData.operation)
             && super.isVisible();
     }
 
     /**
-     * @param {{operation: ModuleOperation, requirement: number}} requirement
+     * @param {{operation: ModuleOperation, requirement: number}} baseData
      * @return {string}
      */
-    toHtmlInternal(requirement) {
+    toHtmlInternal(baseData) {
         return `
-<span class="name">${requirement.operation.title}</span>
-level 
-<data value="${requirement.operation.level}">${requirement.operation.level}</data> /
-<data value="${requirement.requirement}">${requirement.requirement}</data>
+<span class="name">${baseData.operation.title}</span>
+level
+<data value="${baseData.operation.level}">${baseData.operation.level}</data> /
+<data value="${baseData.requirement}">${baseData.requirement}</data>
 `;
     }
 }
@@ -1133,75 +1129,71 @@ level
 class CyclesPassedRequirement extends Requirement {
     /**
      * @param {'permanent'|'playthrough'|'update'} scope
-     * @param {{requirement: number}[]} requirements
+     * @param {{requirement: number}} baseData
      * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements, prerequisites) {
-        super('CyclesPassedRequirement', scope, requirements, prerequisites);
+    constructor(scope, baseData, prerequisites) {
+        super('CyclesPassedRequirement', scope, baseData, prerequisites);
     }
 
     generateName() {
-        return `CyclesPassed_${this.scope}_${this.requirements[0].requirement}`;
+        return `CyclesPassed_${this.scope}_${this.baseData.requirement}`;
     }
 
     /**
-     *
-     * @param {{requirement: number}} requirement
+     * @param {{requirement: number}} baseData
      * @return {boolean}
      */
-    getCondition(requirement) {
-        return gameData.cycles >= requirement.requirement;
+    #getCondition(baseData) {
+        return gameData.cycles >= baseData.requirement;
     }
 
     /**
-     * @param {{requirement: number}} requirement
+     * @param {{requirement: number}} baseData
      * @return {string}
      */
-    toHtmlInternal(requirement) {
+    toHtmlInternal(baseData) {
         return `
 <span class="name">IC</span>
 <data value="${gameData.cycles}">${gameData.cycles}</data> /
-<data value="${requirement.requirement}">${requirement.requirement}</data>`;
+<data value="${baseData.requirement}">${baseData.requirement}</data>`;
     }
 }
 
 class AttributeRequirement extends Requirement {
     /**
      * @param {'permanent'|'playthrough'|'update'} scope
-     * @param {{attribute: AttributeDefinition, requirement: number}[]} requirements
+     * @param {{attribute: AttributeDefinition, requirement: number}} baseData
      * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements, prerequisites) {
-        super('AttributeRequirement', scope, requirements, prerequisites);
+    constructor(scope, baseData, prerequisites) {
+        super('AttributeRequirement', scope, baseData, prerequisites);
     }
 
     generateName() {
-        const parts = this.requirements
-            .map(req => req.attribute.name + '_' + req.requirement)
-            .join('_');
-        return `Attribute_${this.scope}_${parts}`;
+        return `Attribute_${this.scope}_${this.baseData.attribute.name}_${this.baseData.requirement}`;
     }
 
     /**
-     * @param {{attribute: AttributeDefinition, requirement: number}} requirement
+     * @param {{attribute: AttributeDefinition, requirement: number}} baseData
      * @return {boolean}
      */
-    getCondition(requirement) {
-        return requirement.attribute.getValue() >= requirement.requirement;
+    #getCondition(baseData) {
+        return baseData.attribute.getValue() >= baseData.requirement;
     }
 
     /**
-     * @param {{attribute: AttributeDefinition, requirement: number}} requirement
+     * @param {{attribute: AttributeDefinition, requirement: number}} baseData
      * @return {string}
      */
-    toHtmlInternal(requirement) {
-        const value = requirement.attribute.getValue();
+    toHtmlInternal(baseData) {
+        const value = baseData.attribute.getValue();
 
         // TODO format value correctly
         return `
-<span class="name">${requirement.attribute.title}</span> 
+<span class="name">${baseData.attribute.title}</span>
 <data value="${value}">${formatNumber(value)}</data> /
-<data value="${requirement.requirement}">${formatNumber(requirement.requirement)}</data>
+<data value="${baseData.requirement}">${formatNumber(baseData.requirement)}</data>
 `;
     }
 }
@@ -1209,36 +1201,33 @@ class AttributeRequirement extends Requirement {
 class PointOfInterestVisitedRequirement extends Requirement {
       /**
      * @param {'permanent'|'playthrough'|'update'} scope
-     * @param {{pointOfInterest: PointOfInterest}[]} requirements
+     * @param {{pointOfInterest: PointOfInterest}} baseData
      * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements, prerequisites) {
-        super('PointOfInterestVisitedRequirement', scope, requirements, prerequisites);
+    constructor(scope, baseData, prerequisites) {
+        super('PointOfInterestVisitedRequirement', scope, baseData, prerequisites);
     }
 
     generateName() {
-        const parts = this.requirements
-            .map(req => req.pointOfInterest.name)
-            .join('_');
-        return `PointOfInterestVisited_${this.scope}_${parts}`;
+        return `PointOfInterestVisited_${this.scope}_${this.baseData.pointOfInterest.name}`;
     }
 
     /**
-     * @param {{pointOfInterest: PointOfInterest}} requirement
+     * @param {{pointOfInterest: PointOfInterest}} baseData
      * @return {boolean}
      */
-    getCondition(requirement) {
-        return requirement.pointOfInterest.isActive();
+    #getCondition(baseData) {
+        return baseData.pointOfInterest.isActive();
     }
 
     /**
-     * @param {{pointOfInterest: PointOfInterest}} requirement
+     * @param {{pointOfInterest: PointOfInterest}} baseData
      * @return {string}
      */
-    toHtmlInternal(requirement) {
-        const poiUnlocked = this.requirements.every((requirement) => Requirement.hasRequirementsFulfilled(requirement.pointOfInterest));
+    toHtmlInternal(baseData) {
+        const poiUnlocked = Requirement.hasRequirementsFulfilled(this.baseData.pointOfInterest);
         if (poiUnlocked) {
-            return `visit <span class="name">${requirement.pointOfInterest.title}</span>`;
+            return `visit <span class="name">${baseData.pointOfInterest.title}</span>`;
         } else {
             // Instead of completely hiding this requirement, we mask it a bit
             return `visit <span class="name"><i>Undiscovered Location</i></span>`;
@@ -1248,23 +1237,23 @@ class PointOfInterestVisitedRequirement extends Requirement {
 
 class GalacticSecretRequirement extends Requirement {
     /**
-     * @param {{galacticSecret: GalacticSecret}[]} requirements
+     * @param {{galacticSecret: GalacticSecret}} baseData
      * @param {Requirement[]} [prerequisites]
      */
-    constructor(requirements, prerequisites) {
-        super('GalacticSecretRequirement', 'permanent', requirements, prerequisites);
+    constructor(baseData, prerequisites) {
+        super('GalacticSecretRequirement', 'permanent', baseData, prerequisites);
     }
 
     generateName() {
-        return `GalacticSecret_${this.requirements[0].galacticSecret.name}`;
+        return `GalacticSecret_${this.baseData.galacticSecret.name}`;
     }
 
     /**
-     * @param {{galacticSecret: GalacticSecret}} requirement
+     * @param {{galacticSecret: GalacticSecret}} baseData
      * @return {boolean}
      */
-    getCondition(requirement) {
-        return requirement.galacticSecret.isUnlocked;
+    #getCondition(baseData) {
+        return baseData.galacticSecret.isUnlocked;
     }
 
     isVisible() {
@@ -1274,10 +1263,10 @@ class GalacticSecretRequirement extends Requirement {
     }
 
     /**
-     * @param {{galacticSecret: GalacticSecret}} requirement
+     * @param {{galacticSecret: GalacticSecret}} baseData
      * @return {string}
      */
-    toHtmlInternal(requirement) {
+    toHtmlInternal(baseData) {
         return 'an unraveled Galactic Secret';
     }
 }
@@ -1289,20 +1278,15 @@ class HtmlElementWithRequirement {
      *     elementsWithRequirements: (HTMLElement|LazyHtmlElement|LazyHtmlElementCollection)[],
      *     requirements: Requirement[],
      *     elementsToShowRequirements?: HTMLElement[],
-     *     prerequisites?: Requirement[],
      * }} baseData
      */
     constructor(baseData) {
         this.elementsWithRequirements = baseData.elementsWithRequirements;
         this.requirements = baseData.requirements;
         this.elementsToShowRequirements = isUndefined(baseData.elementsToShowRequirements) ? [] : baseData.elementsToShowRequirements;
-        this.prerequisites = baseData.prerequisites;
 
         if (!Array.isArray(this.requirements)) {
             this.requirements = [];
-        }
-        if (!Array.isArray(this.prerequisites)) {
-            this.prerequisites = [];
         }
     }
 
@@ -1317,7 +1301,7 @@ class HtmlElementWithRequirement {
      * @return {boolean}
      */
     isVisible() {
-        return this.prerequisites.every(requirement => requirement.isCompleted());
+        return this.requirements.every(requirement => requirement.isVisible());
     }
 
     /**
@@ -1343,11 +1327,6 @@ class HtmlElementWithRequirement {
     }
 
     reset() {
-        for (const requirement of this.requirements) {
-            requirement.reset();
-        }
-        for (const requirement of this.prerequisites) {
-            requirement.reset();
-        }
+        // Nothing to do - requirements get centrally reset
     }
 }
