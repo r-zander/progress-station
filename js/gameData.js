@@ -114,7 +114,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 7;
+    version = 8;
 
     /**
      * @type {string}
@@ -244,7 +244,6 @@ class GameData {
         this.bossBattleAvailable = false;
     }
 
-    // TODO lots of changes - do we need a migration?
     initSavedValues() {
         this.savedValues = {};
 
@@ -490,12 +489,164 @@ gameDataMigrations[5] = (gameDataSave) => {
     return gameDataSave;
 };
 
-gameDataMigrations[6] = (gameDataSave) => {
-    GameEvents.RebalancedVersionFound.trigger({
-        savedVersion: gameDataSave.version,
-        // TODO post-beta please fix
-        expectedVersion: 7,
+/**
+ * Shows a generic warning modal with configurable content
+ * @param {Object} config - Modal configuration
+ * @param {string} config.title - Modal title
+ * @param {string} config.bodyHtml - Modal body content (HTML)
+ * @param {string} [config.primaryButtonClass] - CSS class for primary (right) button. Defaults to btn-primary
+ * @param {string} config.primaryButtonText - Text for primary (right) button
+ * @param {Function} config.primaryButtonCallback - Callback for primary button
+ * @param {string} [config.primaryButtonHint] - Small text shown below primary button
+ * @param {string} [config.secondaryButtonClass] - CSS class for secondary (left) button. Defaults to btn-warning
+ * @param {string} config.secondaryButtonText - Text for secondary (left) button
+ * @param {Function} config.secondaryButtonCallback - Callback for secondary button
+ * @param {string} [config.secondaryButtonHint] - Small text shown below secondary button
+ */
+function showVersionWarningModal(config) {
+    const modalElement = document.getElementById('genericWarningModal');
+    const modal = new bootstrap.Modal(modalElement);
+
+    // Set title
+    modalElement.querySelector('.modal-title').textContent = config.title;
+
+    // Set body
+    modalElement.querySelector('.modal-body').innerHTML = config.bodyHtml;
+
+    // Set primary button
+    const primaryButton = modalElement.querySelector('.primary-button');
+
+    if (isString(config.primaryButtonClass)) {
+        primaryButton.classList.add(config.primaryButtonClass);
+    } else {
+        primaryButton.classList.add('.btn-primary');
+    }
+
+    primaryButton.textContent = config.primaryButtonText;
+    primaryButton.onclick = () => {
+        config.primaryButtonCallback();
+        modal.hide();
+    };
+
+    const primaryHint = modalElement.querySelector('.primary-hint small');
+    if (isString(config.primaryButtonHint)) {
+        primaryHint.textContent = config.primaryButtonHint;
+        primaryHint.parentElement.style.display = '';
+    } else {
+        primaryHint.parentElement.style.display = 'none';
+    }
+
+    // Set secondary button
+    const secondaryButton = modalElement.querySelector('.secondary-button');
+
+    if (isString(config.secondaryButtonClass)) {
+        primaryButton.classList.add(config.secondaryButtonClass);
+    } else {
+        primaryButton.classList.add('.btn-warning');
+    }
+
+    secondaryButton.textContent = config.secondaryButtonText;
+    secondaryButton.onclick = () => {
+        config.secondaryButtonCallback();
+        modal.hide();
+    };
+
+    const secondaryHint = modalElement.querySelector('.secondary-hint small');
+    if (config.secondaryButtonHint) {
+        secondaryHint.textContent = config.secondaryButtonHint;
+        secondaryHint.parentElement.style.display = '';
+    } else {
+        secondaryHint.parentElement.style.display = 'none';
+    }
+
+    modal.show();
+    return modal;
+}
+
+function initVersionWarning() {
+    const versionUpgrade = {
+        savedVersion: undefined,
+        expectedVersion: undefined
+    };
+
+    GameEvents.IncompatibleVersionFound.subscribe((payload) => {
+        versionUpgrade.savedVersion = payload.savedVersion;
+        versionUpgrade.expectedVersion = payload.expectedVersion;
+
+        switch (payload.expectedVersion) {
+            case 7:
+                showVersionWarningModal({
+                    title: 'Older Save Game found',
+                    bodyHtml: `
+                        <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
+                        <p>The game has evolved a lot since then. Our recommendation is to start
+                            with a fresh game. But you can also keep playing with your older save game.</p>
+                    `,
+                    secondaryButtonText: 'Keep save',
+                    secondaryButtonCallback: () => {
+                        gameData.ignoreCurrentVersionUpgrade(versionUpgrade.savedVersion, versionUpgrade.expectedVersion);
+                    },
+                    primaryButtonText: 'Start new game',
+                    primaryButtonCallback: () => {
+                        gameData.reset();
+                    }
+                });
+                break;
+            case 8:
+                showVersionWarningModal({
+                    title: 'Unstable Save Game found',
+                    bodyHtml: `
+                        <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
+                        <p>
+                            As the game is currently in beta and we pushed a big update, 
+                            the save game structure has changed.<br/>
+                            You might see a missing unlock or two, but should easily be able to unlock those again.<br />
+                            If you don't want to risk it, feel free to start fresh.
+                        </p>
+                    `,
+                    secondaryButtonText: 'Start new game',
+                    secondaryButtonCallback: () => {
+                        gameData.reset();
+                    },
+                    primaryButtonText: 'Keep save',
+                    primaryButtonCallback: () => {
+                        gameData.ignoreCurrentVersionUpgrade(versionUpgrade.savedVersion, versionUpgrade.expectedVersion);
+                    }
+                });
+                break;
+            default:
+                showVersionWarningModal({
+                    title: 'Incompatible Save Game found',
+                    bodyHtml: `
+                        <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
+                        <p>The game has evolved a lot since then and we can not guarantee that your save game is still fully compatible.</p>
+                        <p>Our recommendation is to start with a fresh game. But you can also try and let the game reuse your save file.</p>
+                    `,
+                    secondaryButtonText: 'Keep save',
+                    secondaryButtonHint: '(might break the game)',
+                    secondaryButtonCallback: () => {
+                        gameData.ignoreCurrentVersionUpgrade(versionUpgrade.savedVersion, versionUpgrade.expectedVersion);
+                    },
+                    primaryButtonText: 'Reset game',
+                    primaryButtonHint: '(deletes all progress)',
+                    primaryButtonCallback: () => {
+                        gameData.reset();
+                    }
+                });
+                break;
+        }
     });
 
-    return gameDataSave;
-};
+    withCheats(cheats => {
+        cheats.Story['VersionWarning'] = {
+            trigger: (savedVersion = 7, expectedVersion = 8) => {
+                GameEvents.IncompatibleVersionFound.trigger({
+                    savedVersion: savedVersion,
+                    expectedVersion: expectedVersion
+                });
+            }
+        };
+    });
+}
+
+initVersionWarning();

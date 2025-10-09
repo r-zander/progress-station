@@ -1144,55 +1144,27 @@
 
 <!-- Needs to be the last of all modals, as it's supposed to overlap any other open modals -->
 <!-- Not really elegant, but it's just an intermediate solution until with have game save migrations -->
-<div id="versionWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+<div id="genericWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light">Incompatible Save Game found</h2>
+                <h2 class="modal-title fs-4 fw-light"></h2>
             </div>
             <div class="modal-body">
-                <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
-                <p>The game has evolved a lot since then and we can not guarantee that your save game is still fully compatible.</p>
-                <p>Our recommendation is to start with a fresh game. But you can also try and let the game reuse your save file.</p>
+                <!-- Content will be set dynamically -->
             </div>
             <div class="modal-footer d-flex">
                 <div>
-                    <button type="button" class="btn btn-warning" onclick="continueWithIncompatibleVersion();">
-                        Keep save
+                    <button type="button" class="btn  secondary-button">
+                        Secondary
                     </button>
-                    <p><small>(might break the game)</small></p>
+                    <p class="secondary-hint"><small></small></p>
                 </div>
                 <div class="ms-auto">
-                    <button type="button" class="btn btn-primary" onclick="gameData.reset();">
-                        Reset game
+                    <button type="button" class="btn btn-primary primary-button">
+                        Primary
                     </button>
-                    <p><small>(deletes all progress)</small></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="rebalanceWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light">Older Save Game found</h2>
-            </div>
-            <div class="modal-body">
-                <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
-                <p>The game has evolved a lot since then. Our recommendation is to start
-                    with a fresh game. But you can also keep playing with your older save game.</p>
-            </div>
-            <div class="modal-footer d-flex">
-                <div>
-                    <button type="button" class="btn btn-warning" onclick="continueWithRebalancedVersion();">
-                        Keep save
-                    </button>
-                </div>
-                <div class="ms-auto">
-                    <button type="button" class="btn btn-primary" onclick="gameData.reset();">
-                        Start new game
-                    </button>
+                    <p class="primary-hint"><small></small></p>
                 </div>
             </div>
         </div>
