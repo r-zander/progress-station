@@ -1,8 +1,6 @@
 'use strict';
 
-// TODO still required?
 /**
- *
  * @type {Object<Requirement>}
  */
 const sharedRequirements = {};
@@ -36,10 +34,10 @@ sharedRequirements.NovaFliesLvl10 = new FactionLevelsDefeatedRequirement('playth
 sharedRequirements.NovaFliesLvl20 = new FactionLevelsDefeatedRequirement(
     'playthrough',
     {
-            faction: factions.NovaFlies,
-            requirement: 20,
-        },
-    [sharedRequirements.KungFuManualLvl10]
+        faction: factions.NovaFlies,
+        requirement: 20,
+    },
+    [sharedRequirements.KungFuManualLvl10],
 );
 sharedRequirements.PocketLaboratoryLvl10 = new OperationLevelRequirement(
     'playthrough',
@@ -59,10 +57,10 @@ sharedRequirements.AstrogoblinsLvl75 = new FactionLevelsDefeatedRequirement('pla
  */
 const moduleOperationRequirements = {
     FourDPrinter: moduleOperations.FourDPrinter.registerRequirement(
-        sharedRequirements.attributeGridStrength1
+        sharedRequirements.attributeGridStrength1,
     ),
     MicroCyborgAutomat: moduleOperations.MicroCyborgAutomat.registerRequirement(
-        sharedRequirements.FourDPrinterLvl10
+        sharedRequirements.FourDPrinterLvl10,
     ),
     KungFuManual: moduleOperations.KungFuManual.registerRequirement(
         new OperationLevelRequirement('playthrough', {
@@ -71,7 +69,7 @@ const moduleOperationRequirements = {
         }),
     ),
     PocketLaboratory: moduleOperations.PocketLaboratory.registerRequirement(
-        sharedRequirements.NovaFliesLvl20
+        sharedRequirements.NovaFliesLvl20,
     ),
     HeavyGlitz: moduleOperations.HeavyGlitz.registerRequirement(
         new OperationLevelRequirement('playthrough', {
@@ -206,10 +204,10 @@ const moduleOperationRequirements = {
  */
 const modulesRequirements = {
     CaptainsQuarter: modules.CaptainsQuarter.registerRequirement(
-        sharedRequirements.FourDPrinterLvl10
+        sharedRequirements.FourDPrinterLvl10,
     ),
     MiningBay1: modules.MiningBay.registerRequirement(
-        sharedRequirements.PocketLaboratoryLvl10
+        sharedRequirements.PocketLaboratoryLvl10,
     ),
     MiningBay2: modules.MiningBay.registerRequirement(
         new AttributeRequirement('playthrough', {
@@ -262,7 +260,7 @@ const modulesRequirements = {
  */
 const pointsOfInterestRequirements = {
     StarlightEnclave: pointsOfInterest.StarlightEnclave.registerRequirement(
-        sharedRequirements.PocketLaboratoryLvl10
+        sharedRequirements.PocketLaboratoryLvl10,
     ),
     GrowthLocationLow: pointsOfInterest.GrowthLocationLow.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', {
@@ -323,7 +321,7 @@ const pointsOfInterestRequirements = {
  */
 const sectorsRequirements = {
     BetaSector1: sectors.BetaSector.registerRequirement(
-        sharedRequirements.AstrogoblinsLvl75
+        sharedRequirements.AstrogoblinsLvl75,
     ),
     BetaSector2: sectors.BetaSector.registerRequirement(
         new FactionLevelsDefeatedRequirement('playthrough', {
@@ -359,10 +357,9 @@ const htmlElementRequirements = {
                 Dom.get().byId('energyGridDisplay'),
             ],
             requirements: [new OperationLevelRequirement('playthrough', {
-                    operation: moduleOperations.StandbyGenerator,
-                    requirement: 1
-                }),
-            ],
+                operation: moduleOperations.StandbyGenerator,
+                requirement: 1,
+            })],
         }),
     gridStrengthElements: new HtmlElementWithRequirement(
         {
@@ -378,10 +375,9 @@ const htmlElementRequirements = {
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="industry"]'),
             ],
             requirements: [new OperationLevelRequirement('playthrough', {
-                    operation: moduleOperations.FourDPrinter,
-                    requirement: 1,
-                }),
-            ],
+                operation: moduleOperations.FourDPrinter,
+                requirement: 1,
+            })],
         }),
     growthDisplay: new HtmlElementWithRequirement(
         {
@@ -389,10 +385,9 @@ const htmlElementRequirements = {
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="growth"]'),
             ],
             requirements: [new OperationLevelRequirement('playthrough', {
-                    operation: moduleOperations.MicroCyborgAutomat,
-                    requirement: 1,
-                }),
-            ],
+                operation: moduleOperations.MicroCyborgAutomat,
+                requirement: 1,
+            })],
         }),
     militaryDisplay: new HtmlElementWithRequirement(
         {
@@ -400,10 +395,9 @@ const htmlElementRequirements = {
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="military"]'),
             ],
             requirements: [new OperationLevelRequirement('playthrough', {
-                    operation: moduleOperations.KungFuManual,
-                    requirement: 1,
-                }),
-            ],
+                operation: moduleOperations.KungFuManual,
+                requirement: 1,
+            })],
         }),
     battleTabButton: new HtmlElementWithRequirement(
         {
