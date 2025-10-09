@@ -81,6 +81,10 @@ class Entity {
     }
 
     // TODO why not save requirements via some identifier directly?
+    /**
+     * @param {Requirement} requirement
+     * @param {number} index
+     */
     registerRequirementInternal(requirement, index) {
         requirement.registerSaveAndLoad((completed) => {
             this.getSavedValues().requirementCompleted[index] = completed;
@@ -92,6 +96,10 @@ class Entity {
         });
     }
 
+    /**
+     * @param {Requirement} requirement
+     * @return {Requirement} the passed in requirement
+     */
     registerRequirement(requirement) {
         const index = this.requirements.push(requirement) - 1;
         this.registerRequirementInternal(requirement, index);
