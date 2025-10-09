@@ -345,8 +345,7 @@ const htmlElementRequirements = {
             elementsWithRequirements: [
                 Dom.get().byId('energyGridDisplay'),
             ],
-            requirements: [new OperationLevelRequirement('playthrough',
-                [{
+            requirements: [new OperationLevelRequirement('playthrough', [{
                     operation: moduleOperations.StandbyGenerator,
                     requirement: 1
                 }]),
@@ -358,20 +357,20 @@ const htmlElementRequirements = {
                 Dom.get().byId('gridLabel'),
                 Dom.get().byId('gridStrength'),
             ],
-            requirements: [new AttributeRequirement('playthrough',
-                [{
-                    attribute: attributes.gridStrength,
-                    requirement: 1
-                }]),
-            ],
+            requirements: [new AttributeRequirement('playthrough', [{
+                attribute: attributes.gridStrength,
+                requirement: 1
+            }])],
         }),
     industryDisplay: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="industry"]'),
             ],
-            requirements: [new OperationLevelRequirement('playthrough',
-                [{operation: moduleOperations.FourDPrinter, requirement: 1}]),
+            requirements: [new OperationLevelRequirement('playthrough', [{
+                    operation: moduleOperations.FourDPrinter,
+                    requirement: 1,
+                }]),
             ],
         }),
     growthDisplay: new HtmlElementWithRequirement(
@@ -379,8 +378,10 @@ const htmlElementRequirements = {
             elementsWithRequirements: [
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="growth"]'),
             ],
-            requirements: [new OperationLevelRequirement('playthrough',
-                [{operation: moduleOperations.MicroCyborgAutomat, requirement: 1}]),
+            requirements: [new OperationLevelRequirement('playthrough', [{
+                    operation: moduleOperations.MicroCyborgAutomat,
+                    requirement: 1,
+                }]),
             ],
         }),
     militaryDisplay: new HtmlElementWithRequirement(
@@ -388,8 +389,10 @@ const htmlElementRequirements = {
             elementsWithRequirements: [
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="military"]'),
             ],
-            requirements: [new OperationLevelRequirement('playthrough',
-                [{operation: moduleOperations.KungFuManual, requirement: 1}]),
+            requirements: [new OperationLevelRequirement('playthrough', [{
+                    operation: moduleOperations.KungFuManual,
+                    requirement: 1,
+                }]),
             ],
         }),
     battleTabButton: new HtmlElementWithRequirement(
@@ -445,9 +448,7 @@ const htmlElementRequirements = {
     attributesTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('attributesTabButton')],
-            requirements: [new AttributeRequirement(
-                'playthrough',
-                [{
+            requirements: [new AttributeRequirement('playthrough', [{
                     attribute: attributes.research,
                     requirement: 10,
                 }],

@@ -1130,18 +1130,18 @@ level
     }
 }
 
-class AgeRequirement extends Requirement {
+class CyclesPassedRequirement extends Requirement {
     /**
      * @param {'permanent'|'playthrough'|'update'} scope
      * @param {{requirement: number}[]} requirements
      * @param {Requirement[]} [prerequisites]
      */
     constructor(scope, requirements, prerequisites) {
-        super('AgeRequirement', scope, requirements, prerequisites);
+        super('CyclesPassedRequirement', scope, requirements, prerequisites);
     }
 
     generateName() {
-        return `Age_${this.scope}_${this.requirements[0].requirement}`;
+        return `CyclesPassed_${this.scope}_${this.requirements[0].requirement}`;
     }
 
     /**
