@@ -114,7 +114,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 7;
+    version = 8;
 
     /**
      * @type {string}
@@ -181,20 +181,11 @@ class GameData {
      *
      * @var {{
      *     gridStrength: TaskSavedValues,
-     *
-     *     moduleCategories: Object<ModuleCategorySavedValues>,
      *     modules: Object<ModuleSavedValues>,
-     *     moduleComponents: Object<EmptySavedValues>,
      *     moduleOperations: Object<TaskSavedValues>,
-     *
      *     battles: Object<TaskSavedValues>,
-     *
-     *     sectors: Object<SectorSavedValues>,
-     *     pointsOfInterest: Object<PointOfInterestSavedValues>,
-     *
      *     galacticSecrets: Object<GalacticSecretSavedValues>,
-     *
-     *     htmlElementsWithRequirement: Object<HtmlElementWithRequirementSavedValues>
+     *     requirements: Object<RequirementSavedValues>
      * }}
      */
     savedValues;
@@ -258,17 +249,9 @@ class GameData {
 
         this.savedValues.gridStrength = GridStrength.newSavedValues();
 
-        this.savedValues.moduleCategories = {};
-        for (const key in moduleCategories) {
-            this.savedValues.moduleCategories[key] = ModuleCategory.newSavedValues();
-        }
         this.savedValues.modules = {};
         for (const key in modules) {
             this.savedValues.modules[key] = Module.newSavedValues();
-        }
-        this.savedValues.moduleComponents = {};
-        for (const key in moduleComponents) {
-            this.savedValues.moduleComponents[key] = ModuleComponent.newSavedValues();
         }
         this.savedValues.moduleOperations = {};
         for (const key in moduleOperations) {
@@ -281,23 +264,14 @@ class GameData {
         }
         this.savedValues.battles[bossBattle.name] = BossBattle.newSavedValues();
 
-        this.savedValues.sectors = {};
-        for (const key in sectors) {
-            this.savedValues.sectors[key] = Sector.newSavedValues();
-        }
-        this.savedValues.pointsOfInterest = {};
-        for (const key in pointsOfInterest) {
-            this.savedValues.pointsOfInterest[key] = PointOfInterest.newSavedValues();
-        }
-
         this.savedValues.galacticSecrets = {};
         for (const key in galacticSecrets) {
             this.savedValues.galacticSecrets[key] = GalacticSecret.newSavedValues();
         }
 
-        this.savedValues.htmlElementsWithRequirement = {};
-        for (const key in htmlElementRequirements) {
-            this.savedValues.htmlElementsWithRequirement[key] = HtmlElementWithRequirement.newSavedValues();
+        this.savedValues.requirements = {};
+        for (const key in requirementRegistry) {
+            this.savedValues.requirements[key] = Requirement.newSavedValues();
         }
     }
 
@@ -332,37 +306,23 @@ class GameData {
 
         gridStrength.loadValues(this.savedValues.gridStrength);
 
-        // Inverse order of hierarchy during loading --> allows for data propagation
         for (const key in moduleOperations) {
             moduleOperations[key].loadValues(this.savedValues.moduleOperations[key]);
         }
-        for (const key in moduleComponents) {
-            moduleComponents[key].loadValues(this.savedValues.moduleComponents[key]);
-        }
         for (const key in modules) {
             modules[key].loadValues(this.savedValues.modules[key]);
-        }
-        for (const key in moduleCategories) {
-            moduleCategories[key].loadValues(this.savedValues.moduleCategories[key]);
         }
 
         for (const key in battles) {
             battles[key].loadValues(this.savedValues.battles[key]);
         }
 
-        for (const key in sectors) {
-            sectors[key].loadValues(this.savedValues.sectors[key]);
-        }
-        for (const key in pointsOfInterest) {
-            pointsOfInterest[key].loadValues(this.savedValues.pointsOfInterest[key]);
-        }
-
         for (const key in galacticSecrets) {
             galacticSecrets[key].loadValues(this.savedValues.galacticSecrets[key]);
         }
 
-        for (const key in htmlElementRequirements) {
-            htmlElementRequirements[key].loadValues(this.savedValues.htmlElementsWithRequirement[key]);
+        for (const key in requirementRegistry) {
+            requirementRegistry[key].loadValues(this.savedValues.requirements[key]);
         }
 
         GameEvents.GameStateChanged.trigger({
@@ -529,12 +489,164 @@ gameDataMigrations[5] = (gameDataSave) => {
     return gameDataSave;
 };
 
-gameDataMigrations[6] = (gameDataSave) => {
-    GameEvents.RebalancedVersionFound.trigger({
-        savedVersion: gameDataSave.version,
-        // TODO post-beta please fix
-        expectedVersion: 7,
+/**
+ * Shows a generic warning modal with configurable content
+ * @param {Object} config - Modal configuration
+ * @param {string} config.title - Modal title
+ * @param {string} config.bodyHtml - Modal body content (HTML)
+ * @param {string} [config.primaryButtonClass] - CSS class for primary (right) button. Defaults to btn-primary
+ * @param {string} config.primaryButtonText - Text for primary (right) button
+ * @param {Function} config.primaryButtonCallback - Callback for primary button
+ * @param {string} [config.primaryButtonHint] - Small text shown below primary button
+ * @param {string} [config.secondaryButtonClass] - CSS class for secondary (left) button. Defaults to btn-warning
+ * @param {string} config.secondaryButtonText - Text for secondary (left) button
+ * @param {Function} config.secondaryButtonCallback - Callback for secondary button
+ * @param {string} [config.secondaryButtonHint] - Small text shown below secondary button
+ */
+function showVersionWarningModal(config) {
+    const modalElement = document.getElementById('genericWarningModal');
+    const modal = new bootstrap.Modal(modalElement);
+
+    // Set title
+    modalElement.querySelector('.modal-title').textContent = config.title;
+
+    // Set body
+    modalElement.querySelector('.modal-body').innerHTML = config.bodyHtml;
+
+    // Set primary button
+    const primaryButton = modalElement.querySelector('.primary-button');
+
+    if (isString(config.primaryButtonClass)) {
+        primaryButton.classList.add(config.primaryButtonClass);
+    } else {
+        primaryButton.classList.add('.btn-primary');
+    }
+
+    primaryButton.textContent = config.primaryButtonText;
+    primaryButton.onclick = () => {
+        config.primaryButtonCallback();
+        modal.hide();
+    };
+
+    const primaryHint = modalElement.querySelector('.primary-hint small');
+    if (isString(config.primaryButtonHint)) {
+        primaryHint.textContent = config.primaryButtonHint;
+        primaryHint.parentElement.style.display = '';
+    } else {
+        primaryHint.parentElement.style.display = 'none';
+    }
+
+    // Set secondary button
+    const secondaryButton = modalElement.querySelector('.secondary-button');
+
+    if (isString(config.secondaryButtonClass)) {
+        primaryButton.classList.add(config.secondaryButtonClass);
+    } else {
+        primaryButton.classList.add('.btn-warning');
+    }
+
+    secondaryButton.textContent = config.secondaryButtonText;
+    secondaryButton.onclick = () => {
+        config.secondaryButtonCallback();
+        modal.hide();
+    };
+
+    const secondaryHint = modalElement.querySelector('.secondary-hint small');
+    if (config.secondaryButtonHint) {
+        secondaryHint.textContent = config.secondaryButtonHint;
+        secondaryHint.parentElement.style.display = '';
+    } else {
+        secondaryHint.parentElement.style.display = 'none';
+    }
+
+    modal.show();
+    return modal;
+}
+
+function initVersionWarning() {
+    const versionUpgrade = {
+        savedVersion: undefined,
+        expectedVersion: undefined
+    };
+
+    GameEvents.IncompatibleVersionFound.subscribe((payload) => {
+        versionUpgrade.savedVersion = payload.savedVersion;
+        versionUpgrade.expectedVersion = payload.expectedVersion;
+
+        switch (payload.expectedVersion) {
+            case 7:
+                showVersionWarningModal({
+                    title: 'Older Save Game found',
+                    bodyHtml: `
+                        <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
+                        <p>The game has evolved a lot since then. Our recommendation is to start
+                            with a fresh game. But you can also keep playing with your older save game.</p>
+                    `,
+                    secondaryButtonText: 'Keep save',
+                    secondaryButtonCallback: () => {
+                        gameData.ignoreCurrentVersionUpgrade(versionUpgrade.savedVersion, versionUpgrade.expectedVersion);
+                    },
+                    primaryButtonText: 'Start new game',
+                    primaryButtonCallback: () => {
+                        gameData.reset();
+                    }
+                });
+                break;
+            case 8:
+                showVersionWarningModal({
+                    title: 'Unstable Save Game found',
+                    bodyHtml: `
+                        <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
+                        <p>
+                            As the game is currently in beta and we pushed a big update, 
+                            the save game structure has changed.<br/>
+                            You might see a missing unlock or two, but should easily be able to unlock those again.<br />
+                            If you don't want to risk it, feel free to start fresh.
+                        </p>
+                    `,
+                    secondaryButtonText: 'Start new game',
+                    secondaryButtonCallback: () => {
+                        gameData.reset();
+                    },
+                    primaryButtonText: 'Keep save',
+                    primaryButtonCallback: () => {
+                        gameData.ignoreCurrentVersionUpgrade(versionUpgrade.savedVersion, versionUpgrade.expectedVersion);
+                    }
+                });
+                break;
+            default:
+                showVersionWarningModal({
+                    title: 'Incompatible Save Game found',
+                    bodyHtml: `
+                        <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
+                        <p>The game has evolved a lot since then and we can not guarantee that your save game is still fully compatible.</p>
+                        <p>Our recommendation is to start with a fresh game. But you can also try and let the game reuse your save file.</p>
+                    `,
+                    secondaryButtonText: 'Keep save',
+                    secondaryButtonHint: '(might break the game)',
+                    secondaryButtonCallback: () => {
+                        gameData.ignoreCurrentVersionUpgrade(versionUpgrade.savedVersion, versionUpgrade.expectedVersion);
+                    },
+                    primaryButtonText: 'Reset game',
+                    primaryButtonHint: '(deletes all progress)',
+                    primaryButtonCallback: () => {
+                        gameData.reset();
+                    }
+                });
+                break;
+        }
     });
 
-    return gameDataSave;
-};
+    withCheats(cheats => {
+        cheats.Story['VersionWarning'] = {
+            trigger: (savedVersion = 7, expectedVersion = 8) => {
+                GameEvents.IncompatibleVersionFound.trigger({
+                    savedVersion: savedVersion,
+                    expectedVersion: expectedVersion
+                });
+            }
+        };
+    });
+}
+
+initVersionWarning();

@@ -31,6 +31,12 @@ const attributeBalanceEntries = [];
 const gridLoadBalanceEntries = [];
 
 /**
+ * Global registry of all requirements by auto-generated name
+ * @type {Object<string, Requirement>}
+ */
+const requirementRegistry = {};
+
+/**
  *
  * @type {Object<HTMLElement>}
  */
@@ -1187,21 +1193,24 @@ function updateRequirements(unfulfilledRequirements, context) {
         return true;
     }
 
-    const html = unfulfilledRequirements
-        .map(requirement => requirement.toHtml())
-        .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
-        .join(', ');
-    // TODO pseudo-prerequisites
-    if (html === '') {
-        // Hack: don't use .hidden to not interfere with the rest of the requirements system
-        context.requirementsElement.style.display = 'none';
-    } else {
+    // Logic here: Only if all the open requirements are visible,
+    // the requirements are shown - otherwise we hide them until the player is ready
+    const allVisible = unfulfilledRequirements.every(requirement => requirement.isVisible());
+    if (allVisible) {
+        const html = unfulfilledRequirements
+            .map(requirement => requirement.toHtml())
+            .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
+            .join(', ');
         context.requirementsElement.style.removeProperty('display');
         if (html !== context.getHtmlCache()) {
             Dom.get(context.requirementsElement).byClass('rendered').innerHTML = html;
             context.setHtmlCache(html);
         }
+    } else {
+        // Hack: don't use .hidden to not interfere with the rest of the requirements system
+        context.requirementsElement.style.display = 'none';
     }
+
     context.hasUnfulfilledRequirements = true;
 
     return false;
@@ -1405,6 +1414,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
             toHtml: () => {
                 return `${visibleFactions[battle.faction.name].title} defeated`;
             },
+            isVisible: () => true,
         };
     }
 
@@ -1419,6 +1429,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
             toHtml: () => {
                 return maxBattles.requirement;
             },
+            isVisible: () => true,
         };
     }
 
@@ -1431,6 +1442,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
                 return `${Object.values(visibleFactions)[0].title} defeated or ` +
                     maxBattles.requirement.toHtml();
             },
+            isVisible: () => true,
         };
     }
 
@@ -1439,6 +1451,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
         toHtml: () => {
             return 'Win any open battle or ' + maxBattles.requirement.toHtml();
         },
+        isVisible: () => true,
     };
 }
 
@@ -2053,6 +2066,14 @@ function assignNames(data) {
         val.name = key;
     }
 }
+function initRequirements() {
+    for (const requirement of Requirement.allRequirements) {
+        requirement.register(requirementRegistry);
+    }
+
+    // Discard intermediate list
+    Requirement.allRequirements = null;
+}
 
 function initConfigNames() {
     assignNames(gameStates);
@@ -2071,6 +2092,7 @@ function initConfigNames() {
 
 function init() {
     initConfigNames();
+    initRequirements();
     createAttributesHTML();
     createAttributeDescriptions();
 

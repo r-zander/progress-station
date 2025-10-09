@@ -236,6 +236,11 @@ function playthroughReset(maxLevelBehavior) {
         elementRequirement.reset();
     }
 
+    for (const key in requirementRegistry) {
+        const requirement = requirementRegistry[key];
+        requirement.reset();
+    }
+
     setTab('modules');
     if (gameData.state.gameLoopRunning === false && gameStates.NEW.gameLoopRunning === false) {
         // Both states don't have the gameLoopRunning --> explicitly run update()
