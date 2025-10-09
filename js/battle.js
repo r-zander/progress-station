@@ -165,6 +165,8 @@ class Battle extends LayeredTask {
             name: this.name,
             newActivityState: true,
         });
+
+        updateUiIfNecessary();
     }
 
     stop() {

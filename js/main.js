@@ -159,6 +159,8 @@ function setPointOfInterest(name) {
         name: name,
         newActivityState: true,
     });
+
+    updateUiIfNecessary();
 }
 
 function updateConnector() {
@@ -252,16 +254,19 @@ function switchModuleActivation(module) {
 
     if (module.isActive()) {
         module.setActive(false);
+        updateUiIfNecessary();
         return;
     }
 
     const gridLoadAfterActivation = attributes.gridLoad.getValue() + module.getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
         VFX.highlightText(Dom.get().bySelector(`#${module.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
+        Dom.get().byId('switch_' + module.domId).checked = false;
         return;
     }
 
     module.setActive(true);
+    updateUiIfNecessary();
 }
 
 /**
@@ -285,6 +290,25 @@ function tryActivateOperation(component, operation) {
 
     // This needs to go through the component as it needs to disable other operations
     component.activateOperation(operation);
+    updateUiIfNecessary();
+}
+
+/**
+ * @param {Battle} battle
+ */
+function tryEngageBattle(battle) {
+    if (!gameData.state.canChangeActivation) {
+        VFX.shakePlayButton();
+        return;
+    }
+
+    if (battle instanceof BossBattle) {
+        gameData.transitionState(gameStates.BOSS_FIGHT_INTRO);
+    } else {
+        battle.toggle();
+    }
+
+    updateUiIfNecessary();
 }
 
 /**
@@ -568,18 +592,7 @@ function createLevel4BattleElements(battles) {
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
         domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
-        domGetter.byClass('progressBar').addEventListener('click', () => {
-            if (!gameData.state.canChangeActivation) {
-                VFX.shakePlayButton();
-                return;
-            }
-
-            if (battle instanceof BossBattle){
-                gameData.transitionState(gameStates.BOSS_FIGHT_INTRO);
-            } else {
-                battle.toggle();
-            }
-        });
+        domGetter.byClass('progressBar').addEventListener('click', tryEngageBattle.bind(this, battle));
         domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
         if (battle instanceof BossBattle) {
             const dangerElement = domGetter.byClass('danger');
@@ -1966,6 +1979,15 @@ function getPointOfInterestElement(name) {
 
     const pointOfInterest = pointsOfInterest[name];
     return document.getElementById(pointOfInterest.domId);
+}
+
+/**
+ * Updates the UI if the game loop is currently not running
+ */
+function updateUiIfNecessary() {
+    if (gameData.state.gameLoopRunning) return;
+
+    updateUI();
 }
 
 function updateUI() {
