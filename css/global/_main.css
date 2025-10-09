@@ -134,7 +134,20 @@ a#gameTitle {
     background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, var(--active-color) 4px, var(--active-color) 8px);
     background-repeat: repeat-y;
     background-size: 0 100%;
-    border-left: 3px solid var(--active-color);
+
+    &.horizontal {
+        background-repeat: repeat-x;
+        background-size: 100% 0;
+        border-left: 'none'; 
+        border-top: 3px solid var(--active-color);
+    }
+
+    &.vertical {
+        background-repeat: repeat-y;
+        background-size: 0 100%;
+        border-top: 'none';
+        border-left: 3px solid var(--active-color);
+    }
 }
 
 .panel {

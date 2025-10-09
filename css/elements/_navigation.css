@@ -44,7 +44,8 @@
     }
 }
 
-.shortcut {
+.shortcut,
+#attributesDisplay.tabButton {
     cursor: pointer;
     border-width: 0;
     border-bottom-width: var(--clickable-border-width);

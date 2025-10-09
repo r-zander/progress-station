@@ -441,12 +441,6 @@ const htmlElementRequirements = {
             requirements: [sharedRequirements.PocketLaboratoryLvl10],
             elementsToShowRequirements: [Dom.get().byId('locationTabButtonRequirements')],
         }),
-    attributesTabButton: new HtmlElementWithRequirement(
-        {
-            elementsWithRequirements: [Dom.get().byId('attributesTabButton')],
-            requirements: [sharedRequirements.attributeResearch10],
-            elementsToShowRequirements: [Dom.get().byId('attributesTabButtonRequirements')],
-        }),
     battleMultiEngageHelp: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [
