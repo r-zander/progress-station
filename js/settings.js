@@ -17,17 +17,23 @@ function createLinkBehavior() {
 }
 
 
-function disableAudioFromToast() {
+/**
+ * @param {string} toastId
+ */
+function disableAudioFromToast(toastId) {
     gameData.settings.audio.toastAnswered = true;
     toggleAudioEnabled(false);
-    const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
+    const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId(toastId));
     toast.hide();
 }
 
-function enableAudioFromToast() {
+/**
+ * @param {string} toastId
+ */
+function enableAudioFromToast(toastId) {
     gameData.settings.audio.toastAnswered = true;
     toggleAudioEnabled(true);
-    const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
+    const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId(toastId));
     toast.hide();
 }
 

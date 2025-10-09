@@ -380,9 +380,9 @@
                         <thead class="level3">
                         <tr class="header-row text-bg-light">
                             <th class="name">Battles</th>
-                            <th class="level numeric">Level</th>
-                            <th class="xpGain numeric">Your Dmg/Cycle</th>
+                            <th class="xpGain numeric">Station Dmg</th>
                             <th class="xpLeft numeric">Enemy HP</th>
+                            <th class="level numeric">Waves</th>
                             <th class="danger numeric">Danger</th>
                             <th class="rewards">Reward</th>
                         </tr>
@@ -405,14 +405,14 @@
                             <div class="progress-text name text-truncate px-2">Wimpy Astrogoblins</div>
                         </div>
                     </td>
-                    <td class="level numeric">
-                        <data value="53">53</data>
-                    </td>
                     <td class="xpGain numeric">
                         <data value="1600" data-suffix="k">1.6</data>
                     </td>
                     <td class="xpLeft numeric">
                         <data value="4550" data-suffix="k">45.5</data>
+                    </td>
+                    <td class="level numeric">
+                        <data value="53">53</data>
                     </td>
                     <td class="danger numeric">
                         <data value="200">200</data>
@@ -1104,11 +1104,29 @@
             <img src="img/icons/buttons/sound.svg" class="me-2" />
             <span>This browser game offers sound!</span>
             <div class="mt-2 pt-2 d-flex border-top">
-                <button type="button" class="btn btn-info" onclick="disableAudioFromToast();">
+                <button type="button" class="btn btn-info" onclick="disableAudioFromToast('enableAudioToast');">
                     <img src="img/icons/buttons/sound-off.svg" />
                     <span>Keep off</span>
                 </button>
-                <button type="button" class="btn btn-warning ms-auto" onclick="enableAudioFromToast();">
+                <button type="button" class="btn btn-warning ms-auto" onclick="enableAudioFromToast('enableAudioToast');">
+                    <img src="img/icons/buttons/sound-on.svg" />
+                    <span>Turn on!</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="reEnableAudioToast" class="toast text-bg-info" role="alert"
+         aria-live="assertive" aria-atomic="true"
+         data-bs-autohide="false">
+        <div class="toast-body">
+            <img src="img/icons/buttons/sound.svg" class="me-2" />
+            <span>Browser failed to automatically re-enable sounds.</span>
+            <div class="mt-2 pt-2 d-flex border-top">
+                <button type="button" class="btn btn-info" onclick="disableAudioFromToast('reEnableAudioToast');">
+                    <img src="img/icons/buttons/sound-off.svg" />
+                    <span>Keep off</span>
+                </button>
+                <button type="button" class="btn btn-warning ms-auto" onclick="enableAudioFromToast('reEnableAudioToast');">
                     <img src="img/icons/buttons/sound-on.svg" />
                     <span>Turn on!</span>
                 </button>
@@ -1119,55 +1137,27 @@
 
 <!-- Needs to be the last of all modals, as it's supposed to overlap any other open modals -->
 <!-- Not really elegant, but it's just an intermediate solution until with have game save migrations -->
-<div id="versionWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+<div id="genericWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light">Incompatible Save Game found</h2>
+                <h2 class="modal-title fs-4 fw-light"></h2>
             </div>
             <div class="modal-body">
-                <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
-                <p>The game has evolved a lot since then and we can not guarantee that your save game is still fully compatible.</p>
-                <p>Our recommendation is to start with a fresh game. But you can also try and let the game reuse your save file.</p>
+                <!-- Content will be set dynamically -->
             </div>
             <div class="modal-footer d-flex">
                 <div>
-                    <button type="button" class="btn btn-warning" onclick="continueWithIncompatibleVersion();">
-                        Keep save
+                    <button type="button" class="btn  secondary-button">
+                        Secondary
                     </button>
-                    <p><small>(might break the game)</small></p>
+                    <p class="secondary-hint"><small></small></p>
                 </div>
                 <div class="ms-auto">
-                    <button type="button" class="btn btn-primary" onclick="gameData.reset();">
-                        Reset game
+                    <button type="button" class="btn btn-primary primary-button">
+                        Primary
                     </button>
-                    <p><small>(deletes all progress)</small></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="rebalanceWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light">Older Save Game found</h2>
-            </div>
-            <div class="modal-body">
-                <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
-                <p>The game has evolved a lot since then. Our recommendation is to start
-                    with a fresh game. But you can also keep playing with your older save game.</p>
-            </div>
-            <div class="modal-footer d-flex">
-                <div>
-                    <button type="button" class="btn btn-warning" onclick="continueWithRebalancedVersion();">
-                        Keep save
-                    </button>
-                </div>
-                <div class="ms-auto">
-                    <button type="button" class="btn btn-primary" onclick="gameData.reset();">
-                        Start new game
-                    </button>
+                    <p class="primary-hint"><small></small></p>
                 </div>
             </div>
         </div>

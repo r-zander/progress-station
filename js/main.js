@@ -31,6 +31,12 @@ const attributeBalanceEntries = [];
 const gridLoadBalanceEntries = [];
 
 /**
+ * Global registry of all requirements by auto-generated name
+ * @type {Object<string, Requirement>}
+ */
+const requirementRegistry = {};
+
+/**
  *
  * @type {Object<HTMLElement>}
  */
@@ -130,6 +136,10 @@ function setTab(selectedTab) {
     gameData.save();
 
     hideAllTooltips();
+    if (!gameData.state.gameLoopRunning) {
+        // Won't be called otherwise
+        updateConnector();
+    }
 }
 
 function setPointOfInterest(name) {
@@ -1224,21 +1234,24 @@ function updateRequirements(unfulfilledRequirements, context) {
         return true;
     }
 
-    const html = unfulfilledRequirements
-        .map(requirement => requirement.toHtml())
-        .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
-        .join(', ');
-    // TODO pseudo-prerequisites
-    if (html === '') {
-        // Hack: don't use .hidden to not interfere with the rest of the requirements system
-        context.requirementsElement.style.display = 'none';
-    } else {
+    // Logic here: Only if all the open requirements are visible,
+    // the requirements are shown - otherwise we hide them until the player is ready
+    const allVisible = unfulfilledRequirements.every(requirement => requirement.isVisible());
+    if (allVisible) {
+        const html = unfulfilledRequirements
+            .map(requirement => requirement.toHtml())
+            .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
+            .join(', ');
         context.requirementsElement.style.removeProperty('display');
         if (html !== context.getHtmlCache()) {
             Dom.get(context.requirementsElement).byClass('rendered').innerHTML = html;
             context.setHtmlCache(html);
         }
+    } else {
+        // Hack: don't use .hidden to not interfere with the rest of the requirements system
+        context.requirementsElement.style.display = 'none';
     }
+
     context.hasUnfulfilledRequirements = true;
 
     return false;
@@ -1442,6 +1455,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
             toHtml: () => {
                 return `${visibleFactions[battle.faction.name].title} defeated`;
             },
+            isVisible: () => true,
         };
     }
 
@@ -1456,6 +1470,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
             toHtml: () => {
                 return maxBattles.requirement;
             },
+            isVisible: () => true,
         };
     }
 
@@ -1468,6 +1483,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
                 return `${Object.values(visibleFactions)[0].title} defeated or ` +
                     maxBattles.requirement.toHtml();
             },
+            isVisible: () => true,
         };
     }
 
@@ -1476,6 +1492,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
         toHtml: () => {
             return 'Win any open battle or ' + maxBattles.requirement.toHtml();
         },
+        isVisible: () => true,
     };
 }
 
@@ -1868,50 +1885,6 @@ function updateBodyClasses() {
     document.getElementById('body').classList.toggle('game-playing', gameData.state === gameStates.PLAYING);
 }
 
-function calculateGridLoad() {
-    let gridLoad = 0;
-
-    for (const key of gameData.activeEntities.operations) {
-        const operation = moduleOperations[key];
-        if (!operation.isActive('parent')) continue;
-
-        gridLoad += operation.getGridLoad();
-    }
-
-    return gridLoad;
-}
-
-function calculateGalacticSecretCost() {
-    const unlockedGalacticSecrets = Object.values(galacticSecrets)
-        .filter(galacticSecret => galacticSecret.isUnlocked)
-        .length;
-    return Math.pow(3, unlockedGalacticSecrets);
-}
-
-function increaseCycle() {
-    if (!gameData.state.isTimeProgressing) return;
-
-    const increase = applySpeed(cycleDurationInSeconds);
-    gameData.cycles += increase;
-    gameData.totalCycles += increase;
-
-    if (!isBossBattleAvailable() && gameData.cycles >= getBossAppearanceCycle()) {
-        gameData.bossBattleAvailable = true;
-        gameData.transitionState(gameStates.TUTORIAL_PAUSED);
-        GameEvents.BossAppearance.trigger(undefined);
-    }
-}
-
-function updateBossDistance() {
-    if (gameData.state !== gameStates.PLAYING) return;
-    if (!isBossBattleAvailable()) return;
-
-    // How much time has past since the boss' arrival?
-    const overtime = gameData.cycles - getBossAppearanceCycle();
-    // Translate the elapsed time into distance according to config
-    bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
-}
-
 function visuallyDenyGalacticSecretUnlock(galacticSecret) {
     VFX.shakeElement(Dom.get().bySelector(`#${galacticSecret.domId} .progress`), galacticSecret.domId);
     VFX.highlightText(Dom.get().byId('galacticSecretCostDisplay').parentElement, 'flash-text-denied', 'flash-text-denied');
@@ -2064,6 +2037,11 @@ function initTooltips() {
     for (const tooltipTriggerElement of tooltipTriggerElements) {
         initTooltip(tooltipTriggerElement, {});
     }
+
+    // Prevent tooltips from interfering with modals
+    document.body.addEventListener('show.bs.modal', event => {
+        hideAllTooltips();
+    });
 }
 
 function initTabBehavior() {
@@ -2126,6 +2104,14 @@ function assignNames(data) {
         val.name = key;
     }
 }
+function initRequirements() {
+    for (const requirement of Requirement.allRequirements) {
+        requirement.register(requirementRegistry);
+    }
+
+    // Discard intermediate list
+    Requirement.allRequirements = null;
+}
 
 function initConfigNames() {
     assignNames(gameStates);
@@ -2144,6 +2130,7 @@ function initConfigNames() {
 
 function init() {
     initConfigNames();
+    initRequirements();
     createAttributesHTML();
     createAttributeDescriptions();
 

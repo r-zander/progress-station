@@ -357,22 +357,26 @@ class FactionLevelsDefeatedRequirement extends Requirement {
      * @param {{
      *     faction: FactionDefinition,
      *     requirement: number
-     * }[]} requirements
+     * }} baseData
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements) {
-        super('FactionLevelsDefeatedRequirement', scope, requirements);
+    constructor(scope, baseData, prerequisites) {
+        super('FactionLevelsDefeatedRequirement', scope, baseData, prerequisites);
+    }
+
+    generateName() {
+        return `FactionLevelsDefeated_${this.scope}_${this.baseData.faction.name}_${this.baseData.requirement}`;
     }
 
     /**
      * @param {{
      *     faction: FactionDefinition,
      *     requirement: number
-     * }} requirement
-     * @param requirement
+     * }} baseData
      * @return {boolean}
      */
-    getCondition(requirement) {
-        return this.#getDefeatedLevels(requirement.faction) >= requirement.requirement;
+    getCondition(baseData) {
+        return this.#getDefeatedLevels(baseData.faction) >= baseData.requirement;
     }
 
     /**
@@ -390,16 +394,16 @@ class FactionLevelsDefeatedRequirement extends Requirement {
      * @param {{
      *     faction: FactionDefinition,
      *     requirement: number
-     * }} requirement
+     * }} baseData
      * @return {string}
      */
-    toHtmlInternal(requirement) {
-        const defeatedLevels = this.#getDefeatedLevels(requirement.faction);
+    toHtmlInternal(baseData) {
+        const defeatedLevels = this.#getDefeatedLevels(baseData.faction);
         return `Defeated
-<span class="name">${requirement.faction.title}</span>
-level 
+<span class="name">${baseData.faction.title}</span>
+level
 <data value="${defeatedLevels}">${defeatedLevels}</data> /
-<data value="${requirement.requirement}">${requirement.requirement}</data>
+<data value="${baseData.requirement}">${baseData.requirement}</data>
 `;
     }
 }

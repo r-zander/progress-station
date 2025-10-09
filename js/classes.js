@@ -80,20 +80,12 @@ class Entity {
         this.domId = 'row_' + this.type + '_' + name;
     }
 
-    registerRequirementInternal(requirement, index) {
-        requirement.registerSaveAndLoad((completed) => {
-            this.getSavedValues().requirementCompleted[index] = completed;
-        }, () => {
-            if (isUndefined(this.getSavedValues().requirementCompleted[index])) {
-                this.getSavedValues().requirementCompleted[index] = false;
-            }
-            return this.getSavedValues().requirementCompleted[index];
-        });
-    }
-
+    /**
+     * @param {Requirement} requirement
+     * @return {Requirement} the passed in requirement
+     */
     registerRequirement(requirement) {
-        const index = this.requirements.push(requirement) - 1;
-        this.registerRequirementInternal(requirement, index);
+        this.requirements.push(requirement);
         return requirement;
     }
 
@@ -103,9 +95,7 @@ class Entity {
     }
 
     /**
-     * @return {{
-     *     requirementCompleted: boolean[]
-     * }}
+     * @return {Object}
      */
     getSavedValues() {
         throw new TypeError('getSavedValues not implemented by ' + this.constructor.name);
@@ -119,9 +109,7 @@ class Entity {
     }
 
     reset() {
-        for (const requirement of this.requirements) {
-            requirement.reset();
-        }
+        // Nothing to do - requirements get centrally reset
     }
 }
 
@@ -130,7 +118,6 @@ class Entity {
  * @property {number} level
  * @property {number} maxLevel
  * @property {number} xp
- * @property {boolean[]} requirementCompleted
  */
 
 /**
@@ -164,7 +151,6 @@ class Task extends Entity {
             level: JsTypes.Number,
             maxLevel: JsTypes.Number,
             xp: JsTypes.Number,
-            requirementCompleted: JsTypes.Array,
         }, this);
         this.savedValues = savedValues;
     }
@@ -178,7 +164,6 @@ class Task extends Entity {
             level: 0,
             maxLevel: 0,
             xp: 0,
-            requirementCompleted: [],
         };
     }
 
@@ -349,12 +334,6 @@ class GridStrength extends Task {
     }
 }
 
-
-/**
- * @typedef {Object} ModuleCategorySavedValues
- * @property {boolean[]} requirementCompleted
- */
-
 class ModuleCategory extends Entity {
 
     /**
@@ -370,38 +349,11 @@ class ModuleCategory extends Entity {
 
         this.modules = baseData.modules;
     }
-
-    /**
-     * @param {ModuleCategorySavedValues} savedValues
-     */
-    loadValues(savedValues) {
-        validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array,
-        }, this);
-        this.savedValues = savedValues;
-    }
-
-    /**
-     * @return {ModuleCategorySavedValues}
-     */
-    static newSavedValues() {
-        return {
-            requirementCompleted: [],
-        };
-    }
-
-    /**
-     * @return {ModuleCategorySavedValues}
-     */
-    getSavedValues() {
-        return this.savedValues;
-    }
 }
 
 /**
  * @typedef {Object} ModuleSavedValues
  * @property {number} maxLevel
- * @property {boolean[]} requirementCompleted
  */
 
 class Module extends Entity {
@@ -430,7 +382,6 @@ class Module extends Entity {
     loadValues(savedValues) {
         validateParameter(savedValues, {
             maxLevel: JsTypes.Number,
-            requirementCompleted: JsTypes.Array,
         }, this);
         this.savedValues = savedValues;
     }
@@ -441,7 +392,6 @@ class Module extends Entity {
     static newSavedValues() {
         return {
             maxLevel: 0,
-            requirementCompleted: [],
         };
     }
 
@@ -515,11 +465,6 @@ class Module extends Entity {
     }
 }
 
-/**
- * @typedef {Object} ModuleComponentSavedValues
- * @property {boolean[]} requirementCompleted
- */
-
 class ModuleComponent extends Entity {
 
     /** @var {Module} */
@@ -550,32 +495,6 @@ class ModuleComponent extends Entity {
         for (const operation of this.operations) {
             operation.registerModule(module, this);
         }
-    }
-
-    /**
-     * @param {ModuleComponentSavedValues} savedValues
-     */
-    loadValues(savedValues) {
-        validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array,
-        }, this);
-        this.savedValues = savedValues;
-    }
-
-    /**
-     * @return {ModuleComponentSavedValues}
-     */
-    static newSavedValues() {
-        return {
-            requirementCompleted: [],
-        };
-    }
-
-    /**
-     * @return {ModuleComponentSavedValues}
-     */
-    getSavedValues() {
-        return this.savedValues;
     }
 
     /**
@@ -705,11 +624,6 @@ class ModuleOperation extends Task {
 }
 
 
-/**
- * @typedef {Object} SectorSavedValues
- * @property {boolean[]} requirementCompleted
- */
-
 class Sector extends Entity {
     /**
      * @param {{
@@ -726,40 +640,8 @@ class Sector extends Entity {
             pointOfInterest.registerSector(this);
         }
     }
-
-    /**
-     * @param {SectorSavedValues} savedValues
-     */
-    loadValues(savedValues) {
-        validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array,
-        }, this);
-        this.savedValues = savedValues;
-    }
-
-    /**
-     * @return {SectorSavedValues}
-     */
-    static newSavedValues() {
-        return {
-            requirementCompleted: [],
-        };
-    }
-
-    /**
-     *
-     * @return {SectorSavedValues}
-     */
-    getSavedValues() {
-        return this.savedValues;
-    }
 }
 
-
-/**
- * @typedef {Object} PointOfInterestSavedValues
- * @property {boolean[]} requirementCompleted
- */
 
 /**
  * @implements EffectsHolder
@@ -790,30 +672,6 @@ class PointOfInterest extends Entity {
     registerSector(sector) {
         console.assert(this.sector === null, 'Sector already registered.');
         this.sector = sector;
-    }
-
-    /**
-     * @param {PointOfInterestSavedValues} savedValues
-     */
-    loadValues(savedValues) {
-        validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array,
-        }, this);
-        this.savedValues = savedValues;
-    }
-
-    /**
-     * @return {PointOfInterestSavedValues}
-     */
-    static newSavedValues() {
-        return {requirementCompleted: []};
-    }
-
-    /**
-     * @return {PointOfInterestSavedValues}
-     */
-    getSavedValues() {
-        return this.savedValues;
     }
 
     /**
@@ -850,7 +708,6 @@ class PointOfInterest extends Entity {
 /**
  * @typedef {Object} GalacticSecretSavedValues
  * @property {boolean} unlocked
- * @property {boolean[]} requirementCompleted
  */
 
 class GalacticSecret extends Entity {
@@ -871,7 +728,7 @@ class GalacticSecret extends Entity {
         super(GalacticSecret.#createTitle(baseData.unlocks), baseData.unlocks.description);
 
         this.unlocks = baseData.unlocks;
-        this.unlocks.registerRequirement(new GalacticSecretRequirement([{galacticSecret: this}]));
+        this.unlocks.registerRequirement(new GalacticSecretRequirement({galacticSecret: this}));
     }
 
     /**
@@ -887,7 +744,6 @@ class GalacticSecret extends Entity {
     loadValues(savedValues) {
         validateParameter(savedValues, {
             unlocked: JsTypes.Boolean,
-            requirementCompleted: JsTypes.Array,
         }, this);
         this.savedValues = savedValues;
     }
@@ -898,7 +754,6 @@ class GalacticSecret extends Entity {
     static newSavedValues() {
         return {
             unlocked: false,
-            requirementCompleted: [],
         };
     }
 
@@ -940,43 +795,117 @@ class GalacticSecret extends Entity {
 /**
  * @typedef {Object} RequirementLike
  * @property {function(): string} toHtml
+ * @property {function(): boolean} isVisible
+ */
+
+/**
+ * @typedef {Object} RequirementSavedValues
+ * @property {boolean} completed
  */
 
 /**
  * @extends {RequirementLike}
  */
 class Requirement {
-    /** @var {function(boolean)} */
-    saveFn;
-    /** @var {function(): boolean} */
-    loadFn;
+    /**
+     * This list is only used during initialization. Afterward its 
+     * discarded, and you have to use the global `requirementRegistry`.
+     * 
+     * @type {Requirement[]}
+     */
+    static allRequirements = [];
+
+    /**
+     * @readonly
+     * @var {string}
+     */
+    #name;
+
+    get name() {
+        return this.#name;
+    }
 
     /**
      *
      * @param {string} type
      * @param {'permanent'|'playthrough'|'update'} scope
-     * @param {*[]} requirements
+     * @param {*} baseData - The data object for this requirement (previously an array)
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(type, scope, requirements) {
+    constructor(type, scope, baseData, prerequisites) {
         this.type = type;
         this.scope = scope;
-        this.requirements = requirements;
+        this.baseData = baseData;
+        this.prerequisites = prerequisites;
+
+        if (Array.isArray(prerequisites)) {
+            this.prerequisites = prerequisites;
+        } else {
+            this.prerequisites = [];
+        }
+
+        Requirement.allRequirements.push(this);
     }
 
     /**
-     * @param {function(boolean)} saveFn
-     * @param {function(): boolean} loadFn
+     * @param {Object<string, Requirement>} requirementRegistry
      */
-    registerSaveAndLoad(saveFn, loadFn) {
-        this.saveFn = saveFn;
-        this.loadFn = loadFn;
+    register(requirementRegistry){
+        // Auto-generate name and self-register
+        const generatedName = this.generateName();
+
+        if (requirementRegistry.hasOwnProperty(generatedName)) {
+            throw new Error(
+                `Duplicate requirement detected: "${generatedName}". Reusing existing instance.`,
+            );
+        }
+
+        // New requirement - register it
+        this.#name = generatedName;
+        requirementRegistry[generatedName] = this;
+    }
+
+    /**
+     * Generate a unique name for this requirement based on its type, scope, and content.
+     * Must be implemented by each subclass.
+     * @abstract
+     * @return {string}
+     */
+    generateName() {
+        throw new TypeError('generateName() not implemented by ' + this.constructor.name);
+    }
+
+    /**
+     * @param {RequirementSavedValues} savedValues
+     */
+    loadValues(savedValues) {
+        validateParameter(savedValues, {
+            completed: JsTypes.Boolean,
+        }, this);
+        this.savedValues = savedValues;
+    }
+
+    /**
+     * @return {RequirementSavedValues}
+     */
+    static newSavedValues() {
+        return {
+            completed: false,
+        };
+    }
+
+    /**
+     * @return {RequirementSavedValues}
+     */
+    getSavedValues() {
+        return this.savedValues;
     }
 
     set completed(completed) {
         switch (this.scope) {
             case 'permanent':
             case 'playthrough':
-                this.saveFn(completed);
+                this.getSavedValues().completed = completed;
                 break;
             case 'update':
                 // discard
@@ -991,7 +920,7 @@ class Requirement {
         switch (this.scope) {
             case 'permanent':
             case 'playthrough':
-                return this.loadFn();
+                return this.getSavedValues().completed;
             case 'update':
                 return false;
         }
@@ -1003,13 +932,18 @@ class Requirement {
     isCompleted() {
         if (this.completed) return true;
 
-        for (const requirement of this.requirements) {
-            if (!this.getCondition(requirement)) {
-                return false;
-            }
+        if (!this.getCondition(this.baseData)) {
+            return false;
         }
         this.completed = true;
         return true;
+    }
+
+    /**
+     * @return {boolean}
+     */
+    isVisible() {
+        return this.prerequisites.every(requirement => requirement.isCompleted());
     }
 
     reset() {
@@ -1018,7 +952,7 @@ class Requirement {
                 // Keep value
                 break;
             case 'playthrough':
-                this.saveFn(false);
+                this.getSavedValues().completed = false;
                 break;
             case 'update':
                 // discarded anyway
@@ -1027,9 +961,10 @@ class Requirement {
     }
 
     /**
+     * @param {*} baseData - The data object for this requirement
      * @return {boolean}
      */
-    getCondition(requirement) {
+    getCondition(baseData) {
         throw new TypeError('getCondition not implemented.');
     }
 
@@ -1037,24 +972,23 @@ class Requirement {
      * @return {string}
      */
     toHtml() {
-        const innerHtml = this.requirements
-            .filter(requirement => !this.getCondition(requirement))
-            .map(requirement => this.toHtmlInternal(requirement).trim())
-            .join(', ');
-
-        // TODO pseudo-prerequisites
-        if (innerHtml === '') {
+        if (this.getCondition(this.baseData)) {
             return '';
         }
+
+        const innerHtml = this.toHtmlInternal(this.baseData).trim();
+
+        console.assert(innerHtml !== '', 'Empty requirement html', this);
 
         return `<span class="${this.type}">${innerHtml}</span>`;
     }
 
     /**
+     * @param {*} baseData - The data object for this requirement
      * @return {string}
      */
-    toHtmlInternal(requirement) {
-        throw new TypeError('toHtml not implemented.');
+    toHtmlInternal(baseData) {
+        throw new TypeError('toHtmlInternal not implemented.');
     }
 
     /**
@@ -1088,110 +1022,178 @@ class Requirement {
      * @param {{requirements: Requirement[]}} entity
      */
     static hasUnfulfilledRequirements(entity) {
-        if (isUndefined(entity.requirements)) {
-            return false;
-        }
+        return !Requirement.hasRequirementsFulfilled(entity);
+    }
+}
 
-        return entity.requirements.some(requirement => !requirement.isCompleted());
+/**
+ *
+ * @param {Requirement[]} requirements
+ * @return {'permanent'|'playthrough'|'update'}
+ */
+function findShortestScope(requirements) {
+    let scope = 'permanent';
+    for (const requirement of requirements) {
+        switch (requirement.scope) {
+            case 'permanent':
+                break;
+            case 'playthrough':
+                if (scope === 'permanent') {
+                    scope = 'playthrough';
+                }
+                break;
+            case 'update':
+                return 'update'; // can instantly return, there is no shorter scope
+        }
+    }
+
+    return scope;
+}
+
+/**
+ * Usually used as Prerequisites to check if the requirements of another entity are fulfilled.
+ *
+ * The scope is automatically set to the shortest scope among requirements of the provided entity to ensure accurate checking.
+ */
+class EntityUnlockedRequirement extends Requirement {
+    /**
+     * @param {{requirements: Requirement[]}} entity
+     */
+    constructor(entity) {
+        super('EntityUnlockedRequirement', findShortestScope(entity.requirements), entity);
+    }
+
+    generateName() {
+        const entityName = this.baseData.name;
+        return `EntityUnlocked_${this.scope}_${entityName}`;
+    }
+
+    /**
+     * @param {{requirements: Requirement[]}} entity
+     * @return {boolean}
+     */
+    getCondition(entity) {
+        return Requirement.hasRequirementsFulfilled(entity);
+    }
+
+    /**
+     * @param {{requirements: Requirement[]}} entity
+     * @return {string}
+     */
+    toHtmlInternal(entity) {
+        throw new TypeError('toHtmlInternal not supported.');
     }
 }
 
 class OperationLevelRequirement extends Requirement {
     /**
      * @param {'permanent'|'playthrough'|'update'} scope
-     * @param {{operation: ModuleOperation, requirement: number}[]} requirements
+     * @param {{operation: ModuleOperation, requirement: number}} baseData
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements) {
-        super('OperationLevelRequirement', scope, requirements);
+    constructor(scope, baseData, prerequisites) {
+        super('OperationLevelRequirement', scope, baseData, prerequisites);
+    }
+
+    generateName() {
+        return `OperationLevel_${this.scope}_${this.baseData.operation.name}_${this.baseData.requirement}`;
     }
 
     /**
-     * @param {{operation: ModuleOperation, requirement: number}} requirement
+     * @param {{operation: ModuleOperation, requirement: number}} baseData
      * @return {boolean}
      */
-    getCondition(requirement) {
-        return requirement.operation.level >= requirement.requirement;
+    getCondition(baseData) {
+        return baseData.operation.level >= baseData.requirement;
+    }
+
+    isVisible() {
+        return Requirement.hasRequirementsFulfilled(this.baseData.operation)
+            && super.isVisible();
     }
 
     /**
-     * @param {{operation: ModuleOperation, requirement: number}} requirement
+     * @param {{operation: ModuleOperation, requirement: number}} baseData
      * @return {string}
      */
-    toHtmlInternal(requirement) {
-        // TODO pseudo-prerequisites
-        if (Requirement.hasUnfulfilledRequirements(requirement.operation)) {
-            return '';
-        }
-
+    toHtmlInternal(baseData) {
         return `
-<span class="name">${requirement.operation.title}</span>
-level 
-<data value="${requirement.operation.level}">${requirement.operation.level}</data> /
-<data value="${requirement.requirement}">${requirement.requirement}</data>
+<span class="name">${baseData.operation.title}</span>
+level
+<data value="${baseData.operation.level}">${baseData.operation.level}</data> /
+<data value="${baseData.requirement}">${baseData.requirement}</data>
 `;
     }
 }
 
-class AgeRequirement extends Requirement {
+class CyclesPassedRequirement extends Requirement {
     /**
      * @param {'permanent'|'playthrough'|'update'} scope
-     * @param {{requirement: number}[]} requirements
+     * @param {{requirement: number}} baseData
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements) {
-        super('AgeRequirement', scope, requirements);
+    constructor(scope, baseData, prerequisites) {
+        super('CyclesPassedRequirement', scope, baseData, prerequisites);
+    }
+
+    generateName() {
+        return `CyclesPassed_${this.scope}_${this.baseData.requirement}`;
     }
 
     /**
-     *
-     * @param {{requirement: number}} requirement
+     * @param {{requirement: number}} baseData
      * @return {boolean}
      */
-    getCondition(requirement) {
-        return gameData.cycles >= requirement.requirement;
+    getCondition(baseData) {
+        return gameData.cycles >= baseData.requirement;
     }
 
     /**
-     * @param {{requirement: number}} requirement
+     * @param {{requirement: number}} baseData
      * @return {string}
      */
-    toHtmlInternal(requirement) {
+    toHtmlInternal(baseData) {
         return `
 <span class="name">IC</span>
 <data value="${gameData.cycles}">${gameData.cycles}</data> /
-<data value="${requirement.requirement}">${requirement.requirement}</data>`;
+<data value="${baseData.requirement}">${baseData.requirement}</data>`;
     }
 }
 
 class AttributeRequirement extends Requirement {
     /**
      * @param {'permanent'|'playthrough'|'update'} scope
-     * @param {{attribute: AttributeDefinition, requirement: number}[]} requirements
+     * @param {{attribute: AttributeDefinition, requirement: number}} baseData
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements) {
-        super('AttributeRequirement', scope, requirements);
+    constructor(scope, baseData, prerequisites) {
+        super('AttributeRequirement', scope, baseData, prerequisites);
+    }
+
+    generateName() {
+        return `Attribute_${this.scope}_${this.baseData.attribute.name}_${this.baseData.requirement}`;
     }
 
     /**
-     * @param {{attribute: AttributeDefinition, requirement: number}} requirement
+     * @param {{attribute: AttributeDefinition, requirement: number}} baseData
      * @return {boolean}
      */
-    getCondition(requirement) {
-        return requirement.attribute.getValue() >= requirement.requirement;
+    getCondition(baseData) {
+        return baseData.attribute.getValue() >= baseData.requirement;
     }
 
     /**
-     * @param {{attribute: AttributeDefinition, requirement: number}} requirement
+     * @param {{attribute: AttributeDefinition, requirement: number}} baseData
      * @return {string}
      */
-    toHtmlInternal(requirement) {
-        const value = requirement.attribute.getValue();
-        // TODO pseudo-prerequisites
+    toHtmlInternal(baseData) {
+        const value = baseData.attribute.getValue();
 
         // TODO format value correctly
         return `
-<span class="name">${requirement.attribute.title}</span> 
+<span class="name">${baseData.attribute.title}</span>
 <data value="${value}">${formatNumber(value)}</data> /
-<data value="${requirement.requirement}">${formatNumber(requirement.requirement)}</data>
+<data value="${baseData.requirement}">${formatNumber(baseData.requirement)}</data>
 `;
     }
 }
@@ -1199,131 +1201,93 @@ class AttributeRequirement extends Requirement {
 class PointOfInterestVisitedRequirement extends Requirement {
       /**
      * @param {'permanent'|'playthrough'|'update'} scope
-     * @param {{pointOfInterest: PointOfInterest}[]} requirements
+     * @param {{pointOfInterest: PointOfInterest}} baseData
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements) {
-        super('PointOfInterestVisitedRequirement', scope, requirements);
+    constructor(scope, baseData, prerequisites) {
+        super('PointOfInterestVisitedRequirement', scope, baseData, prerequisites);
+    }
+
+    generateName() {
+        return `PointOfInterestVisited_${this.scope}_${this.baseData.pointOfInterest.name}`;
     }
 
     /**
-     * @param {{pointOfInterest: PointOfInterest}} requirement
+     * @param {{pointOfInterest: PointOfInterest}} baseData
      * @return {boolean}
      */
-    getCondition(requirement) {
-        return requirement.pointOfInterest.isActive();
+    getCondition(baseData) {
+        return baseData.pointOfInterest.isActive();
     }
 
     /**
-     * @param {{pointOfInterest: PointOfInterest}} requirement
+     * @param {{pointOfInterest: PointOfInterest}} baseData
      * @return {string}
      */
-    toHtmlInternal(requirement) {
-        // TODO pseudo-prerequisites
-        if (Requirement.hasUnfulfilledRequirements(requirement.pointOfInterest)) {
-            return '';
+    toHtmlInternal(baseData) {
+        const poiUnlocked = Requirement.hasRequirementsFulfilled(this.baseData.pointOfInterest);
+        if (poiUnlocked) {
+            return `visit <span class="name">${baseData.pointOfInterest.title}</span>`;
+        } else {
+            // Instead of completely hiding this requirement, we mask it a bit
+            return `visit <span class="name"><i>Undiscovered Location</i></span>`;
         }
-
-        return `visit <span class="name">${requirement.pointOfInterest.title}</span>`;
     }
 }
 
 class GalacticSecretRequirement extends Requirement {
     /**
-     * @param {{galacticSecret: GalacticSecret}[]} requirements
+     * @param {{galacticSecret: GalacticSecret}} baseData
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(requirements) {
-        super('GalacticSecretRequirement', 'permanent', requirements);
+    constructor(baseData, prerequisites) {
+        super('GalacticSecretRequirement', 'permanent', baseData, prerequisites);
+    }
+
+    generateName() {
+        return `GalacticSecret_${this.baseData.galacticSecret.name}`;
     }
 
     /**
-     * @param {{galacticSecret: GalacticSecret}} requirement
+     * @param {{galacticSecret: GalacticSecret}} baseData
      * @return {boolean}
      */
-    getCondition(requirement) {
-        return requirement.galacticSecret.isUnlocked;
+    getCondition(baseData) {
+        return baseData.galacticSecret.isUnlocked;
+    }
+
+    isVisible() {
+        // Hide Galactic Secret requirements, unless the player currently has Essence of Unknown available
+        return attributes.essenceOfUnknown.getValue() > 0
+            && super.isVisible();
     }
 
     /**
-     * @param {{galacticSecret: GalacticSecret}} requirement
+     * @param {{galacticSecret: GalacticSecret}} baseData
      * @return {string}
      */
-    toHtmlInternal(requirement) {
+    toHtmlInternal(baseData) {
         return 'an unraveled Galactic Secret';
     }
 }
 
-/**
- * @typedef {Object} HtmlElementWithRequirementSavedValues
- * @property {boolean[]} requirementCompleted
- * @property {boolean[]} prerequirementCompleted
- */
-
 class HtmlElementWithRequirement {
+
     /**
      * @param {{
      *     elementsWithRequirements: (HTMLElement|LazyHtmlElement|LazyHtmlElementCollection)[],
      *     requirements: Requirement[],
      *     elementsToShowRequirements?: HTMLElement[],
-     *     prerequirements?: Requirement[],
      * }} baseData
      */
     constructor(baseData) {
         this.elementsWithRequirements = baseData.elementsWithRequirements;
         this.requirements = baseData.requirements;
         this.elementsToShowRequirements = isUndefined(baseData.elementsToShowRequirements) ? [] : baseData.elementsToShowRequirements;
-        this.prerequirements = baseData.prerequirements;
 
-        if (Array.isArray(this.requirements)) {
-            // Use Array.prototype.forEach to a) have an index and b) capture it
-            this.requirements.forEach(this.registerRequirementInternal, this);
-        } else {
+        if (!Array.isArray(this.requirements)) {
             this.requirements = [];
         }
-        if (Array.isArray(this.prerequirements)) {
-            // Use Array.prototype.forEach to a) have an index and b) capture it
-            this.prerequirements.forEach(this.registerPrerequirementInternal, this);
-        } else {
-            this.prerequirements = [];
-        }
-    }
-
-    registerPrerequirementInternal(requirement, index) {
-        requirement.registerSaveAndLoad((completed) => {
-            this.getSavedValues().prerequirementCompleted[index] = completed;
-        }, () => {
-            if (isUndefined(this.getSavedValues().prerequirementCompleted[index])) {
-                this.getSavedValues().prerequirementCompleted[index] = false;
-            }
-            return this.getSavedValues().prerequirementCompleted[index];
-        });
-    }
-
-    /**
-     * @param {HtmlElementWithRequirementSavedValues} savedValues
-     */
-    loadValues(savedValues) {
-        validateParameter(savedValues, {
-            requirementCompleted: JsTypes.Array,
-        }, this);
-        this.savedValues = savedValues;
-    }
-
-    /**
-     * @return {HtmlElementWithRequirementSavedValues}
-     */
-    static newSavedValues() {
-        return {
-            requirementCompleted: [],
-            prerequirementCompleted: [],
-        };
-    }
-
-    /**
-     *
-     * @return {HtmlElementWithRequirementSavedValues}
-     */
-    getSavedValues() {
-        return this.savedValues;
     }
 
     /**
@@ -1337,18 +1301,18 @@ class HtmlElementWithRequirement {
      * @return {boolean}
      */
     isVisible() {
-        return this.prerequirements.every(requirement => requirement.isCompleted());
+        return this.requirements.every(requirement => requirement.isVisible());
     }
 
     /**
      * @return {string}
      */
     toHtml() {
-        // TODO use #requirementsTemplate
         const requirementsString = this.requirements
             .map(requirement => requirement.toHtml())
             .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
             .join(', ');
+        // This HTML should match the content of <template id="requirementsTemplate">
         return `<div class="requirements help-text">
             Next unlock at:
             <span class="rendered">${requirementsString}</span>
@@ -1363,14 +1327,6 @@ class HtmlElementWithRequirement {
     }
 
     reset() {
-        for (const requirement of this.requirements) {
-            requirement.reset();
-        }
-        for (const requirement of this.prerequirements) {
-            requirement.reset();
-        }
+        // Nothing to do - requirements get centrally reset
     }
 }
-
-// Funky cross-extension aka "Trait"
-HtmlElementWithRequirement.prototype.registerRequirementInternal = Entity.prototype.registerRequirementInternal;

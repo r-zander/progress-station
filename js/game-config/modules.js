@@ -76,7 +76,7 @@ moduleOperations.Diesel = new ModuleOperation({
     description: 'From the depths of fossilized relics to the pulse of synthesized organics, it\'s the timeless heart that beats in the mechanical chest of progress.',
     effects: [{effectType: EffectType.Energy, baseValue: 3}],
 });
-moduleOperations.FuelT3 = new ModuleOperation({
+moduleOperations.SmellyJelly = new ModuleOperation({
     title: 'Smelly Jelly', maxXp: 2_000, gridLoad: 4,
     description: 'Super-concentrated jet fuel, thanks to Neptunium\'s kick. Beware: its potent aroma is adored by some, stomach-churning for most.',
     effects: [{effectType: EffectType.Energy, baseValue: 9}],
@@ -222,7 +222,7 @@ const moduleComponents = {
     Fuel: new ModuleComponent({
         title: 'Fuel',
         description: 'The heart\'s fire of the station, what will you use to power the furnace?',
-        operations: [moduleOperations.Garbage, moduleOperations.Diesel, moduleOperations.FuelT3, moduleOperations.Quasarite],
+        operations: [moduleOperations.Garbage, moduleOperations.Diesel, moduleOperations.SmellyJelly, moduleOperations.Quasarite],
     }),
     Products: new ModuleComponent({
         title: 'Products',
@@ -280,7 +280,6 @@ const modules = {
         title: 'Defensive Module',
         description: 'The station\'s shield and sword. Whether repelling invaders or standing guard, peace is made by those prepared for war.',
         components: [moduleComponents.Protection, moduleComponents.Turrets],
-        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 6}])],
     }),
     Quarters: new Module({
         title: 'Quarters Module',

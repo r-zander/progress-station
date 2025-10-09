@@ -73,7 +73,7 @@ function prepareRequirementsForTSV(requirements, locale) {
         } else if (requirements[0] instanceof OperationLevelRequirement) {
             result[2] = requirements[0].requirements[0].operation.name;
             result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
-        } else if (requirements[0] instanceof AgeRequirement) {
+        } else if (requirements[0] instanceof CyclesPassedRequirement) {
             result[2] = null;
             result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
         } else if (requirements[0] instanceof GalacticSecretRequirement) {
