@@ -209,34 +209,69 @@ class Effect {
     }
 
     /**
-     *
      * @param {EffectsHolder} holder
      * @param {EffectDefinition[]} effects
      * @param {number} level
-     * @return {string}
+     *
+     * @return {string} HTML
      */
     static getDescription(holder, effects, level) {
         const modifiers = Modifier.getActiveModifiers();
 
         return effects.map((effect) => {
             const actualEffectType = Effect.#getActualEffectType(holder, effect, modifiers);
-            return actualEffectType.operator +
-                Effect.#calculateEffectValue(actualEffectType, effect.baseValue, level).toFixed(2) +
-                ' ' + actualEffectType.attribute.inlineHtmlWithIcon;
+            const effectValue = Effect.#calculateEffectValue(actualEffectType, effect.baseValue, level);
+            return '<data value="' + effectValue + '" class="effect-value">'
+                + actualEffectType.operator
+                + effectValue.toFixed(2)
+                + '</data> '
+                + actualEffectType.attribute.inlineHtmlWithIcon;
         }, this).join('\n');
     }
 
     /**
-     *
      * @param {EffectsHolder} holder
      * @param {EffectDefinition[]} effects
      * @param {number} level
      * @param {EffectType} effectException
      *
-     * @return {string}
+     * @return {string} HTML
      */
     static getDescriptionExcept(holder, effects, level, effectException) {
         return Effect.getDescription(
+            holder,
+            effects.filter((effect) => effect.effectType !== effectException),
+            level
+        );
+    }
+
+    /**
+     * @param {EffectsHolder} holder
+     * @param {EffectDefinition[]} effects
+     * @param {number} level
+     *
+     * @return {string[]} plain text
+     */
+    static getFormattedValues(holder, effects, level){
+        const modifiers = Modifier.getActiveModifiers();
+
+        return effects.map((effect) => {
+            const actualEffectType = Effect.#getActualEffectType(holder, effect, modifiers);
+            const effectValue = Effect.#calculateEffectValue(actualEffectType, effect.baseValue, level);
+            return actualEffectType.operator + effectValue.toFixed(2);
+        }, this);
+    }
+
+    /**
+     * @param {EffectsHolder} holder
+     * @param {EffectDefinition[]} effects
+     * @param {number} level
+     * @param {EffectType} effectException
+     *
+     * @return {string[]} plain text
+     */
+    static getFormattedValuesExcept(holder, effects, level, effectException){
+        return Effect.getFormattedValues(
             holder,
             effects.filter((effect) => effect.effectType !== effectException),
             level

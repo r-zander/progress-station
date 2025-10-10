@@ -150,7 +150,7 @@ th.numeric {
     text-align: right;
 }
 
-td > data {
+td > data:not(.effect-value) {
     display: block;
     text-align: right;
 }

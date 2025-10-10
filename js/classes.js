@@ -252,11 +252,21 @@ class Task extends Entity {
     /**
      * @param {number} [levelOverride] if provided, the returned text will use the provided
      *                                 level instead of the current level of this task.
-     * @return {string}
+     * @return {string} HTML
      */
     getEffectDescription(levelOverride = undefined) {
         const level = isNumber(levelOverride) ? levelOverride : this.level;
         return Effect.getDescription(this, this.effects, level);
+    }
+
+    /**
+     * @param {number} [levelOverride] if provided, the returned text will use the provided
+     *                                 level instead of the current level of this task.
+     * @return {string[]} plain text
+     */
+    getFormattedEffectValues(levelOverride = undefined){
+        const level = isNumber(levelOverride) ? levelOverride : this.level;
+        return Effect.getFormattedValues(this, this.effects, level);
     }
 
     increaseXp() {
@@ -697,11 +707,18 @@ class PointOfInterest extends Entity {
     }
 
     /**
-     * @return {string}
+     * @return {string} HTML
      */
     getEffectDescription() {
         // Danger is displayed in a separate column
         return Effect.getDescriptionExcept(this, this.effects, 1, EffectType.Danger);
+    }
+
+    /**
+     * @return {string[]} plain text
+     */
+    getFormattedEffectValues(){
+        return Effect.getFormattedValuesExcept(this, this.effects, 1, EffectType.Danger);
     }
 }
 

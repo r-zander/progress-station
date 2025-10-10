@@ -346,6 +346,7 @@ function createModuleLevel4Elements(categoryName, component) {
             descriptionElement.removeAttribute('title');
         }
         level4DomGetter.byClass('progressBar').addEventListener('click', tryActivateOperation.bind(this, component, operation));
+        level4DomGetter.byClass('effect').innerHTML = operation.getEffectDescription();
         formatValue(level4DomGetter.bySelector('.gridLoad > data'), operation.getGridLoad());
 
         level4Elements.push(level4Element);
@@ -501,6 +502,7 @@ function createLevel4SectorElements(pointsOfInterest, sectorName) {
         level4DomGetter.byClass('point-of-interest').addEventListener('click', () => {
             setPointOfInterest(pointOfInterest.name);
         });
+        level4DomGetter.byClass('effect').innerHTML = pointOfInterest.getEffectDescription();
 
         level4Elements.push(level4Element);
     }
@@ -949,17 +951,7 @@ function createAttributesHTML() {
         if (attribute.icon === null) {
             attribute.inlineHtmlWithIcon = inlineHTML;
         } else {
-            /* For: Colored font + white icons.png */
-            // attribute.inlineHtmlWithIcon = `<img src="${attribute.icon}" class="inline-attribute icon" alt="${attribute.title} icon" />` + inlineHTML;
-
-            /* For: Colored font + icon.png */
-            attribute.inlineHtmlWithIcon = `<span class="icon-container ${attribute.textClass}" style="mask-image: url('${attribute.icon}');"></span>` + inlineHTML;
-
-            /* For: Colored font + white icon + bg */
-            // attribute.inlineHtmlWithIcon = `<span class="icon-container2 ${attribute.textClass}"><img src="${attribute.icon}" class="inline-attribute icon" alt="${attribute.title} icon" /></span>` + inlineHTML;
-
-            /* For: White font + icon + badge */
-            // attribute.inlineHtmlWithIcon = `<span class="inline-attribute2 ${attribute.textClass}"><img src="${attribute.icon}" class="inline-attribute icon" alt="${attribute.title} icon" /><span class="attribute">${attribute.title}</span></span>`;
+            attribute.inlineHtmlWithIcon = `<img src="${attribute.icon}" class="inline-attribute icon" />` + inlineHTML;
         }
     }
 }
@@ -1303,7 +1295,11 @@ function updateModuleOperationRow(operation, operationRequirementsContext) {
     setProgress(progressFillElement, operation.xp / operation.getMaxXp());
     progressFillElement.classList.toggle('current', operation.isActive('self'));
 
-    domGetter.byClass('effect').innerHTML = operation.getEffectDescription();
+    const effectValueElements = domGetter.allByClass('effect-value');
+    const effectValues = operation.getFormattedEffectValues();
+    for (let i = 0; i < effectValueElements.length; i++) {
+        effectValueElements[i].textContent = effectValues[i];
+    }
     domGetter.byClass('gridLoad').classList.toggle('hidden', attributes.gridStrength.getValue() === 0);
 }
 
@@ -1651,7 +1647,11 @@ function updateSectorRows() {
             const domGetter = Dom.get(row);
             const isActive = pointOfInterest.isActive();
             domGetter.byClass('point-of-interest').classList.toggle('current', isActive);
-            domGetter.byClass('effect').innerHTML = pointOfInterest.getEffectDescription();
+            const effectValueElements = domGetter.allByClass('effect-value');
+            const effectValues = pointOfInterest.getFormattedEffectValues();
+            for (let i = 0; i < effectValueElements.length; i++) {
+                effectValueElements[i].textContent = effectValues[i];
+            }
             formatValue(domGetter.bySelector('.danger > data'), pointOfInterest.getEffect(EffectType.Danger));
         }
 

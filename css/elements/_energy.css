@@ -18,7 +18,7 @@
 
     .icon {
         height: 18px;
-        filter: invert(1);
+        filter: brightness(0);
     }
 }
 
