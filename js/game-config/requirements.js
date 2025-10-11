@@ -19,13 +19,13 @@ sharedRequirements.attributeResearchUnlocked = new AttributeRequirement('playthr
 });
 sharedRequirements.attributeResearch10 = battleRequirements[1];
 
-sharedRequirements.FourDPrinterLvl10 = new OperationLevelRequirement('playthrough', {
+sharedRequirements.FourDPrinterLvl20 = new OperationLevelRequirement('playthrough', {
     operation: moduleOperations.FourDPrinter,
-    requirement: 10,
+    requirement: 20,
 });
-sharedRequirements.KungFuManualLvl10 = new OperationLevelRequirement('playthrough', {
+sharedRequirements.KungFuManualLvl20 = new OperationLevelRequirement('playthrough', {
     operation: moduleOperations.KungFuManual,
-    requirement: 10,
+    requirement: 20,
 });
 sharedRequirements.NovaFliesLvl10 = new FactionLevelsDefeatedRequirement('playthrough', {
     faction: factions.NovaFlies,
@@ -37,7 +37,7 @@ sharedRequirements.NovaFliesLvl20 = new FactionLevelsDefeatedRequirement(
         faction: factions.NovaFlies,
         requirement: 20,
     },
-    [sharedRequirements.KungFuManualLvl10],
+    [sharedRequirements.KungFuManualLvl20],
 );
 sharedRequirements.PocketLaboratoryLvl10 = new OperationLevelRequirement(
     'playthrough',
@@ -56,25 +56,32 @@ sharedRequirements.AstrogoblinsLvl75 = new FactionLevelsDefeatedRequirement('pla
  * @type {Object<Requirement>}
  */
 const moduleOperationRequirements = {
+    // I.S.A.S.M
+    // Rescue Capsule
     FourDPrinter: moduleOperations.FourDPrinter.registerRequirement(
         sharedRequirements.attributeGridStrength1,
     ),
+
+    // Captain's Quarter
     MicroCyborgAutomat: moduleOperations.MicroCyborgAutomat.registerRequirement(
-        sharedRequirements.FourDPrinterLvl10,
+        sharedRequirements.FourDPrinterLvl20,
     ),
     KungFuManual: moduleOperations.KungFuManual.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.MicroCyborgAutomat,
-            requirement: 10,
+            requirement: 20,
         }),
     ),
     PocketLaboratory: moduleOperations.PocketLaboratory.registerRequirement(
         sharedRequirements.NovaFliesLvl20,
     ),
+
+    // MINING BAY
+    // Mined Resource
     HeavyGlitz: moduleOperations.HeavyGlitz.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.SpaceRocks,
-            requirement: 10,
+            requirement: 100,
         }),
     ),
     Radiance: moduleOperations.Radiance.registerRequirement(
@@ -83,10 +90,12 @@ const moduleOperationRequirements = {
             requirement: 500,
         }),
     ),
+
+    // Drill
     AsteroidChomper: moduleOperations.AsteroidChomper.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.BigSpinny,
-            requirement: 10,
+            requirement: 100,
         }),
     ),
     TenDrills: moduleOperations.TenDrills.registerRequirement(
@@ -95,16 +104,19 @@ const moduleOperationRequirements = {
             requirement: 500,
         }),
     ),
+
+    // FURNACE
+    // Fuel
     Diesel: moduleOperations.Diesel.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.Garbage,
-            requirement: 10,
+            requirement: 100,
         }),
     ),
     SmellyJelly: moduleOperations.SmellyJelly.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.Diesel,
-            requirement: 10,
+            requirement: 200,
         }),
     ),
     Quasarite: moduleOperations.Quasarite.registerRequirement(
@@ -113,90 +125,104 @@ const moduleOperationRequirements = {
             requirement: 500,
         }),
     ),
+
+    // Products
     Steel: moduleOperations.Steel.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.Plastics,
-            requirement: 10,
+            requirement: 100,
         }),
     ),
-    ProductsT3: moduleOperations.ProductsT3.registerRequirement(
+    Bouncium: moduleOperations.Bouncium.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.Steel,
-            requirement: 10,
+            requirement: 200,
         }),
     ),
     MicroalloyGlass: moduleOperations.MicroalloyGlass.registerRequirement(
         new OperationLevelRequirement('playthrough', {
-            operation: moduleOperations.ProductsT3,
+            operation: moduleOperations.Bouncium,
             requirement: 500,
         }),
     ),
-    Recruitment: moduleOperations.Recruitment.registerRequirement(
-        new OperationLevelRequirement('playthrough', {
-            operation: moduleOperations.Survivors,
-            requirement: 10,
-        }),
-    ),
-    SmoochSanctuary: moduleOperations.SmoochSanctuary.registerRequirement(
-        new OperationLevelRequirement('playthrough', {
-            operation: moduleOperations.Recruitment,
-            requirement: 10,
-        }),
-    ),
-    MechanoMaker: moduleOperations.MechanoMaker.registerRequirement(
-        new OperationLevelRequirement('playthrough', {
-            operation: moduleOperations.SmoochSanctuary,
-            requirement: 10,
-        }),
-    ),
-    ReplicationChambers: moduleOperations.ReplicationChambers.registerRequirement(
-        new OperationLevelRequirement('playthrough', {
-            operation: moduleOperations.MechanoMaker,
-            requirement: 500,
-        }),
-    ),
-    IndividualRooms: moduleOperations.UnitedForVictory.registerRequirement(
-        new OperationLevelRequirement('playthrough', {
-            operation: moduleOperations.EveryoneMatters,
-            requirement: 10,
-        }),
-    ),
-    WayOfLifeT3: moduleOperations.GuileIsStrength.registerRequirement(
-        new OperationLevelRequirement('playthrough', {
-            operation: moduleOperations.UnitedForVictory,
-            requirement: 10,
-        }),
-    ),
-    SecretWayOfLife: moduleOperations.GloryToTheGreatHeroes.registerRequirement(
-        new OperationLevelRequirement('playthrough', {
-            operation: moduleOperations.GuileIsStrength,
-            requirement: 500,
-        }),
-    ),
+
+    // DEFENSIVE MODULE
+    // Protection
     PulseShield: moduleOperations.PulseShield.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.GlitzPlating,
-            requirement: 10,
+            requirement: 100,
         }),
     ),
     BulletSponge: moduleOperations.BulletSponge.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.PulseShield,
-            requirement: 10,
+            requirement: 500,
         }),
     ),
+
+    // Turrets
     LaserTurrets: moduleOperations.LaserTurrets.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.RapidRumbleTower,
-            requirement: 10,
+            requirement: 100,
         }),
     ),
     AntiMissileSwarm: moduleOperations.AntiMissileSwarm.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.LaserTurrets,
-            requirement: 10,
+            requirement: 500,
         }),
     ),
+
+    // QUARTERS MODULE
+    // Crew Expansion
+    Recruitment: moduleOperations.Recruitment.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.Survivors,
+            requirement: 100,
+        }),
+    ),
+    SmoochSanctuary: moduleOperations.SmoochSanctuary.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.Recruitment,
+            requirement: 200,
+        }),
+    ),
+    MechanoMaker: moduleOperations.MechanoMaker.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.SmoochSanctuary,
+            requirement: 500,
+        }),
+    ),
+    ReplicationChambers: moduleOperations.ReplicationChambers.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.MechanoMaker,
+            requirement: 1000,
+        }),
+    ),
+
+    // Doctrine
+    UnitedForVictory: moduleOperations.UnitedForVictory.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.EveryoneMatters,
+            requirement: 100,
+        }),
+    ),
+    GuileIsStrength: moduleOperations.GuileIsStrength.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.UnitedForVictory,
+            requirement: 200,
+        }),
+    ),
+    GloryToTheGreatHeroes: moduleOperations.GloryToTheGreatHeroes.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.GuileIsStrength,
+            requirement: 500,
+        }),
+    ),
+
+
 };
 
 /**
@@ -204,7 +230,7 @@ const moduleOperationRequirements = {
  */
 const modulesRequirements = {
     CaptainsQuarter: modules.CaptainsQuarter.registerRequirement(
-        sharedRequirements.FourDPrinterLvl10,
+        sharedRequirements.FourDPrinterLvl20,
     ),
     MiningBay1: modules.MiningBay.registerRequirement(
         sharedRequirements.PocketLaboratoryLvl10,
@@ -402,7 +428,7 @@ const htmlElementRequirements = {
     battleTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('battleTabButton')],
-            requirements: [sharedRequirements.KungFuManualLvl10],
+            requirements: [sharedRequirements.KungFuManualLvl20],
             elementsToShowRequirements: [Dom.get().byId('battleTabButtonRequirements')],
         }),
     dangerDisplay: new HtmlElementWithRequirement(

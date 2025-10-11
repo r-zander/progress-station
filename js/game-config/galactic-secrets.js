@@ -18,13 +18,16 @@ const galacticSecrets = {
     MicroalloyGlass: new GalacticSecret({
         unlocks: moduleOperations.MicroalloyGlass,
     }),
-    ReplicationChambers: new GalacticSecret({
-        unlocks: moduleOperations.ReplicationChambers,
-    }),
-    SecretWayOfLife: new GalacticSecret({
-        unlocks: moduleOperations.GloryToTheGreatHeroes,
+    BulletSponge: new GalacticSecret({
+        unlocks: moduleOperations.BulletSponge,
     }),
     AntiMissileSwarm: new GalacticSecret({
         unlocks: moduleOperations.AntiMissileSwarm,
+    }),
+    ReplicationChambers: new GalacticSecret({
+        unlocks: moduleOperations.ReplicationChambers,
+    }),
+    GloryToTheGreatHeroes: new GalacticSecret({
+        unlocks: moduleOperations.GloryToTheGreatHeroes,
     }),
 };

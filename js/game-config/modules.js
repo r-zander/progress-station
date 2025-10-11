@@ -99,7 +99,7 @@ moduleOperations.Steel = new ModuleOperation({
     description: 'Super tough stuff, dude! Like, armor for your space castle or sword for cosmic dragon slaying.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.02}],
 });
-moduleOperations.ProductsT3 = new ModuleOperation({
+moduleOperations.Bouncium = new ModuleOperation({
     title: 'Bouncium', maxXp: 4_000, gridLoad: 6,
     description: 'The rubbery metal that laughs at gravity. Perfect for when you need your gear to bounce back, literally.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.04}],
@@ -209,6 +209,7 @@ const moduleComponents = {
         description: 'This compact kit contains everything a captain needs to get the station up and running.',
         operations: [moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual, moduleOperations.PocketLaboratory],
     }),
+
     MinedResource: new ModuleComponent({
         title: 'Mined Resource',
         description: 'The foundation of station expansion. From common rocks to exotic minerals, each resource fuels progress and prosperity.',
@@ -219,6 +220,7 @@ const moduleComponents = {
         description: 'The might of the Mining Bay, turning lifeless asteroids into vaults of valuable materials. Each drill is a key to unlocking the galaxy\'s riches.',
         operations: [moduleOperations.BigSpinny, moduleOperations.AsteroidChomper, moduleOperations.TenDrills]
     }),
+
     Fuel: new ModuleComponent({
         title: 'Fuel',
         description: 'The heart\'s fire of the station, what will you use to power the furnace?',
@@ -227,8 +229,9 @@ const moduleComponents = {
     Products: new ModuleComponent({
         title: 'Products',
         description: 'Transmuting raw materials into vital resources. Whether it\'s for construction or commerce, the furnace forges the foundation of expansion.',
-        operations: [moduleOperations.Plastics, moduleOperations.Steel, moduleOperations.ProductsT3, moduleOperations.MicroalloyGlass],
+        operations: [moduleOperations.Plastics, moduleOperations.Steel, moduleOperations.Bouncium, moduleOperations.MicroalloyGlass],
     }),
+
     Protection: new ModuleComponent({
         title: 'Protection',
         description: 'A shield against the void\'s dangers. Become a fortress among the stars!',
@@ -239,6 +242,7 @@ const moduleComponents = {
         description: 'The station\'s fangs and claws. Arm your station with an array of turrets, ready to repel invaders and protect your domain.',
         operations: [moduleOperations.RapidRumbleTower, moduleOperations.LaserTurrets, moduleOperations.AntiMissileSwarm],
     }),
+
     CrewExpansion: new ModuleComponent({
         title: 'Crew Expansion',
         description: 'Growth is the lifeblood of progress. Expand, evolve, and empower your crew.',
