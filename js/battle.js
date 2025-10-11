@@ -401,7 +401,7 @@ class FactionLevelsDefeatedRequirement extends Requirement {
      */
     toHtmlInternal(baseData) {
         const defeatedLevels = this.#getDefeatedLevels(baseData.faction);
-        return `Defeated 
+        return `Defeated
 <span class="name">${baseData.faction.title}</span>
 waves
 <data value="${defeatedLevels}">${defeatedLevels}</data> /
