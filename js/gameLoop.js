@@ -27,7 +27,7 @@ class GameLoop {
      *     targetTicksPerSecond: number,
      *     maxUpdatesPerTick: number,
      *     immediateTick: boolean,
-     *     onUpdate: function(deltaTime: number, totalTime: number, gameLoop: GameLoop),
+     *     onUpdate: function(deltaTime: number, totalTime: number, isLastUpdateInTick: boolean, gameLoop: GameLoop),
      *     onRender: function(interpolationFactor: number, gameLoop: GameLoop),
      *     onPanic: function(gameLoop: GameLoop),
      * }} options <ul>
@@ -51,7 +51,7 @@ class GameLoop {
          *     targetTicksPerSecond: number,
          *     maxUpdatesPerTick: number,
          *     immediateTick: boolean,
-         *     onUpdate: function(number, number, GameLoop),
+         *     onUpdate: function(number, number, boolean, GameLoop),
          *     onRender: function(number, GameLoop),
          *     onPanic: function(GameLoop)
          * }}
@@ -134,12 +134,20 @@ class GameLoop {
 
         while (this.timing.lag >= this.step) {
             this.timing.lag -= this.step;
-            this.options.onUpdate(this.step, this.timing.total, this);
+            this.options.onUpdate(this.step, this.timing.total, this.timing.lag < this.step, this);
+
+            // Game loop state might have changed
+            if (this.state !== GameLoopState.RUNNING) break;
+
             numberOfUpdates++;
             if (numberOfUpdates >= this.options.maxUpdatesPerTick) {
                 this.options.onPanic(this);
                 break;
             }
+        }
+
+        if (numberOfUpdates > 10) {
+            console.log('[GameLoop] Tick number of updates', numberOfUpdates);
         }
 
         this.options.onRender(this.timing.lag / this.step, this);

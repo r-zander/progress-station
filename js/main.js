@@ -2013,14 +2013,26 @@ function updateUI() {
     updateBodyClasses();
 }
 
-function update() {
+/**
+ *
+ * @param {number} deltaTime
+ * @param {number} totalTime
+ * @param {boolean} isLastUpdateInTick
+ * @param {GameLoop} gameLoop
+ */
+function update(deltaTime, totalTime, isLastUpdateInTick, gameLoop) {
     increaseCycle();
     updateBossDistance();
     progressGalacticSecrets();
     activateComponentOperations();
     doTasks();
     updatePopulation();
-    updateUI();
+
+    // Only update the UI once in an accumulated update
+    if (isLastUpdateInTick) {
+        updateUI();
+    }
+
     // Could be triggered via GameEvents.GameStateChanged but then we are
     // missing our necessary update to show the game as paused etc.
     if (!gameData.state.gameLoopRunning) {

@@ -114,8 +114,10 @@ function togglePause() {
         case gameStates.BOSS_FIGHT_PAUSED:
             gameData.transitionState(gameStates.BOSS_FIGHT);
             break;
+        // Any other state is ignored
     }
-    // Any other state is ignored
+
+    updateUiIfNecessary();
 }
 
 function forcePause() {
@@ -245,7 +247,7 @@ function playthroughReset(maxLevelBehavior) {
     if (gameData.state.gameLoopRunning === false && gameStates.NEW.gameLoopRunning === false) {
         // Both states don't have the gameLoopRunning --> explicitly run update()
         // once to ensure the UI matches the game state
-        update();
+        updateUI();
     }
     gameData.transitionState(gameStates.NEW);
 }
