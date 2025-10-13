@@ -6,6 +6,8 @@ const audioEvents = {};
  */
 let wasAudioEnabled = false;
 
+const musicContext = new MusicContext();
+
 /**
  * Manages trigger intervals to prevent audio spam by tracking the last trigger time
  * and enforcing minimum intervals between triggers for named events.
@@ -130,10 +132,71 @@ function setAudioVolume(newValue) {
     Howler.volume(mapVolumeThreeZone(newValue));
 }
 
+function updateMusicContext() {
+    let maxValue = -Infinity;
+    /** @var {string|null} */
+    let highestAttribute = null;
+    for (const attributeName in attributes) {
+        const attribute = attributes[attributeName];
+
+        if (!attribute.relevantForMusicContext) continue;
+
+        const value = attribute.getValue();
+        if (value > maxValue) {
+            maxValue = value;
+            highestAttribute = attributeName;
+        }
+    }
+    musicContext.highestAttribute = highestAttribute;
+
+    // Collect progress speeds from all active tasks
+    const progressSpeeds = [];
+
+    // Add progress speeds from all active operations (in hierarchy)
+    for (const operationName in moduleOperations) {
+        const operation = moduleOperations[operationName];
+        if (operation.isActive('inHierarchy') && operation.isProgressing()) {
+            progressSpeeds.push(operation.getDelta());
+        }
+    }
+
+    // Add progress speed from gridStrength
+    if (gridStrength.isProgressing()) {
+        progressSpeeds.push(gridStrength.getDelta());
+    }
+
+    // Add progress speeds from all active battles
+    for (const battleName of gameData.activeEntities.battles) {
+        const battle = battles[battleName];
+        if (battle.isProgressing()) {
+            progressSpeeds.push(battle.getDelta());
+        }
+    }
+
+    // Calculate statistics
+    if (progressSpeeds.length > 0) {
+        musicContext.totalProgressSpeed = progressSpeeds.reduce((sum, speed) => sum + speed, 0);
+        musicContext.maxProgressSpeed = Math.max(...progressSpeeds);
+        musicContext.avgProgressSpeed = musicContext.totalProgressSpeed / progressSpeeds.length;
+    } else {
+        musicContext.totalProgressSpeed = 0;
+        musicContext.maxProgressSpeed = 0;
+        musicContext.avgProgressSpeed = 0;
+    }
+
+    musicContext.dangerLevel = attributes.danger.getValue() / attributes.military.getValue();
+    musicContext.numberOfEngagedBattles = gameData.activeEntities.battles.size;
+    musicContext.gameState = gameData.stateName;
+
+    musicContext.finishUpdate();
+}
+
 function initAudio() {
     // TODO needs special handling to circumvent brower's audio auto-play blocking
     const savedValueAudioEnabled = gameData.settings.audio.enabled;
     gameData.settings.audio.enabled = false;
+
+    AudioEngine.SetMusicContext(musicContext);
 
     Howler.mute(gameData.settings.audio.enabled);
     setAudioVolume(gameData.settings.audio.masterVolume);

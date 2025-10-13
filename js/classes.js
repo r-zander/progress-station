@@ -10,6 +10,7 @@
  * @property {string} [inlineHtml] - inline display of the attribute, only text
  * @property {string} [inlineHtmlWithIcon] - inline display of the attribute, with icon
  * @property {function(): number} getValue - retrieves the current value for this attribute
+ * @property {boolean} relevantForMusicContext - should this attribute value be considered for the MusicContext.highestAttribute ?
  */
 
 /**

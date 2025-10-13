@@ -67,14 +67,148 @@
 
 /**
  * @typedef {Object} MusicContext
- * @property {number} tension - Tension level (0-100)
- * @property {number} energy - Energy level (0-100)
- * @property {'exploration'|'combat'|'victory'|'defeat'} phase - Current game phase
+ * @property {string} highestAttribute - Name of the attribute with the highest value currently
+ * @property {number} avgProgressSpeed - in level / cycle
+ * @property {number} maxProgressSpeed - in level / cycle
+ * @property {number} totalProgressSpeed - in level / cycle
+ * @property {number} dangerLevel - 0 --> no danger. 1.0 --> danger == military. >1.0 --> heat
+ * @property {number} numberOfEngagedBattles - 0 to 6
+ * @property {'NEW'|'PLAYING'|'PAUSED'|'TUTORIAL_PAUSED'|'BOSS_FIGHT_INTRO'|'BOSS_FIGHT'|'DEAD'|'BOSS_DEFEATED'} gameState
+ *
+ * @property {function(function())} registerListener - allows to add a listener that gets called whenever one or more fields change in an update
  */
 
 // ============================================
 // MAIN AUDIO ENGINE API
 // ============================================
+
+class MusicContext {
+    #highestAttribute = attributes.industry.name;
+    #avgProgressSpeed = 0;
+    #maxProgressSpeed = 0;
+    #totalProgressSpeed = 0;
+    #dangerLevel = 0;
+    #numberOfEngagedBattles = 0;
+    #gameState = 'NEW';
+
+    #listeners = [];
+
+    #isDirty = false;
+    #changedFields = [];
+
+    constructor() {
+    }
+
+    get highestAttribute() {
+        return this.#highestAttribute;
+    }
+
+    set highestAttribute(value) {
+        if (this.#highestAttribute === value) return;
+
+        this.#highestAttribute = value;
+        this.#isDirty = true;
+        this.#changedFields.push('highestAttribute');
+    }
+
+    get avgProgressSpeed() {
+        return this.#avgProgressSpeed;
+    }
+
+    set avgProgressSpeed(value) {
+        if (nearlyEquals(this.#avgProgressSpeed, value, 0.01)) return;
+
+        this.#avgProgressSpeed = value;
+        this.#isDirty = true;
+        this.#changedFields.push('avgProgressSpeed');
+    }
+
+    get maxProgressSpeed() {
+        return this.#maxProgressSpeed;
+    }
+
+    set maxProgressSpeed(value) {
+        if (nearlyEquals(this.#maxProgressSpeed, value, 0.01)) return;
+
+        this.#maxProgressSpeed = value;
+        this.#isDirty = true;
+        this.#changedFields.push('maxProgressSpeed');
+    }
+
+    get totalProgressSpeed() {
+        return this.#totalProgressSpeed;
+    }
+
+    set totalProgressSpeed(value) {
+        if (nearlyEquals(this.#totalProgressSpeed, value, 0.01)) return;
+
+        this.#totalProgressSpeed = value;
+        this.#isDirty = true;
+        this.#changedFields.push('totalProgressSpeed');
+    }
+
+    get dangerLevel() {
+        return this.#dangerLevel;
+    }
+
+    set dangerLevel(value) {
+        if (nearlyEquals(this.#dangerLevel, value, 0.01)) return;
+
+        this.#dangerLevel = value;
+        this.#isDirty = true;
+        this.#changedFields.push('dangerLevel');
+    }
+
+    get numberOfEngagedBattles() {
+        return this.#numberOfEngagedBattles;
+    }
+
+    set numberOfEngagedBattles(value) {
+        if (this.#numberOfEngagedBattles === value) return;
+
+        this.#numberOfEngagedBattles = value;
+        this.#isDirty = true;
+        this.#changedFields.push('numberOfEngagedBattles');
+    }
+
+    get gameState() {
+        return this.#gameState;
+    }
+
+    set gameState(value) {
+        if (this.#gameState === value) return;
+
+        this.#gameState = value;
+        this.#isDirty = true;
+        this.#changedFields.push('gameState');
+    }
+
+    registerListener(callback) {
+        this.#listeners.push(callback);
+    }
+
+    finishUpdate() {
+        if (!this.#isDirty) return;
+
+        // console.log('MusicContext changed.', this.#changedFields, {
+        //     highestAttribute: this.highestAttribute,
+        //     avgProgressSpeed: this.avgProgressSpeed,
+        //     maxProgressSpeed: this.maxProgressSpeed,
+        //     totalProgressSpeed: this.totalProgressSpeed,
+        //     dangerLevel: this.dangerLevel,
+        //     numberOfEngagedBattles: this.numberOfEngagedBattles,
+        //     gameState: this.gameState,
+        // });
+
+        this.#listeners.forEach((listener) => {
+            listener();
+        });
+
+        this.#isDirty = false;
+        // Empty array
+        this.#changedFields.length = 0;
+    }
+}
 
 class AudioEngine {
     // ============================================
@@ -90,12 +224,8 @@ class AudioEngine {
     /** @type {Object.<string, number>} Sequence counters for 'sequence' container type */
     static _sequenceCounters = {};
 
-    /** @type {MusicContext} Current music context */
-    static _musicContext = {
-        tension: 0,
-        energy: 0,
-        phase: 'exploration'
-    };
+    /** @type {MusicContext|null} Current music context */
+    static _musicContext = null;
 
     /** @type {Object.<string, MusicState>} Registered music states */
     static _musicStates = {};
@@ -349,45 +479,14 @@ class AudioEngine {
     }
 
     /**
-     * Set a real-time parameter control value (Wwise RTPC)
-     * @param {string} rtpcName - Name of the RTPC
-     * @param {number} value - Value to set
-     * @returns {void}
-     */
-    static SetRTPCValue(rtpcName, value) {
-        // Map RTPC names to MusicContext fields
-        if (rtpcName === 'tension') {
-            AudioEngine._musicContext.tension = value;
-        } else if (rtpcName === 'energy') {
-            AudioEngine._musicContext.energy = value;
-        } else {
-            console.warn(`AudioEngine: Unknown RTPC "${rtpcName}"`);
-            return;
-        }
-
-        // Re-evaluate all active music layers
-        AudioEngine._updateMusicLayers();
-    }
-
-    /**
-     * Set the music context (convenience method)
-     * @param {Partial<MusicContext>} context - Context object with music parameters
+     * @param {MusicContext} context - Context object with music parameters
      * @returns {void}
      */
     static SetMusicContext(context) {
-        // Update context fields
-        if (typeof context.tension === 'number') {
-            AudioEngine._musicContext.tension = context.tension;
-        }
-        if (typeof context.energy === 'number') {
-            AudioEngine._musicContext.energy = context.energy;
-        }
-        if (typeof context.phase === 'string') {
-            AudioEngine._musicContext.phase = context.phase;
-        }
+        AudioEngine._musicContext = context;
 
         // Re-evaluate all active music layers
-        AudioEngine._updateMusicLayers();
+        context.registerListener(AudioEngine._updateMusicLayers);
     }
 
     /**

@@ -2027,6 +2027,7 @@ function update(deltaTime, totalTime, isLastUpdateInTick, gameLoop) {
     activateComponentOperations();
     doTasks();
     updatePopulation();
+    updateMusicContext();
 
     // Only update the UI once in an accumulated update
     if (isLastUpdateInTick) {
