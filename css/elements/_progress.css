@@ -7,7 +7,7 @@
 
 
     /* Reset some bootstrap styling */
-    overflow: visible;
+    overflow: hidden;
     border-radius: 0;
 
     &.clickable {
