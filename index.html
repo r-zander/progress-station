@@ -38,18 +38,32 @@
                 PS
             </a>
             <span class="h2 ms-2 version-label beta" title="Beta Version. Full release on 13th Nov 2025">Beta</span>
-            <h2 id="nameDisplay" class="shortcut my-0 px-3 pb-1 text-nowrap overflow-x-hidden">USS Progress</h2>
-            <div class="ms-auto d-flex flex-row gap-3">
-                <div id="cyclesSinceLastEncounter" class="primary-stat"
-                     title="Intergalactic Cycles" data-bs-placement="bottom">
-                    <span class="label">Since Last Encounter:</span>
-                    <data value="14" data-unit="IC">14</data>
+            <h2 id="nameDisplay" class="shortcut my-0 px-3 pb-1 text-nowrap overflow-x-hidden me-4">USS Progress</h2>
+            <div class="ms-auto d-flex align-items-center flex-grow-1 gap-3">
+                <!-- Boss progress bar -->
+                <div id="bossProgress"
+                     class="primary-stat d-flex align-items-center flex-grow-1 gap-2"
+                     data-bs-toggle="tooltip"
+                     data-bs-placement="bottom"
+                     title="Intergalactic Cycles until next boss">
+                        <div class="bossProgress-container">
+                            <div class="progress battle progressBar descriptionTooltip clickable flex-grow-1 bossProgressBar"
+                                 role="progressbar"
+                                 aria-label="Boss Progress"
+                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progressBackground progress-background"></div>
+                                <div id="bossProgressBar" class="battleProgress bossProgress progressFill progress-bar progress-bar-striped current" style="width: 0;"></div>
+                                <div id="bossProgressText" class="progress-text bossProgress-text text-truncate px-2">Sensors detect faint anomalies...</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div id="cyclesTotal" class="secondary-stat help-text"
+                <!-- Date display -->
+                <div id="cyclesTotal" class="secondary-stat help-text text-end"
                      title="Intergalactic Cycles" data-bs-placement="bottom">
-                    <span class="label">Date:</span>
-                    <data value="70" data-unit="IC">0</data>
-                </div>
+                <span class="label">Date:</span>
+                <data value="70" data-unit="IC">0</data>
+            </div>
             </div>
         </div>
 

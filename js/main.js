@@ -1761,17 +1761,94 @@ function updateEnergyGridBar() {
     energyGeneratedElement.style.right = `clamp(${rightLimit}px, ${relativeEnergy}%, calc(100% - ${leftLimit}px))`;
 }
 
+function updateBossProgress() {
+    const container = document.getElementById('bossProgress');
+    const bossBar = document.getElementById('bossProgressBar');
+    if (!container || !bossBar) return;
+    const allowProgressAcceleration = gameData.bossEncounterCount >= bossBarAccelerationAllowedAfterBossEncounters;
+
+    const progressContainer = container.querySelector('.bossProgress-container');
+    /*if (allowProgressAcceleration) {
+        progressContainer.classList.remove('hidden');
+    }
+    else {
+        progressContainer.classList.add('hidden');
+        return;
+    }*/
+
+    const remaining = getTimeUntilBossAppears();
+    const totalWait = getBossAppearanceCycle();
+    let progressPercentage = isBossBattleAvailable() ? 100 : Math.max(0, Math.min(100, ((totalWait - remaining) / totalWait) * 100));
+
+    if (bossBarAcceleratedProgress < progressPercentage) {
+        bossBarAcceleratedProgress = progressPercentage;
+    }
+
+    if (allowProgressAcceleration && bossBarPressed && bossBarAcceleratedProgress < 100) {
+        const holdTime = (performance.now() - bossBarPressStartTime) / 1000;
+        const acceleration = Math.min(1 + holdTime * holdTime, 10);
+        bossBarAcceleratedProgress = Math.min(bossBarAcceleratedProgress + acceleration * 0.5, 100);
+        progressPercentage = bossBarAcceleratedProgress;
+    } else {
+        bossBarAcceleratedProgress = progressPercentage;
+    }
+
+    bossBar.style.width = `${progressPercentage}%`;
+    updateBossBarColor(progressPercentage,bossBar);
+    bossBar.setAttribute('aria-valuenow', progressPercentage.toFixed(1));
+    const bossText = document.getElementById('bossProgressText');
+    const newText = getBossProgressForeshadowingText(progressPercentage);
+
+    if (bossText.textContent !== newText) {
+        bossText.style.opacity = "0";
+        setTimeout(() => {
+            bossText.textContent = newText;
+            bossText.style.opacity = "1";
+        }, 200);
+    }
+
+    if (progressPercentage > 80) {
+        bossText.classList.add("warningAnimation");
+    } else {
+        bossText.classList.remove("warningAnimation");
+    }
+
+    const tooltip = bootstrap.Tooltip.getInstance(container);
+    if (allowProgressAcceleration) {
+        progressContainer.classList.remove("disabled");
+        tooltip?.enable();
+        if (!container.matches(':hover')) {
+            const tooltipText = `${progressPercentage.toFixed(1)}%`;
+            tooltip?.setContent({ '.tooltip-inner': tooltipText });
+        }
+    } else {
+        progressContainer.classList.add("disabled");
+        tooltip?.disable();
+    }
+
+    if (bossBarPressed && progressPercentage >= 100 && !gameData.bossBattleAvailable) {
+        summonBoss();
+        bossBarPressed = false;
+    }
+}
+
+function updateBossBarColor(progress, bossBar) {
+    bossBar.classList.remove('lowDanger', 'mediumDanger', 'highDanger', 'veryHighDanger', 'maxDanger');
+    if (progress >= 90) bossBar.classList.add('maxDanger');
+    else if (progress >= 75) bossBar.classList.add('veryHighDanger');
+    else if (progress >= 50) bossBar.classList.add('highDanger');
+    else if (progress >= 25) bossBar.classList.add('mediumDanger');
+    else bossBar.classList.add('lowDanger');
+}
+
 function updateStationOverview() {
-    const cyclesSinceLastEncounterElement = Dom.get().byId('cyclesSinceLastEncounter');
+    updateBossProgress();
     const cyclesTotalElement = Dom.get().byId('cyclesTotal');
     if (gameData.bossEncounterCount === 0) {
-        cyclesSinceLastEncounterElement.classList.add('hidden');
         cyclesTotalElement.classList.replace('secondary-stat', 'primary-stat');
         cyclesTotalElement.classList.remove('help-text');
     } else {
-        cyclesSinceLastEncounterElement.classList.remove('hidden');
         // TODO adjust formatting & use formatValue
-        Dom.get(cyclesSinceLastEncounterElement).bySelector('data').textContent = formatNumber(Math.floor(gameData.cycles));
         cyclesTotalElement.classList.replace('primary-stat', 'secondary-stat');
         cyclesTotalElement.classList.add('help-text');
     }
@@ -2162,6 +2239,36 @@ function initConfigNames() {
     assignNames(galacticSecrets);
 }
 
+let bossBarPressed = false;
+let bossBarPressStartTime = 0;
+let bossBarAcceleratedProgress = 0;
+const bossBarAccelerationAllowedAfterBossEncounters = 1;
+
+function initBossBattleProgressBar() {
+    const barContainer = document.getElementById('bossProgress');
+
+    barContainer.addEventListener('mousedown', () => {
+        if (isBossBattleAvailable() || gameData.bossEncounterCount < bossBarAccelerationAllowedAfterBossEncounters) return;
+        bossBarPressed = true;
+        bossBarPressStartTime = performance.now();
+    });
+
+    barContainer.addEventListener('mouseup', () => bossBarPressed = false);
+    barContainer.addEventListener('mouseleave', () => bossBarPressed = false);
+
+    barContainer.addEventListener('touchstart', e => {
+        e.preventDefault();
+        if (isBossBattleAvailable() || gameData.bossEncounterCount < bossBarAccelerationAllowedAfterBossEncounters) return;
+        bossBarPressed = true;
+        bossBarPressStartTime = performance.now();
+    }, { passive: false });
+
+    barContainer.addEventListener('touchend', e => {
+        e.preventDefault();
+        bossBarPressed = false;
+    }, { passive: false });
+}
+
 function init() {
     initConfigNames();
     initRequirements();
@@ -2195,6 +2302,7 @@ function init() {
     initStationName();
     initAudio();
     initSettings();
+    initBossBattleProgressBar();
 
     cleanUpDom();
     BreakpointCssClasses.init();
