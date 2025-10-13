@@ -7,7 +7,7 @@
 
 
     /* Reset some bootstrap styling */
-    overflow: hidden;
+    overflow: hidden; /* Fixes overflowing of the progress bar on low progress */
     border-radius: 0;
 
     &.clickable {
