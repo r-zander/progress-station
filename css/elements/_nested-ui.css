@@ -69,6 +69,16 @@
             box-shadow: 0 0 0 0.25rem rgba(255, 165, 0, 0.5);
         }
     }
+
+    &.active {
+        background-color: var(--ps-blue);
+        color: #fff;
+    }
+
+    &.inactive {
+        background-color: var(--progress-passive-bg-color);
+        color: #fff;
+    }
 }
 
 .level2 > .table + .table {

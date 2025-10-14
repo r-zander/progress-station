@@ -1353,8 +1353,8 @@ function updateModuleRow(module, moduleRequirementsContext) {
 
     const domGetter = Dom.get(row);
     const level2Header = domGetter.byClass('level2-header');
-    level2Header.classList.toggle('text-bg-light', isActive);
-    level2Header.classList.toggle('text-bg-dark', !isActive);
+    level2Header.classList.toggle('active', isActive);
+    level2Header.classList.toggle('inactive', !isActive);
 
     domGetter.byClass('moduleActivationSwitch').checked = module.isActive();
     formatValue(domGetter.byClass('level'), module.getLevel());
