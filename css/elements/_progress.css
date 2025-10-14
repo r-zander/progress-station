@@ -67,7 +67,7 @@
         color: var(--ps-light);
     }
     50% {
-        color: #ff6b6b;
+        color: var(--ps-red);
     }
 }
 
