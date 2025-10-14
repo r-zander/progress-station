@@ -820,3 +820,67 @@ const BreakpointCssClasses = (() => {
         get debugEnabled() { return debugEnabled; }
     };
 })();
+
+/**
+ * @template T - type of the value being observed.
+ */
+class Observable {
+
+    /** @type {T} */
+    #value;
+    /** @type {GameEvent} */
+    #changeEvent;
+    /** @type {function(T, T): boolean} */
+    #isEquals;
+
+    /**
+     * @param {JsTypes} valueType
+     * @param {T} [initialValue]
+     */
+    constructor(valueType, initialValue = undefined) {
+        this.#changeEvent = new GameEvent({
+            oldValue: valueType,
+            newValue: valueType,
+        });
+        this.#isEquals = (currentValue, newValue) => currentValue === newValue;
+    }
+
+    /**
+     * @param {function(T, T): boolean} isEquals
+     * @return {Observable} this for chaining
+     */
+    setIsEqualsFunction(isEquals) {
+        this.#isEquals = isEquals;
+        return this;
+    }
+
+    /**
+     * @return {T}
+     */
+    get value(){
+        return this.#value;
+    }
+
+    /**
+     * @param {T} value
+     */
+    set value(value) {
+        if (this.#isEquals(this.value, value)) return;
+
+        const oldValue = this.#value;
+        this.#value = value;
+
+        this.#changeEvent.trigger({
+            oldValue: oldValue,
+            newValue: value,
+        });
+    }
+
+    subscribe(callback, context = undefined) {
+        this.#changeEvent.subscribe(callback, context);
+    }
+
+    unsubscribe(callback) {
+        this.#changeEvent.unsubscribe(callback);
+    }
+}
