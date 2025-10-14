@@ -113,7 +113,7 @@ function setTab(selectedTab) {
                 iterations: 1,
             },
         );
-      
+
     } else {
         content.classList.add('horizontal');
         content.classList.remove('vertical');
@@ -131,7 +131,7 @@ function setTab(selectedTab) {
             },
         );
     }
-    
+
     gameData.selectedTab = selectedTab;
     gameData.save();
 
@@ -2027,7 +2027,7 @@ function update(deltaTime, totalTime, isLastUpdateInTick, gameLoop) {
     activateComponentOperations();
     doTasks();
     updatePopulation();
-    updateMusicContext();
+    musicContext.update();
 
     // Only update the UI once in an accumulated update
     if (isLastUpdateInTick) {
@@ -2194,7 +2194,7 @@ function init() {
     initTabBehavior();
     initTooltips();
     initStationName();
-    initAudio();
+    AudioEngine.init();
     initSettings();
 
     cleanUpDom();

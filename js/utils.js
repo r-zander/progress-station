@@ -71,8 +71,48 @@ function convertToRoman(num) {
     }
 }
 
+/**
+ * @param value
+ * @param min
+ * @param max
+ *
+ * @returns {number} that was limited to min and max
+ */
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value))
+}
+
 function randomInt(max) {
     return Math.floor(Math.random() * max);
+}
+
+/**
+ * @param {number} min
+ * @param {number} max
+ *
+ * @returns {number} Random number between min and max
+ */
+function randomBetween(min, max) {
+    return min + Math.random() * (max - min);
+}
+
+/**
+ * Select index using weighted random selection
+ * @param {number[]} weights - Array of weights
+ * @returns {number} Selected index
+ */
+function weightedRandom(weights) {
+    const total = weights.reduce((sum, w) => sum + w, 0);
+    let random = Math.random() * total;
+
+    for (let i = 0; i < weights.length; i++) {
+        random -= weights[i];
+        if (random <= 0) {
+            return i;
+        }
+    }
+
+    return weights.length - 1;
 }
 
 function gaussianRandom(min = 0, max = 1, skew = 1) {

@@ -65,6 +65,15 @@ This is a pure client-side HTML/JS/CSS project with no build system:
   - Use explicit comparisons: `!== null`, `!== undefined`, `=== 0`, etc.
   - Example: Use `if (isFunction(callback))` instead of `if (callback)`
 
+- **Naming Conventions**:
+  - Classes: `PascalCase` (e.g., `AudioEngine`, `GameData`, `VFX`)
+  - Public methods (instance or static): `camelCase` (e.g., `loadBank()`, `setVolume()`, `init()`)
+  - Private methods (instance or static): `#camelCase` (e.g., `#startLayer()`, `#updateMusicLayers()`)
+  - Private fields (instance or static): `#camelCase` (e.g., `#banks`, `#musicContext`)
+  - Global functions: `camelCase` (e.g., `setTab()`, `updateUI()`)
+  - Constants: `SCREAMING_SNAKE_CASE` (e.g., `SPACE_BASE_HEAT`, `MAX_POPULATION`)
+  - Use ES2022 `#private` syntax for actual privacy, not `_underscore` convention
+
 ## Game Mechanics & Interaction
 
 ### Core Game Loop

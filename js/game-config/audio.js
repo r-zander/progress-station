@@ -157,7 +157,7 @@ const GameplaySoundBank = {
 // This is a placeholder structure for when music assets are available
 
 /** @type {import('../audioEngine.js').MusicState} */
-const MainThemeMusicState = {
+const ComplexMainThemeMusicState = {
     name: AudioEvents.MUSIC.MAIN_THEME,
     layers: {
         ambient: {
@@ -220,6 +220,23 @@ const CombatMusicState = {
     }
 };
 
+/** @type {import('../audioEngine.js').MusicState} */
+const MainThemeMusicState = {
+    name: AudioEvents.MUSIC.MAIN_THEME,
+    layers: {
+        base: {
+            segment: {
+                src: './audio/main-theme.mp3',
+                volume: 0.5,
+                loop: true,
+                fadeInTime: 2000,
+                fadeOutTime: 2000
+            },
+            conditions: (ctx) => true // Always playing
+        }
+    }
+};
+
 // ============================================
 // INITIALIZATION
 // ============================================
@@ -229,11 +246,11 @@ const CombatMusicState = {
  */
 function initializeAudio() {
     // Load sound banks
-    AudioEngine.LoadBank('UI', UISoundBank);
-    AudioEngine.LoadBank('Gameplay', GameplaySoundBank);
+    AudioEngine.loadBank('UI', UISoundBank);
+    AudioEngine.loadBank('Gameplay', GameplaySoundBank);
 
     // Register music states (when music is available)
-    // AudioEngine.RegisterMusicState(MainThemeMusicState);
-    // AudioEngine.RegisterMusicState(CombatMusicState);
-    // AudioEngine.SetState('MusicState', AudioEvents.MUSIC.MAIN_THEME);
+    AudioEngine.registerMusicState(MainThemeMusicState);
+    // AudioEngine.registerMusicState(ComplexMainThemeMusicState);
+    // AudioEngine.registerMusicState(CombatMusicState);
 }

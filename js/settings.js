@@ -22,7 +22,7 @@ function createLinkBehavior() {
  */
 function disableAudioFromToast(toastId) {
     gameData.settings.audio.toastAnswered = true;
-    toggleAudioEnabled(false);
+    AudioEngine.toggleEnabled(false);
     const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId(toastId));
     toast.hide();
 }
@@ -32,7 +32,7 @@ function disableAudioFromToast(toastId) {
  */
 function enableAudioFromToast(toastId) {
     gameData.settings.audio.toastAnswered = true;
-    toggleAudioEnabled(true);
+    AudioEngine.toggleEnabled(true);
     const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId(toastId));
     toast.hide();
 }
@@ -137,7 +137,7 @@ function initSettings() {
     rangeInput.addEventListener('input', function() {
         const newValue = parseFloat(this.value);
         gameData.settings.audio.masterVolume = newValue;
-        setAudioVolume(newValue);
+        AudioEngine.setVolume(newValue);
         rangeOutput.textContent = (newValue * 100).toFixed(0) + '%';
         gameData.save();
     });

@@ -76,13 +76,24 @@
  * @property {'NEW'|'PLAYING'|'PAUSED'|'TUTORIAL_PAUSED'|'BOSS_FIGHT_INTRO'|'BOSS_FIGHT'|'DEAD'|'BOSS_DEFEATED'} gameState
  *
  * @property {function(function())} registerListener - allows to add a listener that gets called whenever one or more fields change in an update
+ * @property {function()} update - updates the MusicContext with the current game state
  */
+
+// ============================================
+// GLOBAL INSTANCES
+// ============================================
+
+/** @type {MusicContext} Global music context instance */
+const musicContext = new ProgressStationMusicContext();
 
 // ============================================
 // MAIN AUDIO ENGINE API
 // ============================================
 
-class MusicContext {
+/**
+ * @extends MusicContext
+ */
+class ProgressStationMusicContext {
     #highestAttribute = attributes.industry.name;
     #avgProgressSpeed = 0;
     #maxProgressSpeed = 0;
@@ -187,6 +198,69 @@ class MusicContext {
         this.#listeners.push(callback);
     }
 
+    /**
+     * Update the music context based on current game state
+     * This function is game-specific and should be called each game tick
+     */
+    update() {
+        let maxValue = -Infinity;
+        /** @var {string|null} */
+        let highestAttribute = null;
+        for (const attributeName in attributes) {
+            const attribute = attributes[attributeName];
+
+            if (!attribute.relevantForMusicContext) continue;
+
+            const value = attribute.getValue();
+            if (value > maxValue) {
+                maxValue = value;
+                highestAttribute = attributeName;
+            }
+        }
+        this.highestAttribute = highestAttribute;
+
+        // Collect progress speeds from all active tasks
+        const progressSpeeds = [];
+
+        // Add progress speeds from all active operations (in hierarchy)
+        for (const operationName in moduleOperations) {
+            const operation = moduleOperations[operationName];
+            if (operation.isActive('inHierarchy') && operation.isProgressing()) {
+                progressSpeeds.push(operation.getDelta());
+            }
+        }
+
+        // Add progress speed from gridStrength
+        if (gridStrength.isProgressing()) {
+            progressSpeeds.push(gridStrength.getDelta());
+        }
+
+        // Add progress speeds from all active battles
+        for (const battleName of gameData.activeEntities.battles) {
+            const battle = battles[battleName];
+            if (battle.isProgressing()) {
+                progressSpeeds.push(battle.getDelta());
+            }
+        }
+
+        // Calculate statistics
+        if (progressSpeeds.length > 0) {
+            this.totalProgressSpeed = progressSpeeds.reduce((sum, speed) => sum + speed, 0);
+            this.maxProgressSpeed = Math.max(...progressSpeeds);
+            this.avgProgressSpeed = this.totalProgressSpeed / progressSpeeds.length;
+        } else {
+            this.totalProgressSpeed = 0;
+            this.maxProgressSpeed = 0;
+            this.avgProgressSpeed = 0;
+        }
+
+        this.dangerLevel = attributes.danger.getValue() / attributes.military.getValue();
+        this.numberOfEngagedBattles = gameData.activeEntities.battles.size;
+        this.gameState = gameData.stateName;
+
+        this.finishUpdate();
+    }
+
     finishUpdate() {
         if (!this.#isDirty) return;
 
@@ -215,149 +289,29 @@ class AudioEngine {
     // PRIVATE STATIC MEMBERS
     // ============================================
 
+    /** @type {boolean} Track if audio was enabled during this session */
+    static #wasAudioEnabled = false;
+
     /** @type {Object.<string, Object>} Loaded sound banks with their Howl instances */
-    static _banks = {};
+    static #banks = {};
 
     /** @type {Object.<string, Array>} Recent play history for avoidRepeat */
-    static _recentPlays = {};
+    static #recentPlays = {};
 
     /** @type {Object.<string, number>} Sequence counters for 'sequence' container type */
-    static _sequenceCounters = {};
+    static #sequenceCounters = {};
 
     /** @type {MusicContext|null} Current music context */
-    static _musicContext = null;
+    static #musicContext = null;
 
     /** @type {Object.<string, MusicState>} Registered music states */
-    static _musicStates = {};
+    static #musicStates = {};
 
     /** @type {Object.<string, string>} Current active state per state group */
-    static _activeStates = {};
+    static #activeStates = {};
 
     /** @type {Object.<string, Object>} Active music layers with their Howl instances */
-    static _activeLayers = {};
-
-    // ============================================
-    // HELPER FUNCTIONS
-    // ============================================
-
-    /**
-     * Convert decibels to linear volume (0-1)
-     * @param {number} db - Decibel value
-     * @returns {number} Linear volume
-     * @private
-     */
-    static _dbToLinear(db) {
-        return Math.pow(10, db / 20);
-    }
-
-    /**
-     * Convert cents to playback rate multiplier
-     * @param {number} cents - Pitch shift in cents
-     * @returns {number} Rate multiplier
-     * @private
-     */
-    static _centsToRate(cents) {
-        return Math.pow(2, cents / 1200);
-    }
-
-    /**
-     * Select index using weighted random selection
-     * @param {number[]} weights - Array of weights
-     * @returns {number} Selected index
-     * @private
-     */
-    static _weightedRandom(weights) {
-        const total = weights.reduce((sum, w) => sum + w, 0);
-        let random = Math.random() * total;
-
-        for (let i = 0; i < weights.length; i++) {
-            random -= weights[i];
-            if (random <= 0) {
-                return i;
-            }
-        }
-
-        return weights.length - 1;
-    }
-
-    /**
-     * Random number between min and max
-     * @param {number} min
-     * @param {number} max
-     * @returns {number}
-     * @private
-     */
-    static _randomBetween(min, max) {
-        return min + Math.random() * (max - min);
-    }
-
-    /**
-     * Select next source index based on container type
-     * @param {string} event - Event name
-     * @param {SoundBankEntry} entry - Sound bank entry
-     * @param {string[]} srcArray - Array of source files
-     * @returns {number} Selected index
-     * @private
-     */
-    static _selectNextSource(event, entry, srcArray) {
-        const containerType = entry.containerType || 'random';
-        const randomization = entry.randomization || {};
-
-        if (srcArray.length === 1) {
-            return 0;
-        }
-
-        if (containerType === 'sequence') {
-            // Cycle through sources in order
-            if (typeof AudioEngine._sequenceCounters[event] !== 'number') {
-                AudioEngine._sequenceCounters[event] = 0;
-            }
-            const index = AudioEngine._sequenceCounters[event];
-            AudioEngine._sequenceCounters[event] = (index + 1) % srcArray.length;
-            return index;
-        }
-
-        if (containerType === 'random') {
-            let selectedIndex;
-
-            // Use weighted random if weights are provided
-            if (randomization.weights && randomization.weights.length === srcArray.length) {
-                selectedIndex = AudioEngine._weightedRandom(randomization.weights);
-            } else {
-                selectedIndex = Math.floor(Math.random() * srcArray.length);
-            }
-
-            // Handle avoidRepeat
-            if (typeof randomization.avoidRepeat === 'number' && randomization.avoidRepeat > 0) {
-                if (!AudioEngine._recentPlays[event]) {
-                    AudioEngine._recentPlays[event] = [];
-                }
-
-                const recentPlays = AudioEngine._recentPlays[event];
-                const maxAttempts = 50;
-                let attempts = 0;
-
-                while (recentPlays.includes(selectedIndex) && attempts < maxAttempts) {
-                    if (randomization.weights && randomization.weights.length === srcArray.length) {
-                        selectedIndex = AudioEngine._weightedRandom(randomization.weights);
-                    } else {
-                        selectedIndex = Math.floor(Math.random() * srcArray.length);
-                    }
-                    attempts++;
-                }
-
-                // Update recent plays
-                recentPlays.push(selectedIndex);
-                if (recentPlays.length > randomization.avoidRepeat) {
-                    recentPlays.shift();
-                }
-            }
-
-            return selectedIndex;
-        }
-
-        return 0;
-    }
+    static #activeLayers = {};
 
     // ============================================
     // PUBLIC API
@@ -369,15 +323,15 @@ class AudioEngine {
      * @param {SoundBank} soundBank - Sound bank definition
      * @returns {void}
      */
-    static LoadBank(bankName, soundBank) {
-        if (AudioEngine._banks[bankName]) {
+    static loadBank(bankName, soundBank) {
+        if (AudioEngine.#banks[bankName]) {
             console.warn(`AudioEngine: Bank "${bankName}" is already loaded`);
             return;
         }
 
         const bankData = {
             name: bankName,
-            events: {}
+            events: {},
         };
 
         // Create Howl instances for each event
@@ -394,12 +348,12 @@ class AudioEngine {
                     loop: entry.loop || false,
                     pool: entry.pool || 5,
                     sprite: entry.sprite || undefined,
-                    preload: true
-                }))
+                    preload: true,
+                })),
             };
         }
 
-        AudioEngine._banks[bankName] = bankData;
+        AudioEngine.#banks[bankName] = bankData;
     }
 
     /**
@@ -408,12 +362,12 @@ class AudioEngine {
      * @param {any} [gameObject] - Optional game object reference
      * @returns {void}
      */
-    static PostEvent(event, gameObject) {
+    static postEvent(event, gameObject) {
         // Find the event in loaded banks
         let eventData = null;
 
-        for (const bankName in AudioEngine._banks) {
-            const bank = AudioEngine._banks[bankName];
+        for (const bankName in AudioEngine.#banks) {
+            const bank = AudioEngine.#banks[bankName];
             if (bank.events[event]) {
                 eventData = bank.events[event];
                 break;
@@ -430,7 +384,7 @@ class AudioEngine {
         const srcArray = Array.isArray(entry.src) ? entry.src : [entry.src];
 
         // Select which source to play
-        const sourceIndex = AudioEngine._selectNextSource(event, entry, srcArray);
+        const sourceIndex = AudioEngine.#selectNextSource(event, entry, srcArray);
         const howl = howls[sourceIndex];
 
         // Apply randomization
@@ -440,25 +394,25 @@ class AudioEngine {
         let delay = 0;
 
         if (randomization.volume) {
-            const volumeDb = AudioEngine._randomBetween(
+            const volumeDb = randomBetween(
                 randomization.volume.min,
-                randomization.volume.max
+                randomization.volume.max,
             );
-            volume *= AudioEngine._dbToLinear(volumeDb);
+            volume *= AudioEngine.#dbToLinear(volumeDb);
         }
 
         if (randomization.pitch) {
-            const pitchCents = AudioEngine._randomBetween(
+            const pitchCents = randomBetween(
                 randomization.pitch.min,
-                randomization.pitch.max
+                randomization.pitch.max,
             );
-            rate = AudioEngine._centsToRate(pitchCents);
+            rate = AudioEngine.#centsToRate(pitchCents);
         }
 
         if (randomization.delay) {
-            delay = AudioEngine._randomBetween(
+            delay = randomBetween(
                 randomization.delay.min,
-                randomization.delay.max
+                randomization.delay.max,
             );
         }
 
@@ -482,11 +436,11 @@ class AudioEngine {
      * @param {MusicContext} context - Context object with music parameters
      * @returns {void}
      */
-    static SetMusicContext(context) {
-        AudioEngine._musicContext = context;
+    static setMusicContext(context) {
+        AudioEngine.#musicContext = context;
 
         // Re-evaluate all active music layers
-        context.registerListener(AudioEngine._updateMusicLayers);
+        context.registerListener(AudioEngine.#updateMusicLayers);
     }
 
     /**
@@ -495,25 +449,25 @@ class AudioEngine {
      * @param {string} state - State name
      * @returns {void}
      */
-    static SetState(stateGroup, state) {
-        const previousState = AudioEngine._activeStates[stateGroup];
+    static setState(stateGroup, state) {
+        const previousState = AudioEngine.#activeStates[stateGroup];
 
         if (previousState === state) {
             return; // Already in this state
         }
 
-        AudioEngine._activeStates[stateGroup] = state;
+        AudioEngine.#activeStates[stateGroup] = state;
 
         // Stop layers from previous state
-        if (previousState && AudioEngine._musicStates[previousState]) {
-            const previousMusicState = AudioEngine._musicStates[previousState];
-            AudioEngine._stopMusicState(previousMusicState);
+        if (previousState && AudioEngine.#musicStates[previousState]) {
+            const previousMusicState = AudioEngine.#musicStates[previousState];
+            AudioEngine.#stopMusicState(previousMusicState);
         }
 
         // Start layers from new state
-        if (AudioEngine._musicStates[state]) {
-            const musicState = AudioEngine._musicStates[state];
-            AudioEngine._startMusicState(musicState);
+        if (AudioEngine.#musicStates[state]) {
+            const musicState = AudioEngine.#musicStates[state];
+            AudioEngine.#startMusicState(musicState);
         }
     }
 
@@ -522,8 +476,8 @@ class AudioEngine {
      * @param {MusicState} state - Music state definition
      * @returns {void}
      */
-    static RegisterMusicState(state) {
-        AudioEngine._musicStates[state.name] = state;
+    static registerMusicState(state) {
+        AudioEngine.#musicStates[state.name] = state;
     }
 
     /**
@@ -531,8 +485,8 @@ class AudioEngine {
      * @param {string} bankName - Name of the bank to unload
      * @returns {void}
      */
-    static UnloadBank(bankName) {
-        const bank = AudioEngine._banks[bankName];
+    static unloadBank(bankName) {
+        const bank = AudioEngine.#banks[bankName];
 
         if (!bank) {
             console.warn(`AudioEngine: Bank "${bankName}" not found`);
@@ -545,17 +499,17 @@ class AudioEngine {
             eventData.howls.forEach(howl => howl.unload());
         }
 
-        delete AudioEngine._banks[bankName];
+        delete AudioEngine.#banks[bankName];
     }
 
     /**
      * Stop all currently playing sounds
      * @returns {void}
      */
-    static StopAll() {
+    static stopAll() {
         // Stop all sound effects
-        for (const bankName in AudioEngine._banks) {
-            const bank = AudioEngine._banks[bankName];
+        for (const bankName in AudioEngine.#banks) {
+            const bank = AudioEngine.#banks[bankName];
             for (const eventName in bank.events) {
                 const eventData = bank.events[eventName];
                 eventData.howls.forEach(howl => howl.stop());
@@ -563,43 +517,252 @@ class AudioEngine {
         }
 
         // Stop all music layers
-        for (const layerKey in AudioEngine._activeLayers) {
-            const layer = AudioEngine._activeLayers[layerKey];
+        for (const layerKey in AudioEngine.#activeLayers) {
+            const layer = AudioEngine.#activeLayers[layerKey];
             if (layer.howl) {
                 layer.howl.stop();
             }
         }
 
-        AudioEngine._activeLayers = {};
+        AudioEngine.#activeLayers = {};
+    }
+
+    /**
+     * Set the master volume for the audio system
+     * @param {number} newValue - Volume value from 0.0 to 1.0
+     * @returns {void}
+     */
+    static setVolume(newValue) {
+        // noinspection JSCheckFunctionSignatures
+        Howler.volume(AudioEngine.#mapVolumeThreeZone(newValue));
+    }
+
+    /**
+     * Toggle audio enabled/disabled or force a specific state
+     * @param {boolean} [force] - Optional: force audio to this state
+     * @returns {void}
+     */
+    static toggleEnabled(force = undefined) {
+        if (force === undefined) {
+            gameData.settings.audio.enabled = !gameData.settings.audio.enabled;
+        } else {
+            gameData.settings.audio.enabled = force;
+            Dom.get().byId('audioEnabledSwitch').checked = force;
+        }
+        Howler.mute(!gameData.settings.audio.enabled);
+
+        AudioEngine.#updateMusicLayers();
+
+        gameData.save();
+    }
+
+    /**
+     * Toggle background audio enabled/disabled or force a specific state
+     * @param {boolean} [force] - Optional: force background audio to this state
+     * @returns {void}
+     */
+    static toggleBackgroundAudio(force = undefined) {
+        if (force === undefined) {
+            gameData.settings.audio.enableBackgroundAudio = !gameData.settings.audio.enableBackgroundAudio;
+        } else {
+            gameData.settings.audio.enableBackgroundAudio = force;
+            Dom.get().byId('audioBackgroundAudioEnabledSwitch').checked = force;
+        }
+
+        // TODO enable / disable background audio
+
+        gameData.save();
+    }
+
+    /**
+     * Initialize the audio system
+     * Sets up AudioEngine, loads sound banks, and handles browser autoplay restrictions
+     * @returns {void}
+     */
+    static init() {
+        // TODO needs special handling to circumvent browser's audio auto-play blocking
+        const savedValueAudioEnabled = gameData.settings.audio.enabled;
+        gameData.settings.audio.enabled = false;
+
+        // Connect music context to AudioEngine
+        AudioEngine.setMusicContext(musicContext);
+
+        // Set initial volume and mute state
+        Howler.mute(!gameData.settings.audio.enabled);
+        AudioEngine.setVolume(gameData.settings.audio.masterVolume);
+
+        // Load audio config from game config
+        initializeAudio();
+
+        // Show appropriate toast notification based on settings
+        if (gameData.settings.audio.toastAnswered) {
+            if (savedValueAudioEnabled) {
+                // "Welcome back, re-enable audio?"
+                const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('reEnableAudioToast'));
+                toast.show();
+            } // else don't annoy player and devs :)
+        } else {
+            // "Hello, would you like audio?"
+            const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
+            toast.show();
+        }
     }
 
     // ============================================
-    // PRIVATE MUSIC SYSTEM METHODS
+    // PRIVATE METHODS
     // ============================================
 
     /**
-     * Update music layers based on current context
-     * @private
+     * Convert decibels to linear volume (0-1)
+     * @param {number} db - Decibel value
+     * @returns {number} Linear volume
      */
-    static _updateMusicLayers() {
-        for (const stateName in AudioEngine._musicStates) {
-            // Only update layers for active states
-            if (AudioEngine._activeStates[stateName] !== stateName) {
-                continue;
+    static #dbToLinear(db) {
+        return Math.pow(10, db / 20);
+    }
+
+    /**
+     * Convert cents to playback rate multiplier
+     * @param {number} cents - Pitch shift in cents
+     * @returns {number} Rate multiplier
+     */
+    static #centsToRate(cents) {
+        return Math.pow(2, cents / 1200);
+    }
+
+    /**
+     * Select next source index based on container type
+     * @param {string} event - Event name
+     * @param {SoundBankEntry} entry - Sound bank entry
+     * @param {string[]} srcArray - Array of source files
+     * @returns {number} Selected index
+     */
+    static #selectNextSource(event, entry, srcArray) {
+        const containerType = entry.containerType || 'random';
+        const randomization = entry.randomization || {};
+
+        if (srcArray.length === 1) {
+            return 0;
+        }
+
+        if (containerType === 'sequence') {
+            // Cycle through sources in order
+            if (!isNumber(AudioEngine.#sequenceCounters[event])) {
+                AudioEngine.#sequenceCounters[event] = 0;
+            }
+            const index = AudioEngine.#sequenceCounters[event];
+            AudioEngine.#sequenceCounters[event] = (index + 1) % srcArray.length;
+            return index;
+        }
+
+        if (containerType === 'random') {
+            let selectedIndex;
+
+            // Use weighted random if weights are provided
+            if (randomization.weights && randomization.weights.length === srcArray.length) {
+                selectedIndex = weightedRandom(randomization.weights);
+            } else {
+                selectedIndex = Math.floor(Math.random() * srcArray.length);
             }
 
-            const musicState = AudioEngine._musicStates[stateName];
+            // Handle avoidRepeat
+            if (isNumber(randomization.avoidRepeat) && randomization.avoidRepeat > 0) {
+                if (!AudioEngine.#recentPlays[event]) {
+                    AudioEngine.#recentPlays[event] = [];
+                }
+
+                const recentPlays = AudioEngine.#recentPlays[event];
+                const maxAttempts = 50;
+                let attempts = 0;
+
+                while (recentPlays.includes(selectedIndex) && attempts < maxAttempts) {
+                    if (randomization.weights && randomization.weights.length === srcArray.length) {
+                        selectedIndex = weightedRandom(randomization.weights);
+                    } else {
+                        selectedIndex = randomInt(srcArray.length);
+                    }
+                    attempts++;
+                }
+
+                // Update recent plays
+                recentPlays.push(selectedIndex);
+                if (recentPlays.length > randomization.avoidRepeat) {
+                    recentPlays.shift();
+                }
+            }
+
+            return selectedIndex;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Maps a linear volume value (0-1) to a perceptually balanced curve using three zones
+     * @param {number} rawValue - Linear volume value from 0.0 to 1.0
+     * @returns {number} Mapped volume value from 0.0 to 1.0
+     */
+    static #mapVolumeThreeZone(rawValue) {
+        rawValue = clamp(rawValue, 0.0, 1.0);
+
+        const ZONE1_END = 0.2;
+        const ZONE2_END = 0.8;
+
+        // Output values at zone boundaries to ensure smooth transitions
+        const ZONE1_OUTPUT = 0.05;  // Volume at 10% slider (~-26dB, rather quiet)
+        const ZONE2_OUTPUT = 0.7;   // Volume at 90% slider (~-3dB, nearly full)
+
+        // ZONE 1: 0-10% - Exponential curve for fine control at low volumes
+        if (rawValue <= ZONE1_END) {
+            const normalized = rawValue / ZONE1_END;
+            // Quadratic curve (x^2) scaled to end at ZONE1_OUTPUT
+            return Math.pow(normalized, 2) * ZONE1_OUTPUT;
+
+        // ZONE 2: 10-90% - Logarithmic/dB curve for natural perception
+        } else if (rawValue <= ZONE2_END) {
+            // Normalized position within this zone (0-1)
+            const normalized = (rawValue - ZONE1_END) / (ZONE2_END - ZONE1_END);
+
+            // Convert to dB range
+            const minDb = 20 * Math.log10(ZONE1_OUTPUT);
+            const maxDb = 20 * Math.log10(ZONE2_OUTPUT);
+
+            // Interpolate in dB space
+            const db = minDb + (maxDb - minDb) * normalized;
+
+            // Convert back to linear amplitude
+            return AudioEngine.#dbToLinear(db);
+
+        // ZONE 3: 90-100% - Linear for precise control near maximum
+        } else {
+            // Normalized position within this zone (0-1)
+            const normalized = (rawValue - ZONE2_END) / (1 - ZONE2_END);
+
+            // Linear interpolation from ZONE2_OUTPUT to 1.0
+            return ZONE2_OUTPUT + (1.0 - ZONE2_OUTPUT) * normalized;
+        }
+    }
+
+    /**
+     * Update music layers based on current context
+     */
+    static #updateMusicLayers() {
+        for (const stateName in AudioEngine.#musicStates) {
+            // Only update layers for active states
+            if (AudioEngine.#activeStates[stateName] !== stateName) continue;
+
+            const musicState = AudioEngine.#musicStates[stateName];
 
             for (const layerName in musicState.layers) {
                 const layer = musicState.layers[layerName];
-                const layerKey = `${stateName}_${layerName}`;
-                const shouldBeActive = layer.conditions(AudioEngine._musicContext);
-                const isActive = AudioEngine._activeLayers[layerKey] !== undefined;
+                const layerKey = stateName + '_' + layerName;
+                const shouldBeActive = layer.conditions(AudioEngine.#musicContext);
+                const isActive = AudioEngine.#activeLayers[layerKey] !== undefined;
 
                 if (shouldBeActive && !isActive) {
-                    AudioEngine._startLayer(stateName, layerName, layer);
+                    AudioEngine.#startLayer(stateName, layerName, layer);
                 } else if (!shouldBeActive && isActive) {
-                    AudioEngine._stopLayer(stateName, layerName, layer);
+                    AudioEngine.#stopLayer(stateName, layerName, layer);
                 }
             }
         }
@@ -607,38 +770,38 @@ class AudioEngine {
 
     /**
      * Start a music state (all layers that meet conditions)
+     *
      * @param {MusicState} musicState
-     * @private
      */
-    static _startMusicState(musicState) {
+    static #startMusicState(musicState) {
         for (const layerName in musicState.layers) {
             const layer = musicState.layers[layerName];
-            if (layer.conditions(AudioEngine._musicContext)) {
-                AudioEngine._startLayer(musicState.name, layerName, layer);
+            if (layer.conditions(AudioEngine.#musicContext)) {
+                AudioEngine.#startLayer(musicState.name, layerName, layer);
             }
         }
     }
 
     /**
      * Stop a music state (all its layers)
+     *
      * @param {MusicState} musicState
-     * @private
      */
-    static _stopMusicState(musicState) {
+    static #stopMusicState(musicState) {
         for (const layerName in musicState.layers) {
             const layer = musicState.layers[layerName];
-            AudioEngine._stopLayer(musicState.name, layerName, layer);
+            AudioEngine.#stopLayer(musicState.name, layerName, layer);
         }
     }
 
     /**
      * Start a music layer
+     *
      * @param {string} stateName
      * @param {string} layerName
      * @param {MusicLayer} layer
-     * @private
      */
-    static _startLayer(stateName, layerName, layer) {
+    static #startLayer(stateName, layerName, layer) {
         const layerKey = `${stateName}_${layerName}`;
         const segment = layer.segment;
 
@@ -647,33 +810,33 @@ class AudioEngine {
             src: [segment.src],
             volume: segment.volume,
             loop: segment.loop,
-            preload: true
+            preload: true,
         });
 
         const soundId = howl.play();
 
         // Fade in if specified
-        if (typeof segment.fadeInTime === 'number' && segment.fadeInTime > 0) {
+        if (isNumber(segment.fadeInTime) && segment.fadeInTime > 0) {
             howl.volume(0, soundId);
             howl.fade(0, segment.volume, segment.fadeInTime, soundId);
         }
 
-        AudioEngine._activeLayers[layerKey] = {
+        AudioEngine.#activeLayers[layerKey] = {
             howl: howl,
-            soundId: soundId
+            soundId: soundId,
         };
     }
 
     /**
      * Stop a music layer
+     *
      * @param {string} stateName
      * @param {string} layerName
      * @param {MusicLayer} layer
-     * @private
      */
-    static _stopLayer(stateName, layerName, layer) {
+    static #stopLayer(stateName, layerName, layer) {
         const layerKey = `${stateName}_${layerName}`;
-        const activeLayer = AudioEngine._activeLayers[layerKey];
+        const activeLayer = AudioEngine.#activeLayers[layerKey];
 
         if (!activeLayer) {
             return;
@@ -682,24 +845,25 @@ class AudioEngine {
         const segment = layer.segment;
 
         // Fade out if specified
-        if (typeof segment.fadeOutTime === 'number' && segment.fadeOutTime > 0) {
+        if (isNumber(segment.fadeOutTime) && segment.fadeOutTime > 0) {
             activeLayer.howl.fade(
                 segment.volume,
                 0,
                 segment.fadeOutTime,
-                activeLayer.soundId
+                activeLayer.soundId,
             );
 
             // Stop and unload after fade
             setTimeout(() => {
                 activeLayer.howl.stop();
                 activeLayer.howl.unload();
-                delete AudioEngine._activeLayers[layerKey];
+                delete AudioEngine.#activeLayers[layerKey];
             }, segment.fadeOutTime);
         } else {
             activeLayer.howl.stop();
             activeLayer.howl.unload();
-            delete AudioEngine._activeLayers[layerKey];
+            delete AudioEngine.#activeLayers[layerKey];
         }
     }
 }
+
