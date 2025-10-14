@@ -127,13 +127,13 @@ a#gameTitle {
     }
 
     #cyclesTotal {
-        width: 100px;
+        width: 6rem;
     }
 }
 
 @media screen and (min-width: 1408px) {
     #cyclesTotal {
-        width: 200px;
+        width: 13rem;
     }
 }
 

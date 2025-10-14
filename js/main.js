@@ -1768,13 +1768,6 @@ function updateBossProgress() {
     const allowProgressAcceleration = gameData.bossEncounterCount >= bossBarAccelerationAllowedAfterBossEncounters;
 
     const progressContainer = container.querySelector('.bossProgress-container');
-    /*if (allowProgressAcceleration) {
-        progressContainer.classList.remove('hidden');
-    }
-    else {
-        progressContainer.classList.add('hidden');
-        return;
-    }*/
 
     const remaining = getTimeUntilBossAppears();
     const totalWait = getBossAppearanceCycle();
