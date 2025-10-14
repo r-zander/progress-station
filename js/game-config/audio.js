@@ -2,10 +2,14 @@
 // AUDIO EVENTS (Type-safe event strings)
 // ============================================
 
+// TODO @Dementum all this setup is merely an example - you can delete
+//  and change EVERYTHING to set up the music experience you wish.
+
 /**
  * @typedef {string} AudioEvent
  */
 
+// We will have to talk what events make sense and then to trigger them appropriately
 const AudioEvents = {
     UI: {
         BUTTON_CLICK: 'UI_Button_Click',
@@ -232,6 +236,4 @@ function initializeAudio() {
     // AudioEngine.RegisterMusicState(MainThemeMusicState);
     // AudioEngine.RegisterMusicState(CombatMusicState);
     // AudioEngine.SetState('MusicState', AudioEvents.MUSIC.MAIN_THEME);
-
-    console.log('Audio system initialized');
 }
