@@ -79,11 +79,27 @@
     height: 2rem;
 }
 
-.bossProgress.lowDanger { background-color: var(--ps-light-blue); }
-.bossProgress.mediumDanger { background-color: var(--ps-blue); }
-.bossProgress.highDanger { background-color: var(--ps-yellow); }
-.bossProgress.veryHighDanger { background-color: var(--ps-orange); }
-.bossProgress.maxDanger { background-color: var(--warning-color); }
+.bossProgress {
+    .lowDanger {
+        background-color: var(--ps-light-blue);
+    }
+
+    .mediumDanger {
+        background-color: var(--ps-blue);
+    }
+
+    .highDanger {
+        background-color: var(--ps-yellow);
+    }
+
+    .veryHighDanger {
+        background-color: var(--ps-orange);
+    }
+
+    .maxDanger {
+        background-color: var(--warning-color);
+    }
+}
 
 .bossProgress-container {
     flex-grow: 1;
