@@ -1806,17 +1806,17 @@ function updateBossProgress() {
         bossText.classList.remove("warningAnimation");
     }
 
-    const tooltip = bootstrap.Tooltip.getInstance(container);
+    const tooltip = bootstrap.Tooltip.getOrCreateInstance(container);
     if (allowProgressAcceleration) {
         progressContainer.classList.remove("disabled");
-        tooltip?.enable();
+        tooltip.enable();
         if (!container.matches(':hover')) {
             const tooltipText = `${progressPercentage.toFixed(1)}%`;
-            tooltip?.setContent({ '.tooltip-inner': tooltipText });
+            tooltip.setContent({ '.tooltip-inner': tooltipText });
         }
     } else {
         progressContainer.classList.add("disabled");
-        tooltip?.disable();
+        tooltip.disable();
     }
 
     if (bossBarPressed && progressPercentage >= 100 && !gameData.bossBattleAvailable) {
@@ -2240,26 +2240,15 @@ const bossBarAccelerationAllowedAfterBossEncounters = 1;
 function initBossBattleProgressBar() {
     const barContainer = document.getElementById('bossProgress');
 
-    barContainer.addEventListener('mousedown', () => {
+    barContainer.addEventListener('pointerdown', (e) => {
         if (isBossBattleAvailable() || gameData.bossEncounterCount < bossBarAccelerationAllowedAfterBossEncounters) return;
         bossBarPressed = true;
         bossBarPressStartTime = performance.now();
     });
 
-    barContainer.addEventListener('mouseup', () => bossBarPressed = false);
-    barContainer.addEventListener('mouseleave', () => bossBarPressed = false);
-
-    barContainer.addEventListener('touchstart', e => {
-        e.preventDefault();
-        if (isBossBattleAvailable() || gameData.bossEncounterCount < bossBarAccelerationAllowedAfterBossEncounters) return;
-        bossBarPressed = true;
-        bossBarPressStartTime = performance.now();
-    }, { passive: false });
-
-    barContainer.addEventListener('touchend', e => {
-        e.preventDefault();
+    barContainer.addEventListener('pointerup', (e) => {
         bossBarPressed = false;
-    }, { passive: false });
+    });
 }
 
 function init() {
