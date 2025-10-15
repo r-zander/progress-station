@@ -11,12 +11,14 @@
 body {
     background-color: var(--body-bg-color);
     color: var(--body-font-color);
+    /*noinspection CssNoGenericFontName*/
     font-family: var(--body-font-family);
 }
 
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6,
 thead {
+    /*noinspection CssNoGenericFontName*/
     font-family: var(--title-font-family) !important;
     font-weight: 400;
 }
@@ -30,6 +32,7 @@ td {
 }
 
 data {
+    /*noinspection CssNoGenericFontName*/
     font-family: var(--number-font-family);
     font-size: var(--number-font-size);
     font-weight: var(--number-font-weight);

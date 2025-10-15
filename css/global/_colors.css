@@ -17,8 +17,6 @@
     /*--ps-green2: #02CC72;*/
     --ps-dark: #000000;
     --ps-light: #FFFFFF;
-    /* TODO */
-    /*color: rgba(var(--bs-danger-rgb), var(--bs-text-opacity)) !important;*/
     --ps-light-transparent100: #FFFFFF00;
     --ps-light-transparent90: #FFFFFF19;
     --ps-passive: #848484;

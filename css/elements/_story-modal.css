@@ -23,6 +23,7 @@
     border-left: none;
     border-right: none;
     text-align: center;
+    /*noinspection CssNoGenericFontName*/
     font-family: var(--title-font-family);
     font-weight: 200;
     animation: flash-background 1000ms ease-in-out infinite alternate;

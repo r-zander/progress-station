@@ -20,6 +20,7 @@
     }
 }
 
+/*noinspection CssNonIntegerLengthInPixels*/
 @media (max-width: 991.98px) {
     #attributesDisplay {
         .primary-stat {
@@ -47,6 +48,7 @@
 }
 
 #attributeRows .title {
+    /*noinspection CssNoGenericFontName*/
     font-family: var(--title-font-family);
     font-weight: 400;
 }

@@ -146,7 +146,7 @@
     border-radius: 100%;
 }
 
-/* TODO thing about a solution for screens >2000px width */
+/* TODO think about a solution for screens >2000px width */
 .stars:after {
     content: " ";
     position: absolute;
