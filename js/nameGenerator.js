@@ -138,8 +138,14 @@ class NameGenerator {
 class SuffixGenerator {
     static #numericSuffixes = {
         // numberWords
-        englishNumberWords: ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eighth', 'Nine', 'Ten', 'Eleven', 'Twelve'],
-        germanNumberWords: ['Null', 'Eins', 'Zwei', 'Drei', 'Vier', 'Fünf', 'Sechs', 'Sieben', 'Acht', 'Neun', 'Zehn', 'Elf', 'Zwölf'],
+        englishNumberWords: [
+            'Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six',
+            'Seven', 'Eighth', 'Nine', 'Ten', 'Eleven', 'Twelve', '13' // transition to arabic numbers
+        ],
+        germanNumberWords: [
+            'Null', 'Eins', 'Zwei', 'Drei', 'Vier', 'Fünf', 'Sechs',
+            'Sieben', 'Acht', 'Neun', 'Zehn', 'Elf', 'Zwölf', '13' // transition to arabic numbers
+        ],
 
         // romanNumbers,
         romanNumbers: romans.deromanize,
@@ -151,7 +157,7 @@ class SuffixGenerator {
         // - yearNumbers
         // - unevenNumbers
         otherNumbers: /\d+/,
-    }
+    };
 
     static genericTwo = new NameGenerator('genericTwo').add([
         '2',
@@ -202,7 +208,7 @@ class SuffixGenerator {
         try {
             const parsedNumber = SuffixGenerator.#numericSuffixes.romanNumbers(suffix);
             this.#suffixType = 'romanNumbers';
-            return romans.romanize(parsedNumber + 1)
+            return romans.romanize(parsedNumber + 1);
         } catch (e) {
             // Couldn't parse, continue with other checks
         }
