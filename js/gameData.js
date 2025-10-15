@@ -166,6 +166,11 @@ class GameData {
      */
     bossEncounterCount = 0;
 
+    /**
+     * @var {number}
+     */
+    bossAppearedCycle = 0;
+
     // /**
     //  * @var {number}
     //  */

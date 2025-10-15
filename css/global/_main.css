@@ -125,6 +125,16 @@ a#gameTitle {
     #nameDisplay {
         margin-left: calc(65px + 22px + 0.5rem) !important;
     }
+
+    #cyclesTotal {
+        width: 6rem;
+    }
+}
+
+@media screen and (min-width: 1408px) {
+    #cyclesTotal {
+        width: 13rem;
+    }
 }
 
 #content {

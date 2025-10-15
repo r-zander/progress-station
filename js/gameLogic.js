@@ -83,10 +83,16 @@ function increaseCycle() {
     gameData.totalCycles += increase;
 
     if (!isBossBattleAvailable() && gameData.cycles >= getBossAppearanceCycle()) {
-        gameData.bossBattleAvailable = true;
-        gameData.transitionState(gameStates.TUTORIAL_PAUSED);
-        GameEvents.BossAppearance.trigger(undefined);
+        summonBoss();
     }
+}
+
+function summonBoss(){
+    gameData.bossBattleAvailable = true;
+    gameData.bossAppearedCycle = gameData.cycles;
+    gameData.transitionState(gameStates.TUTORIAL_PAUSED);
+    GameEvents.BossAppearance.trigger(undefined);
+    bossBarAcceleratedProgress = 0;
 }
 
 function updateBossDistance() {
@@ -94,7 +100,7 @@ function updateBossDistance() {
     if (!isBossBattleAvailable()) return;
 
     // How much time has past since the boss' arrival?
-    const overtime = gameData.cycles - getBossAppearanceCycle();
+    const overtime = gameData.cycles - gameData.bossAppearedCycle;
     // Translate the elapsed time into distance according to config
     bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
 }
@@ -258,4 +264,9 @@ function getBossAppearanceCycle() {
 
 function isBossBattleAvailable() {
     return gameData.bossBattleAvailable;
+}
+
+function getTimeUntilBossAppears() {
+    const timeLeft = getBossAppearanceCycle() - gameData.cycles;
+    return Math.max(0, timeLeft);
 }
