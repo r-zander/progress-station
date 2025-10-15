@@ -834,13 +834,13 @@ class Observable {
     #isEquals;
 
     /**
-     * @param {JsTypes} valueType
-     * @param {T} [initialValue]
+     * @param {T} initialValue
      */
-    constructor(valueType, initialValue = undefined) {
+    constructor(initialValue) {
+        this.#value = initialValue;
         this.#changeEvent = new GameEvent({
-            oldValue: valueType,
-            newValue: valueType,
+            newValue: typeof initialValue,
+            oldValue: typeof initialValue,
         });
         this.#isEquals = (currentValue, newValue) => currentValue === newValue;
     }
@@ -871,13 +871,96 @@ class Observable {
         this.#value = value;
 
         this.#changeEvent.trigger({
-            oldValue: oldValue,
             newValue: value,
+            oldValue: oldValue,
         });
     }
 
+    /**
+     * @param {function(newValue: T, oldValue: T): boolean} callback
+     * @param {any} [context] will be provided as `this` for the callback
+     *
+     * @return {Observable} this for chaining
+     */
     subscribe(callback, context = undefined) {
         this.#changeEvent.subscribe(callback, context);
+        return this;
+    }
+
+    unsubscribe(callback) {
+        this.#changeEvent.unsubscribe(callback);
+    }
+}
+
+/**
+ * @template T - type of the value being observed.
+ */
+class ObservableProperty {
+
+    /** @type {function(): T} */
+    #valueGetter;
+    /** @type {function(T): void} */
+    #valueSetter;
+    /** @type {GameEvent} */
+    #changeEvent;
+    /** @type {function(T, T): boolean} */
+    #isEquals;
+
+    /**
+     * @param {function(): T} getter
+     * @param {function(T): void} setter
+     * @param {JsTypes} valueType
+     */
+    constructor(getter, setter, valueType) {
+        this.#valueGetter = getter;
+        this.#valueSetter = setter;
+        this.#changeEvent = new GameEvent({
+            newValue: valueType,
+            oldValue: valueType,
+        });
+        this.#isEquals = (currentValue, newValue) => currentValue === newValue;
+    }
+
+    /**
+     * @param {function(T, T): boolean} isEquals
+     * @return {ObservableProperty} this for chaining
+     */
+    setIsEqualsFunction(isEquals) {
+        this.#isEquals = isEquals;
+        return this;
+    }
+
+    /**
+     * @return {T}
+     */
+    get value(){
+        return this.#valueGetter();
+    }
+
+    /**
+     * @param {T} value
+     */
+    set value(value) {
+        if (this.#isEquals(this.value, value)) return;
+
+        const oldValue = this.value;
+        this.#valueSetter(value);
+
+        this.#changeEvent.trigger({
+            newValue: value,
+            oldValue: oldValue,
+        });
+    }
+
+    /**
+     * @param {function(newValue: T, oldValue: T): boolean} callback
+     * @param {any} [context] will be provided as `this` for the callback
+     *
+     * @return {ObservableProperty} this for chaining
+     */
+    subscribe(callback, context = undefined) {
+        this.#changeEvent.subscribe(callback, context);
+        return this;
     }
 
     unsubscribe(callback) {
