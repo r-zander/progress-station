@@ -32,17 +32,17 @@
 <main id="main" class="d-flex flex-column">
     <header id="stationOverview" class="mb-3 gap-1 d-flex flex-column">
         <div class="panel position-relative
-                    pe-3 pt-2 row-gap-1
+                    pe-3 pt-2 row-gap-1 column-gap-4
                     d-flex flex-row align-items-start flex-wrap flex-lg-nowrap">
             <a id="stationOverviewLogo" class="logo" href="#credits">
                 PS
             </a>
             <span class="h2 ms-2 version-label beta" title="Beta Version. Full release on 13th Nov 2025">Beta</span>
-            <h2 id="nameDisplay" class="shortcut my-0 px-3 pb-1 text-nowrap overflow-x-hidden me-4">USS Progress</h2>
-            <div class="ms-auto d-flex align-items-center flex-grow-1 gap-3">
+            <h2 id="nameDisplay" class="shortcut my-0 px-3 pb-1 text-nowrap overflow-x-hidden flex-shrink-0">USS Progress</h2>
+            <div class="ms-auto d-flex align-items-center flex-grow-1">
                 <!-- Boss progress bar -->
                 <div id="bossProgress"
-                     class="primary-stat d-flex align-items-center flex-grow-1 gap-2"
+                     class="d-flex align-items-center flex-grow-1 gap-2"
                      data-bs-toggle="tooltip"
                      data-bs-placement="bottom"
                      title="Intergalactic Cycles until next boss">
@@ -52,18 +52,18 @@
                                  aria-label="Boss Progress"
                                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                                 <div class="progressBackground progress-background"></div>
-                                <div id="bossProgressBar" class="battleProgress bossProgress progressFill progress-bar progress-bar-striped current" style="width: 0;"></div>
+                                <div id="bossProgressBar" class="bossProgress progressFill progress-bar progress-bar-striped current" style="width: 0;"></div>
                                 <div id="bossProgressText" class="progress-text bossProgress-text text-truncate px-2">Sensors detect faint anomalies...</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Date display -->
-                <div id="cyclesTotal" class="secondary-stat help-text text-end"
-                     title="Intergalactic Cycles" data-bs-placement="bottom">
-                <span class="label">Date:</span>
-                <data value="70" data-unit="IC">0</data>
-            </div>
+            <!-- Date display -->
+            <div id="cyclesTotal" class="secondary-stat help-text text-end flex-shrink-0"
+                 title="Intergalactic Cycles" data-bs-placement="bottom">
+            <span class="label">Date:</span>
+            <data value="70" data-unit="IC">0</data>
+        </div>
         </div>
 
         <div id="energyGridDisplay" class="panel px-1 px-lg-3 py-1 d-flex flex-row overflow-hidden">

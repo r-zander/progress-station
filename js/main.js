@@ -1764,7 +1764,7 @@ function updateEnergyGridBar() {
 function updateBossProgress() {
     const container = document.getElementById('bossProgress');
     const bossBar = document.getElementById('bossProgressBar');
-    if (!container || !bossBar) return;
+
     const allowProgressAcceleration = gameData.bossEncounterCount >= bossBarAccelerationAllowedAfterBossEncounters;
 
     const progressContainer = container.querySelector('.bossProgress-container');
@@ -1786,36 +1786,36 @@ function updateBossProgress() {
         bossBarAcceleratedProgress = progressPercentage;
     }
 
-    bossBar.style.width = `${progressPercentage}%`;
-    updateBossBarColor(progressPercentage,bossBar);
+    bossBar.style.width = progressPercentage.toFixed(1) + '%';
+    updateBossBarColor(progressPercentage, bossBar);
     bossBar.setAttribute('aria-valuenow', progressPercentage.toFixed(1));
     const bossText = document.getElementById('bossProgressText');
     const newText = getBossProgressForeshadowingText(progressPercentage);
 
     if (bossText.textContent !== newText) {
-        bossText.style.opacity = "0";
+        bossText.style.opacity = '0';
         setTimeout(() => {
             bossText.textContent = newText;
-            bossText.style.opacity = "1";
+            bossText.style.opacity = '1';
         }, 200);
     }
 
     if (progressPercentage > 80) {
-        bossText.classList.add("warningAnimation");
+        bossText.classList.add('warningAnimation');
     } else {
-        bossText.classList.remove("warningAnimation");
+        bossText.classList.remove('warningAnimation');
     }
 
     const tooltip = bootstrap.Tooltip.getOrCreateInstance(container);
     if (allowProgressAcceleration) {
-        progressContainer.classList.remove("disabled");
+        progressContainer.classList.remove('disabled');
         tooltip.enable();
         if (!container.matches(':hover')) {
             const tooltipText = `${progressPercentage.toFixed(1)}%`;
-            tooltip.setContent({ '.tooltip-inner': tooltipText });
+            tooltip.setContent({'.tooltip-inner': tooltipText});
         }
     } else {
-        progressContainer.classList.add("disabled");
+        progressContainer.classList.add('disabled');
         tooltip.disable();
     }
 
@@ -2240,13 +2240,15 @@ const bossBarAccelerationAllowedAfterBossEncounters = 1;
 function initBossBattleProgressBar() {
     const barContainer = document.getElementById('bossProgress');
 
-    barContainer.addEventListener('pointerdown', (e) => {
-        if (isBossBattleAvailable() || gameData.bossEncounterCount < bossBarAccelerationAllowedAfterBossEncounters) return;
+    barContainer.addEventListener('pointerdown', () => {
+        if (isBossBattleAvailable()) return;
+        if (gameData.bossEncounterCount < bossBarAccelerationAllowedAfterBossEncounters) return;
+
         bossBarPressed = true;
         bossBarPressStartTime = performance.now();
     });
 
-    barContainer.addEventListener('pointerup', (e) => {
+    barContainer.addEventListener('pointerup', () => {
         bossBarPressed = false;
     });
 }

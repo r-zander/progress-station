@@ -56,10 +56,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
     font-weight: 500;
-}
 
-.bossProgress-text.warningAnimation {
-    animation: bossColorPulse 3s ease-in-out infinite;
+    &.warningAnimation {
+        animation: bossColorPulse 3s ease-in-out infinite;
+    }
 }
 
 @keyframes bossColorPulse {
@@ -71,42 +71,40 @@
     }
 }
 
-.bossProgress {
-    transition: width 0.2s linear, background-color 0.3s ease;
-}
-
 .bossProgressBar {
     height: 2rem;
 }
 
 .bossProgress {
-    .lowDanger {
+    transition: width 0.2s linear, background-color 0.3s ease;
+
+    &.lowDanger {
         background-color: var(--ps-light-blue);
     }
 
-    .mediumDanger {
+    &.mediumDanger {
         background-color: var(--ps-blue);
     }
 
-    .highDanger {
+    &.highDanger {
         background-color: var(--ps-yellow);
     }
 
-    .veryHighDanger {
+    &.veryHighDanger {
         background-color: var(--ps-orange);
     }
 
-    .maxDanger {
+    &.maxDanger {
         background-color: var(--warning-color);
     }
 }
 
 .bossProgress-container {
     flex-grow: 1;
-}
 
-.bossProgress-container.disabled {
-    pointer-events: none;
+    &.disabled {
+        pointer-events: none;
+    }
 }
 
 .game-playing {

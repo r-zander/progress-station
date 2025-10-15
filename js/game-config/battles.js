@@ -1413,12 +1413,12 @@ const battles = {
 };
 
 function getBossProgressForeshadowingText(progress) {
-    if (progress >= 100) return "The silence breaks.";
-    if (progress >= 90) return "It’s almost here.";
-    if (progress >= 75) return "The void grows restless.";
-    if (progress >= 50) return "Something ancient stirs beyond the stars.";
-    if (progress >= 25) return "Sensors detect faint anomalies...";
-    return "All systems nominal.";
+    if (progress >= 100) return 'The silence breaks.';
+    if (progress >= 90) return 'It’s almost here.';
+    if (progress >= 75) return 'The void grows restless.';
+    if (progress >= 50) return 'Something ancient stirs beyond the stars.';
+    if (progress >= 25) return 'Sensors detect faint anomalies...';
+    return 'All systems nominal.';
 }
 
 /**
