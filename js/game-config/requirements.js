@@ -265,7 +265,7 @@ const modulesRequirements = {
     ),
     Defensive2: modules.Defensive.registerRequirement(
         new PointOfInterestVisitedRequirement('playthrough', {
-            pointOfInterest: pointsOfInterest.GrowthLocationMedium,
+            pointOfInterest: pointsOfInterest.ResearchLocationMedium,
         }),
     ),
     Quarters1: modules.Quarters.registerRequirement(
