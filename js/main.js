@@ -2166,6 +2166,17 @@ function initTabBehavior() {
 }
 
 /**
+ * @param {string} previousStationName
+ */
+function setPreviousStationName(previousStationName) {
+    gameData.previousStationName = previousStationName;
+    for (const previousStationNameElement of Dom.get().allByClass('previousStationName')) {
+        previousStationNameElement.textContent = previousStationName;
+    }
+    // saveGameData();
+}
+
+/**
  * @param {string} newStationName
  */
 function setStationName(newStationName) {
@@ -2182,6 +2193,9 @@ function setStationName(newStationName) {
 }
 
 function initStationName() {
+    if (isString(gameData.previousStationName)) {
+        setPreviousStationName(gameData.previousStationName);
+    }
     setStationName(gameData.stationName);
     const stationNameDisplayElement = document.getElementById('nameDisplay');
     stationNameDisplayElement.addEventListener('click', (event) => {

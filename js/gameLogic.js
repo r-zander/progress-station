@@ -180,6 +180,8 @@ function resetBattle(name) {
 }
 
 function startNewPlaythrough() {
+    setPreviousStationName(gameData.stationName);
+    setStationName(new SuffixGenerator(gameData.stationName).getNewName());
     gameData.bossEncounterCount += 1;
 
     // grant Essence Of Unknown

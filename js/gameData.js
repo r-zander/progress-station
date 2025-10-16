@@ -129,6 +129,11 @@ class GameData {
     /**
      * @var {string}
      */
+    previousStationName = undefined;
+
+    /**
+     * @var {string}
+     */
     stationName = stationNameGenerator.generate();
 
     /**
