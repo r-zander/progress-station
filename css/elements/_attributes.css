@@ -53,10 +53,15 @@
     font-weight: 400;
 }
 
-.inline-attribute.icon {
-    height: 1.1rem;
-    vertical-align: bottom;
-    margin-inline-end: 0.25rem;
+.inline-attribute {
+    display: inline-block;
+    white-space: nowrap;
+
+    > .icon {
+        height: 1.1rem;
+        vertical-align: bottom;
+        margin-inline-end: 0.25rem;
+    }
 }
 
 /* Alternative way to re-color the icons.

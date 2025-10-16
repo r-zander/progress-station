@@ -951,7 +951,8 @@ function createAttributesHTML() {
         if (attribute.icon === null) {
             attribute.inlineHtmlWithIcon = inlineHTML;
         } else {
-            attribute.inlineHtmlWithIcon = `<img src="${attribute.icon}" class="inline-attribute icon" />` + inlineHTML;
+            attribute.inlineHtmlWithIcon =
+                `<span class="inline-attribute"><img src="${attribute.icon}" class="inline-attribute icon" />${inlineHTML}</span>`;
         }
     }
 }
