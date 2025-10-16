@@ -2099,8 +2099,9 @@ function update(deltaTime, totalTime, isLastUpdateInTick, gameLoop) {
     doTasks();
     updatePopulation();
 
-    // Only update the UI once in an accumulated update
-    if (isLastUpdateInTick) {
+    if (isLastUpdateInTick // Only update the UI once in an accumulated update
+        || !gameData.state.gameLoopRunning // we are about to stop the game loop, so now is the time to update the UI
+    ) {
         updateUI();
     }
 
