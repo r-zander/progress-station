@@ -276,7 +276,7 @@ const modulesRequirements = {
     ),
     Quarters2: modules.Quarters.registerRequirement(
         new PointOfInterestVisitedRequirement('playthrough', {
-            pointOfInterest: pointsOfInterest.IndustryLocationHigh,
+            pointOfInterest: pointsOfInterest.GrowthLocationMedium,
         }),
     ),
 };
