@@ -826,7 +826,14 @@ function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, 
 
     const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
     const domGetter = Dom.get(balanceEntryElement);
-    domGetter.byClass('name').textContent = '(' + name + ')';
+    const descriptionElement = domGetter.byClass('name');
+    const updateDescription = () => {
+        const description = typeof name === 'function' ? name() : name;
+        descriptionElement.textContent = '(' + description + ')';
+    };
+
+    updateDescription();
+
     domGetter.byClass('operator').textContent = effectType.operator;
     attributeBalanceEntries.push({
         element: balanceEntryElement,
@@ -834,6 +841,7 @@ function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, 
         getEffect: getEffectFn,
         getEffects: getEffectsFn,
         isActive: isActiveFn,
+        updateDescription,
     });
     balanceElement.append(balanceEntryElement);
 }
@@ -877,25 +885,39 @@ function createAttributeBalance(rowElement, effectTypes) {
             }
         }
         if (effectType === EffectType.MilitaryFactor) {
-            let battleValueFromRewards = Object.keys(battles).filter(key => battles[key].isDone())
-            .map(key => battles[key].getReward(effectType)).length * 0.05;
-            let battleValue = battleValueFromRewards > 0 ? 1 + battleValueFromRewards : 0;
-            let descriptionText = 'x1.05 for ' + Object.keys(battles).filter(key => battles[key].isDone())
-            .map(key => battles[key].getReward(effectType)).length + ' battles defeated';
+            // let battlesWonLength = () => (Object.keys(battles).filter(key => battles[key].isDone() && battles[key].getReward(effectType)).length); not an option because getReward(effectType) returns 1 even if its +Military because it backs up to effectType.defaultValue of xMilitary which is 1
+            let battlesWonLength = () => {
+                let count = 0;
+                for (const key in battles) {
+                    const b = battles[key];
+                    if (b.isDone() && b.getReward(effectType)) {
+                        for(const reward in b.rewards) {
+                            const rewardEffectType = b.rewards[reward].effectType;
+                            if(rewardEffectType === effectType) {
+                                count++;
+                                break;
+                            }
+                        }
+                    }
+                }
+                return count;
+            };
+            let battleValueFromRewards = () => (1 + battlesWonLength() * 0.05);
+            let atLeastOneBattleWonToMakeItActive = () => (battleValueFromRewards() > 1 ? true : false);
+            let descriptionText = () => ('x1.05 for ' + battlesWonLength() + ' battles defeated');
             createAttributeBalanceEntry(
                 balanceElement,
-                () => ((1+ Object.keys(battles).filter(key => battles[key].isDone())
-            .map(key => battles[key].getReward(effectType)).length * 0.05)),
-                () => [{effectType: effectType, baseValue: battleValue}],
+                battleValueFromRewards,
+                () => [{effectType: effectType, baseValue: battleValueFromRewards}],
                 effectType,
                 descriptionText,
-                () => [{isActive: true}],
+                atLeastOneBattleWonToMakeItActive,
             );
         } else {
             for (const key in battles) {
-                    /** @type {Battle} */
-                    const battle = battles[key];
-                    createAttributeBalanceEntry(
+                /** @type {Battle} */
+                const battle = battles[key];
+                createAttributeBalanceEntry(
                     balanceElement,
                     battle.getReward.bind(battle),
                     () => battle.rewards,
@@ -1704,6 +1726,7 @@ function updateAttributeRows() {
             formatValue(
                 Dom.get(balanceEntry.element).byClass('entryValue'),
                 balanceEntry.getEffect(balanceEntry.effectType),
+                balanceEntry.updateDescription?.(),
             );
             balanceEntry.element.classList.remove('hidden');
         } else {
