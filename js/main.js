@@ -876,28 +876,43 @@ function createAttributeBalance(rowElement, effectTypes) {
                 }
             }
         }
-
-        for (const key in battles) {
-            /** @type {Battle} */
-            const battle = battles[key];
+        if (effectType === EffectType.MilitaryFactor) {
+            let battleValueFromRewards = Object.keys(battles).filter(key => battles[key].isDone())
+            .map(key => battles[key].getReward(effectType)).length * 0.05;
+            let battleValue = battleValueFromRewards > 0 ? 1 + battleValueFromRewards : 0;
+            let descriptionText = 'x1.05 for ' + Object.keys(battles).filter(key => battles[key].isDone())
+            .map(key => battles[key].getReward(effectType)).length + ' battles defeated';
             createAttributeBalanceEntry(
                 balanceElement,
-                battle.getReward.bind(battle),
-                () => battle.rewards,
+                () => ((1+ Object.keys(battles).filter(key => battles[key].isDone())
+            .map(key => battles[key].getReward(effectType)).length * 0.05)),
+                () => [{effectType: effectType, baseValue: battleValue}],
                 effectType,
-                'Defeated ' + battle.title,
-                battle.isDone.bind(battle),
+                descriptionText,
+                () => [{isActive: true}],
             );
-            createAttributeBalanceEntry(
-                balanceElement,
-                battle.getEffect.bind(battle),
-                battle.getEffects.bind(battle),
-                effectType,
-                'Fighting ' + battle.title,
-                () => battle.isActive() && !battle.isDone(),
-            );
+        } else {
+            for (const key in battles) {
+                    /** @type {Battle} */
+                    const battle = battles[key];
+                    createAttributeBalanceEntry(
+                    balanceElement,
+                    battle.getReward.bind(battle),
+                    () => battle.rewards,
+                    effectType,
+                    'Defeated ' + battle.title,
+                    battle.isDone.bind(battle),
+                );
+                createAttributeBalanceEntry(
+                    balanceElement,
+                    battle.getEffect.bind(battle),
+                    battle.getEffects.bind(battle),
+                    effectType,
+                    'Fighting ' + battle.title,
+                    () => battle.isActive() && !battle.isDone(),
+                );
+            }
         }
-
         for (const key in pointsOfInterest) {
             const pointOfInterest = pointsOfInterest[key];
             createAttributeBalanceEntry(
