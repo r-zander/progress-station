@@ -1438,6 +1438,8 @@ const battleRequirements = [
     new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 100}),
 ];
 
+const battlesShowDangerWarning = false;
+
 /**
  * @param {number} research Current research value
  * @return {{limit: number, requirement: AttributeRequirement|string}}

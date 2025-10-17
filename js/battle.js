@@ -146,7 +146,7 @@ class Battle extends LayeredTask {
         if (this.isActive()) {
             this.stop();
         } else {
-            if (!this.isSafeToEngage()) {
+            if (battlesShowDangerWarning && !this.isSafeToEngage()) {
                 showDangerModal(
                     () => this.start(),   // onConfirm
                     () => {}              // onCancel (do nothing)
