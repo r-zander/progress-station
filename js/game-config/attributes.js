@@ -73,6 +73,11 @@ const attributes = {
 };
 
 /**
+ * @type {number}
+ */
+const heatAcceleration = 3; // in heat / sec²
+
+/**
  * [0; 1)
  * @type {number}
  */

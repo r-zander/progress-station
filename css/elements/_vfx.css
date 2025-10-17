@@ -160,6 +160,18 @@
     100% { transform: translate(0, 0) rotate(0deg); }
 }
 
+.shake-and-pulse {
+    animation: tilt-n-pulse-shaking 0.5s infinite ease-out;
+}
+
+@keyframes tilt-n-pulse-shaking {
+    0% {transform: translate(0, 0) rotate(0deg)scale(1.0);}
+    25% {transform: translate(5px, 5px) rotate(5deg) scale(1.1);}
+    50% {transform: translate(0, 0) rotate(0deg) scale(1.4);}
+    75% {transform: translate(-5px, 5px) rotate(-5deg) scale(1.2);}
+    100% {transform: translate(0, 0) rotate(0deg) scale(1.0);}
+}
+
 /* subtle zoom to attention and then back */
 .flash-text-denied {
     animation: 300ms flash-text-denied ease;

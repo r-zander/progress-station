@@ -1011,8 +1011,9 @@ function createAttributesUI() {
     // Heat
     const heatRow = createAttributeRow(attributes.heat);
     Dom.get(heatRow).byClass('description').innerHTML +=
-        `<br />${attributes.military.inlineHtml} exceeding ${attributes.danger.inlineHtml} is disregarded.`
-        + (SPACE_BASE_HEAT > 0.0
+        `<br />${attributes.military.inlineHtml} exceeding ${attributes.danger.inlineHtml} is disregarded.` +
+        `<br />Acceleration is applied to reach the target ${attributes.heat.inlineHtml}.` +
+        (SPACE_BASE_HEAT > 0.0
             ? `The total can never be less than <data value="${SPACE_BASE_HEAT.toFixed(0.1)}">${formatNumber(SPACE_BASE_HEAT)}</data> - space is dangerous!`
             : '');
     const heatFormulaElement = Dom.get(heatRow).byClass('formula');
@@ -1037,6 +1038,8 @@ function createAttributesUI() {
 
     // Population
     const populationRow = createAttributeRow(attributes.population);
+    Dom.get(populationRow).byClass('description').innerHTML +=
+        `<br />Innertia is applied to ${attributes.growth.inlineHtml}.`;
     const populationFormulaElement = Dom.get(populationRow).byClass('formula');
     populationFormulaElement.classList.remove('hidden');
     populationFormulaElement.innerHTML =
@@ -1835,6 +1838,13 @@ function updateBossBarColor(progress, bossBar) {
     else bossBar.classList.add('lowDanger');
 }
 
+function updateHeatIndication() {
+    const heat = attributes.heat.getValue();
+    const gotHeat = heat > 0.0 && !nearlyEquals(heat, 0.0, 0.01);
+    Dom.get().byId('heatIndicator').classList.toggle('hidden', !gotHeat);
+    Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="heat"]').classList.toggle('shake-and-pulse', gotHeat);
+}
+
 function updateStationOverview() {
     updateBossProgress();
     const cyclesTotalElement = Dom.get().byId('cyclesTotal');
@@ -2080,6 +2090,7 @@ function updateUI() {
 
     updateHtmlElementRequirements();
 
+    updateHeatIndication();
     updateStationOverview();
     updateBodyClasses();
 }
@@ -2097,6 +2108,7 @@ function update(deltaTime, totalTime, isLastUpdateInTick, gameLoop) {
     progressGalacticSecrets();
     activateComponentOperations();
     doTasks();
+    updateHeat();
     updatePopulation();
 
     if (isLastUpdateInTick // Only update the UI once in an accumulated update

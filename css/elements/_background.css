@@ -224,3 +224,27 @@
         transform: translateX(-2000px);
     }
 }
+
+#heatIndicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 60%;
+
+    background-image: linear-gradient(180deg, var(--attr-heat-color), transparent);
+
+    animation: heat-indicator-flash 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes heat-indicator-flash {
+    0% {
+        opacity: 1
+    }
+    20% {
+        opacity: 1
+    }
+    100% {
+        opacity: 0;
+    }
+}
