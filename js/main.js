@@ -96,6 +96,7 @@ function setTab(selectedTab) {
     tabButtons[selectedTab].classList.add('active');
 
     const content = Dom.get().byId('content');
+    content.scrollTop = 0;
 
     if (isVerticalBarAnimation) {
         content.classList.add('vertical');
@@ -1862,7 +1863,7 @@ function updateBossProgress() {
         progressContainer.classList.remove('disabled');
         tooltip.enable();
         if (!container.matches(':hover')) {
-            const tooltipText = `${progressPercentage.toFixed(1)}%`;
+            const tooltipText = `${progressPercentage.toFixed(1)}% - Long press to taunt and engage the boss.`;
             tooltip.setContent({'.tooltip-inner': tooltipText});
         }
     } else {
