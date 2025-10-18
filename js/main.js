@@ -836,7 +836,14 @@ function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, 
 
     const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
     const domGetter = Dom.get(balanceEntryElement);
-    domGetter.byClass('name').textContent = '(' + name + ')';
+    const descriptionElement = domGetter.byClass('name');
+    const updateDescription = () => {
+        const description = typeof name === 'function' ? name() : name;
+        descriptionElement.textContent = '(' + description + ')';
+    };
+
+    updateDescription();
+
     domGetter.byClass('operator').textContent = effectType.operator;
     attributeBalanceEntries.push({
         element: balanceEntryElement,
@@ -844,6 +851,7 @@ function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, 
         getEffect: getEffectFn,
         getEffects: getEffectsFn,
         isActive: isActiveFn,
+        updateDescription,
     });
     balanceElement.append(balanceEntryElement);
 }
@@ -886,28 +894,57 @@ function createAttributeBalance(rowElement, effectTypes) {
                 }
             }
         }
-
-        for (const key in battles) {
-            /** @type {Battle} */
-            const battle = battles[key];
+        if (effectType === EffectType.MilitaryFactor) {
+            // let battlesWonLength = () => (Object.keys(battles).filter(key => battles[key].isDone() && battles[key].getReward(effectType)).length); not an option because getReward(effectType) returns 1 even if its +Military because it backs up to effectType.defaultValue of xMilitary which is 1
+            let battlesWonLength = () => {
+                let count = 0;
+                for (const key in battles) {
+                    const b = battles[key];
+                    if (b.isDone() && b.getReward(effectType)) {
+                        for(const reward in b.rewards) {
+                            const rewardEffectType = b.rewards[reward].effectType;
+                            if(rewardEffectType === effectType) {
+                                count++;
+                                break;
+                            }
+                        }
+                    }
+                }
+                return count;
+            };
+            let battleValueFromRewards = () => (1 + battlesWonLength() * 0.05);
+            let atLeastOneBattleWonToMakeItActive = () => (battleValueFromRewards() > 1 ? true : false);
+            let descriptionText = () => ('x1.05 for ' + battlesWonLength() + ' battles defeated');
             createAttributeBalanceEntry(
                 balanceElement,
-                battle.getReward.bind(battle),
-                () => battle.rewards,
+                battleValueFromRewards,
+                () => [{effectType: effectType, baseValue: battleValueFromRewards}],
                 effectType,
-                'Defeated ' + battle.title,
-                battle.isDone.bind(battle),
+                descriptionText,
+                atLeastOneBattleWonToMakeItActive,
             );
-            createAttributeBalanceEntry(
-                balanceElement,
-                battle.getEffect.bind(battle),
-                battle.getEffects.bind(battle),
-                effectType,
-                'Fighting ' + battle.title,
-                () => battle.isActive() && !battle.isDone(),
-            );
+        } else {
+            for (const key in battles) {
+                /** @type {Battle} */
+                const battle = battles[key];
+                createAttributeBalanceEntry(
+                    balanceElement,
+                    battle.getReward.bind(battle),
+                    () => battle.rewards,
+                    effectType,
+                    'Defeated ' + battle.title,
+                    battle.isDone.bind(battle),
+                );
+                createAttributeBalanceEntry(
+                    balanceElement,
+                    battle.getEffect.bind(battle),
+                    battle.getEffects.bind(battle),
+                    effectType,
+                    'Fighting ' + battle.title,
+                    () => battle.isActive() && !battle.isDone(),
+                );
+            }
         }
-
         for (const key in pointsOfInterest) {
             const pointOfInterest = pointsOfInterest[key];
             createAttributeBalanceEntry(
@@ -1703,6 +1740,7 @@ function updateAttributeRows() {
             formatValue(
                 Dom.get(balanceEntry.element).byClass('entryValue'),
                 balanceEntry.getEffect(balanceEntry.effectType),
+                balanceEntry.updateDescription?.(),
             );
             balanceEntry.element.classList.remove('hidden');
         } else {
