@@ -9,7 +9,7 @@ const bossAppearanceCycle = 15_000;
 const emptyStationName = 'Unknown Station';
 
 // Not const to allow easy game speed increase // TODO change before release
-let baseGameSpeed = 2.0;
+let baseGameSpeed = 3.0;
 
 const magnitudes = ['', 'k', 'M', 'B', 'T', 'q', 'Q', 'Sx', 'Sp', 'Oc'];
 const metricPrefixes = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R'];
