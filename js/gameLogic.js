@@ -21,7 +21,8 @@ function updateHeat() {
     const military = attributes.military.getValue();
     const targetHeat = Math.max(danger - military, 0);
 
-    if (nearlyEquals(targetHeat, gameData.heat)) {
+    if (nearlyEquals(gameData.heat, targetHeat)) {
+        gameData.heat = targetHeat;
         gameData.heatVelocity = 0;
         return;
     }
