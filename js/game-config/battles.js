@@ -48,7 +48,7 @@ const factions = {
     Boss: {
         title: 'Boss', maxXp: 1_000_000_000,
         description: 'An immense, dark mass of writhing tentacles, teeth and a thousand eyes. The vacuum of space around the station suppresses all noise, ' +
-            'but you can feel the hatred of the alien beast and see it\'s determination to destroy everything you have built up.'
+            'but you can feel the hatred of the alien beast and see its determination to destroy everything you have built up.'
     },
 };
 
