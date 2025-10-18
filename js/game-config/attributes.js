@@ -95,7 +95,7 @@ function createAttributeDescriptions() {
     attributes.industry.description = 'Speeds up operations progress.';
     attributes.military.description = 'Counteracts ' + attributes.danger.inlineHtml + ' and increases damage in Battles.';
     attributes.population.description = 'Affects all progress speed.';
-    attributes.research.description = 'Unlocks new knowledge.';
+    attributes.research.description = 'Unlocks new knowledge. <i>Not useful in the Beta version.</i>';
     attributes.essenceOfUnknown.description = 'Invest to learn Galactic Secrets.';
 }
 
