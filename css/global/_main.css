@@ -143,6 +143,8 @@ a#gameTitle {
     background-repeat: repeat-y;
     background-size: 0 100%;
 
+    overscroll-behavior: contain;
+
     &.horizontal {
         background-repeat: repeat-x;
         background-size: 100% 0;
