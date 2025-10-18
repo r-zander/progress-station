@@ -127,7 +127,7 @@ const cheats = {
             }
         },
         setNormal: () => {
-            baseGameSpeed = 4;
+            baseGameSpeed = 2;
         },
         setSlow: () => {
             baseGameSpeed = 1;
