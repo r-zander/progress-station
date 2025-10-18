@@ -10,6 +10,7 @@
 </ul>
 
 <script type="text/javascript" src="vendor/lodash-4.17.15/lodash.min.js"></script>
+<script type="text/javascript" src="vendor/romans-3.1.0/romans.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/nameGenerator.dictionary.lighthearted.js"></script>
 <script type="text/javascript" src="js/nameGenerator.js"></script>
@@ -30,7 +31,10 @@
         if (name.length > longestName.length) {
             longestName = name;
         }
-        listElement.insertAdjacentHTML('beforeend', `<li>${name} <small>(${count})</small></li>`);
+        // listElement.insertAdjacentHTML('beforeend', `<li>${name} <small>(${count})</small></li>`);
+
+        const newSuffix = new SuffixGenerator(name).getNewName();
+        listElement.insertAdjacentHTML('beforeend', `<li>${name} ⇝ ${newSuffix}</li>`);
     });
 
     document.body.insertAdjacentHTML('afterbegin',

@@ -226,7 +226,7 @@ const latinOrdinalNumbers = [
 const romanNumbers = [ // Excluded numbers are too long/unaesthetic
     1, 2, 3, 4, 5, 6, 7,/* 8, */ 9, 10,
     11, 12/*,13*/, 14, 15, 16/*,17,18*/, 19
-].map(convertToRoman);
+].map(romans.romanize);
 
 const hairSpace = '\u200A';
 

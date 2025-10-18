@@ -300,7 +300,7 @@ const yearNumbers = interestingNumbers
 
 const romanNumbers = [
     1, 2, 3, 5, 10,
-].map(convertToRoman);
+].map(romans.romanize);
 
 const numbering = () => [
     new NameGenerator('Any Number Display')
