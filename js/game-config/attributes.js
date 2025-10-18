@@ -84,6 +84,11 @@ const attributes = {
 };
 
 /**
+ * @type {number}
+ */
+const heatAcceleration = 3; // in heat / sec²
+
+/**
  * [0; 1)
  * @type {number}
  */
@@ -101,7 +106,7 @@ function createAttributeDescriptions() {
     attributes.industry.description = 'Speeds up operations progress.';
     attributes.military.description = 'Counteracts ' + attributes.danger.inlineHtml + ' and increases damage in Battles.';
     attributes.population.description = 'Affects all progress speed.';
-    attributes.research.description = 'Unlocks new knowledge.';
+    attributes.research.description = 'Unlocks new knowledge. <i>Not useful in the Beta version.</i>';
     attributes.essenceOfUnknown.description = 'Invest to learn Galactic Secrets.';
 }
 
