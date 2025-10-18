@@ -1909,7 +1909,7 @@ function updateStationOverview() {
     formatValue(Dom.get().bySelector('#attributeRows > .growth > .value > data'), growth);
 
     const heat = attributes.heat.getValue();
-    formatValue(Dom.get().byId('heatDisplay'), heat, {forceInteger: true});
+    formatValue(Dom.get().byId('heatDisplay'), heat);
     formatValue(Dom.get().bySelector('#attributeRows > .heat > .value > data'), heat);
 
     const industry = attributes.industry.getValue();
