@@ -48,13 +48,7 @@ Use your favorite browser to view `index.html`
 
 ### Deployment
 
-1. Include
-```html
-<script type="text/javascript" src="vendor/hacktimer-1.1.3/HackTimer.min.js"></script>
-``` 
-into index.html
-
-2. Remove
+1. Remove
 
 ```html
 
@@ -64,10 +58,13 @@ into index.html
 ``` 
 from index.html
 
-3. Zip everything but
-   - .git
-   - .idea
-   - name-generator.html
-   - README.md
-   - web-components.html
-4. Upload the Zip to itch.io
+2. Zip the following
+   - audio
+   - css
+   - fonts
+   - img
+   - js
+   - release
+   - vendor
+   - index.html
+3. Upload the Zip to itch.io
