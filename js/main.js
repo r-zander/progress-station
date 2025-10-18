@@ -912,7 +912,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                 }
                 return count;
             };
-            let battleValueFromRewards = () => (1 + battlesWonLength() * 0.05);
+            let battleValueFromRewards = () => (Math.pow(1.05, battlesWonLength()));
             let atLeastOneBattleWonToMakeItActive = () => (battleValueFromRewards() > 1 ? true : false);
             let descriptionText = () => ('x1.05 for ' + battlesWonLength() + ' battles defeated');
             createAttributeBalanceEntry(
