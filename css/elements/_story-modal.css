@@ -18,13 +18,23 @@
     margin-bottom: 0.5rem;
 }
 
+
+.modal-body > .previousStationName,
+.modal-body > .stationNameInput {
+    text-align: center;
+    /*noinspection CssNoGenericFontName*/
+    font-family: var(--title-font-family);
+    font-weight: 200;
+}
+
+.modal-body > .previousStationName {
+    text-decoration: line-through;
+}
+
 .modal-body > .stationNameInput {
     border-top: none;
     border-left: none;
     border-right: none;
-    text-align: center;
-    font-family: var(--title-font-family);
-    font-weight: 200;
     animation: flash-background 1000ms ease-in-out infinite alternate;
 }
 

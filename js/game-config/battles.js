@@ -1412,6 +1412,15 @@ const battles = {
     }),
 };
 
+function getBossProgressForeshadowingText(progress) {
+    if (progress >= 100) return 'The silence breaks.';
+    if (progress >= 90) return 'It’s almost here.';
+    if (progress >= 75) return 'The void grows restless.';
+    if (progress >= 50) return 'Something ancient stirs beyond the stars.';
+    if (progress >= 25) return 'Sensors detect faint anomalies...';
+    return 'All systems nominal.';
+}
+
 /**
  * How many battles lie between the boss appearance and the boss battle.
  * @type {number}
@@ -1428,6 +1437,8 @@ const battleRequirements = [
     new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 50}),
     new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 100}),
 ];
+
+const battlesShowDangerWarning = false;
 
 /**
  * @param {number} research Current research value

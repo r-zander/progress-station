@@ -50,6 +50,63 @@
     --progress-bar-color: var(--progress-current-bar-color);
 }
 
+.bossProgress-text {
+    transition: opacity 0.4s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+
+    &.warningAnimation {
+        animation: bossColorPulse 3s ease-in-out infinite;
+    }
+}
+
+@keyframes bossColorPulse {
+    0%, 100% {
+        color: var(--ps-light);
+    }
+    50% {
+        color: var(--ps-red);
+    }
+}
+
+.bossProgressBar {
+    height: 2rem;
+}
+
+.bossProgress {
+    transition: width 0.2s linear, background-color 0.3s ease;
+
+    &.lowDanger {
+        background-color: var(--ps-light-blue);
+    }
+
+    &.mediumDanger {
+        background-color: var(--ps-blue);
+    }
+
+    &.highDanger {
+        background-color: var(--ps-yellow);
+    }
+
+    &.veryHighDanger {
+        background-color: var(--ps-orange);
+    }
+
+    &.maxDanger {
+        background-color: var(--warning-color);
+    }
+}
+
+.bossProgress-container {
+    flex-grow: 1;
+
+    &.disabled {
+        pointer-events: none;
+    }
+}
+
 .game-playing {
     .progress-bar-striped.current,
     .progress:hover > .progress-bar-striped {

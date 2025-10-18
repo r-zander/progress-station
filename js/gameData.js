@@ -129,6 +129,11 @@ class GameData {
     /**
      * @var {string}
      */
+    previousStationName = undefined;
+
+    /**
+     * @var {string}
+     */
     stationName = stationNameGenerator.generate();
 
     /**
@@ -149,6 +154,16 @@ class GameData {
     /**
      * @var {number}
      */
+    heat;
+
+    /**
+     * @var {number}
+     */
+    heatVelocity;
+
+    /**
+     * @var {number}
+     */
     cycles;
 
     /**
@@ -165,6 +180,11 @@ class GameData {
      * @var {number}
      */
     bossEncounterCount = 0;
+
+    /**
+     * @var {number}
+     */
+    bossAppearedCycle = 0;
 
     // /**
     //  * @var {number}
@@ -240,6 +260,8 @@ class GameData {
     initValues() {
         this.population = 1;
         this.lastPopulationDelta = 0;
+        this.heat = 0;
+        this.heatVelocity = 0;
         this.cycles = 0;
         this.bossBattleAvailable = false;
     }

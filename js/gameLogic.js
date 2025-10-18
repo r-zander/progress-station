@@ -11,14 +11,52 @@ function applySpeed(value) {
 }
 
 function calculateHeat() {
-    const danger = attributes.danger.getValue();
-    const military = attributes.military.getValue();
     const rawHeat = Effect.getTotalValue([EffectType.Heat]);
-    const calculatedHeat = Math.max(danger - military, 0) + rawHeat;
-
-    return Math.max(SPACE_BASE_HEAT, calculatedHeat);
+    const totalHeat = gameData.heat + rawHeat;
+    return Math.max(SPACE_BASE_HEAT, totalHeat);
 }
 
+function updateHeat() {
+    const danger = attributes.danger.getValue();
+    const military = attributes.military.getValue();
+    const targetHeat = Math.max(danger - military, 0);
+
+    if (nearlyEquals(targetHeat, gameData.heat)) {
+        gameData.heatVelocity = 0;
+        return;
+    }
+
+    if (targetHeat > gameData.heat) {
+        // In case the heat target changed direction (was low and is now high), we want to reset the velocity
+        gameData.heatVelocity = Math.max(0, gameData.heatVelocity);
+        gameData.heatVelocity += applySpeed(heatAcceleration / targetTicksPerSecond);
+        if (gameData.heat + gameData.heatVelocity >= targetHeat) {
+            gameData.heat = targetHeat;
+            gameData.heatVelocity = 0;
+        } else {
+            gameData.heat += gameData.heatVelocity;
+            console.log(gameData.heatVelocity);
+        }
+    } else { // targetHeat is smaller than gameData.heat
+        // In case the heat target changed direction (was high and is now low), we want to reset the velocity
+        gameData.heatVelocity = Math.min(0, gameData.heatVelocity);
+        gameData.heatVelocity -= applySpeed(heatAcceleration/ targetTicksPerSecond);
+        if (gameData.heat + gameData.heatVelocity <= targetHeat) {
+            gameData.heat = targetHeat;
+            gameData.heatVelocity = 0;
+        } else {
+            gameData.heat += gameData.heatVelocity;
+            console.log(gameData.heatVelocity);
+        }
+    }
+}
+
+/**
+ * This is what the population delta will settle to if the current growth and heat is maintained.
+ * NOTE: this needs to be synced with the {@link updatePopulation} if the formula ever changes.
+ *
+ * @return {number} the target population delta (without inertia)
+ */
 function populationDelta() {
     const growth = attributes.growth.getValue();
     const heat = attributes.heat.getValue();
@@ -29,11 +67,23 @@ function populationDelta() {
 function updatePopulation() {
     if (!gameData.state.areAttributesUpdated) return;
 
-    const rawDelta = populationDelta();
+    const growth = attributes.growth.getValue();
+    const population = attributes.population.getValue();
+    const heat = attributes.heat.getValue();
+
+    // Split population delta into two components:
+    // 1. Growth component (with inertia)
+    const rawGrowthDelta = 0.1 * growth;
     // TODO inertia is not scaled with game speed
-    const inertDelta = populationDeltaInertia * gameData.lastPopulationDelta + (1 - populationDeltaInertia) * rawDelta;
-    gameData.population = Math.max(gameData.population + applySpeed(inertDelta), 1);
-    gameData.lastPopulationDelta = inertDelta;
+    const smoothedGrowthDelta = populationDeltaInertia * gameData.lastPopulationDelta + (1 - populationDeltaInertia) * rawGrowthDelta;
+    gameData.lastPopulationDelta = smoothedGrowthDelta;
+
+    // 2. Heat damage component (no inertia, applied directly)
+    const heatDamage = 0.01 * population * heat;
+
+    // Combine both components
+    const totalDelta = smoothedGrowthDelta - heatDamage;
+    gameData.population = Math.max(gameData.population + applySpeed(totalDelta), 1);
 
     if (gameData.state === gameStates.BOSS_FIGHT && Math.round(gameData.population) === 1) {
         gameData.transitionState(gameStates.DEAD);
@@ -83,10 +133,16 @@ function increaseCycle() {
     gameData.totalCycles += increase;
 
     if (!isBossBattleAvailable() && gameData.cycles >= getBossAppearanceCycle()) {
-        gameData.bossBattleAvailable = true;
-        gameData.transitionState(gameStates.TUTORIAL_PAUSED);
-        GameEvents.BossAppearance.trigger(undefined);
+        summonBoss();
     }
+}
+
+function summonBoss(){
+    gameData.bossBattleAvailable = true;
+    gameData.bossAppearedCycle = gameData.cycles;
+    gameData.transitionState(gameStates.TUTORIAL_PAUSED);
+    GameEvents.BossAppearance.trigger(undefined);
+    bossBarAcceleratedProgress = 0;
 }
 
 function updateBossDistance() {
@@ -94,7 +150,7 @@ function updateBossDistance() {
     if (!isBossBattleAvailable()) return;
 
     // How much time has past since the boss' arrival?
-    const overtime = gameData.cycles - getBossAppearanceCycle();
+    const overtime = gameData.cycles - gameData.bossAppearedCycle;
     // Translate the elapsed time into distance according to config
     bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
 }
@@ -174,6 +230,8 @@ function resetBattle(name) {
 }
 
 function startNewPlaythrough() {
+    setPreviousStationName(gameData.stationName);
+    setStationName(new SuffixGenerator(gameData.stationName).getNewName());
     gameData.bossEncounterCount += 1;
 
     // grant Essence Of Unknown
@@ -258,4 +316,9 @@ function getBossAppearanceCycle() {
 
 function isBossBattleAvailable() {
     return gameData.bossBattleAvailable;
+}
+
+function getTimeUntilBossAppears() {
+    const timeLeft = getBossAppearanceCycle() - gameData.cycles;
+    return Math.max(0, timeLeft);
 }
