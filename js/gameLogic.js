@@ -78,7 +78,13 @@ function updatePopulation() {
     gameData.lastPopulationDelta = smoothedGrowthDelta;
 
     // 2. Heat damage component (no inertia, applied directly)
-    const heatDamage = 0.01 * population * heat;
+    let heatDamage = 0.01 * population * heat;
+
+    // TODO hacky fix for current boss heat inertia problem https://trello.com/c/VHOGIMUV/353-last-few-survivors-take-a-long-time-to-wipe-out
+    if (gameData.stateName === gameStates.BOSS_FIGHT.name) {
+        const MINIMUM_BOSS_POPULATION_DAMAGE = 20.00;
+        heatDamage = Math.max(MINIMUM_BOSS_POPULATION_DAMAGE, heatDamage);
+    }
 
     // Combine both components
     const totalDelta = smoothedGrowthDelta - heatDamage;
