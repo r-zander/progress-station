@@ -71,13 +71,13 @@
     }
 
     &.active {
-        background-color: var(--ps-blue);
-        color: #fff;
+        color: var(--header-font-color) !important;
+        background-color: var(--header-bg-color) !important;
     }
 
     &.inactive {
-        background-color: var(--progress-passive-bg-color);
-        color: #fff;
+        color: var(--header-passive-font-color) !important;
+        background-color: var(--header-passive-bg-color) !important;
     }
 }
 

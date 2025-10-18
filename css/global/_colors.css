@@ -32,6 +32,11 @@
     --tab-button-interact-border-color: var(--ps-light);
     --tab-button-active-border-color: var(--active-color);
 
+    --header-bg-color: #F8F9FA;
+    --header-font-color: var(--ps-dark);
+    --header-passive-bg-color: var(--progress-passive-bg-color);
+    --header-passive-font-color: var(--ps-light);
+
     --body-bg-color: #202020;
     --body-font-color: white;
     --panel-bg-color: #1F1F1F;
