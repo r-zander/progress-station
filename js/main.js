@@ -96,6 +96,7 @@ function setTab(selectedTab) {
     tabButtons[selectedTab].classList.add('active');
 
     const content = Dom.get().byId('content');
+    content.scrollTop = 0;
 
     if (isVerticalBarAnimation) {
         content.classList.add('vertical');
