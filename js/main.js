@@ -1863,7 +1863,7 @@ function updateBossProgress() {
         progressContainer.classList.remove('disabled');
         tooltip.enable();
         if (!container.matches(':hover')) {
-            const tooltipText = `${progressPercentage.toFixed(1)}%`;
+            const tooltipText = `${progressPercentage.toFixed(1)}% - Press to tempt the void and accelerate.`;
             tooltip.setContent({'.tooltip-inner': tooltipText});
         }
     } else {
