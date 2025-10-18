@@ -1058,7 +1058,6 @@ function createAttributesUI() {
     // Heat
     const heatRow = createAttributeRow(attributes.heat);
     Dom.get(heatRow).byClass('description').innerHTML +=
-        `<br />${attributes.military.inlineHtml} exceeding ${attributes.danger.inlineHtml} is disregarded.` +
         `<br />Acceleration is applied to reach the target ${attributes.heat.inlineHtml}.` +
         (SPACE_BASE_HEAT > 0.0
             ? `The total can never be less than <data value="${SPACE_BASE_HEAT.toFixed(0.1)}">${formatNumber(SPACE_BASE_HEAT)}</data> - space is dangerous!`
