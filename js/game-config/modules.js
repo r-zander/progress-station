@@ -21,7 +21,7 @@ moduleOperations.MicroCyborgAutomat = new ModuleOperation({
 });
 moduleOperations.KungFuManual = new ModuleOperation({
     title: 'Battle Station Manual', maxXp: 200, gridLoad: 1,
-    description: 'Martial arts made easy for the space traveler that does not shy away from space encounters.',
+    description: 'Space combat made easy for the space traveler that does not shy away from danger.',
     effects: [{effectType: EffectType.Military, baseValue: 0.10}], // Not a factor as the player doesn't have military yet
 });
 moduleOperations.PocketLaboratory = new ModuleOperation({
