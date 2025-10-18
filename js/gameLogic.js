@@ -35,7 +35,6 @@ function updateHeat() {
             gameData.heatVelocity = 0;
         } else {
             gameData.heat += gameData.heatVelocity;
-            console.log(gameData.heatVelocity);
         }
     } else { // targetHeat is smaller than gameData.heat
         // In case the heat target changed direction (was high and is now low), we want to reset the velocity
@@ -46,7 +45,6 @@ function updateHeat() {
             gameData.heatVelocity = 0;
         } else {
             gameData.heat += gameData.heatVelocity;
-            console.log(gameData.heatVelocity);
         }
     }
 }
