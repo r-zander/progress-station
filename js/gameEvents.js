@@ -105,15 +105,16 @@ const GameEvents = {
         savedVersion: JsTypes.Number,
         expectedVersion: JsTypes.Number,
     }),
-    RebalancedVersionFound: new GameEvent({
-        savedVersion: JsTypes.Number,
-        expectedVersion: JsTypes.Number,
-    }),
     NewGameStarted: new GameEvent(undefined),
     GameStateChanged: new GameEvent({
         previousState: JsTypes.String,
         newState: JsTypes.String,
     }),
+    TaskActivityChanged: new GameEvent({
+        type: JsTypes.String,
+        name: JsTypes.String,
+        newActivityState: JsTypes.Boolean,
+    }, false),
     TaskLevelChanged: new GameEvent({
         type: JsTypes.String,
         name: JsTypes.String,

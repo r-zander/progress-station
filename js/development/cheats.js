@@ -1,3 +1,5 @@
+'use strict';
+
 // noinspection JSUnusedGlobalSymbols
 
 /**
@@ -71,7 +73,7 @@ function prepareRequirementsForTSV(requirements, locale) {
         } else if (requirements[0] instanceof OperationLevelRequirement) {
             result[2] = requirements[0].requirements[0].operation.name;
             result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
-        } else if (requirements[0] instanceof AgeRequirement) {
+        } else if (requirements[0] instanceof CyclesPassedRequirement) {
             result[2] = null;
             result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
         } else if (requirements[0] instanceof GalacticSecretRequirement) {
@@ -88,7 +90,16 @@ function prepareRequirementsForTSV(requirements, locale) {
     return result;
 }
 
+const _cheatConfig = {
+    showStateTransitions: false,
+};
+
 const cheats = {
+    Debug: {
+        showStateTransitions: (enabled = true) => {
+            _cheatConfig.showStateTransitions = enabled;
+        }
+    },
     GameSpeed: {
         /**
          * @param {number} [factor=2]
@@ -116,7 +127,7 @@ const cheats = {
             }
         },
         setNormal: () => {
-            baseGameSpeed = 4;
+            baseGameSpeed = 2;
         },
         setSlow: () => {
             baseGameSpeed = 1;
@@ -148,13 +159,14 @@ const cheats = {
          * Useful to manipulate the DOM.
          */
         disableUpdates: () => {
-            clearInterval(updateIntervalID);
+            gameLoop.stop();
         },
+
         /**
          * Inverse of disableUpdates to continue the normal game.
          */
         enableUpdates: () => {
-            updateIntervalID = setInterval(update, 1000 / updateSpeed);
+            gameLoop.start();
         }
     },
     Config: {
@@ -407,5 +419,7 @@ const cheats = {
 
 // Debugging output
 GameEvents.GameStateChanged.subscribe((payload) => {
+    if (!_cheatConfig.showStateTransitions) return;
+
     console.log('Transition game state from ' + payload.previousState + ' to ' + payload.newState);
 });

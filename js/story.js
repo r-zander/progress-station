@@ -1,65 +1,5 @@
 'use strict';
 
-function initVersionWarning() {
-    const modal = new bootstrap.Modal(document.getElementById('versionWarningModal'));
-    const versionUpgrade = {
-        savedVersion: undefined,
-        expectedVersion: undefined
-    };
-
-    GameEvents.IncompatibleVersionFound.subscribe((payload) => {
-        modal.show();
-        versionUpgrade.savedVersion = payload.savedVersion;
-        versionUpgrade.expectedVersion = payload.expectedVersion;
-    });
-
-    withCheats(cheats => {
-        cheats.Story['VersionWarning'] = {
-            trigger: (savedVersion = 1, expectedVersion = 2) => {
-                GameEvents.IncompatibleVersionFound.trigger({
-                    savedVersion: savedVersion,
-                    expectedVersion: expectedVersion
-                });
-            }
-        };
-    });
-
-    window.continueWithIncompatibleVersion = function () {
-        modal.hide();
-        gameData.ignoreCurrentVersionUpgrade(versionUpgrade.savedVersion, versionUpgrade.expectedVersion);
-    };
-}
-
-function initRebalanceWarning() {
-    const modal = new bootstrap.Modal(document.getElementById('rebalanceWarningModal'));
-    const versionUpgrade = {
-        savedVersion: undefined,
-        expectedVersion: undefined
-    };
-
-    GameEvents.RebalancedVersionFound.subscribe((payload) => {
-        modal.show();
-        versionUpgrade.savedVersion = payload.savedVersion;
-        versionUpgrade.expectedVersion = payload.expectedVersion;
-    });
-
-    withCheats(cheats => {
-        cheats.Story['RebalanceWarning'] = {
-            trigger: (savedVersion = 6, expectedVersion = 7) => {
-                GameEvents.RebalancedVersionFound.trigger({
-                    savedVersion: savedVersion,
-                    expectedVersion: expectedVersion
-                });
-            }
-        };
-    });
-
-    window.continueWithRebalancedVersion = function () {
-        modal.hide();
-        gameData.ignoreCurrentVersionUpgrade(versionUpgrade.savedVersion, versionUpgrade.expectedVersion);
-    };
-}
-
 function initIntro() {
     const modal = new bootstrap.Modal(document.getElementById('storyIntroModal'));
 
@@ -92,6 +32,15 @@ function initIntro() {
 function initBossAppearance() {
     const modal = new bootstrap.Modal(document.getElementById('bossAppearanceModal'));
     GameEvents.BossAppearance.subscribe(function () {
+        modal.show();
+    });
+
+    GameEvents.GameStateChanged.subscribe( (payload) => {
+        // TODO gameStates.TUTORIAL_PAUSED is a bad idea, as its generic but we need to show the correct "tutorial"
+        //  currently there is only one - but this doesn't scale
+        if (payload.newState !== gameStates.TUTORIAL_PAUSED.name) return;
+        if (payload.previousState !== gameStates.NEW.name) return;
+
         modal.show();
     });
 
@@ -197,8 +146,6 @@ function initGameOver() {
 }
 
 function initStory() {
-    initVersionWarning();
-    initRebalanceWarning();
     initIntro();
     initBossAppearance();
     initBossFightIntro();

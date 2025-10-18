@@ -17,6 +17,7 @@ a#gameTitle {
     color: inherit;
     text-decoration: none;
 
+    /*noinspection CssNoGenericFontName*/
     font-family: var(--title-font-family) !important;
     font-weight: 400;
     font-size: 3rem;
@@ -127,6 +128,13 @@ a#gameTitle {
     }
 }
 
+#cyclesTotal {
+    > data {
+        display: inline-block;
+        min-width: 4.8rem;
+    }
+}
+
 #content {
     position: relative;
     max-width: var(--content-width);
@@ -134,7 +142,22 @@ a#gameTitle {
     background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, var(--active-color) 4px, var(--active-color) 8px);
     background-repeat: repeat-y;
     background-size: 0 100%;
-    border-left: 3px solid var(--active-color);
+
+    overscroll-behavior: contain;
+
+    &.horizontal {
+        background-repeat: repeat-x;
+        background-size: 100% 0;
+        border-left: none;
+        border-top: 3px solid var(--active-color);
+    }
+
+    &.vertical {
+        background-repeat: repeat-y;
+        background-size: 0 100%;
+        border-top: none;
+        border-left: 3px solid var(--active-color);
+    }
 }
 
 .panel {
@@ -146,6 +169,7 @@ a#gameTitle {
 }
 
 .label {
+    /*noinspection CssNoGenericFontName*/
     font-family: var(--title-font-family);
     font-weight: 400;
 }
@@ -169,6 +193,7 @@ data[data-suffix]::after {
 
 data[data-unit]::after,
 data[data-suffix]::after {
+    /*noinspection CssNoGenericFontName*/
     font-family: var(--body-font-family);
     font-size: var(--bs-body-font-size);
     font-weight: var(--bs-body-font-weight);
@@ -192,6 +217,7 @@ data[data-suffix]::after {
     --bs-btn-disabled-border-color: var(--ps-passive);
     --bs-btn-disabled-opacity: 1.0;
 
+    /*noinspection CssNoGenericFontName*/
     font-family: var(--title-font-family);
     font-weight: 300;
     border-radius: 0;

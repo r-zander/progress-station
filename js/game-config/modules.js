@@ -19,9 +19,10 @@ moduleOperations.MicroCyborgAutomat = new ModuleOperation({
     description: 'A handy box that produces little helpers at the press of a button.',
     effects: [{effectType: EffectType.Growth, baseValue: 0.10}], // Not a factor as the player doesn't have military yet
 });
+// TODO rename according to title
 moduleOperations.KungFuManual = new ModuleOperation({
-    title: 'Kung Fu Manual', maxXp: 200, gridLoad: 1,
-    description: 'Martial arts made easy for the space traveler that does not shy away from space encounters.',
+    title: 'Battle Station Manual', maxXp: 200, gridLoad: 1,
+    description: 'Space combat made easy for the station captain that does not shy away from danger.',
     effects: [{effectType: EffectType.Military, baseValue: 0.10}], // Not a factor as the player doesn't have military yet
 });
 moduleOperations.PocketLaboratory = new ModuleOperation({
@@ -76,7 +77,7 @@ moduleOperations.Diesel = new ModuleOperation({
     description: 'From the depths of fossilized relics to the pulse of synthesized organics, it\'s the timeless heart that beats in the mechanical chest of progress.',
     effects: [{effectType: EffectType.Energy, baseValue: 3}],
 });
-moduleOperations.FuelT3 = new ModuleOperation({
+moduleOperations.SmellyJelly = new ModuleOperation({
     title: 'Smelly Jelly', maxXp: 2_000, gridLoad: 4,
     description: 'Super-concentrated jet fuel, thanks to Neptunium\'s kick. Beware: its potent aroma is adored by some, stomach-churning for most.',
     effects: [{effectType: EffectType.Energy, baseValue: 9}],
@@ -99,7 +100,7 @@ moduleOperations.Steel = new ModuleOperation({
     description: 'Super tough stuff, dude! Like, armor for your space castle or sword for cosmic dragon slaying.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.02}],
 });
-moduleOperations.ProductsT3 = new ModuleOperation({
+moduleOperations.Bouncium = new ModuleOperation({
     title: 'Bouncium', maxXp: 4_000, gridLoad: 6,
     description: 'The rubbery metal that laughs at gravity. Perfect for when you need your gear to bounce back, literally.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.04}],
@@ -163,7 +164,7 @@ moduleOperations.SmoochSanctuary = new ModuleOperation({
 moduleOperations.MechanoMaker = new ModuleOperation({
     title: 'Mechano Maker', maxXp: 32_000, gridLoad: 8,
     description: 'Why wait for nature when you have technology? Assemble new crew members who are part metal, part moxie.',
-    effects: [{effectType: EffectType.Growth, baseValue: 0.20}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.20}],
 });
 /** Galactic Secret */
 moduleOperations.ReplicationChambers = new ModuleOperation({
@@ -209,6 +210,7 @@ const moduleComponents = {
         description: 'This compact kit contains everything a captain needs to get the station up and running.',
         operations: [moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual, moduleOperations.PocketLaboratory],
     }),
+
     MinedResource: new ModuleComponent({
         title: 'Mined Resource',
         description: 'The foundation of station expansion. From common rocks to exotic minerals, each resource fuels progress and prosperity.',
@@ -219,16 +221,18 @@ const moduleComponents = {
         description: 'The might of the Mining Bay, turning lifeless asteroids into vaults of valuable materials. Each drill is a key to unlocking the galaxy\'s riches.',
         operations: [moduleOperations.BigSpinny, moduleOperations.AsteroidChomper, moduleOperations.TenDrills]
     }),
+
     Fuel: new ModuleComponent({
         title: 'Fuel',
         description: 'The heart\'s fire of the station, what will you use to power the furnace?',
-        operations: [moduleOperations.Garbage, moduleOperations.Diesel, moduleOperations.FuelT3, moduleOperations.Quasarite],
+        operations: [moduleOperations.Garbage, moduleOperations.Diesel, moduleOperations.SmellyJelly, moduleOperations.Quasarite],
     }),
     Products: new ModuleComponent({
         title: 'Products',
         description: 'Transmuting raw materials into vital resources. Whether it\'s for construction or commerce, the furnace forges the foundation of expansion.',
-        operations: [moduleOperations.Plastics, moduleOperations.Steel, moduleOperations.ProductsT3, moduleOperations.MicroalloyGlass],
+        operations: [moduleOperations.Plastics, moduleOperations.Steel, moduleOperations.Bouncium, moduleOperations.MicroalloyGlass],
     }),
+
     Protection: new ModuleComponent({
         title: 'Protection',
         description: 'A shield against the void\'s dangers. Become a fortress among the stars!',
@@ -239,6 +243,7 @@ const moduleComponents = {
         description: 'The station\'s fangs and claws. Arm your station with an array of turrets, ready to repel invaders and protect your domain.',
         operations: [moduleOperations.RapidRumbleTower, moduleOperations.LaserTurrets, moduleOperations.AntiMissileSwarm],
     }),
+
     CrewExpansion: new ModuleComponent({
         title: 'Crew Expansion',
         description: 'Growth is the lifeblood of progress. Expand, evolve, and empower your crew.',
@@ -280,7 +285,6 @@ const modules = {
         title: 'Defensive Module',
         description: 'The station\'s shield and sword. Whether repelling invaders or standing guard, peace is made by those prepared for war.',
         components: [moduleComponents.Protection, moduleComponents.Turrets],
-        requirements: [new AttributeRequirement('playthrough', [{attribute: attributes.gridStrength, requirement: 6}])],
     }),
     Quarters: new Module({
         title: 'Quarters Module',
@@ -299,6 +303,13 @@ const defaultModules = [
 const moduleCategories = {
     StationCore: new ModuleCategory({
         title: 'Station Core',
-        modules: [modules.ISASM, modules.CaptainsQuarter, modules.MiningBay, modules.Furnace, modules.Defensive, modules.Quarters],
+        modules: [
+            modules.ISASM,
+            modules.CaptainsQuarter,
+            modules.MiningBay,
+            modules.Furnace,
+            modules.Defensive,
+            modules.Quarters
+        ],
     }),
 };

@@ -1,8 +1,11 @@
+'use strict';
+
 /*
  * The VFX Module.
  *
  * - it has knowledge about the game and the game's DOM
- * - it's written in a plug&play fashion - non-VFX code may only call the well-defined public interface
+ * - it's written in a plug&play fashion - non-VFX code may only call the well-defined public interface exposed by the VFX constant
+ *   - it's recommended though to use the event-subscriber pattern to trigger VFX
  * - the code is set up with a focus on performance, not readability or normalization
  */
 

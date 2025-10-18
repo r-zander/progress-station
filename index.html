@@ -10,6 +10,7 @@
 </head>
 <body id="body" class="sci-fi background-space p-1 p-lg-2 p-xxl-3">
 <section id="star-background" class="stars-active">
+    <div id="heatIndicator" class="hidden"></div>
     <div class="stars" id="stars1"></div>
     <div class="stars" id="stars2"></div>
     <div class="stars" id="stars3"></div>
@@ -32,25 +33,38 @@
 <main id="main" class="d-flex flex-column">
     <header id="stationOverview" class="mb-3 gap-1 d-flex flex-column">
         <div class="panel position-relative
-                    pe-3 pt-2 row-gap-1
+                    pe-3 pt-2 row-gap-1 column-gap-4
                     d-flex flex-row align-items-start flex-wrap flex-lg-nowrap">
             <a id="stationOverviewLogo" class="logo" href="#credits">
                 PS
             </a>
             <span class="h2 ms-2 version-label beta" title="Beta Version. Full release on 13th Nov 2025">Beta</span>
-            <h2 id="nameDisplay" class="shortcut my-0 px-3 pb-1 text-nowrap overflow-x-hidden">USS Progress</h2>
-            <div class="ms-auto d-flex flex-row gap-3">
-                <div id="cyclesSinceLastEncounter" class="primary-stat"
-                     title="Intergalactic Cycles" data-bs-placement="bottom">
-                    <span class="label">Since Last Encounter:</span>
-                    <data value="14" data-unit="IC">14</data>
+            <h2 id="nameDisplay" class="shortcut my-0 px-3 pb-1 text-nowrap overflow-x-hidden flex-shrink-0">USS Progress</h2>
+            <div class="ms-auto d-flex align-items-center flex-grow-1">
+                <!-- Boss progress bar -->
+                <div id="bossProgress"
+                     class="d-flex align-items-center flex-grow-1 gap-2"
+                     data-bs-toggle="tooltip"
+                     data-bs-placement="bottom"
+                     title="Intergalactic Cycles until next boss">
+                        <div class="bossProgress-container">
+                            <div class="progress battle progressBar descriptionTooltip clickable flex-grow-1 bossProgressBar"
+                                 role="progressbar"
+                                 aria-label="Boss Progress"
+                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progressBackground progress-background"></div>
+                                <div id="bossProgressBar" class="bossProgress progressFill progress-bar progress-bar-striped current" style="width: 0;"></div>
+                                <div id="bossProgressText" class="progress-text bossProgress-text text-truncate px-2">Sensors detect faint anomalies...</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div id="cyclesTotal" class="secondary-stat help-text"
-                     title="Intergalactic Cycles" data-bs-placement="bottom">
-                    <span class="label">Date:</span>
-                    <data value="70" data-unit="IC">0</data>
-                </div>
-            </div>
+            <!-- Date display -->
+            <div id="cyclesTotal" class="secondary-stat help-text text-end flex-shrink-0"
+                 title="Intergalactic Cycles" data-bs-placement="bottom">
+            <span class="label">Date:</span>
+            <data value="70" data-unit="IC">0</data>
+        </div>
         </div>
 
         <div id="energyGridDisplay" class="panel px-1 px-lg-3 py-1 d-flex flex-row overflow-hidden">
@@ -110,7 +124,7 @@
         </div>
 
         <div id="attributesDisplay"
-             class="shortcut panel px-3 py-1 d-flex justify-content-start gap-4 overflow-x-auto"
+             class="tabButton panel px-3 py-1 d-flex justify-content-start gap-4 overflow-x-auto"
              onclick="setTab('attributes');">
             <div class="primary-stat" data-attribute="population"
                  data-bs-placement="bottom" data-bs-html="true">
@@ -248,13 +262,6 @@
                         <span class="pointOfInterest text-truncate">Point of Interest</span>
                     </div>
                 </button>
-                <div id="attributesTabButtonRequirements" class="requirements-container m-2">
-                    <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
-                </div>
-                <button id="attributesTabButton" class="tabButton panel p-3" onClick="setTab('attributes');">
-                    <!--suppress HtmlUnknownTag -->
-                    <h3>Attributes</h3>
-                </button>
                 <button id="galacticSecretsTabButton" class="tabButton panel p-3" onClick="setTab('galacticSecrets');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Galactic Secrets</h3>
@@ -295,7 +302,7 @@
 
             <template id="level2Template">
                 <div class="level2 ps-0 ps-lg-3 mt-2">
-                    <div class="level2-header text-bg-light d-flex justify-content-start align-items-center px-2 gap-3"
+                    <div class="level2-header active d-flex justify-content-start align-items-center px-2 gap-3"
                          style="padding-top: 5px; padding-bottom: 5px;">
                         <div class="name" title="Component Description" data-bs-placement="right">
                             Mining Bay
@@ -387,9 +394,9 @@
                         <thead class="level3">
                         <tr class="header-row text-bg-light">
                             <th class="name">Battles</th>
-                            <th class="level numeric">Level</th>
-                            <th class="xpGain numeric">Dmg</th>
-                            <th class="xpLeft numeric">HP left</th>
+                            <th class="xpGain numeric">Station Dmg</th>
+                            <th class="xpLeft numeric">Enemy HP</th>
+                            <th class="level numeric">Waves</th>
                             <th class="danger numeric">Danger</th>
                             <th class="rewards">Reward</th>
                         </tr>
@@ -412,14 +419,14 @@
                             <div class="progress-text name text-truncate px-2">Wimpy Astrogoblins</div>
                         </div>
                     </td>
-                    <td class="level numeric">
-                        <data value="53">53</data>
-                    </td>
                     <td class="xpGain numeric">
                         <data value="1600" data-suffix="k">1.6</data>
                     </td>
                     <td class="xpLeft numeric">
                         <data value="4550" data-suffix="k">45.5</data>
+                    </td>
+                    <td class="level numeric">
+                        <data value="53">53</data>
                     </td>
                     <td class="danger numeric">
                         <data value="200">200</data>
@@ -792,8 +799,12 @@
                                     <td>Raoul</td>
                                 </tr>
                                 <tr>
-                                    <th class="ps-0">Feature Coder</th>
+                                    <th class="ps-0">Gameplay Coder</th>
                                     <td>Mark</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-0">Gameplay Coder</th>
+                                    <td>Leon</td>
                                 </tr>
                                 <tr>
                                     <th class="ps-0">Initial Vision</th>
@@ -894,6 +905,26 @@
     </div>
 </main>
 
+<div id="dangerModal" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">⚠️ Warning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Danger level exceeds your military strength.<br />
+                You might lose a lot of population.<br />
+                Do you want to proceed?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDangerBtn">Proceed</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="storyIntroModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -913,6 +944,7 @@
                 <p>
                     <label for="introStationNameInput">A name flashes on the main console:</label>
                 </p>
+                <p class="previousStationName"></p>
                 <input type="text"
                        id="introStationNameInput"
                        class="stationNameInput w-100"
@@ -1091,11 +1123,29 @@
             <img src="img/icons/buttons/sound.svg" class="me-2" />
             <span>This browser game offers sound!</span>
             <div class="mt-2 pt-2 d-flex border-top">
-                <button type="button" class="btn btn-info" onclick="disableAudioFromToast();">
+                <button type="button" class="btn btn-info" onclick="disableAudioFromToast('enableAudioToast');">
                     <img src="img/icons/buttons/sound-off.svg" />
                     <span>Keep off</span>
                 </button>
-                <button type="button" class="btn btn-warning ms-auto" onclick="enableAudioFromToast();">
+                <button type="button" class="btn btn-warning ms-auto" onclick="enableAudioFromToast('enableAudioToast');">
+                    <img src="img/icons/buttons/sound-on.svg" />
+                    <span>Turn on!</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="reEnableAudioToast" class="toast text-bg-info" role="alert"
+         aria-live="assertive" aria-atomic="true"
+         data-bs-autohide="false">
+        <div class="toast-body">
+            <img src="img/icons/buttons/sound.svg" class="me-2" />
+            <span>Browser failed to automatically re-enable sounds.</span>
+            <div class="mt-2 pt-2 d-flex border-top">
+                <button type="button" class="btn btn-info" onclick="disableAudioFromToast('reEnableAudioToast');">
+                    <img src="img/icons/buttons/sound-off.svg" />
+                    <span>Keep off</span>
+                </button>
+                <button type="button" class="btn btn-warning ms-auto" onclick="enableAudioFromToast('reEnableAudioToast');">
                     <img src="img/icons/buttons/sound-on.svg" />
                     <span>Turn on!</span>
                 </button>
@@ -1106,55 +1156,27 @@
 
 <!-- Needs to be the last of all modals, as it's supposed to overlap any other open modals -->
 <!-- Not really elegant, but it's just an intermediate solution until with have game save migrations -->
-<div id="versionWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+<div id="genericWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light">Incompatible Save Game found</h2>
+                <h2 class="modal-title fs-4 fw-light"></h2>
             </div>
             <div class="modal-body">
-                <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
-                <p>The game has evolved a lot since then and we can not guarantee that your save game is still fully compatible.</p>
-                <p>Our recommendation is to start with a fresh game. But you can also try and let the game reuse your save file.</p>
+                <!-- Content will be set dynamically -->
             </div>
             <div class="modal-footer d-flex">
                 <div>
-                    <button type="button" class="btn btn-warning" onclick="continueWithIncompatibleVersion();">
-                        Keep save
+                    <button type="button" class="btn  secondary-button">
+                        Secondary
                     </button>
-                    <p><small>(might break the game)</small></p>
+                    <p class="secondary-hint"><small></small></p>
                 </div>
                 <div class="ms-auto">
-                    <button type="button" class="btn btn-primary" onclick="gameData.reset();">
-                        Reset game
+                    <button type="button" class="btn btn-primary primary-button">
+                        Primary
                     </button>
-                    <p><small>(deletes all progress)</small></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="rebalanceWarningModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light">Older Save Game found</h2>
-            </div>
-            <div class="modal-body">
-                <p>You have already played <b>Progress Station</b> in the past, thank you!</p>
-                <p>The game has evolved a lot since then. Our recommendation is to start
-                    with a fresh game. But you can also keep playing with your older save game.</p>
-            </div>
-            <div class="modal-footer d-flex">
-                <div>
-                    <button type="button" class="btn btn-warning" onclick="continueWithRebalancedVersion();">
-                        Keep save
-                    </button>
-                </div>
-                <div class="ms-auto">
-                    <button type="button" class="btn btn-primary" onclick="gameData.reset();">
-                        Start new game
-                    </button>
+                    <p class="primary-hint"><small></small></p>
                 </div>
             </div>
         </div>
@@ -1174,17 +1196,19 @@
 <script type="text/javascript" src="vendor/bootstrap-5.3.1/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="vendor/lodash-4.17.15/lodash.min.js"></script>
 <script type="text/javascript" src="vendor/howler.js-2.2.4/howler.core.min.js"></script>
+<script type="text/javascript" src="vendor/romans-3.1.0/romans.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/gameLoop.js"></script>
 <script type="text/javascript" src="js/gameUtils.js"></script>
 <script type="text/javascript" src="js/gameEvents.js"></script>
 <script type="text/javascript" src="js/nameGenerator.dictionary.lighthearted.js"></script>
 <script type="text/javascript" src="js/nameGenerator.js"></script>
 <script type="text/javascript" src="js/audio.js"></script>
-<script type="text/javascript" src="js/effects.js"></script>
 <script type="text/javascript" src="js/classes.js"></script>
 <script type="text/javascript" src="js/battle.js"></script>
 <script type="text/javascript" src="js/game-config/general.js"></script>
 <script type="text/javascript" src="js/game-config/attributes.js"></script>
+<script type="text/javascript" src="js/effects.js"></script>
 <script type="text/javascript" src="js/game-config/modules.js"></script>
 <script type="text/javascript" src="js/game-config/battles.js"></script>
 <script type="text/javascript" src="js/game-config/locations.js"></script>
@@ -1192,7 +1216,10 @@
 <script type="text/javascript" src="js/game-config/requirements.js"></script>
 <script type="text/javascript" src="js/story.js"></script>
 <script type="text/javascript" src="js/gameData.js"></script>
+<script type="text/javascript" src="js/settings.js"></script>
+<script type="text/javascript" src="js/gameLogic.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/vfx.js"></script>
+<script type="text/javascript" src="js/development/autoplay2.js"></script>
 </body>
 </html>

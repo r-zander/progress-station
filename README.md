@@ -55,8 +55,12 @@ Use your favorite browser to view `index.html`
 into index.html
 
 2. Remove
+
 ```html
-<script type="text/javascript" src="js/cheats.js"></script>
+
+<script type="text/javascript" src="js/development/cheats.js"></script>
+...
+<script type="text/javascript" src="js/development/autoplay2.js"></script>
 ``` 
 from index.html
 

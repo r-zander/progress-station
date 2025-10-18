@@ -46,6 +46,57 @@ class LayeredTask extends Task {
     }
 }
 
+/**
+ * Shows a reusable danger confirmation modal with callbacks for user decision.
+ * @param {function()} onConfirm - Callback executed when user clicks proceed button
+ * @param {function()} onCancel - Callback executed when user closes modal without proceeding
+ * @return {void}
+ */
+function showDangerModal(onConfirm, onCancel) {
+    const modalElement = document.getElementById('dangerModal');
+
+    // Safety check: if modal is already visible, call onCancel immediately
+    if (modalElement.classList.contains('show')) {
+        if (isFunction(onCancel)) onCancel();
+        return;
+    }
+
+    // Get existing modal instance or create new one
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+    const proceedBtn = document.getElementById('confirmDangerBtn');
+    let callbackHandled = false;
+
+    // Cleanup function to remove all event handlers
+    const cleanup = () => {
+        proceedBtn.removeEventListener('click', handleProceed);
+        modalElement.removeEventListener('hidden.bs.modal', handleCancel);
+    };
+
+    // Handler for proceed button
+    const handleProceed = () => {
+        if (callbackHandled) return;
+        callbackHandled = true;
+        cleanup();
+        modal.hide();
+        if (isFunction(onConfirm)) onConfirm();
+    };
+
+    // Handler for modal close/cancel
+    const handleCancel = () => {
+        if (callbackHandled) return;
+        callbackHandled = true;
+        cleanup();
+        if (isFunction(onCancel)) onCancel();
+    };
+
+    // Add event listeners
+    proceedBtn.addEventListener('click', handleProceed);
+    modalElement.addEventListener('hidden.bs.modal', handleCancel, { once: true });
+
+    modal.show();
+}
+
 class Battle extends LayeredTask {
     /**
      *
@@ -83,6 +134,10 @@ class Battle extends LayeredTask {
         return 1;
     }
 
+    getMaxXp() {
+        return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.0095, this.level));
+    }
+
     isActive() {
         return gameData.activeEntities.battles.has(this.name);
     }
@@ -91,7 +146,14 @@ class Battle extends LayeredTask {
         if (this.isActive()) {
             this.stop();
         } else {
-            this.start();
+            if (battlesShowDangerWarning && !this.isSafeToEngage()) {
+                showDangerModal(
+                    () => this.start(),   // onConfirm
+                    () => {}              // onCancel (do nothing)
+                );
+            } else {
+                this.start();
+            }
         }
     }
 
@@ -102,10 +164,22 @@ class Battle extends LayeredTask {
         }
 
         gameData.activeEntities.battles.add(this.name);
+        GameEvents.TaskActivityChanged.trigger({
+            type: this.type,
+            name: this.name,
+            newActivityState: true,
+        });
+
+        updateUiIfNecessary();
     }
 
     stop() {
         gameData.activeEntities.battles.delete(this.name);
+        GameEvents.TaskActivityChanged.trigger({
+            type: this.type,
+            name: this.name,
+            newActivityState: false,
+        });
     }
 
     /**
@@ -126,6 +200,14 @@ class Battle extends LayeredTask {
 
     getRewardsDescription() {
         return Effect.getDescription(this, this.rewards, 1);
+    }
+
+    isSafeToEngage() {
+        const currentDanger = attributes.danger.getValue();
+        const currentMilitary = attributes.military.getValue();
+        const battleDanger = this.getEffect(EffectType.Danger);
+
+        return currentDanger + battleDanger <= currentMilitary;
     }
 }
 
@@ -281,22 +363,26 @@ class FactionLevelsDefeatedRequirement extends Requirement {
      * @param {{
      *     faction: FactionDefinition,
      *     requirement: number
-     * }[]} requirements
+     * }} baseData
+     * @param {Requirement[]} [prerequisites]
      */
-    constructor(scope, requirements) {
-        super('FactionLevelsDefeatedRequirement', scope, requirements);
+    constructor(scope, baseData, prerequisites) {
+        super('FactionLevelsDefeatedRequirement', scope, baseData, prerequisites);
+    }
+
+    generateName() {
+        return `FactionLevelsDefeated_${this.scope}_${this.baseData.faction.name}_${this.baseData.requirement}`;
     }
 
     /**
      * @param {{
      *     faction: FactionDefinition,
      *     requirement: number
-     * }} requirement
-     * @param requirement
+     * }} baseData
      * @return {boolean}
      */
-    getCondition(requirement) {
-        return this.#getDefeatedLevels(requirement.faction) >= requirement.requirement;
+    getCondition(baseData) {
+        return this.#getDefeatedLevels(baseData.faction) >= baseData.requirement;
     }
 
     /**
@@ -314,16 +400,16 @@ class FactionLevelsDefeatedRequirement extends Requirement {
      * @param {{
      *     faction: FactionDefinition,
      *     requirement: number
-     * }} requirement
+     * }} baseData
      * @return {string}
      */
-    toHtmlInternal(requirement) {
-        const defeatedLevels = this.#getDefeatedLevels(requirement.faction);
+    toHtmlInternal(baseData) {
+        const defeatedLevels = this.#getDefeatedLevels(baseData.faction);
         return `Defeated
-<span class="name">${requirement.faction.title}</span>
-level 
+<span class="name">${baseData.faction.title}</span>
+waves
 <data value="${defeatedLevels}">${defeatedLevels}</data> /
-<data value="${requirement.requirement}">${requirement.requirement}</data>
+<data value="${baseData.requirement}">${baseData.requirement}</data>
 `;
     }
 }

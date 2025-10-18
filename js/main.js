@@ -3,12 +3,12 @@
 /**
  * @type {GameData}
  */
-let gameData;
+let gameData = null;
 
 /**
- * @type {number}
+ * @type {GameLoop}
  */
-let updateIntervalID = 0;
+let gameLoop = null;
 
 /**
  *
@@ -31,6 +31,12 @@ const attributeBalanceEntries = [];
 const gridLoadBalanceEntries = [];
 
 /**
+ * Global registry of all requirements by auto-generated name
+ * @type {Object<string, Requirement>}
+ */
+const requirementRegistry = {};
+
+/**
  *
  * @type {Object<HTMLElement>}
  */
@@ -39,70 +45,11 @@ const tabButtons = {
     location: document.getElementById('locationTabButton'),
     battles: document.getElementById('battleTabButton'),
     galacticSecrets: document.getElementById('galacticSecretsTabButton'),
-    attributes: document.getElementById('attributesTabButton'),
+    attributes: document.getElementById('attributesDisplay'),
     settings: document.getElementById('settingsTabButton'),
 };
 
 let previousSelectedTab = 'modules';
-
-function getBaseLog(x, y) {
-    return Math.log(y) / Math.log(x);
-}
-
-function applyMultipliers(value, multipliers) {
-    const finalMultiplier = multipliers.reduce((final, multiplierFn) => final * multiplierFn(), 1);
-
-    return Math.round(value * finalMultiplier);
-}
-
-function applySpeed(value) {
-    return value * getGameSpeed() / updateSpeed;
-}
-
-function calculateHeat() {
-    const danger = attributes.danger.getValue();
-    const military = attributes.military.getValue();
-    const rawHeat = Effect.getTotalValue([EffectType.Heat]);
-    const calculatedHeat = Math.max(danger - military, 0) + rawHeat;
-
-    return Math.max(0.1, calculatedHeat);
-}
-
-function populationDelta() {
-    const growth = attributes.growth.getValue();
-    const heat = attributes.heat.getValue();
-    const population = attributes.population.getValue();
-    return (0.1 * growth) - (0.01 * population * heat);
-}
-
-function updatePopulation() {
-    if (!gameData.state.areAttributesUpdated) return;
-
-    const rawDelta = populationDelta();
-    // TODO inertia is not scaled with game speed
-    const inertDelta = populationDeltaInertia * gameData.lastPopulationDelta + (1 - populationDeltaInertia) * rawDelta;
-    gameData.population = Math.max(gameData.population + applySpeed(inertDelta), 1);
-    gameData.lastPopulationDelta = inertDelta;
-
-    if (gameData.state === gameStates.BOSS_FIGHT && Math.round(gameData.population) === 1) {
-        gameData.transitionState(gameStates.DEAD);
-    }
-}
-
-function getPopulationProgressSpeedMultiplier() {
-    // Random ass formula ᕕ( ᐛ )ᕗ
-    // Pop 1 = x1
-    // Pop 10 ~= x3.4
-    // Pop 100 ~= x12
-    // Pop 1000 ~= x40
-    // Pop 10000 ~= x138
-    // Pop 40000 ~= x290
-    return Math.max(1, Math.pow(Math.round(gameData.population), 1 / 1.869));
-}
-
-function getGameSpeed() {
-    return baseGameSpeed;
-}
 
 function hideAllTooltips() {
     for (const tooltipTriggerElement of visibleTooltips) {
@@ -112,22 +59,21 @@ function hideAllTooltips() {
 }
 
 /**
- *
- * @param {MouseEvent} event
- */
-function showCredits(event) {
-    event.preventDefault();
-    setTab('settings');
-    Dom.get().byId('credits').scrollIntoView(true);
-}
-
-/**
  * @param {string} selectedTab
  */
 function setTab(selectedTab) {
     if (tabButtons[selectedTab].classList.contains('hidden')) {
         // Tab is not available
         return;
+    }
+
+    let isVerticalBarAnimation = true;
+
+    if (gameData.selectedTab === 'attributes' && selectedTab === 'attributes') {
+        // Current tab is attributes and new tab is also attributes --> switch back out of attributes
+        selectedTab = previousSelectedTab;
+    } else if (selectedTab === 'attributes') {
+        isVerticalBarAnimation = false;
     }
 
     if (gameData.selectedTab !== 'settings') {
@@ -149,55 +95,52 @@ function setTab(selectedTab) {
     }
     tabButtons[selectedTab].classList.add('active');
 
-    Dom.get().byId('content').animate(
-        [
-            {offset: 0.0, backgroundSize: '0 100%'},
-            {offset: 0.1, backgroundSize: '24px 100%'},
-            {offset: 0.6, backgroundSize: '24px 100%'},
-            {offset: 1.0, backgroundSize: '0 100%'},
-        ],
-        {
-            duration: 600,
-            easing: 'ease-in-out',
-            iterations: 1,
-        },
-    );
+    const content = Dom.get().byId('content');
+    content.scrollTop = 0;
 
+    if (isVerticalBarAnimation) {
+        content.classList.add('vertical');
+        content.classList.remove('horizontal');
+        content.animate(
+            [
+                {offset: 0.0, backgroundSize: '0 100%'},
+                {offset: 0.1, backgroundSize: '24px 100%'},
+                {offset: 0.6, backgroundSize: '24px 100%'},
+                {offset: 1.0, backgroundSize: '0 100%'},
+            ],
+            {
+                duration: 600,
+                easing: 'ease-in-out',
+                iterations: 1,
+            },
+        );
+      
+    } else {
+        content.classList.add('horizontal');
+        content.classList.remove('vertical');
+        content.animate(
+            [
+                {offset: 0.0, backgroundSize: '100% 0'},
+                {offset: 0.1, backgroundSize: '100% 24px'},
+                {offset: 0.6, backgroundSize: '100% 24px'},
+                {offset: 1.0, backgroundSize: '100% 0'},
+            ],
+            {
+                duration: 600,
+                easing: 'ease-in-out',
+                iterations: 1,
+            },
+        );
+    }
+    
     gameData.selectedTab = selectedTab;
     gameData.save();
 
     hideAllTooltips();
-}
-
-// noinspection JSUnusedGlobalSymbols -- used in HTML
-function togglePause() {
-    switch (gameData.state) {
-        case gameStates.PLAYING:
-            gameData.transitionState(gameStates.PAUSED);
-            break;
-        case gameStates.PAUSED:
-            gameData.transitionState(gameStates.PLAYING);
-            break;
-        case gameStates.BOSS_FIGHT:
-            gameData.transitionState(gameStates.BOSS_FIGHT_PAUSED);
-            break;
-        case gameStates.BOSS_FIGHT_PAUSED:
-            gameData.transitionState(gameStates.BOSS_FIGHT);
-            break;
+    if (!gameData.state.gameLoopRunning) {
+        // Won't be called otherwise
+        updateConnector();
     }
-    // Any other state is ignored
-}
-
-function forcePause() {
-    switch (gameData.state) {
-        case gameStates.PLAYING:
-            gameData.transitionState(gameStates.PAUSED);
-            break;
-        case gameStates.BOSS_FIGHT:
-            gameData.transitionState(gameStates.BOSS_FIGHT_PAUSED);
-            break;
-    }
-    // Any other state is ignored
 }
 
 function setPointOfInterest(name) {
@@ -206,13 +149,19 @@ function setPointOfInterest(name) {
         return;
     }
 
-    gameData.activeEntities.pointOfInterest = name;
-}
-
-function createLinkBehavior() {
-    Dom.get().allBySelector('a[href="#credits"]').forEach(linkElement => {
-        linkElement.addEventListener('click', showCredits);
+    GameEvents.TaskActivityChanged.trigger({
+        type: PointOfInterest.name,
+        name: gameData.activeEntities.pointOfInterest,
+        newActivityState: false,
     });
+    gameData.activeEntities.pointOfInterest = name;
+    GameEvents.TaskActivityChanged.trigger({
+        type: PointOfInterest.name,
+        name: name,
+        newActivityState: true,
+    });
+
+    updateUiIfNecessary();
 }
 
 function updateConnector() {
@@ -220,46 +169,55 @@ function updateConnector() {
     const connectorElement = Dom.get().byId('connector');
     const contentElement = Dom.get().byId('content');
 
-    const margin = 16;
-    const connectorHeight = 3;
+    const connectorThickness = 3;
 
-    XFastdom.measure(() => {
-        return {
-            activeTabButton: activeTabButton.getBoundingClientRect(),
-            contentElement: contentElement.getBoundingClientRect(),
-        };
-    }).then(/** @param {Object<DOMRect>} boundingClientRect */ (boundingClientRect) => {
-        // Way too complicated positioning logic. Raoul, don't you have other things to do?
-
-        // Element still within clipping bounds?
-        if (boundingClientRect.contentElement.bottom - boundingClientRect.activeTabButton.top <= connectorHeight) {
-            connectorElement.classList.add('hidden');
-            return;
-        }
-        if (boundingClientRect.activeTabButton.bottom - boundingClientRect.contentElement.top <= connectorHeight) {
-            connectorElement.classList.add('hidden');
-            return;
-        }
+    XFastdom.measure(() => ({
+        tab: activeTabButton.getBoundingClientRect(),
+        content: contentElement.getBoundingClientRect(),
+    }))
+    .then(({ tab, content }) => {
         connectorElement.classList.remove('hidden');
 
-        // Determine vertical position
-        if (boundingClientRect.contentElement.bottom - boundingClientRect.activeTabButton.top < margin)
-        {
-            connectorElement.style.top = Math.round(boundingClientRect.activeTabButton.top) + 'px';
-        } else if (boundingClientRect.activeTabButton.bottom - boundingClientRect.contentElement.top < margin) {
-            connectorElement.style.top = Math.round(boundingClientRect.activeTabButton.bottom - connectorHeight) + 'px';
-        } else {
-            connectorElement.style.top = Math.round(
-                _.clamp(
-                    boundingClientRect.activeTabButton.top + boundingClientRect.activeTabButton.height / 2,
-                    boundingClientRect.contentElement.top + margin,
-                    boundingClientRect.contentElement.bottom - margin,
-                )) + 'px';
-        }
+        const tabCenterX = tab.left + tab.width / 2;
+        const tabCenterY = tab.top + tab.height / 2;
+        const contentCenterX = content.left + content.width / 2;
+        const contentCenterY = content.top + content.height / 2;
 
-        // Determine horizontal position and size
-        connectorElement.style.left = Math.round(boundingClientRect.activeTabButton.right) + 'px';
-        connectorElement.style.width = Math.round(boundingClientRect.contentElement.left - boundingClientRect.activeTabButton.right + 1) + 'px';
+        const diffX = Math.abs(tabCenterX - contentCenterX);
+        const diffY = Math.abs(tabCenterY - contentCenterY);
+        const isHorizontal = diffX > diffY;
+
+        if (isHorizontal) {
+            const y = tabCenterY;
+
+            const xStart = tab.right;
+            const xEnd = content.left;
+
+            if (xEnd <= xStart) {
+                connectorElement.classList.add('hidden');
+                return;
+            }
+
+            connectorElement.style.top = `${Math.round(y - connectorThickness / 2)}px`;
+            connectorElement.style.left = `${Math.round(xStart)}px`;
+            connectorElement.style.width = `${Math.round(xEnd - xStart)}px`;
+            connectorElement.style.height = `${connectorThickness}px`;
+        } else {
+            const x = tabCenterX;
+
+            const yStart = tab.bottom;
+            const yEnd = content.top;
+
+            if (yEnd <= yStart) {
+                connectorElement.classList.add('hidden');
+                return;
+            }
+
+            connectorElement.style.left = `${Math.round(x - connectorThickness / 2)}px`;
+            connectorElement.style.top = `${Math.round(yStart)}px`;
+            connectorElement.style.height = `${Math.round(yEnd - yStart)}px`;
+            connectorElement.style.width = `${connectorThickness}px`;
+        }
     });
 }
 
@@ -284,8 +242,6 @@ function updateLayout(){
     }
 
     updateConnector();
-
-    requestAnimationFrame(updateLayout);
 }
 
 /**
@@ -299,16 +255,19 @@ function switchModuleActivation(module) {
 
     if (module.isActive()) {
         module.setActive(false);
+        updateUiIfNecessary();
         return;
     }
 
     const gridLoadAfterActivation = attributes.gridLoad.getValue() + module.getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
         VFX.highlightText(Dom.get().bySelector(`#${module.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
+        Dom.get().byId('switch_' + module.domId).checked = false;
         return;
     }
 
     module.setActive(true);
+    updateUiIfNecessary();
 }
 
 /**
@@ -332,6 +291,25 @@ function tryActivateOperation(component, operation) {
 
     // This needs to go through the component as it needs to disable other operations
     component.activateOperation(operation);
+    updateUiIfNecessary();
+}
+
+/**
+ * @param {Battle} battle
+ */
+function tryEngageBattle(battle) {
+    if (!gameData.state.canChangeActivation) {
+        VFX.shakePlayButton();
+        return;
+    }
+
+    if (battle instanceof BossBattle) {
+        gameData.transitionState(gameStates.BOSS_FIGHT_INTRO);
+    } else {
+        battle.toggle();
+    }
+
+    updateUiIfNecessary();
 }
 
 /**
@@ -369,6 +347,7 @@ function createModuleLevel4Elements(categoryName, component) {
             descriptionElement.removeAttribute('title');
         }
         level4DomGetter.byClass('progressBar').addEventListener('click', tryActivateOperation.bind(this, component, operation));
+        level4DomGetter.byClass('effect').innerHTML = operation.getEffectDescription();
         formatValue(level4DomGetter.bySelector('.gridLoad > data'), operation.getGridLoad());
 
         level4Elements.push(level4Element);
@@ -443,6 +422,16 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
         switchElement.id = 'switch_' + module.domId;
         switchElement.addEventListener('click', switchModuleActivation.bind(this, module));
         level2DomGetter.byClass('moduleActivationLabel').htmlFor = switchElement.id;
+
+        const header = level2DomGetter.byClass('level2-header');
+        header.addEventListener('click', function(e) {
+            if (e.target.closest('input.moduleActivationSwitch') || e.target.closest('label.moduleActivationLabel')) {
+                return;
+            }
+            switchElement.checked = !switchElement.checked;
+            switchModuleActivation.call(this, module, { target: switchElement });
+        });
+
         initTooltip(level2DomGetter.byClass('maxLevel'), {
             title: () => {
                 return `<b>x${(1 + module.maxLevel / 100).toFixed(2)} XP</b> for all operations in this module.`;
@@ -524,6 +513,7 @@ function createLevel4SectorElements(pointsOfInterest, sectorName) {
         level4DomGetter.byClass('point-of-interest').addEventListener('click', () => {
             setPointOfInterest(pointOfInterest.name);
         });
+        level4DomGetter.byClass('effect').innerHTML = pointOfInterest.getEffectDescription();
 
         level4Elements.push(level4Element);
     }
@@ -614,19 +604,8 @@ function createLevel4BattleElements(battles) {
         level4Element.id = battle.domId;
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
-        domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
-        domGetter.byClass('progressBar').addEventListener('click', () => {
-            if (!gameData.state.canChangeActivation) {
-                VFX.shakePlayButton();
-                return;
-            }
-
-            if (battle instanceof BossBattle){
-                gameData.transitionState(gameStates.BOSS_FIGHT_INTRO);
-            } else {
-                battle.toggle();
-            }
-        });
+        domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
+        domGetter.byClass('progressBar').addEventListener('click', tryEngageBattle.bind(this, battle));
         domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
         if (battle instanceof BossBattle) {
             const dangerElement = domGetter.byClass('danger');
@@ -683,7 +662,7 @@ function createLevel4FinishedBattleElements(battles) {
         domGetter.byClass('xpGain').classList.add('hidden');
         domGetter.byClass('xpLeft').classList.add('hidden');
         domGetter.byClass('danger').classList.add('hidden');
-        domGetter.byClass('rewards').textContent = battle.getRewardsDescription();
+        domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
 
         // unshift --> battles in reverse order
         level4Elements.unshift(level4Element);
@@ -737,7 +716,7 @@ function createGalacticSecretsUI() {
         domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
 
         domGetter.byClass('parent').textContent = galacticSecret.unlocks.module.title;
-        domGetter.byClass('effect').textContent = galacticSecret.unlocks.getEffectDescription(1);
+        domGetter.byClass('effect').innerHTML = galacticSecret.unlocks.getEffectDescription(1);
         formatValue(domGetter.bySelector('.gridLoad > data'), galacticSecret.unlocks.getGridLoad());
 
         domGetter.byClass('progressBar').addEventListener('pointerdown', (event) => {
@@ -822,13 +801,6 @@ function createBattlesQuickDisplay() {
 }
 
 /**
- * @param {AttributeDefinition} attribute
- */
-function createAttributeInlineHTML(attribute) {
-    return `<span class="attribute ${attribute.textClass}">${attribute.title}</span>`;
-}
-
-/**
  *
  * @param {AttributeDefinition} attribute
  * @returns {HTMLElement}
@@ -865,7 +837,14 @@ function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, 
 
     const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
     const domGetter = Dom.get(balanceEntryElement);
-    domGetter.byClass('name').textContent = '(' + name + ')';
+    const descriptionElement = domGetter.byClass('name');
+    const updateDescription = () => {
+        const description = typeof name === 'function' ? name() : name;
+        descriptionElement.textContent = '(' + description + ')';
+    };
+
+    updateDescription();
+
     domGetter.byClass('operator').textContent = effectType.operator;
     attributeBalanceEntries.push({
         element: balanceEntryElement,
@@ -873,6 +852,7 @@ function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, 
         getEffect: getEffectFn,
         getEffects: getEffectsFn,
         isActive: isActiveFn,
+        updateDescription,
     });
     balanceElement.append(balanceEntryElement);
 }
@@ -915,28 +895,57 @@ function createAttributeBalance(rowElement, effectTypes) {
                 }
             }
         }
-
-        for (const key in battles) {
-            /** @type {Battle} */
-            const battle = battles[key];
+        if (effectType === EffectType.MilitaryFactor) {
+            // let battlesWonLength = () => (Object.keys(battles).filter(key => battles[key].isDone() && battles[key].getReward(effectType)).length); not an option because getReward(effectType) returns 1 even if its +Military because it backs up to effectType.defaultValue of xMilitary which is 1
+            let battlesWonLength = () => {
+                let count = 0;
+                for (const key in battles) {
+                    const b = battles[key];
+                    if (b.isDone() && b.getReward(effectType)) {
+                        for(const reward in b.rewards) {
+                            const rewardEffectType = b.rewards[reward].effectType;
+                            if(rewardEffectType === effectType) {
+                                count++;
+                                break;
+                            }
+                        }
+                    }
+                }
+                return count;
+            };
+            let battleValueFromRewards = () => (Math.pow(1.05, battlesWonLength()));
+            let atLeastOneBattleWonToMakeItActive = () => (battleValueFromRewards() > 1 ? true : false);
+            let descriptionText = () => ('x1.05 for ' + battlesWonLength() + ' battles defeated');
             createAttributeBalanceEntry(
                 balanceElement,
-                battle.getReward.bind(battle),
-                () => battle.rewards,
+                battleValueFromRewards,
+                () => [{effectType: effectType, baseValue: battleValueFromRewards}],
                 effectType,
-                'Defeated ' + battle.title,
-                battle.isDone.bind(battle),
+                descriptionText,
+                atLeastOneBattleWonToMakeItActive,
             );
-            createAttributeBalanceEntry(
-                balanceElement,
-                battle.getEffect.bind(battle),
-                battle.getEffects.bind(battle),
-                effectType,
-                'Fighting ' + battle.title,
-                () => battle.isActive() && !battle.isDone(),
-            );
+        } else {
+            for (const key in battles) {
+                /** @type {Battle} */
+                const battle = battles[key];
+                createAttributeBalanceEntry(
+                    balanceElement,
+                    battle.getReward.bind(battle),
+                    () => battle.rewards,
+                    effectType,
+                    'Defeated ' + battle.title,
+                    battle.isDone.bind(battle),
+                );
+                createAttributeBalanceEntry(
+                    balanceElement,
+                    battle.getEffect.bind(battle),
+                    battle.getEffects.bind(battle),
+                    effectType,
+                    'Fighting ' + battle.title,
+                    () => battle.isActive() && !battle.isDone(),
+                );
+            }
         }
-
         for (const key in pointsOfInterest) {
             const pointOfInterest = pointsOfInterest[key];
             createAttributeBalanceEntry(
@@ -976,6 +985,22 @@ function createGridLoadBalance(rowElement) {
                 });
                 balanceElement.append(balanceEntryElement);
             }
+        }
+    }
+}
+
+function createAttributesHTML() {
+    for (const attributeName in attributes) {
+        const attribute = attributes[attributeName];
+
+        const inlineHTML = `<span class="attribute ${attribute.textClass}">${attribute.title}</span>`;
+
+        attribute.inlineHtml = inlineHTML;
+        if (attribute.icon === null) {
+            attribute.inlineHtmlWithIcon = inlineHTML;
+        } else {
+            attribute.inlineHtmlWithIcon =
+                `<span class="inline-attribute"><img src="${attribute.icon}" class="inline-attribute icon" />${inlineHTML}</span>`;
         }
     }
 }
@@ -1033,14 +1058,16 @@ function createAttributesUI() {
 
     // Heat
     const heatRow = createAttributeRow(attributes.heat);
-    Dom.get(heatRow).byClass('description').innerHTML += `<br />
-${createAttributeInlineHTML(attributes.military)} exceeding ${createAttributeInlineHTML(attributes.danger)} is disregarded.
-The total can never be less than <data value="0.1">0.1</data> - space is dangerous!`;
+    Dom.get(heatRow).byClass('description').innerHTML +=
+        `<br />Acceleration is applied to reach the target ${attributes.heat.inlineHtml}.` +
+        (SPACE_BASE_HEAT > 0.0
+            ? `The total can never be less than <data value="${SPACE_BASE_HEAT.toFixed(0.1)}">${formatNumber(SPACE_BASE_HEAT)}</data> - space is dangerous!`
+            : '');
     const heatFormulaElement = Dom.get(heatRow).byClass('formula');
     heatFormulaElement.classList.remove('hidden');
     heatFormulaElement.innerHTML = `<ul class="balance m-0 list-unstyled">
-    <li class="balanceEntry">${createAttributeInlineHTML(attributes.danger)} - ${createAttributeInlineHTML(attributes.military)}</li>
-    <li><span class="operator">+</span> raw <span class="attribute ${attributes.heat.textClass}">Heat</span> from Boss</li>
+    <li class="balanceEntry">${attributes.danger.inlineHtml} - ${attributes.military.inlineHtml}</li>
+    <li><span class="operator">+</span> raw ${attributes.heat.inlineHtml} from Boss</li>
 </ul>`;
     rows.push(heatRow);
 
@@ -1058,13 +1085,15 @@ The total can never be less than <data value="0.1">0.1</data> - space is dangero
 
     // Population
     const populationRow = createAttributeRow(attributes.population);
+    Dom.get(populationRow).byClass('description').innerHTML +=
+        `<br />Innertia is applied to ${attributes.growth.inlineHtml}.`;
     const populationFormulaElement = Dom.get(populationRow).byClass('formula');
     populationFormulaElement.classList.remove('hidden');
     populationFormulaElement.innerHTML =
-        '(0.1 * ' +  createAttributeInlineHTML(attributes.growth) +
+        '(0.1 * ' +  attributes.growth.inlineHtml +
         ') - (0.01 * ' +
-        createAttributeInlineHTML(attributes.population) + ' * ' +
-        createAttributeInlineHTML(attributes.heat) + ')<br />&wedgeq; <data value="0" class="delta">?</data> per cycle';
+        attributes.population.inlineHtml + ' * ' +
+        attributes.heat.inlineHtml + ')<br />&wedgeq; <data value="0" class="delta">?</data> per cycle';
     rows.push(populationRow);
 
     // Research
@@ -1077,7 +1106,7 @@ The total can never be less than <data value="0.1">0.1</data> - space is dangero
 }
 
 function createEnergyGridDisplay() {
-    const tooltipText = createGridStrengthAndLoadDescription(createAttributeInlineHTML);
+    const tooltipText = createGridStrengthAndLoadDescription();
     Dom.get().byId('gridLabel').title = tooltipText;
     Dom.get().byId('gridStrength').title = tooltipText;
 
@@ -1261,21 +1290,24 @@ function updateRequirements(unfulfilledRequirements, context) {
         return true;
     }
 
-    const html = unfulfilledRequirements
-        .map(requirement => requirement.toHtml())
-        .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
-        .join(', ');
-    // TODO pseudo-prerequisites
-    if (html === '') {
-        // Hack: don't use .hidden to not interfere with the rest of the requirements system
-        context.requirementsElement.style.display = 'none';
-    } else {
+    // Logic here: Only if all the open requirements are visible,
+    // the requirements are shown - otherwise we hide them until the player is ready
+    const allVisible = unfulfilledRequirements.every(requirement => requirement.isVisible());
+    if (allVisible) {
+        const html = unfulfilledRequirements
+            .map(requirement => requirement.toHtml())
+            .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
+            .join(', ');
         context.requirementsElement.style.removeProperty('display');
         if (html !== context.getHtmlCache()) {
             Dom.get(context.requirementsElement).byClass('rendered').innerHTML = html;
             context.setHtmlCache(html);
         }
+    } else {
+        // Hack: don't use .hidden to not interfere with the rest of the requirements system
+        context.requirementsElement.style.display = 'none';
     }
+
     context.hasUnfulfilledRequirements = true;
 
     return false;
@@ -1286,6 +1318,16 @@ const moduleRequirementsHtmlCache = {};
 const moduleComponentRequirementsHtmlCache = {};
 const moduleOperationRequirementsHtmlCache = {};
 
+/**
+ *
+ * @param {ModuleOperation} operation
+ * @param {{
+ *     hasUnfulfilledRequirements: boolean,
+ *     requirementsElement: HTMLElement,
+ *     setHtmlCache: function(string),
+ *     getHtmlCache: function(): string,
+ * }} operationRequirementsContext
+ */
 function updateModuleOperationRow(operation, operationRequirementsContext) {
     const row = Dom.get().byId(operation.domId);
 
@@ -1304,7 +1346,11 @@ function updateModuleOperationRow(operation, operationRequirementsContext) {
     setProgress(progressFillElement, operation.xp / operation.getMaxXp());
     progressFillElement.classList.toggle('current', operation.isActive('self'));
 
-    domGetter.byClass('effect').textContent = operation.getEffectDescription();
+    const effectValueElements = domGetter.allByClass('effect-value');
+    const effectValues = operation.getFormattedEffectValues();
+    for (let i = 0; i < effectValueElements.length; i++) {
+        effectValueElements[i].textContent = effectValues[i];
+    }
     domGetter.byClass('gridLoad').classList.toggle('hidden', attributes.gridStrength.getValue() === 0);
 }
 
@@ -1358,8 +1404,8 @@ function updateModuleRow(module, moduleRequirementsContext) {
 
     const domGetter = Dom.get(row);
     const level2Header = domGetter.byClass('level2-header');
-    level2Header.classList.toggle('text-bg-light', isActive);
-    level2Header.classList.toggle('text-bg-dark', !isActive);
+    level2Header.classList.toggle('active', isActive);
+    level2Header.classList.toggle('inactive', !isActive);
 
     domGetter.byClass('moduleActivationSwitch').checked = module.isActive();
     formatValue(domGetter.byClass('level'), module.getLevel());
@@ -1469,6 +1515,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
             toHtml: () => {
                 return `${visibleFactions[battle.faction.name].title} defeated`;
             },
+            isVisible: () => true,
         };
     }
 
@@ -1483,6 +1530,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
             toHtml: () => {
                 return maxBattles.requirement;
             },
+            isVisible: () => true,
         };
     }
 
@@ -1495,6 +1543,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
                 return `${Object.values(visibleFactions)[0].title} defeated or ` +
                     maxBattles.requirement.toHtml();
             },
+            isVisible: () => true,
         };
     }
 
@@ -1503,6 +1552,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
         toHtml: () => {
             return 'Win any open battle or ' + maxBattles.requirement.toHtml();
         },
+        isVisible: () => true,
     };
 }
 
@@ -1648,7 +1698,11 @@ function updateSectorRows() {
             const domGetter = Dom.get(row);
             const isActive = pointOfInterest.isActive();
             domGetter.byClass('point-of-interest').classList.toggle('current', isActive);
-            domGetter.byClass('effect').textContent = pointOfInterest.getEffectDescription();
+            const effectValueElements = domGetter.allByClass('effect-value');
+            const effectValues = pointOfInterest.getFormattedEffectValues();
+            for (let i = 0; i < effectValueElements.length; i++) {
+                effectValueElements[i].textContent = effectValues[i];
+            }
             formatValue(domGetter.bySelector('.danger > data'), pointOfInterest.getEffect(EffectType.Danger));
         }
 
@@ -1686,6 +1740,7 @@ function updateAttributeRows() {
             formatValue(
                 Dom.get(balanceEntry.element).byClass('entryValue'),
                 balanceEntry.getEffect(balanceEntry.effectType),
+                balanceEntry.updateDescription?.(),
             );
             balanceEntry.element.classList.remove('hidden');
         } else {
@@ -1696,19 +1751,6 @@ function updateAttributeRows() {
     for (const balanceEntry of gridLoadBalanceEntries) {
         balanceEntry.element.classList.toggle('hidden', !balanceEntry.isActive());
     }
-}
-
-/**
- *
- * @param {number} amount
- * @param {HTMLDataElement} dataElement
- * @param {{prefixes?: string[], unit?: string, forceSign?: boolean}} formatConfig
- */
-function formatEnergyValue(amount, dataElement, formatConfig = {}) {
-    formatValue(dataElement, amount, Object.assign({
-        unit: units.energy,
-        prefixes: metricPrefixes,
-    }, formatConfig));
 }
 
 function updateEnergyGridBar() {
@@ -1761,7 +1803,7 @@ function updateEnergyGridBar() {
     formatEnergyValue(gridStrength.getXpLeft(), Dom.get(energyLeftElement).bySelector('data'));
 
     const progressFillElement = domGetter.byClass('progressFill');
-    progressFillElement.classList.toggle('current', getGeneratedEnergy() > 0);
+    progressFillElement.classList.toggle('current', attributes.energy.getValue() > 0);
     const energyProgress = setProgress(progressFillElement, gridStrength.xp / gridStrength.getMaxXp());
 
     // Using right alignment to respect the energyLeft element
@@ -1771,17 +1813,94 @@ function updateEnergyGridBar() {
     energyGeneratedElement.style.right = `clamp(${rightLimit}px, ${relativeEnergy}%, calc(100% - ${leftLimit}px))`;
 }
 
+function updateBossProgress() {
+    const container = document.getElementById('bossProgress');
+    const bossBar = document.getElementById('bossProgressBar');
+
+    const allowProgressAcceleration = gameData.bossEncounterCount >= bossBarAccelerationAllowedAfterBossEncounters;
+
+    const progressContainer = container.querySelector('.bossProgress-container');
+
+    const remaining = getTimeUntilBossAppears();
+    const totalWait = getBossAppearanceCycle();
+    let progressPercentage = isBossBattleAvailable() ? 100 : Math.max(0, Math.min(100, ((totalWait - remaining) / totalWait) * 100));
+
+    if (bossBarAcceleratedProgress < progressPercentage) {
+        bossBarAcceleratedProgress = progressPercentage;
+    }
+
+    if (allowProgressAcceleration && bossBarPressed && bossBarAcceleratedProgress < 100) {
+        const holdTime = (performance.now() - bossBarPressStartTime) / 1000;
+        const acceleration = Math.min(1 + holdTime * holdTime, 10);
+        bossBarAcceleratedProgress = Math.min(bossBarAcceleratedProgress + acceleration * 0.5, 100);
+        progressPercentage = bossBarAcceleratedProgress;
+    } else {
+        bossBarAcceleratedProgress = progressPercentage;
+    }
+
+    bossBar.style.width = progressPercentage.toFixed(1) + '%';
+    updateBossBarColor(progressPercentage, bossBar);
+    bossBar.setAttribute('aria-valuenow', progressPercentage.toFixed(1));
+    const bossText = document.getElementById('bossProgressText');
+    const newText = getBossProgressForeshadowingText(progressPercentage);
+
+    if (bossText.textContent !== newText) {
+        bossText.style.opacity = '0';
+        setTimeout(() => {
+            bossText.textContent = newText;
+            bossText.style.opacity = '1';
+        }, 200);
+    }
+
+    if (progressPercentage > 80) {
+        bossText.classList.add('warningAnimation');
+    } else {
+        bossText.classList.remove('warningAnimation');
+    }
+
+    const tooltip = bootstrap.Tooltip.getOrCreateInstance(container);
+    if (allowProgressAcceleration) {
+        progressContainer.classList.remove('disabled');
+        tooltip.enable();
+        if (!container.matches(':hover')) {
+            const tooltipText = `${progressPercentage.toFixed(1)}% - Long press to taunt and engage the boss.`;
+            tooltip.setContent({'.tooltip-inner': tooltipText});
+        }
+    } else {
+        progressContainer.classList.add('disabled');
+        tooltip.disable();
+    }
+
+    if (bossBarPressed && progressPercentage >= 100 && !gameData.bossBattleAvailable) {
+        summonBoss();
+        bossBarPressed = false;
+    }
+}
+
+function updateBossBarColor(progress, bossBar) {
+    bossBar.classList.remove('lowDanger', 'mediumDanger', 'highDanger', 'veryHighDanger', 'maxDanger');
+    if (progress >= 90) bossBar.classList.add('maxDanger');
+    else if (progress >= 75) bossBar.classList.add('veryHighDanger');
+    else if (progress >= 50) bossBar.classList.add('highDanger');
+    else if (progress >= 25) bossBar.classList.add('mediumDanger');
+    else bossBar.classList.add('lowDanger');
+}
+
+function updateHeatIndication() {
+    const heat = attributes.heat.getValue();
+    const gotHeat = heat > 0.0 && !nearlyEquals(heat, 0.0, 0.01);
+    Dom.get().byId('heatIndicator').classList.toggle('hidden', !gotHeat);
+    Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="heat"]').classList.toggle('shake-and-pulse', gotHeat);
+}
+
 function updateStationOverview() {
-    const cyclesSinceLastEncounterElement = Dom.get().byId('cyclesSinceLastEncounter');
+    updateBossProgress();
     const cyclesTotalElement = Dom.get().byId('cyclesTotal');
     if (gameData.bossEncounterCount === 0) {
-        cyclesSinceLastEncounterElement.classList.add('hidden');
         cyclesTotalElement.classList.replace('secondary-stat', 'primary-stat');
         cyclesTotalElement.classList.remove('help-text');
     } else {
-        cyclesSinceLastEncounterElement.classList.remove('hidden');
         // TODO adjust formatting & use formatValue
-        Dom.get(cyclesSinceLastEncounterElement).bySelector('data').textContent = formatNumber(Math.floor(gameData.cycles));
         cyclesTotalElement.classList.replace('primary-stat', 'secondary-stat');
         cyclesTotalElement.classList.add('help-text');
     }
@@ -1828,7 +1947,7 @@ function updateStationOverview() {
     formatValue(Dom.get().bySelector('#attributeRows > .growth > .value > data'), growth);
 
     const heat = attributes.heat.getValue();
-    formatValue(Dom.get().byId('heatDisplay'), heat, {forceInteger: true});
+    formatValue(Dom.get().byId('heatDisplay'), heat);
     formatValue(Dom.get().bySelector('#attributeRows > .heat > .value > data'), heat);
 
     const industry = attributes.industry.getValue();
@@ -1854,9 +1973,6 @@ function updateStationOverview() {
 
     const galacticSecretCost = calculateGalacticSecretCost();
     formatValue(Dom.get().byId('galacticSecretCostDisplay'), galacticSecretCost, {forceInteger: true, keepNumber: true});
-
-    // Only shot the attributes display as a shortcut link if the attributes tab is actually available
-    Dom.get().byId('attributesDisplay').classList.toggle('shortcut', !tabButtons['attributes'].classList.contains('hidden'));
 }
 
 const htmlElementRequirementsHtmlCache = {};
@@ -1909,89 +2025,6 @@ function updateHtmlElementRequirements() {
 function updateBodyClasses() {
     document.getElementById('body').classList.toggle('game-paused', gameData.state === gameStates.PAUSED);
     document.getElementById('body').classList.toggle('game-playing', gameData.state === gameStates.PLAYING);
-}
-
-function doTasks() {
-    for (const key of gameData.activeEntities.operations) {
-        const operation = moduleOperations[key];
-        if (!operation.isActive('parent')) continue;
-        operation.do();
-    }
-
-    for (const battleName of gameData.activeEntities.battles) {
-        const battle = battles[battleName];
-        if (battle.isDone()) {
-            if (gameData.selectedTab === 'battles') {
-                // Quality of life - a battle is done and the player is already on the battles tab
-                // or visited it first after the battle was completed --> deactivate battle
-                battle.stop();
-                // TODO VFX should not be called, but triggered via Event
-                if (isBoolean(gameData.settings.vfx.flashOnLevelUp) && gameData.settings.vfx.flashOnLevelUp) {
-                    VFX.flash(Dom.get().bySelector('#row_done_' + battle.name + ' .progressBar'));
-                }
-            }
-
-            continue;
-        }
-
-        battle.do();
-        if (gameData.state === gameStates.PLAYING &&
-            isBossBattleAvailable() &&
-            battle.isDone()
-        ) {
-            bossBattle.decrementDistance();
-        }
-    }
-
-    gridStrength.do();
-}
-
-function getGeneratedEnergy() {
-    return Effect.getTotalValue([EffectType.Energy, EffectType.EnergyFactor]);
-}
-
-function calculateGridLoad() {
-    let gridLoad = 0;
-
-    for (const key of gameData.activeEntities.operations) {
-        const operation = moduleOperations[key];
-        if (!operation.isActive('parent')) continue;
-
-        gridLoad += operation.getGridLoad();
-    }
-
-    return gridLoad;
-}
-
-function calculateGalacticSecretCost() {
-    const unlockedGalacticSecrets = Object.values(galacticSecrets)
-        .filter(galacticSecret => galacticSecret.isUnlocked)
-        .length;
-    return Math.pow(3, unlockedGalacticSecrets);
-}
-
-function increaseCycle() {
-    if (!gameData.state.isTimeProgressing) return;
-
-    const increase = applySpeed(1);
-    gameData.cycles += increase;
-    gameData.totalCycles += increase;
-
-    if (!isBossBattleAvailable() && gameData.cycles >= getBossAppearanceCycle()) {
-        gameData.bossBattleAvailable = true;
-        gameData.transitionState(gameStates.PAUSED);
-        GameEvents.BossAppearance.trigger(undefined);
-    }
-}
-
-function updateBossDistance() {
-    if (gameData.state !== gameStates.PLAYING) return;
-    if (!isBossBattleAvailable()) return;
-
-    // How much time has past since the boss' arrival?
-    const overtime = gameData.cycles - getBossAppearanceCycle();
-    // Translate the elapsed time into distance according to config
-    bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
 }
 
 function visuallyDenyGalacticSecretUnlock(galacticSecret) {
@@ -2049,87 +2082,6 @@ function activateComponentOperations() {
     }
 }
 
-/**
- *
- * @param {HTMLDataElement} dataElement
- * @param {number} value
- * @param {{
- *     prefixes?: string[],
- *     unit?: string,
- *     forceSign?: boolean,
- *     keepNumber?: boolean,
- *     forceInteger?: boolean,
- *     toStringFn?: function(number): string,
- * }} config
- */
-function formatValue(dataElement, value, config = {}) {
-    // TODO render full number + unit into dataElement.title
-    dataElement.value = String(value);
-
-    const defaultConfig = {
-        prefixes: magnitudes,
-        unit: '',
-        forceSign: false,
-        keepNumber: false,
-        forceInteger: false,
-        toStringFn: undefined,
-    };
-    config = Object.assign({}, defaultConfig, config);
-
-    const toString = (value) => {
-        if (config.forceInteger || Number.isInteger(value)) {
-            return value.toFixed(0);
-        } else if (isFunction(config.toStringFn)) {
-            return config.toStringFn(value);
-        } else if (Math.abs(value) < 1) {
-            return value.toFixed(2);
-        } else {
-            return value.toPrecision(3);
-        }
-    };
-
-    // what tier? (determines SI symbol)
-    const tier = Math.max(0, Math.log10(Math.abs(value)) / 3 | 0);
-
-    let prefix = '';
-    if (config.forceSign) {
-        if (Math.abs(value) <= 0.001) {
-            prefix = '±';
-            value = Math.abs(value);
-        } else if (value > 0) {
-            prefix = '+';
-        }
-    }
-
-    if (config.keepNumber) {
-        dataElement.textContent = prefix + value;
-        delete dataElement.dataset.unit;
-        return;
-    }
-
-    // get suffix and determine scale
-    let suffix = config.prefixes[tier];
-    if (typeof config.unit === 'string' && config.unit.length > 0) {
-        dataElement.dataset.unit = suffix + config.unit;
-    } else if (suffix.length > 0) {
-        dataElement.dataset.unit = suffix;
-    } else {
-        delete dataElement.dataset.unit;
-    }
-
-    if (tier === 0) {
-        dataElement.textContent = prefix + toString(value);
-        return;
-    }
-    const scale = Math.pow(10, tier * 3);
-
-    // scale the number
-    const scaled = value / scale;
-
-    // format number and add suffix
-    dataElement.textContent = prefix + toString(scaled);
-}
-
 function getModuleOperationElement(operationName) {
     if (!moduleOperations.hasOwnProperty(operationName)) {
         console.log('ModuleOperation not found in data: ' + operationName);
@@ -2158,183 +2110,13 @@ function getPointOfInterestElement(name) {
     return document.getElementById(pointOfInterest.domId);
 }
 
-function disableAudioFromToast() {
-    gameData.settings.audio.toastAnswered = true;
-    toggleAudioEnabled(false);
-    const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
-    toast.hide();
-}
-
-function enableAudioFromToast() {
-    gameData.settings.audio.toastAnswered = true;
-    toggleAudioEnabled(true);
-    const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
-    toast.hide();
-}
-
 /**
- * @param {boolean} force
+ * Updates the UI if the game loop is currently not running
  */
-function toggleVfxFollowProgressBars(force = undefined) {
-    if (force === undefined) {
-        gameData.settings.vfx.followProgressBars = !gameData.settings.vfx.followProgressBars;
-    } else {
-        gameData.settings.vfx.followProgressBars = force;
-    }
-    VFX.followProgressBars(gameData.settings.vfx.followProgressBars);
-    gameData.save();
-}
+function updateUiIfNecessary() {
+    if (gameData.state.gameLoopRunning) return;
 
-/**
- * @param {boolean} force
- */
-function toggleVfxSplashOnLevelUp(force = undefined) {
-    if (force === undefined) {
-        gameData.settings.vfx.splashOnLevelUp = !gameData.settings.vfx.splashOnLevelUp;
-    } else {
-        gameData.settings.vfx.splashOnLevelUp = force;
-    }
-    gameData.save();
-}
-
-/**
- * @param {boolean} force
- */
-function toggleVfxFlashOnLevelUp(force = undefined) {
-    if (force === undefined) {
-        gameData.settings.vfx.flashOnLevelUp = !gameData.settings.vfx.flashOnLevelUp;
-    } else {
-        gameData.settings.vfx.flashOnLevelUp = force;
-    }
-    gameData.save();
-}
-
-/**
- * @param {boolean} force
- */
-function toggleLightDarkMode(force = undefined) {
-    if (force === undefined) {
-        gameData.settings.darkMode = !gameData.settings.darkMode;
-    } else {
-        gameData.settings.darkMode = force;
-    }
-    document.documentElement.dataset['bsTheme'] = gameData.settings.darkMode ? 'dark' : 'light';
-    gameData.save();
-}
-
-/**
- * @param {boolean} force
- */
-function toggleSciFiMode(force = undefined) {
-    const body = document.getElementById('body');
-    gameData.settings.sciFiMode = body.classList.toggle('sci-fi', force);
-    gameData.save();
-}
-
-function setBackground(background) {
-    const body = document.getElementById('body');
-    body.classList.forEach((cssClass, index, classList) => {
-        if (cssClass.startsWith('background-')) {
-            classList.remove(cssClass);
-        }
-    });
-
-    body.classList.add('background-' + background);
-    document.querySelector(`.background-${background} > input[type="radio"]`).checked = true;
-    gameData.settings.background = background;
-    gameData.save();
-}
-
-function resetBattle(name) {
-    const battle = battles[name];
-    battle.level = 0;
-    battle.xp = 0;
-}
-
-function startNewPlaythrough() {
-    gameData.bossEncounterCount += 1;
-
-    // grant Essence Of Unknown
-    for (let level = 0; level < bossBattle.level; level++) {
-        gameData.essenceOfUnknown += Math.pow(2, level);
-    }
-
-    playthroughReset('UPDATE_MAX_LEVEL');
-}
-
-// function rebirthTwo() {
-//     gameData.rebirthTwoCount += 1;
-//     playthroughReset('RESET_MAX_LEVEL');
-// }
-
-/**
- * @param {MaxLevelBehavior} maxLevelBehavior
- */
-function playthroughReset(maxLevelBehavior) {
-    gameData.initValues();
-    gameData.resetCurrentValues();
-
-    for (const key in moduleCategories) {
-        const category = moduleCategories[key];
-        category.reset(maxLevelBehavior);
-    }
-
-    for (const key in modules) {
-        const module = modules[key];
-        module.reset(maxLevelBehavior);
-    }
-
-    for (const key in moduleComponents) {
-        const component = moduleComponents[key];
-        component.reset(maxLevelBehavior);
-    }
-
-    for (const key in moduleOperations) {
-        const operation = moduleOperations[key];
-        operation.reset(maxLevelBehavior);
-    }
-
-    gridStrength.reset(maxLevelBehavior);
-
-    for (const key in battles) {
-        const battle = battles[key];
-        battle.reset(maxLevelBehavior);
-    }
-
-    for (const key in moduleCategories) {
-        const category = moduleCategories[key];
-        category.reset(maxLevelBehavior);
-    }
-
-    for (const key in sectors) {
-        const sector = sectors[key];
-        sector.reset(maxLevelBehavior);
-    }
-
-    for (const key in pointsOfInterest) {
-        const pointOfInterest = pointsOfInterest[key];
-        pointOfInterest.reset(maxLevelBehavior);
-    }
-
-    for (const key in htmlElementRequirements) {
-        const elementRequirement = htmlElementRequirements[key];
-        elementRequirement.reset();
-    }
-
-    setTab('modules');
-    gameData.transitionState(gameStates.NEW);
-}
-
-function getBossAppearanceCycle() {
-    //Lifespan not defined in station design, if years are not reset this will break the game
-    //const immortality = gameData.taskData['Immortality'];
-    //const superImmortality = gameData.taskData['Super immortality'];
-    //return bossAppearanceCycle * immortality.getEffect() * superImmortality.getEffect();
-    return bossAppearanceCycle;
-}
-
-function isBossBattleAvailable() {
-    return gameData.bossBattleAvailable;
+    updateUI();
 }
 
 function updateUI() {
@@ -2356,18 +2138,38 @@ function updateUI() {
 
     updateHtmlElementRequirements();
 
+    updateHeatIndication();
     updateStationOverview();
     updateBodyClasses();
 }
 
-function update() {
+/**
+ *
+ * @param {number} deltaTime
+ * @param {number} totalTime
+ * @param {boolean} isLastUpdateInTick
+ * @param {GameLoop} gameLoop
+ */
+function update(deltaTime, totalTime, isLastUpdateInTick, gameLoop) {
     increaseCycle();
     updateBossDistance();
     progressGalacticSecrets();
     activateComponentOperations();
     doTasks();
+    updateHeat();
     updatePopulation();
-    updateUI();
+
+    if (isLastUpdateInTick // Only update the UI once in an accumulated update
+        || !gameData.state.gameLoopRunning // we are about to stop the game loop, so now is the time to update the UI
+    ) {
+        updateUI();
+    }
+
+    // Could be triggered via GameEvents.GameStateChanged but then we are
+    // missing our necessary update to show the game as paused etc.
+    if (!gameData.state.gameLoopRunning) {
+        gameLoop.stop();
+    }
 }
 
 function rerollStationName() {
@@ -2391,7 +2193,7 @@ function initTooltip(tooltipTriggerElement, tooltipConfig) {
     tooltipTriggerElement.addEventListener('hide.bs.tooltip', () => {
         let indexOf = visibleTooltips.indexOf(tooltipTriggerElement);
         if (indexOf !== -1) {
-            visibleTooltips.splice(indexOf);
+            visibleTooltips.splice(indexOf, 1);
         }
     });
 }
@@ -2401,6 +2203,11 @@ function initTooltips() {
     for (const tooltipTriggerElement of tooltipTriggerElements) {
         initTooltip(tooltipTriggerElement, {});
     }
+
+    // Prevent tooltips from interfering with modals
+    document.body.addEventListener('show.bs.modal', event => {
+        hideAllTooltips();
+    });
 }
 
 function initTabBehavior() {
@@ -2416,6 +2223,17 @@ function initTabBehavior() {
         setTab(previousSelectedTab);
         gameData.transitionState(gameStates[gameData.previousStateName]);
     });
+}
+
+/**
+ * @param {string} previousStationName
+ */
+function setPreviousStationName(previousStationName) {
+    gameData.previousStationName = previousStationName;
+    for (const previousStationNameElement of Dom.get().allByClass('previousStationName')) {
+        previousStationNameElement.textContent = previousStationName;
+    }
+    // saveGameData();
 }
 
 /**
@@ -2435,6 +2253,9 @@ function setStationName(newStationName) {
 }
 
 function initStationName() {
+    if (isString(gameData.previousStationName)) {
+        setPreviousStationName(gameData.previousStationName);
+    }
     setStationName(gameData.stationName);
     const stationNameDisplayElement = document.getElementById('nameDisplay');
     stationNameDisplayElement.addEventListener('click', (event) => {
@@ -2454,40 +2275,6 @@ function initStationName() {
     }
 }
 
-function initSettings() {
-    const background = gameData.settings.background;
-    if (isString(background)) {
-        setBackground(background);
-    }
-
-    if (isBoolean(gameData.settings.darkMode)) {
-        toggleLightDarkMode(gameData.settings.darkMode);
-    }
-    if (isBoolean(gameData.settings.sciFiMode)) {
-        toggleSciFiMode(gameData.settings.sciFiMode);
-    }
-    // gameData.settings.vfx.* is applied in the VFX module itself - we just need to adjust the UI
-    Dom.get().byId('vfxProgressBarFollowSwitch').checked = gameData.settings.vfx.followProgressBars;
-    Dom.get().byId('vfxSplashOnLevelUpSwitch').checked = gameData.settings.vfx.splashOnLevelUp;
-    Dom.get().byId('vfxFlashOnLevelUpSwitch').checked = gameData.settings.vfx.flashOnLevelUp;
-
-    // gameData.settings.audio.* is applied in the audio module itself - we just need to adjust the UI
-    Dom.get().byId('audioEnabledSwitch').checked = gameData.settings.audio.enabled;
-    const rangeInput = Dom.get().byId('range4');
-    const rangeOutput = Dom.get().byId('rangeValue');
-    rangeInput.value = gameData.settings.audio.masterVolume;
-    rangeOutput.textContent = (parseFloat(gameData.settings.audio.masterVolume) * 100).toFixed(0) + '%';
-
-    rangeInput.addEventListener('input', function() {
-        const newValue = parseFloat(this.value);
-        gameData.settings.audio.masterVolume = newValue;
-        setAudioVolume(newValue);
-        rangeOutput.textContent = (newValue * 100).toFixed(0) + '%';
-        gameData.save();
-    });
-
-}
-
 function displayLoaded() {
     document.getElementById('main').classList.add('ready');
 }
@@ -2496,6 +2283,14 @@ function assignNames(data) {
     for (const [key, val] of Object.entries(data)) {
         val.name = key;
     }
+}
+function initRequirements() {
+    for (const requirement of Requirement.allRequirements) {
+        requirement.register(requirementRegistry);
+    }
+
+    // Discard intermediate list
+    Requirement.allRequirements = null;
 }
 
 function initConfigNames() {
@@ -2513,8 +2308,32 @@ function initConfigNames() {
     assignNames(galacticSecrets);
 }
 
+let bossBarPressed = false;
+let bossBarPressStartTime = 0;
+let bossBarAcceleratedProgress = 0;
+const bossBarAccelerationAllowedAfterBossEncounters = 1;
+
+function initBossBattleProgressBar() {
+    const barContainer = document.getElementById('bossProgress');
+
+    barContainer.addEventListener('pointerdown', () => {
+        if (isBossBattleAvailable()) return;
+        if (gameData.bossEncounterCount < bossBarAccelerationAllowedAfterBossEncounters) return;
+
+        bossBarPressed = true;
+        bossBarPressStartTime = performance.now();
+    });
+
+    barContainer.addEventListener('pointerup', () => {
+        bossBarPressed = false;
+    });
+}
+
 function init() {
     initConfigNames();
+    initRequirements();
+    createAttributesHTML();
+    createAttributeDescriptions();
 
     gameData = new GameData();
     /*
@@ -2534,7 +2353,6 @@ function init() {
     createModulesQuickDisplay();
     createBattlesQuickDisplay();
 
-    createAttributeDescriptions(createAttributeInlineHTML);
     createAttributesDisplay();
     createAttributesUI();
     createEnergyGridDisplay();
@@ -2544,6 +2362,7 @@ function init() {
     initStationName();
     initAudio();
     initSettings();
+    initBossBattleProgressBar();
 
     cleanUpDom();
     BreakpointCssClasses.init();
@@ -2553,10 +2372,35 @@ function init() {
     gameData.save();
     displayLoaded();
 
-    update();
-    updateIntervalID = setInterval(update, 1000 / updateSpeed);
+    // Implications are a bit hard to see here:
+    // - gameLoop is set to immediateTick --> update + updateLayout will run when gameLoop.start is called
+    // - update will stop the gameLoop again - should the gameState require to do so
+    // - the set-up GameStateChanged listener afterward take care of
+    //   re-starting the gameLoop, should the gameState require to do so
+    gameLoop = new GameLoop({
+        targetTicksPerSecond: targetTicksPerSecond,
+        maxUpdatesPerTick: 2 * 60 * 1000 / targetTicksPerSecond, // up to 2min catch-up
+        immediateTick: true,
+        onUpdate: update,
+        onRender: updateLayout,
+        onPanic: (gameLoop) => {
+            // Discard remaining missing time - we won't catch up for more than 2 minutes
+            gameLoop.timing.lag = 0;
+        }
+    });
+
+    gameLoop.start();
+
+    GameEvents.GameStateChanged.subscribe((/** @var {{previousState: string, newState: string}} */ payload) => {
+        const newGameState = gameStates[payload.newState];
+
+        // Only starting - stopping happens at the end of update()
+        if (newGameState.gameLoopRunning) {
+            gameLoop.start();
+        }
+    });
+
     setInterval(gameData.save.bind(gameData), 3000);
-    requestAnimationFrame(updateLayout);
 }
 
 init();
