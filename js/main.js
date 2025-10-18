@@ -421,6 +421,16 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
         switchElement.id = 'switch_' + module.domId;
         switchElement.addEventListener('click', switchModuleActivation.bind(this, module));
         level2DomGetter.byClass('moduleActivationLabel').htmlFor = switchElement.id;
+
+        const header = level2DomGetter.byClass('level2-header');
+        header.addEventListener('click', function(e) {
+            if (e.target.closest('input.moduleActivationSwitch') || e.target.closest('label.moduleActivationLabel')) {
+                return;
+            }
+            switchElement.checked = !switchElement.checked;
+            switchModuleActivation.call(this, module, { target: switchElement });
+        });
+
         initTooltip(level2DomGetter.byClass('maxLevel'), {
             title: () => {
                 return `<b>x${(1 + module.maxLevel / 100).toFixed(2)} XP</b> for all operations in this module.`;
@@ -1357,8 +1367,8 @@ function updateModuleRow(module, moduleRequirementsContext) {
 
     const domGetter = Dom.get(row);
     const level2Header = domGetter.byClass('level2-header');
-    level2Header.classList.toggle('text-bg-light', isActive);
-    level2Header.classList.toggle('text-bg-dark', !isActive);
+    level2Header.classList.toggle('active', isActive);
+    level2Header.classList.toggle('inactive', !isActive);
 
     domGetter.byClass('moduleActivationSwitch').checked = module.isActive();
     formatValue(domGetter.byClass('level'), module.getLevel());

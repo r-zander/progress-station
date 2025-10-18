@@ -71,6 +71,16 @@
             box-shadow: 0 0 0 0.25rem rgba(255, 165, 0, 0.5);
         }
     }
+
+    &.active {
+        color: var(--header-font-color) !important;
+        background-color: var(--header-bg-color) !important;
+    }
+
+    &.inactive {
+        color: var(--header-passive-font-color) !important;
+        background-color: var(--header-passive-bg-color) !important;
+    }
 }
 
 .level2 > .table + .table {

@@ -20,7 +20,7 @@ moduleOperations.MicroCyborgAutomat = new ModuleOperation({
     effects: [{effectType: EffectType.Growth, baseValue: 0.10}], // Not a factor as the player doesn't have military yet
 });
 moduleOperations.KungFuManual = new ModuleOperation({
-    title: 'Kung Fu Manual', maxXp: 200, gridLoad: 1,
+    title: 'Battle Station Manual', maxXp: 200, gridLoad: 1,
     description: 'Martial arts made easy for the space traveler that does not shy away from space encounters.',
     effects: [{effectType: EffectType.Military, baseValue: 0.10}], // Not a factor as the player doesn't have military yet
 });
