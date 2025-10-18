@@ -67,4 +67,6 @@ from index.html
    - release
    - vendor
    - index.html
+   - LICENSE
+   - package.json
 3. Upload the Zip to itch.io
