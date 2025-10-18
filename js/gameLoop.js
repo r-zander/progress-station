@@ -71,6 +71,7 @@ class GameLoop {
         this.step = 1000 / this.options.targetTicksPerSecond;
 
         this.tick = this.tick.bind(this);
+        this.render = this.render.bind(this);
     }
 
     get isStopped() {
@@ -95,35 +96,42 @@ class GameLoop {
         const last = null;
         this.timing = {last, total, delta, lag};
         if (this.options.immediateTick) {
-            this.tick(performance.now())
+            this.tick(performance.now());
         }
-        this.frame = requestAnimationFrame(this.tick);
+        this.frame = setInterval(this.tick, this.step);
+        this.renderFrame = requestAnimationFrame(this.render);
     }
 
     stop() {
         if (this.isRunning || this.isPaused) {
             this.state = GameLoopState.STOPPED;
-            cancelAnimationFrame(this.frame);
+            clearInterval(this.frame);
+            cancelAnimationFrame(this.renderFrame);
         }
     }
 
     pause() {
         if (this.isRunning) {
             this.state = GameLoopState.PAUSED;
-            cancelAnimationFrame(this.frame);
+            clearInterval(this.frame);
+            cancelAnimationFrame(this.renderFrame);
         }
     }
 
     resume() {
         if (this.isPaused) {
             this.state = GameLoopState.RUNNING;
-            this.frame = requestAnimationFrame(this.tick);
+            this.frame = setInterval(this.tick, this.step);
+            this.renderFrame = requestAnimationFrame(this.render);
         }
     }
 
     tick(time) {
         if (this.state !== GameLoopState.RUNNING) return;
 
+        if (isUndefined(time)) {
+            time = performance.now();
+        }
         if (this.timing.last === null) this.timing.last = time;
         this.timing.delta = time - this.timing.last;
         this.timing.total += this.timing.delta;
@@ -146,12 +154,23 @@ class GameLoop {
             }
         }
 
-        if (numberOfUpdates > 10) {
+        // console.log('[GameLoop] Tick', {
+        //     delta: Math.round(this.timing.delta),
+        //     lag: Math.round(this.timing.lag),
+        // });
+
+        if (numberOfUpdates > 3) {
             console.log('[GameLoop] Tick number of updates', numberOfUpdates);
         }
 
-        this.options.onRender(this.timing.lag / this.step, this);
+    }
 
-        this.frame = requestAnimationFrame(this.tick);
+    render() {
+        if (this.state !== GameLoopState.RUNNING) return;
+
+        // TODO no interpolation support currently
+        this.options.onRender(1, this);
+
+        this.renderFrame = requestAnimationFrame(this.render);
     }
 }
