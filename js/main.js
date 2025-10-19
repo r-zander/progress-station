@@ -160,6 +160,7 @@ function setPointOfInterest(name) {
         name: name,
         newActivityState: true,
     });
+    AudioEngine.postEvent(AudioEvents.CHANGE_LOCATION, pointsOfInterest[name]);
 
     updateUiIfNecessary();
 }

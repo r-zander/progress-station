@@ -110,24 +110,24 @@ function setBackground(background) {
     gameData.save();
 }
 
-const settings = {
-    vfx: {
-        followProgressBars: new Observable(gameData.settings.vfx.followProgressBars),
-        splashOnLevelUp: new Observable(gameData.settings.vfx.splashOnLevelUp),
-        flashOnLevelUp: new Observable(gameData.settings.vfx.flashOnLevelUp),
-    },
-    audio: {
-        enabled: new ObservableProperty(
-            () => gameData.settings.audio.enabled,
-            (value) => { gameData.settings.audio.enabled = value;},
-            JsTypes.Boolean,
-        ),
-        toastAnswered: new Observable(gameData.settings.audio.toastAnswered),
-        masterVolume: new Observable(gameData.settings.audio.masterVolume),
-        enableBackgroundAudio: new Observable(gameData.settings.audio.enableBackgroundAudio),
-        // musicVolume: 1.0, new Observable(gameData.settings.audio.musicVolume),
-    }
-};
+// const settings = {
+//     vfx: {
+//         followProgressBars: new Observable(gameData.settings.vfx.followProgressBars),
+//         splashOnLevelUp: new Observable(gameData.settings.vfx.splashOnLevelUp),
+//         flashOnLevelUp: new Observable(gameData.settings.vfx.flashOnLevelUp),
+//     },
+//     audio: {
+//         enabled: new ObservableProperty(
+//             () => gameData.settings.audio.enabled,
+//             (value) => { gameData.settings.audio.enabled = value;},
+//             JsTypes.Boolean,
+//         ),
+//         toastAnswered: new Observable(gameData.settings.audio.toastAnswered),
+//         masterVolume: new Observable(gameData.settings.audio.masterVolume),
+//         enableBackgroundAudio: new Observable(gameData.settings.audio.enableBackgroundAudio),
+//         // musicVolume: 1.0, new Observable(gameData.settings.audio.musicVolume),
+//     }
+// };
 
 
 function initSettings() {

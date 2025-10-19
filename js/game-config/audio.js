@@ -11,27 +11,18 @@
 
 // We will have to talk what events make sense and then to trigger them appropriately
 const AudioEvents = {
-    UI: {
-        BUTTON_CLICK: 'UI_Button_Click',
-        BUTTON_HOVER: 'UI_Button_Hover',
-        PANEL_OPEN: 'UI_Panel_Open',
-        PANEL_CLOSE: 'UI_Panel_Close',
-        NOTIFICATION: 'UI_Notification',
-        TAB_SWITCH: 'UI_Tab_Switch',
-    },
-    GAMEPLAY: {
-        OPERATION_ACTIVATE: 'GP_Operation_Activate',
-        BATTLE_START: 'GP_Battle_Start',
-        BATTLE_WIN: 'GP_Battle_Win',
-        BATTLE_LOSE: 'GP_Battle_Lose',
-        LEVEL_UP: 'GP_Level_Up',
-        MILESTONE: 'GP_Milestone',
-    },
-    MUSIC: {
-        MAIN_THEME: 'Music_MainTheme',
-        COMBAT_THEME: 'Music_Combat',
-        VICTORY_THEME: 'Music_Victory',
-    }
+    MODULE_ON: 'MODULE_ON',
+    MODULE_OFF: 'MODULE_OFF',
+    BATTLE_START: 'BATTLE_START',
+    BATTLE_FINISH: 'BATTLE_FINISH',
+    GRID_UPGRADE: 'GRID_UPGRADE',
+    CHANGE_LOCATION: 'CHANGE_LOCATION',
+};
+
+const MusicIds = {
+    MAIN_THEME: 'Music_MainTheme',
+    COMBAT_THEME: 'Music_Combat',
+    VICTORY_THEME: 'Music_Victory',
 };
 
 // ============================================
@@ -39,114 +30,74 @@ const AudioEvents = {
 // ============================================
 
 /** @type {import('../audioEngine.js').SoundBank} */
-const UISoundBank = {
-    [AudioEvents.UI.BUTTON_CLICK]: {
-        src: ['audio/sounds/245645__unfa__cartoon-pop-clean.mp3'],
-        volume: 0.5,
-        randomization: {
-            volume: { min: -2, max: 2 },
-            pitch: { min: -30, max: 30 }
-        },
-        pool: 5
-    },
-
-    [AudioEvents.UI.BUTTON_HOVER]: {
-        src: ['audio/sounds/245645__unfa__cartoon-pop-clean.mp3'],
-        volume: 0.2,
-        randomization: {
-            pitch: { min: 50, max: 100 },
-            volume: { min: -3, max: 0 }
-        },
-        pool: 3
-    },
-
-    [AudioEvents.UI.TAB_SWITCH]: {
-        src: ['audio/sounds/245645__unfa__cartoon-pop-clean.mp3'],
-        volume: 0.4,
-        randomization: {
-            pitch: { min: -50, max: -20 },
-            volume: { min: -2, max: 1 }
-        },
-        pool: 3
-    },
-
-    [AudioEvents.UI.NOTIFICATION]: {
-        src: ['audio/sounds/245645__unfa__cartoon-pop-clean.mp3'],
-        volume: 0.6,
-        randomization: {
-            pitch: { min: 100, max: 200 }
-        },
-        pool: 5
-    }
-};
-
-/** @type {import('../audioEngine.js').SoundBank} */
-const GameplaySoundBank = {
-    [AudioEvents.GAMEPLAY.OPERATION_ACTIVATE]: {
+const SoundBank = {
+    [AudioEvents.MODULE_ON]: {
         src: [
-            'audio/sounds/348241__newagesoup__punch-boxing-04.mp3',
-            'audio/sounds/319229__worthahep88__single-rock-hit-dirt-2.mp3'
+            'audio/sfx/power-up.mp3',
+            'audio/sfx/power-up-v2.mp3',
+            'audio/sfx/power-up-v3.mp3',
+            'audio/sfx/power-up-v4.mp3',
+            'audio/sfx/new-power-up.mp3',
         ],
-        volume: 0.4,
-        containerType: 'random',
-        randomization: {
-            volume: { min: -2, max: 2 },
-            pitch: { min: -20, max: 20 },
-            avoidRepeat: 1
-        },
-        pool: 5
+        containerType: 'sequence',
+        volume: 1.0,
+        // randomization: {
+        //     volume: { min: -2, max: 2 },
+        //     pitch: { min: -30, max: 30 }
+        // },
     },
 
-    [AudioEvents.GAMEPLAY.BATTLE_START]: {
-        src: ['audio/sounds/389708__suspensiondigital__large-angry-cats.mp3'],
-        volume: 0.5,
-        randomization: {
-            pitch: { min: -50, max: 50 }
-        },
-        pool: 2
-    },
-
-    [AudioEvents.GAMEPLAY.BATTLE_WIN]: {
-        src: ['audio/sounds/398430__naturestemper__wolf-howl.mp3'],
-        volume: 0.6,
-        randomization: {
-            pitch: { min: 0, max: 100 }
-        },
-        pool: 2
-    },
-
-    [AudioEvents.GAMEPLAY.BATTLE_LOSE]: {
+    [AudioEvents.MODULE_OFF]: {
         src: [
-            'audio/sounds/413179__micahlg__male_hurt14.mp3',
-            'audio/sounds/413175__micahlg__male_hurt10.mp3',
-            'audio/sounds/413181__micahlg__male_hurt5.mp3'
+            'audio/sfx/power-down-v1.mp3',
+            'audio/sfx/power-down-v2.mp3',
         ],
-        volume: 0.5,
-        containerType: 'random',
-        randomization: {
-            pitch: { min: -30, max: 30 },
-            avoidRepeat: 2
-        },
-        pool: 3
+        volume: 1.0,
+        // randomization: {
+        //     volume: { min: -2, max: 2 },
+        //     pitch: { min: -30, max: 30 }
+        // },
     },
 
-    [AudioEvents.GAMEPLAY.LEVEL_UP]: {
-        src: ['audio/sounds/411184__d3rfux__gruzi.mp3'],
-        volume: 0.7,
-        randomization: {
-            pitch: { min: 0, max: 50 }
-        },
-        pool: 3
+    [AudioEvents.BATTLE_START]: {
+        src: [
+            'audio/sfx/battle-start-v1.mp3',
+        ],
+        volume: 1.0,
+        // randomization: {
+        //     volume: { min: -2, max: 2 },
+        //     pitch: { min: -30, max: 30 }
+        // },
     },
 
-    [AudioEvents.GAMEPLAY.MILESTONE]: {
-        src: ['audio/sounds/435507__benjaminnelan__rooster-crow-2.mp3'],
-        volume: 0.6,
-        randomization: {
-            pitch: { min: -100, max: 100 }
-        },
-        pool: 2
-    }
+    // [AudioEvents.UI.BUTTON_HOVER]: {
+    //     src: ['audio/sounds/245645__unfa__cartoon-pop-clean.mp3'],
+    //     volume: 0.2,
+    //     randomization: {
+    //         pitch: { min: 50, max: 100 },
+    //         volume: { min: -3, max: 0 }
+    //     },
+    //     pool: 3
+    // },
+    //
+    // [AudioEvents.UI.TAB_SWITCH]: {
+    //     src: ['audio/sounds/245645__unfa__cartoon-pop-clean.mp3'],
+    //     volume: 0.4,
+    //     randomization: {
+    //         pitch: { min: -50, max: -20 },
+    //         volume: { min: -2, max: 1 }
+    //     },
+    //     pool: 3
+    // },
+    //
+    // [AudioEvents.UI.NOTIFICATION]: {
+    //     src: ['audio/sounds/245645__unfa__cartoon-pop-clean.mp3'],
+    //     volume: 0.6,
+    //     randomization: {
+    //         pitch: { min: 100, max: 200 }
+    //     },
+    //     pool: 5
+    // }
 };
 
 // ============================================
@@ -158,7 +109,7 @@ const GameplaySoundBank = {
 
 /** @type {import('../audioEngine.js').MusicState} */
 const ComplexMainThemeMusicState = {
-    name: AudioEvents.MUSIC.MAIN_THEME,
+    name: MusicIds.MAIN_THEME,
     layers: {
         ambient: {
             segment: {
@@ -195,7 +146,7 @@ const ComplexMainThemeMusicState = {
 
 /** @type {import('../audioEngine.js').MusicState} */
 const CombatMusicState = {
-    name: AudioEvents.MUSIC.COMBAT_THEME,
+    name: MusicIds.COMBAT_THEME,
     layers: {
         combat_bass: {
             segment: {
@@ -222,7 +173,7 @@ const CombatMusicState = {
 
 /** @type {import('../audioEngine.js').MusicState} */
 const MainThemeMusicState = {
-    name: AudioEvents.MUSIC.MAIN_THEME,
+    name: MusicIds.MAIN_THEME,
     layers: {
         base: {
             segment: {
@@ -246,8 +197,7 @@ const MainThemeMusicState = {
  */
 function initializeAudio() {
     // Load sound banks
-    AudioEngine.loadBank('UI', UISoundBank);
-    AudioEngine.loadBank('Gameplay', GameplaySoundBank);
+    AudioEngine.loadBank('Game', SoundBank);
 
     // Register music states (when music is available)
     AudioEngine.registerMusicState(MainThemeMusicState);

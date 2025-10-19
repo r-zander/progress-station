@@ -80,13 +80,6 @@
  */
 
 // ============================================
-// GLOBAL INSTANCES
-// ============================================
-
-/** @type {MusicContext} Global music context instance */
-const musicContext = new ProgressStationMusicContext();
-
-// ============================================
 // MAIN AUDIO ENGINE API
 // ============================================
 
@@ -316,6 +309,42 @@ class AudioEngine {
     // ============================================
     // PUBLIC API
     // ============================================
+
+    /**
+     * Initialize the audio system
+     * Sets up AudioEngine, loads sound banks, and handles browser autoplay restrictions
+     * @returns {void}
+     */
+    static init() {
+        // TODO needs special handling to circumvent browser's audio auto-play blocking
+        const savedValueAudioEnabled = gameData.settings.audio.enabled;
+        gameData.settings.audio.enabled = false;
+
+        // Connect music context to AudioEngine
+        AudioEngine.setMusicContext(musicContext);
+
+        // Set initial volume and mute state
+        Howler.mute(!gameData.settings.audio.enabled);
+        AudioEngine.setVolume(gameData.settings.audio.masterVolume);
+
+        // Load audio config from game config
+        initializeAudio();
+        // TODO what's the sense of this?
+        this.setState(MusicIds.MAIN_THEME, MusicIds.MAIN_THEME);
+
+        // Show appropriate toast notification based on settings
+        if (gameData.settings.audio.toastAnswered) {
+            if (savedValueAudioEnabled) {
+                // "Welcome back, re-enable audio?"
+                const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('reEnableAudioToast'));
+                toast.show();
+            } // else don't annoy player and devs :)
+        } else {
+            // "Hello, would you like audio?"
+            const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
+            toast.show();
+        }
+    }
 
     /**
      * Load a soundbank
@@ -572,40 +601,6 @@ class AudioEngine {
         // TODO enable / disable background audio
 
         gameData.save();
-    }
-
-    /**
-     * Initialize the audio system
-     * Sets up AudioEngine, loads sound banks, and handles browser autoplay restrictions
-     * @returns {void}
-     */
-    static init() {
-        // TODO needs special handling to circumvent browser's audio auto-play blocking
-        const savedValueAudioEnabled = gameData.settings.audio.enabled;
-        gameData.settings.audio.enabled = false;
-
-        // Connect music context to AudioEngine
-        AudioEngine.setMusicContext(musicContext);
-
-        // Set initial volume and mute state
-        Howler.mute(!gameData.settings.audio.enabled);
-        AudioEngine.setVolume(gameData.settings.audio.masterVolume);
-
-        // Load audio config from game config
-        initializeAudio();
-
-        // Show appropriate toast notification based on settings
-        if (gameData.settings.audio.toastAnswered) {
-            if (savedValueAudioEnabled) {
-                // "Welcome back, re-enable audio?"
-                const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('reEnableAudioToast'));
-                toast.show();
-            } // else don't annoy player and devs :)
-        } else {
-            // "Hello, would you like audio?"
-            const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
-            toast.show();
-        }
     }
 
     // ============================================
@@ -867,3 +862,9 @@ class AudioEngine {
     }
 }
 
+// ============================================
+// GLOBAL INSTANCES
+// ============================================
+
+/** @type {MusicContext} Global music context instance */
+const musicContext = new ProgressStationMusicContext();

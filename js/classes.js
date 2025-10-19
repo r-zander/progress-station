@@ -343,6 +343,11 @@ class GridStrength extends Task {
     getMaxXp() {
         return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.6, this.level));
     }
+
+    onLevelUp(previousLevel, newLevel) {
+        super.onLevelUp(previousLevel, newLevel);
+        AudioEngine.postEvent(AudioEvents.GRID_UPGRADE, this);
+    }
 }
 
 class ModuleCategory extends Entity {
@@ -427,8 +432,10 @@ class Module extends Entity {
     setActive(active) {
         if (active) {
             gameData.activeEntities.modules.add(this.name);
+            AudioEngine.postEvent(AudioEvents.MODULE_ON, this);
         } else {
             gameData.activeEntities.modules.delete(this.name);
+            AudioEngine.postEvent(AudioEvents.MODULE_OFF, this);
         }
     }
 
