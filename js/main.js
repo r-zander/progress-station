@@ -816,7 +816,7 @@ function createAttributeRow(attribute) {
  * @param {function(EffectType): number} getEffectFn
  * @param {function(): EffectDefinition[]} getEffectsFn
  * @param {EffectType} effectType
- * @param {string} name
+ * @param {string|function(): string} name
  * @param {function():boolean} isActiveFn
  */
 function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, effectType, name, isActiveFn) {
@@ -827,22 +827,30 @@ function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, 
     const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
     const domGetter = Dom.get(balanceEntryElement);
     const descriptionElement = domGetter.byClass('name');
-    const updateDescription = () => {
-        const description = typeof name === 'function' ? name() : name;
-        descriptionElement.textContent = '(' + description + ')';
-    };
-
-    updateDescription();
-
     domGetter.byClass('operator').textContent = effectType.operator;
-    attributeBalanceEntries.push({
-        element: balanceEntryElement,
-        effectType: effectType,
-        getEffect: getEffectFn,
-        getEffects: getEffectsFn,
-        isActive: isActiveFn,
-        updateDescription,
-    });
+    if(isFunction(name)) {
+        const updateDescriptionFn = () => {
+            descriptionElement.textContent = '(' + name() + ')';
+        };
+        updateDescriptionFn();
+        attributeBalanceEntries.push({
+            element: balanceEntryElement,
+            effectType: effectType,
+            getEffect: getEffectFn,
+            getEffects: getEffectsFn,
+            isActive: isActiveFn,
+            updateDescription: updateDescriptionFn,
+        });
+    }
+    else {
+        attributeBalanceEntries.push({
+            element: balanceEntryElement,
+            effectType: effectType,
+            getEffect: getEffectFn,
+            getEffects: getEffectsFn,
+            isActive: isActiveFn,
+        });
+    }
     balanceElement.append(balanceEntryElement);
 }
 
@@ -885,33 +893,31 @@ function createAttributeBalance(rowElement, effectTypes) {
             }
         }
         if (effectType === EffectType.MilitaryFactor) {
-            // let battlesWonLength = () => (Object.keys(battles).filter(key => battles[key].isDone() && battles[key].getReward(effectType)).length); not an option because getReward(effectType) returns 1 even if its +Military because it backs up to effectType.defaultValue of xMilitary which is 1
             let battlesWonLength = () => {
                 let count = 0;
                 for (const key in battles) {
                     const b = battles[key];
-                    if (b.isDone() && b.getReward(effectType)) {
-                        for(const reward in b.rewards) {
-                            const rewardEffectType = b.rewards[reward].effectType;
-                            if(rewardEffectType === effectType) {
-                                count++;
-                                break;
-                            }
+                    if (!b.isDone()) continue;
+                    for(const reward in b.rewards) {
+                        const rewardEffectType = b.rewards[reward].effectType;
+                        if(rewardEffectType === effectType) {
+                            count++;
+                            break;
                         }
                     }
                 }
                 return count;
             };
-            let battleValueFromRewards = () => (1 + battlesWonLength() * 0.05);
-            let atLeastOneBattleWonToMakeItActive = () => (battleValueFromRewards() > 1 ? true : false);
-            let descriptionText = () => ('x1.05 for ' + battlesWonLength() + ' battles defeated');
+            let battleValueFromRewardsFn = () => (Math.pow(standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue, battlesWonLength()));
+            let atLeastOneBattleWonToMakeItActiveFn = () => (battleValueFromRewardsFn() > 1 ? true : false);
+            let descriptionTextFn = () => ((standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue) + 'x for ' + battlesWonLength() + ' battles defeated');
             createAttributeBalanceEntry(
                 balanceElement,
-                battleValueFromRewards,
-                () => [{effectType: effectType, baseValue: battleValueFromRewards}],
+                battleValueFromRewardsFn,
+                () => [{effectType: effectType, baseValue: battleValueFromRewardsFn}],
                 effectType,
-                descriptionText,
-                atLeastOneBattleWonToMakeItActive,
+                descriptionTextFn,
+                atLeastOneBattleWonToMakeItActiveFn,
             );
         } else {
             for (const key in battles) {
@@ -1726,8 +1732,10 @@ function updateAttributeRows() {
             formatValue(
                 Dom.get(balanceEntry.element).byClass('entryValue'),
                 balanceEntry.getEffect(balanceEntry.effectType),
-                balanceEntry.updateDescription?.(),
             );
+            if (isFunction(balanceEntry.updateDescription)) {
+                balanceEntry.updateDescription();
+            }
             balanceEntry.element.classList.remove('hidden');
         } else {
             balanceEntry.element.classList.add('hidden');
