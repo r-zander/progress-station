@@ -79,11 +79,6 @@
     }
 }
 
-#lastRunStatsModal .modal-dialog {
-    max-width: 65%;
-    max-height: 100vh;
-}
-
 .modules-section {
     max-height: 40vh;
     overflow-y: auto;
@@ -114,6 +109,11 @@
     .modal-title,
     .modal-body {
         color: lightcyan;
+    }
+
+    .modal-header,
+    .modal-footer {
+        border: none;
     }
 }
 
