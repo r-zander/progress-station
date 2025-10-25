@@ -104,7 +104,7 @@
 #lastRunStatsModal {
     .modal-content {
         border: 3px solid cyan;
-        background-color: var(--panel-bg-color-transparent20);
+        background-color: var(--panel-bg-color-transparent10);
     }
 
     .modal-title,
@@ -113,6 +113,9 @@
 
     .modal-header,
     .modal-footer {
+        .shortcut {
+            pointer-events: none;
+        }
         border: none;
     }
 }
