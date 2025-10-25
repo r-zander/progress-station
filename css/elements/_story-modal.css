@@ -104,7 +104,7 @@
 #lastRunStatsModal {
     .modal-content {
         border: 3px solid cyan;
-        background-color: var(--panel-bg-color-transparent10);
+        background-color: var(--panel-bg-color-transparent05);
     }
 
     .modal-title,

@@ -135,7 +135,7 @@ function populateLastRunStats() {
             }
 
             row.appendChild(levelCell);
-            runningAnimations.push(animateStatValue(levelSpan, prevMaxLevel, newLevel, 3000));
+            runningAnimations.push(animateStatValue(levelSpan, prevMaxLevel, newLevel, 6000));
 
             // New Operation Speed Bonus
             const speedCell = document.createElement('td');
@@ -146,7 +146,7 @@ function populateLastRunStats() {
 
             const newOpSpeed = (1 + Math.max(module.getLevel(), module.maxLevel) / 100);
             const prevOpSpeed = (1 + module.maxLevel / 100);
-            runningAnimations.push(animateStatValue(speedSpan, prevOpSpeed, newOpSpeed, 3000, value => {
+            runningAnimations.push(animateStatValue(speedSpan, prevOpSpeed, newOpSpeed, 6000, value => {
                 return `x ${value.toFixed(2)}`;
             }));
 
@@ -234,7 +234,7 @@ function setStatValue(id, currentValue, recordValue) {
         return;
     }
     recordValue ??= currentValue;
-    runningAnimations.push(animateStatValue(element, recordValue, currentValue, 3000));
+    runningAnimations.push(animateStatValue(element, recordValue, currentValue, 6000));
 }
 
 function setAttributeStatValue(id, attribute, currentValue, recordValue) {
@@ -252,7 +252,7 @@ function setAttributeStatValue(id, attribute, currentValue, recordValue) {
         return;
     }
     recordValue ??= currentValue;
-    runningAnimations.push(animateStatValue(element, recordValue, currentValue, 3000));
+    runningAnimations.push(animateStatValue(element, recordValue, currentValue, 6000));
 }
 
 function showLastRunStats() {
