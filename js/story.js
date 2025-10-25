@@ -135,7 +135,7 @@ function populateLastRunStats() {
             }
 
             row.appendChild(levelCell);
-            runningAnimations.push(animateStatValue(levelSpan, prevMaxLevel, newLevel, 2000));
+            runningAnimations.push(animateStatValue(levelSpan, prevMaxLevel, newLevel, 3000));
 
             // New Operation Speed Bonus
             const speedCell = document.createElement('td');
@@ -146,7 +146,7 @@ function populateLastRunStats() {
 
             const newOpSpeed = (1 + Math.max(module.getLevel(), module.maxLevel) / 100);
             const prevOpSpeed = (1 + module.maxLevel / 100);
-            runningAnimations.push(animateStatValue(speedSpan, prevOpSpeed, newOpSpeed, 2000, value => {
+            runningAnimations.push(animateStatValue(speedSpan, prevOpSpeed, newOpSpeed, 3000, value => {
                 return `x ${value.toFixed(2)}`;
             }));
 
@@ -157,12 +157,12 @@ function populateLastRunStats() {
     setStatValue('statBossLevels', bossBattle.level, bossBattle.maxLevel);
     setStatValue('statBattlesFinished', getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max);
     setStatValue('statWavesDefeated', getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max);
-    setStatValue('statMaxPopulation', gameData.stats.population.current, gameData.stats.population.max);
-    setStatValue('statMaxIndustry', gameData.stats.industry.current, gameData.stats.industry.max);
-    setStatValue('statMaxGrowth', gameData.stats.growth.current, gameData.stats.growth.max);
-    setStatValue('statMaxMilitary', gameData.stats.military.current, gameData.stats.military.max);
-    setStatValue('statMaxDanger', gameData.stats.danger.current, gameData.stats.danger.max);
-    setStatValue('statGridStrength', gameData.stats.gridStrength.current, gameData.stats.gridStrength.max);
+    setAttributeStatValue('statMaxPopulation', attributes.population, gameData.stats.population.current, gameData.stats.population.max);
+    setAttributeStatValue('statMaxIndustry', attributes.industry, gameData.stats.industry.current, gameData.stats.industry.max);
+    setAttributeStatValue('statMaxGrowth', attributes.growth, gameData.stats.growth.current, gameData.stats.growth.max);
+    setAttributeStatValue('statMaxMilitary', attributes.military, gameData.stats.military.current, gameData.stats.military.max);
+    setAttributeStatValue('statMaxDanger', attributes.danger, gameData.stats.danger.current, gameData.stats.danger.max);
+    setAttributeStatValue('statGridStrength', attributes.gridStrength, gameData.stats.gridStrength.current, gameData.stats.gridStrength.max);
 }
 
 function animateStatValue(element, start, end, duration = 1500, formatFn) {
@@ -234,7 +234,25 @@ function setStatValue(id, currentValue, recordValue) {
         return;
     }
     recordValue ??= currentValue;
-    runningAnimations.push(animateStatValue(element, recordValue, currentValue, 2000));
+    runningAnimations.push(animateStatValue(element, recordValue, currentValue, 3000));
+}
+
+function setAttributeStatValue(id, attribute, currentValue, recordValue) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    const labelElement = document.getElementById(`${attribute.name}StatLabel`);
+    if (labelElement !== null) {
+        labelElement.classList.add(attribute.textClass);
+        labelElement.textContent = attribute.title;
+    }
+
+    if (!currentValue)
+    {
+        element.textContent = '0';
+        return;
+    }
+    recordValue ??= currentValue;
+    runningAnimations.push(animateStatValue(element, recordValue, currentValue, 3000));
 }
 
 function showLastRunStats() {
