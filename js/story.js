@@ -130,6 +130,7 @@ function populateLastRunStats() {
                 arrow.src = 'img/icons/arrow-up.svg';
                 arrow.alt = 'New record';
                 arrow.className = 'stat-arrow';
+                arrow.classList.add('hidden');
                 levelCell.appendChild(arrow);
             }
 
@@ -167,7 +168,7 @@ function populateLastRunStats() {
 function animateStatValue(element, start, end, duration = 1500, formatFn) {
     const startTime = performance.now();
     let lastFirework = 0;
-    let fired = false;
+    let newRecordHighlightSet = false;
 
     function update(now) {
         const progress = Math.min((now - startTime) / duration, 1);
@@ -176,9 +177,11 @@ function animateStatValue(element, start, end, duration = 1500, formatFn) {
         element.textContent = formatFn ? formatFn(value) : Math.round(value).toLocaleString();
 
         if (end > start && value > start && Math.round(value) > 0) {
-            if (!fired) {
-                fired = true;
+            if (!newRecordHighlightSet) {
+                newRecordHighlightSet = true;
                 element.classList.add('stat-sparkle');
+                element.parentElement.querySelector('.stat-arrow')?.classList.remove('hidden');
+
                 const fireworkInterval = setInterval(() => {
                     if (!document.body.contains(element)) {
                         clearInterval(fireworkInterval);
