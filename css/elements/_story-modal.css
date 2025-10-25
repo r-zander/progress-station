@@ -97,14 +97,13 @@
 }
 
 #lastRunModulesTable th {
-    color: var(--ps-light);
     font-weight: 600;
 }
 
 #lastRunStatsModal {
     .modal-content {
         border: 3px solid cyan;
-        background-color: var(--ps-light-transparent90);
+        background-color: rgba(0,0,0,0.6);
     }
 
     .modal-title,
