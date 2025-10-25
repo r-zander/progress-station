@@ -104,11 +104,11 @@
 #lastRunStatsModal {
     .modal-content {
         border: 3px solid cyan;
+        background-color: var(--ps-light-transparent90);
     }
 
     .modal-title,
     .modal-body {
-        color: lightcyan;
     }
 
     .modal-header,
@@ -151,4 +151,11 @@
         opacity: 1;
         transform: scale(1);
     }
+}
+
+.stat-label .icon {
+    width: 16px;
+    vertical-align: middle;
+    display: inline-block;
+    transform: translateY(-1px);
 }
