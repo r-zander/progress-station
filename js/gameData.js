@@ -247,6 +247,26 @@ class GameData {
         }
     };
 
+    /**
+     * @typedef {Object} GameStat
+     * @property {number} current
+     * @property {number} max
+     */
+
+    /**
+     * @type {{[key: string]: GameStat}}
+     */
+    stats = {
+        battlesFinished: { current: 0, max: 0 },
+        wavesDefeated: { current: 0, max: 0 },
+        population: { current: 1, max: 1 },
+        industry: { current: 0, max: 0 },
+        growth: { current: 0, max: 0 },
+        military: { current: 0, max: 0 },
+        danger: { current: 0, max: 0 },
+        gridStrength: { current: 0, max: 0 },
+    };
+
     skipSave = false;
 
     ignoredVersionUpgrades = [];
@@ -305,6 +325,12 @@ class GameData {
         for (const module of defaultModules) {
             this.activeEntities.modules.add(module.name);
         }
+        for (const key in this.stats) {
+            this.stats[key].current = 0;
+            if (key === 'population') {
+                this.stats[key].current = 1;
+            }
+        }
     }
 
     /**
@@ -351,6 +377,15 @@ class GameData {
             previousState: gameStates.NEW.name,
             newState: this.stateName,
         });
+
+        for (const key in this.stats) {
+            if (!this.stats[key]) {
+                this.stats[key] = { current: 0, max: 0 };
+                if (key === 'population') {
+                    this.stats[key] = { current: 1, max: 1 };
+                }
+            }
+        }
 
         return saveGameFound;
     }

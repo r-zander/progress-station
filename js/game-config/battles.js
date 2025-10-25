@@ -1456,5 +1456,26 @@ function maximumAvailableBattles(research) {
     return {limit: 1, requirement: 'Win open battle'};
 }
 
+function getNumberOfFinishedBattles() {
+    let numberOfBattles = 0;
+    for (const battleName in battles) {
+        const battle = battles[battleName];
+
+        if (battle.isDone()) {
+            numberOfBattles++;
+        }
+    }
+    return numberOfBattles;
+}
+
+function getNumberOfDefeatedWaves() {
+    let number = 0;
+    for (const battleName in battles) {
+        const battle = battles[battleName];
+        number += battle.level;
+    }
+    return number;
+}
+
 /** @type {number} */
 const numberOfLayers = 10;

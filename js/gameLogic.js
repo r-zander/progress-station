@@ -89,6 +89,9 @@ function updatePopulation() {
     // Combine both components
     const totalDelta = smoothedGrowthDelta - heatDamage;
     gameData.population = Math.max(gameData.population + applySpeed(totalDelta), 1);
+    if (gameData.population > gameData.stats.population.current) {
+        gameData.stats.population.current = gameData.population;
+    }
 
     if (gameData.state === gameStates.BOSS_FIGHT && Math.round(gameData.population) === 1) {
         gameData.transitionState(gameStates.DEAD);
@@ -104,6 +107,36 @@ function getPopulationProgressSpeedMultiplier() {
     // Pop 10000 ~= x138
     // Pop 40000 ~= x290
     return Math.max(1, Math.pow(Math.round(gameData.population), 1 / 1.869));
+}
+
+function updateStats() {
+    const danger = attributes.danger.getValue();
+    if (danger > gameData.stats.danger.current) gameData.stats.danger.current = danger;
+
+    const growth = attributes.growth.getValue();
+    if (growth > gameData.stats.growth.current) gameData.stats.growth.current = growth;
+
+    const industry = attributes.industry.getValue();
+    if (industry > gameData.stats.industry.current) gameData.stats.industry.current = industry;
+
+    const military = attributes.military.getValue();
+    if (military > gameData.stats.military.current) gameData.stats.military.current = military;
+
+    const gridStrength = attributes.gridStrength.getValue();
+    if (gridStrength > gameData.stats.gridStrength.current) gameData.stats.gridStrength.current = gridStrength;
+
+    //Population handled in updatePopulation
+}
+
+function updateMaxStats() {
+    gameData.stats.battlesFinished.max = Math.max(getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max);
+    gameData.stats.wavesDefeated.max = Math.max(getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max);
+    gameData.stats.population.max = Math.max(gameData.stats.population.current, gameData.stats.population.max);
+    gameData.stats.industry.max = Math.max(gameData.stats.industry.current, gameData.stats.industry.max);
+    gameData.stats.growth.max = Math.max(gameData.stats.growth.current, gameData.stats.growth.max);
+    gameData.stats.military.max = Math.max(gameData.stats.military.current, gameData.stats.military.max);
+    gameData.stats.danger.max = Math.max(gameData.stats.danger.current, gameData.stats.danger.max);
+    gameData.stats.gridStrength.max = Math.max(gameData.stats.gridStrength.current, gameData.stats.gridStrength.max);
 }
 
 function getGameSpeed() {
@@ -235,6 +268,8 @@ function resetBattle(name) {
 }
 
 function startNewPlaythrough() {
+    updateMaxStats();
+
     setPreviousStationName(gameData.stationName);
     setStationName(new SuffixGenerator(gameData.stationName).getNewName());
     gameData.bossEncounterCount += 1;

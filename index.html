@@ -1109,7 +1109,7 @@
             <div class="modal-footer d-flex">
                 <button type="button" class="btn btn-secondary win-only" onclick="continueAfterWin();">Keep playing</button>
                 <button type="button" class="btn btn-primary ms-auto win-only" onclick="resetAfterWin();">Start new game</button>
-                <button type="button" class="btn btn-primary ms-auto loss-only" onclick="restartAfterDead();">Fade to black</button>
+                <button type="button" class="btn btn-primary ms-auto loss-only" onclick="showStatsAfterRun();">Fade to black</button>
             </div>
         </div>
     </div>
@@ -1182,6 +1182,70 @@
         </div>
     </div>
 </div>
+
+<div id="lastRunStatsModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header justify-content-center">
+                <h2 class="shortcut my-0 px-3 pb-1 text-nowrap overflow-x-hidden flex-shrink-0">
+                    Last Run Statistics
+                </h2>
+            </div>
+            <div class="modal-body">
+                <!-- MODULES SECTION -->
+                <section class="mb-4">
+                    <h3 class="fs-5 fw-light mb-3">Modules</h3>
+                    <div class="modules-section table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th scope="col">Module</th>
+                                <th scope="col">New Max Level</th>
+                                <th scope="col">
+                        <span data-bs-toggle="tooltip" data-bs-placement="top"
+                              title="Higher module levels increase operation speed (1 + maxLevel / 100)">
+                            New Operation Speed Bonus
+                        </span>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody id="lastRunModulesTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- STATS SECTION -->
+                <section>
+                    <h3 class="fs-5 fw-light mb-3">Stats</h3>
+                    <div class="container-fluid">
+                        <div class="row g-5">
+                            <div class="col-md-4">
+                                <div class="stat-row"><span>Boss Levels Defeated</span><span id="statBossLevels">0</span></div>
+                                <div class="stat-row"><span>Battles Finished</span><span id="statBattlesFinished">0</span></div>
+                                <div class="stat-row"><span>Waves Defeated</span><span id="statWavesDefeated">0</span></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-row"><span>Max Population</span><span id="statMaxPop">0</span></div>
+                                <div class="stat-row"><span>Max Industry</span><span id="statMaxIndustry">0</span></div>
+                                <div class="stat-row"><span>Max Growth</span><span id="statMaxGrowth">0</span></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-row"><span>Max Military</span><span id="statMaxMilitary">0</span></div>
+                                <div class="stat-row"><span>Max Danger</span><span id="statMaxDanger">0</span></div>
+                                <div class="stat-row"><span>Total Grid Strength</span><span id="statGridStrength">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="modal-footer d-flex">
+                <button type="button" class="btn btn-primary ms-auto" onclick="closeLastRunStats();">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="breakpointCssClassesDebug" class="position-fixed start-0 p-3 text-bg-dark hidden" style="bottom: 60px; z-index: 2000;">
 
 </div>

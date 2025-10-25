@@ -96,6 +96,130 @@ function initBossFightIntro() {
     };
 }
 
+function populateLastRunStats() {
+    const tableBody = document.getElementById('lastRunModulesTable');
+    if (!tableBody) return;
+    tableBody.innerHTML = '';
+
+    for (const [categoryKey, category] of Object.entries(moduleCategories)) {
+        for (const module of category.modules) {
+            const newLevel = Math.max(module.getLevel(), module.maxLevel);
+            const prevMaxLevel = module.maxLevel;
+            const isNewRecord = module.getLevel() > module.maxLevel;
+            if (!newLevel && !prevMaxLevel) {
+                continue;
+            }
+
+            const row = document.createElement('tr');
+
+            // Module Name
+            const nameCell = document.createElement('td');
+            nameCell.textContent = module.title;
+            row.appendChild(nameCell);
+
+            // Module Level
+            const levelCell = document.createElement('td');
+            levelCell.classList.add('stat-cell');
+
+            const levelSpan = document.createElement('span');
+            levelSpan.className = 'stat-value';
+            levelCell.appendChild(levelSpan);
+
+            if (isNewRecord) {
+                const arrow = document.createElement('img');
+                arrow.src = 'img/icons/arrow-up.svg';
+                arrow.alt = 'New record';
+                arrow.className = 'stat-arrow';
+                levelCell.appendChild(arrow);
+            }
+
+            row.appendChild(levelCell);
+            animateStatValue(levelSpan, prevMaxLevel, newLevel, 2000);
+
+            // New Operation Speed Bonus
+            const speedCell = document.createElement('td');
+            const speedSpan = document.createElement('span');
+            speedSpan.className = `stat-value`;
+            speedCell.appendChild(speedSpan);
+            row.appendChild(speedCell);
+
+            const newOpSpeed = (1 + Math.max(module.getLevel(), module.maxLevel) / 100);
+            const prevOpSpeed = (1 + module.maxLevel / 100);
+            animateStatValue(speedSpan, prevOpSpeed, newOpSpeed, 2000, value => {
+                return `x ${value.toFixed(2)}`;
+            });
+
+            tableBody.appendChild(row);
+        }
+    }
+
+    setStatValue('statBossLevels', bossBattle.level, bossBattle.maxLevel);
+    setStatValue('statBattlesFinished', getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max);
+    setStatValue('statWavesDefeated', getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max);
+    setStatValue('statMaxPop', gameData.stats.population.current, gameData.stats.population.max);
+    setStatValue('statMaxIndustry', gameData.stats.industry.current, gameData.stats.industry.max);
+    setStatValue('statMaxGrowth', gameData.stats.growth.current, gameData.stats.growth.max);
+    setStatValue('statMaxMilitary', gameData.stats.military.current, gameData.stats.military.max);
+    setStatValue('statMaxDanger', gameData.stats.danger.current, gameData.stats.danger.max);
+    setStatValue('statGridStrength', gameData.stats.gridStrength.current, gameData.stats.gridStrength.max);
+}
+
+function animateStatValue(element, start, end, duration = 1500, formatFn) {
+    const startTime = performance.now();
+    let lastFirework = 0;
+    let fired = false;
+
+    function update(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const value = end * progress;
+
+        element.textContent = formatFn ? formatFn(value) : Math.round(value).toLocaleString();
+
+        if (end > start && value > start && Math.round(value) > 0) {
+            if (!fired) {
+                fired = true;
+                element.classList.add('stat-sparkle');
+                const fireworkInterval = setInterval(() => {
+                    if (!document.body.contains(element)) {
+                        clearInterval(fireworkInterval);
+                        return;
+                    }
+                    if (Math.random() < 0.3) {
+                        spawnFireworkNearElement(element, 3 + Math.floor(Math.random() * 5));
+                    }
+                }, 400 + Math.random() * 400);
+            }
+            if (progress < 1 && now - lastFirework > 400 + Math.random() * 400 && Math.random() < 0.5) {
+                spawnFireworkNearElement(element, 5 + Math.floor(Math.random() * 5));
+                lastFirework = now;
+            }
+        }
+        requestAnimationFrame(update);
+    }
+
+    requestAnimationFrame(update);
+}
+
+function setStatValue(id, endValue, startValue) {
+    const el = document.getElementById(id);
+    if (!el || !endValue || endValue === 0) return;
+    startValue = startValue ?? endValue
+    animateStatValue(el, startValue, endValue, 2000);
+}
+
+function showLastRunStats() {
+    populateLastRunStats();
+    const modal = new bootstrap.Modal(document.getElementById('lastRunStatsModal'));
+    modal.show();
+}
+
+function closeLastRunStats() {
+    const modalEl = document.getElementById('lastRunStatsModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    modal.hide();
+    startNewPlaythrough();
+}
+
 function initGameOver() {
     let modalElement = document.getElementById('gameOverModal');
     const modal = new bootstrap.Modal(modalElement);
@@ -137,6 +261,11 @@ function initGameOver() {
 
     window.resetAfterWin = () => {
         gameData.reset();
+    };
+
+    window.showStatsAfterRun = () => {
+        modal.hide();
+        showLastRunStats();
     };
 
     window.restartAfterDead = () => {
