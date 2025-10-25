@@ -135,7 +135,7 @@ function populateLastRunStats() {
             }
 
             row.appendChild(levelCell);
-            animateStatValue(levelSpan, prevMaxLevel, newLevel, 2000);
+            runningAnimations.push(animateStatValue(levelSpan, prevMaxLevel, newLevel, 2000));
 
             // New Operation Speed Bonus
             const speedCell = document.createElement('td');
@@ -146,9 +146,9 @@ function populateLastRunStats() {
 
             const newOpSpeed = (1 + Math.max(module.getLevel(), module.maxLevel) / 100);
             const prevOpSpeed = (1 + module.maxLevel / 100);
-            animateStatValue(speedSpan, prevOpSpeed, newOpSpeed, 2000, value => {
+            runningAnimations.push(animateStatValue(speedSpan, prevOpSpeed, newOpSpeed, 2000, value => {
                 return `x ${value.toFixed(2)}`;
-            });
+            }));
 
             tableBody.appendChild(row);
         }
@@ -157,7 +157,7 @@ function populateLastRunStats() {
     setStatValue('statBossLevels', bossBattle.level, bossBattle.maxLevel);
     setStatValue('statBattlesFinished', getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max);
     setStatValue('statWavesDefeated', getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max);
-    setStatValue('statMaxPop', gameData.stats.population.current, gameData.stats.population.max);
+    setStatValue('statMaxPopulation', gameData.stats.population.current, gameData.stats.population.max);
     setStatValue('statMaxIndustry', gameData.stats.industry.current, gameData.stats.industry.max);
     setStatValue('statMaxGrowth', gameData.stats.growth.current, gameData.stats.growth.max);
     setStatValue('statMaxMilitary', gameData.stats.military.current, gameData.stats.military.max);
@@ -169,45 +169,72 @@ function animateStatValue(element, start, end, duration = 1500, formatFn) {
     const startTime = performance.now();
     let lastFirework = 0;
     let newRecordHighlightSet = false;
+    let stopped = false;
+    const fireworkIntervals = [];
+
+    function cleanup() {
+        stopped = true;
+        fireworkIntervals.forEach(i => clearInterval(i));
+        fireworkIntervals.length = 0;
+        element.classList.remove('stat-sparkle');
+        const arrow = element.parentElement?.querySelector('.stat-arrow');
+        if (arrow) arrow.classList.add('hidden');
+    }
 
     function update(now) {
+        if (stopped) return;
+
         const progress = Math.min((now - startTime) / duration, 1);
         const value = end * progress;
-
         element.textContent = formatFn ? formatFn(value) : Math.round(value).toLocaleString();
 
         if (end > start && value > start && Math.round(value) > 0) {
             if (!newRecordHighlightSet) {
                 newRecordHighlightSet = true;
                 element.classList.add('stat-sparkle');
-                element.parentElement.querySelector('.stat-arrow')?.classList.remove('hidden');
+                const arrow = element.parentElement?.querySelector('.stat-arrow');
+                if (arrow) arrow.classList.remove('hidden');
 
-                const fireworkInterval = setInterval(() => {
-                    if (!document.body.contains(element)) {
-                        clearInterval(fireworkInterval);
+                const interval = setInterval(() => {
+                    if (stopped || !document.body.contains(element)) {
+                        clearInterval(interval);
                         return;
                     }
                     if (Math.random() < 0.3) {
                         spawnFireworkNearElement(element, 3 + Math.floor(Math.random() * 5));
                     }
                 }, 400 + Math.random() * 400);
+                fireworkIntervals.push(interval);
             }
+
             if (progress < 1 && now - lastFirework > 400 + Math.random() * 400 && Math.random() < 0.5) {
                 spawnFireworkNearElement(element, 5 + Math.floor(Math.random() * 5));
                 lastFirework = now;
             }
         }
-        requestAnimationFrame(update);
+
+        if (!stopped && progress < 1) requestAnimationFrame(update);
     }
 
     requestAnimationFrame(update);
+
+    return {
+        stop: cleanup
+    };
 }
 
-function setStatValue(id, endValue, startValue) {
-    const el = document.getElementById(id);
-    if (!el || !endValue || endValue === 0) return;
-    startValue = startValue ?? endValue
-    animateStatValue(el, startValue, endValue, 2000);
+const runningAnimations = [];
+
+function setStatValue(id, currentValue, recordValue) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    if (!currentValue)
+    {
+        element.textContent = '0';
+        return;
+    }
+    recordValue ??= currentValue;
+    runningAnimations.push(animateStatValue(element, recordValue, currentValue, 2000));
 }
 
 function showLastRunStats() {
@@ -217,9 +244,11 @@ function showLastRunStats() {
 }
 
 function closeLastRunStats() {
-    const modalEl = document.getElementById('lastRunStatsModal');
-    const modal = bootstrap.Modal.getInstance(modalEl);
+    const modalElement = document.getElementById('lastRunStatsModal');
+    const modal = bootstrap.Modal.getInstance(modalElement);
     modal.hide();
+    runningAnimations.forEach(ctrl => ctrl.stop());
+    runningAnimations.length = 0;
     startNewPlaythrough();
 }
 
