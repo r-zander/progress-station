@@ -127,8 +127,124 @@ class NameGenerator {
         }
     }
 
+    /**
+     * @returns {function(): string} a built name
+     */
     bound() {
         return this.generate.bind(this);
+    }
+}
+
+class SuffixGenerator {
+    static #numericSuffixes = {
+        // numberWords
+        englishNumberWords: [
+            'Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six',
+            'Seven', 'Eighth', 'Nine', 'Ten', 'Eleven', 'Twelve', '13' // transition to arabic numbers
+        ],
+        germanNumberWords: [
+            'Null', 'Eins', 'Zwei', 'Drei', 'Vier', 'Fünf', 'Sechs',
+            'Sieben', 'Acht', 'Neun', 'Zehn', 'Elf', 'Zwölf', '13' // transition to arabic numbers
+        ],
+
+        // romanNumbers,
+        romanNumbers: romans.deromanize,
+
+        // thousands
+        thousands: /\d000/,
+
+        // catches all arabic numbers, including:
+        // - yearNumbers
+        // - unevenNumbers
+        otherNumbers: /\d+/,
+    };
+
+    static genericTwo = new NameGenerator('genericTwo').add([
+        '2',
+        'II',
+        'Two',
+    ]).bound();
+
+    /** @type {string} */
+    #currentName;
+
+    /** @type {string} keyof #numericSuffixes */
+    #suffixType;
+    /** @type {string} */
+    #newSuffix;
+    /** @type {string} */
+    #newName;
+
+    /**
+     * @param {string} currentName
+     */
+    constructor(currentName) {
+        this.#currentName = currentName;
+
+        this.#newSuffix = this.#identifyAndIncrease();
+        this.#newName = this.#generateName();
+    }
+
+    #identifyAndIncrease() {
+        const nameParts = this.#currentName.split(/\s/);
+        const suffix = nameParts[nameParts.length - 1];
+
+        {
+            const indexOf = SuffixGenerator.#numericSuffixes.englishNumberWords.indexOf(suffix);
+            if (indexOf >= 0 && indexOf < (SuffixGenerator.#numericSuffixes.englishNumberWords.length - 1)) {
+                this.#suffixType = 'englishNumberWords';
+                return SuffixGenerator.#numericSuffixes.englishNumberWords[indexOf + 1];
+            }
+        }
+
+        {
+            const indexOf = SuffixGenerator.#numericSuffixes.germanNumberWords.indexOf(suffix);
+            if (indexOf >= 0 && indexOf < (SuffixGenerator.#numericSuffixes.germanNumberWords.length - 1)) {
+                this.#suffixType = 'germanNumberWords';
+                return SuffixGenerator.#numericSuffixes.germanNumberWords[indexOf + 1];
+            }
+        }
+
+        try {
+            const parsedNumber = SuffixGenerator.#numericSuffixes.romanNumbers(suffix);
+            this.#suffixType = 'romanNumbers';
+            return romans.romanize(parsedNumber + 1);
+        } catch (e) {
+            // Couldn't parse, continue with other checks
+        }
+
+        if (suffix.match(SuffixGenerator.#numericSuffixes.thousands)) {
+            this.#suffixType = 'thousands';
+            const parsedNumber = parseInt(suffix, 10);
+            return parsedNumber + 1000;
+        }
+
+        if (suffix.match(SuffixGenerator.#numericSuffixes.otherNumbers)) {
+            this.#suffixType = 'otherNumbers';
+            const parsedNumber = parseInt(suffix, 10);
+            return parsedNumber + 1;
+        }
+
+        // Just a 2 - in some form or the other :D
+        this.#suffixType = 'none';
+        return SuffixGenerator.genericTwo();
+    }
+
+    #generateName() {
+        const nameParts = this.#currentName.split(/\s/);
+        if (this.#suffixType !== 'none') {
+            nameParts.pop();
+        }
+        nameParts.push(this.#newSuffix);
+        return nameParts.join(' ');
+    }
+
+    getNewSuffix() {
+        return this.#newSuffix;
+    }
+
+    getNewName() {
+        return this.#newName;
     }
 }
 

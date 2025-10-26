@@ -10,14 +10,13 @@
     /*--ps-purple1: #67288F;*/
     --ps-dark-blue: #144A8B;
     --ps-blue: #5D8EC8;
+    --ps-light-blue: #8FAFD4;
     --ps-cyan: #54E9D6;
     /*--ps-green1: #48A07E;*/
     --ps-green3: #2ABF72;
     /*--ps-green2: #02CC72;*/
     --ps-dark: #000000;
     --ps-light: #FFFFFF;
-    /* TODO */
-    /*color: rgba(var(--bs-danger-rgb), var(--bs-text-opacity)) !important;*/
     --ps-light-transparent100: #FFFFFF00;
     --ps-light-transparent90: #FFFFFF19;
     --ps-passive: #848484;
@@ -31,6 +30,11 @@
     --tab-button-border-color: var(--ps-passive);
     --tab-button-interact-border-color: var(--ps-light);
     --tab-button-active-border-color: var(--active-color);
+
+    --header-bg-color: #F8F9FA;
+    --header-font-color: var(--ps-dark);
+    --header-passive-bg-color: var(--progress-passive-bg-color);
+    --header-passive-font-color: var(--ps-light);
 
     --body-bg-color: #202020;
     --body-font-color: white;
