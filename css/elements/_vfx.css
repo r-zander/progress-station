@@ -160,6 +160,16 @@
     100% { transform: translate(0, 0) rotate(0deg); }
 }
 
+.shake-and-pulse {
+    animation: tilt-n-pulse-shaking 0.5s infinite ease-out;
+}
+
+@keyframes tilt-n-pulse-shaking {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(3deg) scale(1.05); }
+    75% { transform: rotate(-3deg) scale(1.05); }
+}
+
 /* subtle zoom to attention and then back */
 .flash-text-denied {
     animation: 300ms flash-text-denied ease;
@@ -178,6 +188,7 @@
         color: var(--warning-color);
         scale: 1.2;
         opacity: 1;
+        /*noinspection CssNonIntegerLengthInPixels*/
         text-shadow:
                 1px 0 0 currentColor,
                 0.54px 0.84px 0 currentColor,
@@ -202,6 +213,7 @@
         color: var(--warning-color);
         scale: 1.2;
         opacity: 1;
+        /*noinspection CssNonIntegerLengthInPixels*/
         text-shadow:
                 1px 0 0 currentColor,
                 0.54px 0.84px 0 currentColor,

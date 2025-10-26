@@ -134,6 +134,10 @@ class Battle extends LayeredTask {
         return 1;
     }
 
+    getMaxXp() {
+        return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.0095, this.level));
+    }
+
     isActive() {
         return gameData.activeEntities.battles.has(this.name);
     }
@@ -142,7 +146,7 @@ class Battle extends LayeredTask {
         if (this.isActive()) {
             this.stop();
         } else {
-            if (!this.isSafeToEngage()) {
+            if (battlesShowDangerWarning && !this.isSafeToEngage()) {
                 showDangerModal(
                     () => this.start(),   // onConfirm
                     () => {}              // onCancel (do nothing)

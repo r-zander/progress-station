@@ -14,6 +14,7 @@
 }
 
 .level1-header > .category {
+    /*noinspection CssNoGenericFontName*/
     font-family: var(--title-font-family);
     font-weight: 400;
 }
@@ -50,6 +51,7 @@
     z-index: 2;
 
     > .name {
+        /*noinspection CssNoGenericFontName*/
         font-family: var(--title-font-family);
         font-weight: 400;
     }
@@ -68,6 +70,16 @@
         .form-check-input:hover {
             box-shadow: 0 0 0 0.25rem rgba(255, 165, 0, 0.5);
         }
+    }
+
+    &.active {
+        color: var(--header-font-color) !important;
+        background-color: var(--header-bg-color) !important;
+    }
+
+    &.inactive {
+        color: var(--header-passive-font-color) !important;
+        background-color: var(--header-passive-bg-color) !important;
     }
 }
 

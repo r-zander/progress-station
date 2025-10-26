@@ -96,6 +96,7 @@ function setTab(selectedTab) {
     tabButtons[selectedTab].classList.add('active');
 
     const content = Dom.get().byId('content');
+    content.scrollTop = 0;
 
     if (isVerticalBarAnimation) {
         content.classList.add('vertical');
@@ -421,6 +422,16 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
         switchElement.id = 'switch_' + module.domId;
         switchElement.addEventListener('click', switchModuleActivation.bind(this, module));
         level2DomGetter.byClass('moduleActivationLabel').htmlFor = switchElement.id;
+
+        const header = level2DomGetter.byClass('level2-header');
+        header.addEventListener('click', function(e) {
+            if (e.target.closest('input.moduleActivationSwitch') || e.target.closest('label.moduleActivationLabel')) {
+                return;
+            }
+            switchElement.checked = !switchElement.checked;
+            switchModuleActivation.call(this, module, { target: switchElement });
+        });
+
         initTooltip(level2DomGetter.byClass('maxLevel'), {
             title: () => {
                 return `<b>x${(1 + module.maxLevel / 100).toFixed(2)} XP</b> for all operations in this module.`;
@@ -1011,7 +1022,8 @@ function createAttributesHTML() {
         if (attribute.icon === null) {
             attribute.inlineHtmlWithIcon = inlineHTML;
         } else {
-            attribute.inlineHtmlWithIcon = `<img src="${attribute.icon}" class="inline-attribute icon" />` + inlineHTML;
+            attribute.inlineHtmlWithIcon =
+                `<span class="inline-attribute"><img src="${attribute.icon}" class="inline-attribute icon" />${inlineHTML}</span>`;
         }
     }
 }
@@ -1070,8 +1082,8 @@ function createAttributesUI() {
     // Heat
     const heatRow = createAttributeRow(attributes.heat);
     Dom.get(heatRow).byClass('description').innerHTML +=
-        `<br />${attributes.military.inlineHtml} exceeding ${attributes.danger.inlineHtml} is disregarded.`
-        + (SPACE_BASE_HEAT > 0.0
+        `<br />Acceleration is applied to reach the target ${attributes.heat.inlineHtml}.` +
+        (SPACE_BASE_HEAT > 0.0
             ? `The total can never be less than <data value="${SPACE_BASE_HEAT.toFixed(0.1)}">${formatNumber(SPACE_BASE_HEAT)}</data> - space is dangerous!`
             : '');
     const heatFormulaElement = Dom.get(heatRow).byClass('formula');
@@ -1096,6 +1108,8 @@ function createAttributesUI() {
 
     // Population
     const populationRow = createAttributeRow(attributes.population);
+    Dom.get(populationRow).byClass('description').innerHTML +=
+        `<br />Innertia is applied to ${attributes.growth.inlineHtml}.`;
     const populationFormulaElement = Dom.get(populationRow).byClass('formula');
     populationFormulaElement.classList.remove('hidden');
     populationFormulaElement.innerHTML =
@@ -1413,8 +1427,8 @@ function updateModuleRow(module, moduleRequirementsContext) {
 
     const domGetter = Dom.get(row);
     const level2Header = domGetter.byClass('level2-header');
-    level2Header.classList.toggle('text-bg-light', isActive);
-    level2Header.classList.toggle('text-bg-dark', !isActive);
+    level2Header.classList.toggle('active', isActive);
+    level2Header.classList.toggle('inactive', !isActive);
 
     domGetter.byClass('moduleActivationSwitch').checked = module.isActive();
     formatValue(domGetter.byClass('level'), module.getLevel());
@@ -1824,17 +1838,94 @@ function updateEnergyGridBar() {
     energyGeneratedElement.style.right = `clamp(${rightLimit}px, ${relativeEnergy}%, calc(100% - ${leftLimit}px))`;
 }
 
+function updateBossProgress() {
+    const container = document.getElementById('bossProgress');
+    const bossBar = document.getElementById('bossProgressBar');
+
+    const allowProgressAcceleration = gameData.bossEncounterCount >= bossBarAccelerationAllowedAfterBossEncounters;
+
+    const progressContainer = container.querySelector('.bossProgress-container');
+
+    const remaining = getTimeUntilBossAppears();
+    const totalWait = getBossAppearanceCycle();
+    let progressPercentage = isBossBattleAvailable() ? 100 : Math.max(0, Math.min(100, ((totalWait - remaining) / totalWait) * 100));
+
+    if (bossBarAcceleratedProgress < progressPercentage) {
+        bossBarAcceleratedProgress = progressPercentage;
+    }
+
+    if (allowProgressAcceleration && bossBarPressed && bossBarAcceleratedProgress < 100) {
+        const holdTime = (performance.now() - bossBarPressStartTime) / 1000;
+        const acceleration = Math.min(1 + holdTime * holdTime, 10);
+        bossBarAcceleratedProgress = Math.min(bossBarAcceleratedProgress + acceleration * 0.5, 100);
+        progressPercentage = bossBarAcceleratedProgress;
+    } else {
+        bossBarAcceleratedProgress = progressPercentage;
+    }
+
+    bossBar.style.width = progressPercentage.toFixed(1) + '%';
+    updateBossBarColor(progressPercentage, bossBar);
+    bossBar.setAttribute('aria-valuenow', progressPercentage.toFixed(1));
+    const bossText = document.getElementById('bossProgressText');
+    const newText = getBossProgressForeshadowingText(progressPercentage);
+
+    if (bossText.textContent !== newText) {
+        bossText.style.opacity = '0';
+        setTimeout(() => {
+            bossText.textContent = newText;
+            bossText.style.opacity = '1';
+        }, 200);
+    }
+
+    if (progressPercentage > 80) {
+        bossText.classList.add('warningAnimation');
+    } else {
+        bossText.classList.remove('warningAnimation');
+    }
+
+    const tooltip = bootstrap.Tooltip.getOrCreateInstance(container);
+    if (allowProgressAcceleration) {
+        progressContainer.classList.remove('disabled');
+        tooltip.enable();
+        if (!container.matches(':hover')) {
+            const tooltipText = `${progressPercentage.toFixed(1)}% - Long press to taunt and engage the boss.`;
+            tooltip.setContent({'.tooltip-inner': tooltipText});
+        }
+    } else {
+        progressContainer.classList.add('disabled');
+        tooltip.disable();
+    }
+
+    if (bossBarPressed && progressPercentage >= 100 && !gameData.bossBattleAvailable) {
+        summonBoss();
+        bossBarPressed = false;
+    }
+}
+
+function updateBossBarColor(progress, bossBar) {
+    bossBar.classList.remove('lowDanger', 'mediumDanger', 'highDanger', 'veryHighDanger', 'maxDanger');
+    if (progress >= 90) bossBar.classList.add('maxDanger');
+    else if (progress >= 75) bossBar.classList.add('veryHighDanger');
+    else if (progress >= 50) bossBar.classList.add('highDanger');
+    else if (progress >= 25) bossBar.classList.add('mediumDanger');
+    else bossBar.classList.add('lowDanger');
+}
+
+function updateHeatIndication() {
+    const heat = attributes.heat.getValue();
+    const gotHeat = heat > 0.0 && !nearlyEquals(heat, 0.0, 0.01);
+    Dom.get().byId('heatIndicator').classList.toggle('hidden', !gotHeat);
+    Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="heat"]').classList.toggle('shake-and-pulse', gotHeat);
+}
+
 function updateStationOverview() {
-    const cyclesSinceLastEncounterElement = Dom.get().byId('cyclesSinceLastEncounter');
+    updateBossProgress();
     const cyclesTotalElement = Dom.get().byId('cyclesTotal');
     if (gameData.bossEncounterCount === 0) {
-        cyclesSinceLastEncounterElement.classList.add('hidden');
         cyclesTotalElement.classList.replace('secondary-stat', 'primary-stat');
         cyclesTotalElement.classList.remove('help-text');
     } else {
-        cyclesSinceLastEncounterElement.classList.remove('hidden');
         // TODO adjust formatting & use formatValue
-        Dom.get(cyclesSinceLastEncounterElement).bySelector('data').textContent = formatNumber(Math.floor(gameData.cycles));
         cyclesTotalElement.classList.replace('primary-stat', 'secondary-stat');
         cyclesTotalElement.classList.add('help-text');
     }
@@ -1881,7 +1972,7 @@ function updateStationOverview() {
     formatValue(Dom.get().bySelector('#attributeRows > .growth > .value > data'), growth);
 
     const heat = attributes.heat.getValue();
-    formatValue(Dom.get().byId('heatDisplay'), heat, {forceInteger: true});
+    formatValue(Dom.get().byId('heatDisplay'), heat);
     formatValue(Dom.get().bySelector('#attributeRows > .heat > .value > data'), heat);
 
     const industry = attributes.industry.getValue();
@@ -2072,6 +2163,7 @@ function updateUI() {
 
     updateHtmlElementRequirements();
 
+    updateHeatIndication();
     updateStationOverview();
     updateBodyClasses();
 }
@@ -2089,10 +2181,12 @@ function update(deltaTime, totalTime, isLastUpdateInTick, gameLoop) {
     progressGalacticSecrets();
     activateComponentOperations();
     doTasks();
+    updateHeat();
     updatePopulation();
 
-    // Only update the UI once in an accumulated update
-    if (isLastUpdateInTick) {
+    if (isLastUpdateInTick // Only update the UI once in an accumulated update
+        || !gameData.state.gameLoopRunning // we are about to stop the game loop, so now is the time to update the UI
+    ) {
         updateUI();
     }
 
@@ -2157,6 +2251,17 @@ function initTabBehavior() {
 }
 
 /**
+ * @param {string} previousStationName
+ */
+function setPreviousStationName(previousStationName) {
+    gameData.previousStationName = previousStationName;
+    for (const previousStationNameElement of Dom.get().allByClass('previousStationName')) {
+        previousStationNameElement.textContent = previousStationName;
+    }
+    // saveGameData();
+}
+
+/**
  * @param {string} newStationName
  */
 function setStationName(newStationName) {
@@ -2173,6 +2278,9 @@ function setStationName(newStationName) {
 }
 
 function initStationName() {
+    if (isString(gameData.previousStationName)) {
+        setPreviousStationName(gameData.previousStationName);
+    }
     setStationName(gameData.stationName);
     const stationNameDisplayElement = document.getElementById('nameDisplay');
     stationNameDisplayElement.addEventListener('click', (event) => {
@@ -2225,6 +2333,27 @@ function initConfigNames() {
     assignNames(galacticSecrets);
 }
 
+let bossBarPressed = false;
+let bossBarPressStartTime = 0;
+let bossBarAcceleratedProgress = 0;
+const bossBarAccelerationAllowedAfterBossEncounters = 1;
+
+function initBossBattleProgressBar() {
+    const barContainer = document.getElementById('bossProgress');
+
+    barContainer.addEventListener('pointerdown', () => {
+        if (isBossBattleAvailable()) return;
+        if (gameData.bossEncounterCount < bossBarAccelerationAllowedAfterBossEncounters) return;
+
+        bossBarPressed = true;
+        bossBarPressStartTime = performance.now();
+    });
+
+    barContainer.addEventListener('pointerup', () => {
+        bossBarPressed = false;
+    });
+}
+
 function init() {
     initConfigNames();
     initRequirements();
@@ -2258,6 +2387,7 @@ function init() {
     initStationName();
     initAudio();
     initSettings();
+    initBossBattleProgressBar();
 
     cleanUpDom();
     BreakpointCssClasses.init();
