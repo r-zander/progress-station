@@ -927,7 +927,7 @@ function createAttributeBalance(rowElement, effectTypes) {
             };
             let battleValueFromRewardsFn = () => (Math.pow(standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue, battlesWonLength()));
             let atLeastOneBattleWonToMakeItActiveFn = () => (battleValueFromRewardsFn() > 1 ? true : false);
-            let descriptionTextFn = () => ((standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue) + 'x for ' + battlesWonLength() + ' battles defeated');
+            let descriptionTextFn = () => ('x' + (standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue) + ' for ' + battlesWonLength() + ' battles defeated');
             createAttributeBalanceEntryDynamicDescription(
                 balanceElement,
                 battleValueFromRewardsFn,
