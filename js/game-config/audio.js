@@ -36,8 +36,6 @@ const SoundBank = {
             'audio/sfx/power-up.mp3',
             'audio/sfx/power-up-v2.mp3',
             'audio/sfx/power-up-v3.mp3',
-            'audio/sfx/power-up-v4.mp3',
-            'audio/sfx/new-power-up.mp3',
         ],
         containerType: 'sequence',
         volume: 1.0,
@@ -68,6 +66,27 @@ const SoundBank = {
         //     volume: { min: -2, max: 2 },
         //     pitch: { min: -30, max: 30 }
         // },
+    },
+
+    [AudioEvents.BATTLE_FINISH]: {
+        src: [
+            'audio/sfx/battle_finish.mp3',
+        ],
+        volume: 1.0,
+    },
+
+    [AudioEvents.GRID_UPGRADE]: {
+        src: [
+            'audio/sfx/grid_up.mp3',
+        ],
+        volume: 1.0,
+    },
+
+        [AudioEvents.CHANGE_LOCATION]: {
+        src: [
+            'audio/sfx/new_location.mp3',
+        ],
+        volume: 1.0,
     },
 
     // [AudioEvents.UI.BUTTON_HOVER]: {
