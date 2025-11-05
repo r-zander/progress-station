@@ -316,21 +316,28 @@ class AudioEngine {
      * @returns {void}
      */
     static init() {
-        // TODO needs special handling to circumvent browser's audio auto-play blocking
         const savedValueAudioEnabled = gameData.settings.audio.enabled;
-        gameData.settings.audio.enabled = false;
+        // TODO needs special handling to circumvent browser's audio auto-play blocking
+        // gameData.settings.audio.enabled = false;
 
         // Connect music context to AudioEngine
         AudioEngine.setMusicContext(musicContext);
 
         // Set initial volume and mute state
         Howler.mute(!gameData.settings.audio.enabled);
+        // Howler.on('playerror', () => {
+        //     console.error(...arguments);
+        // });
         AudioEngine.setVolume(gameData.settings.audio.masterVolume);
 
         // Load audio config from game config
         initializeAudio();
         // TODO what's the sense of this?
+        // TODO only when audio.enabled?
         this.setState(MusicIds.MAIN_THEME, MusicIds.MAIN_THEME);
+        if (gameData.settings.audio.enabled) {
+            AudioEngine.#updateMusicLayers();
+        }
 
         // Show appropriate toast notification based on settings
         if (gameData.settings.audio.toastAnswered) {
@@ -580,6 +587,7 @@ class AudioEngine {
         }
         Howler.mute(!gameData.settings.audio.enabled);
 
+        // TODO should this happen if the new audio.enabled = false?
         AudioEngine.#updateMusicLayers();
 
         gameData.save();

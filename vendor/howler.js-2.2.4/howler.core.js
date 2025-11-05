@@ -522,14 +522,22 @@
         clearTimeout(self._suspendTimer);
         self._suspendTimer = null;
       } else if (self.state === 'suspended' || self.state === 'running' && self.ctx.state === 'interrupted') {
-        self.ctx.resume().then(function() {
-          self.state = 'running';
+        try {
+          self.ctx.resume().then(function() {
+            self.state = 'running';
 
-          // Emit to all Howls that the audio has resumed.
-          for (var i=0; i<self._howls.length; i++) {
-            self._howls[i]._emit('resume');
-          }
-        });
+            // Emit to all Howls that the audio has resumed.
+            for (var i=0; i<self._howls.length; i++) {
+              self._howls[i]._emit('resume');
+            }
+          }).catch(function (err) {
+              console.error('Promise-Caught',err);
+                 // self._emit('playerror', null, err);
+          });
+        } catch (err) {
+              console.error('Try-Caught', err);
+                 // self._emit('playerror', null, err);
+        }
 
         if (self._suspendTimer) {
           clearTimeout(self._suspendTimer);
@@ -984,7 +992,7 @@
 
           var listener = function() {
             self._state = 'loaded';
-            
+
             // Begin playback.
             playHtml5();
 
