@@ -132,7 +132,7 @@ const ComplexMainThemeMusicState = {
     layers: {
         ambient: {
             segment: {
-                src: 'audio/music/main_ambient.mp3',
+                src: 'audio/music/ps_bgm_initial_layer.mp3',
                 volume: 0.5,
                 loop: true,
                 fadeInTime: 2000,
@@ -142,7 +142,7 @@ const ComplexMainThemeMusicState = {
         },
         energy: {
             segment: {
-                src: 'audio/music/main_energy.mp3',
+                src: 'audio/music/ps_bgm_low_layer.mp3',
                 volume: 0.6,
                 loop: true,
                 fadeInTime: 1500,
