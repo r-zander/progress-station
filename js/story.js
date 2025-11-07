@@ -97,16 +97,17 @@ function initBossFightIntro() {
 }
 
 function populateLastRunStats() {
-    const tableBody = document.getElementById('lastRunModulesTable');
-    if (!tableBody) return;
+    const tableBody = Dom.get().byId('lastRunModulesTable');
+    console.assert(tableBody !== null, 'Missing #lastRunModulesTable');
     tableBody.innerHTML = '';
 
-    for (const [categoryKey, category] of Object.entries(moduleCategories)) {
+   for (const categoryKey in moduleCategories) {
+        const category = moduleCategories[categoryKey];
         for (const module of category.modules) {
             const newLevel = Math.max(module.getLevel(), module.maxLevel);
             const prevMaxLevel = module.maxLevel;
             const isNewRecord = module.getLevel() > module.maxLevel;
-            if (!newLevel && !prevMaxLevel) {
+            if (newLevel === 0 && prevMaxLevel === 0) {
                 continue;
             }
 
@@ -140,7 +141,7 @@ function populateLastRunStats() {
             // New Operation Speed Bonus
             const speedCell = document.createElement('td');
             const speedSpan = document.createElement('span');
-            speedSpan.className = `stat-value`;
+            speedSpan.className = 'stat-value';
             speedCell.appendChild(speedSpan);
             row.appendChild(speedCell);
 
@@ -157,11 +158,11 @@ function populateLastRunStats() {
     setStatValue('statBossLevels', bossBattle.level, bossBattle.maxLevel);
     setStatValue('statBattlesFinished', getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max);
     setStatValue('statWavesDefeated', getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max);
-    setAttributeStatValue('statMaxPopulation', attributes.population, gameData.stats.population.current, gameData.stats.population.max);
-    setAttributeStatValue('statMaxIndustry', attributes.industry, gameData.stats.industry.current, gameData.stats.industry.max);
-    setAttributeStatValue('statMaxGrowth', attributes.growth, gameData.stats.growth.current, gameData.stats.growth.max);
-    setAttributeStatValue('statMaxMilitary', attributes.military, gameData.stats.military.current, gameData.stats.military.max);
-    setAttributeStatValue('statMaxDanger', attributes.danger, gameData.stats.danger.current, gameData.stats.danger.max);
+    setAttributeStatValue('statMaxPopulation', attributes.population, gameData.stats.maxPopulation.current, gameData.stats.maxPopulation.max);
+    setAttributeStatValue('statMaxIndustry', attributes.industry, gameData.stats.maxIndustry.current, gameData.stats.maxIndustry.max);
+    setAttributeStatValue('statMaxGrowth', attributes.growth, gameData.stats.maxGrowth.current, gameData.stats.maxGrowth.max);
+    setAttributeStatValue('statMaxMilitary', attributes.military, gameData.stats.maxMilitary.current, gameData.stats.maxMilitary.max);
+    setAttributeStatValue('statMaxDanger', attributes.danger, gameData.stats.maxDanger.current, gameData.stats.maxDanger.max);
     setAttributeStatValue('statGridStrength', attributes.gridStrength, gameData.stats.gridStrength.current, gameData.stats.gridStrength.max);
 }
 
@@ -174,7 +175,7 @@ function animateStatValue(element, start, end, duration = 1500, formatFn) {
 
     function cleanup() {
         stopped = true;
-        fireworkIntervals.forEach(i => clearInterval(i));
+        fireworkIntervals.forEach(intervalId => clearInterval(intervalId));
         fireworkIntervals.length = 0;
         element.classList.remove('stat-sparkle');
         const arrow = element.parentElement?.querySelector('.stat-arrow');
@@ -225,33 +226,45 @@ function animateStatValue(element, start, end, duration = 1500, formatFn) {
 
 const runningAnimations = [];
 
+/**
+ *
+ * @param {string} id
+ * @param {number} currentValue
+ * @param {number} recordValue
+ */
 function setStatValue(id, currentValue, recordValue) {
     const element = document.getElementById(id);
-    if (!element) return;
-    if (!currentValue)
+    console.assert(element !== null, 'Missing #' + id);
+
+    if (currentValue === 0)
     {
         element.textContent = '0';
         return;
     }
-    recordValue ??= currentValue;
+    if (isUndefined(recordValue)) {
+        recordValue = currentValue;
+    }
     runningAnimations.push(animateStatValue(element, recordValue, currentValue, 6000));
 }
 
 function setAttributeStatValue(id, attribute, currentValue, recordValue) {
     const element = document.getElementById(id);
-    if (!element) return;
+    console.assert(element !== null, 'Missing #' + id);
+
     const labelElement = document.getElementById(`${attribute.name}StatLabel`);
     if (labelElement !== null) {
         labelElement.classList.add(attribute.textClass);
         labelElement.textContent = attribute.title;
     }
 
-    if (!currentValue)
+    if (currentValue === 0)
     {
         element.textContent = '0';
         return;
     }
-    recordValue ??= currentValue;
+    if (isUndefined(recordValue)) {
+        recordValue = currentValue;
+    }
     runningAnimations.push(animateStatValue(element, recordValue, currentValue, 6000));
 }
 

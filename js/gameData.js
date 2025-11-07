@@ -3,6 +3,12 @@
 const localStorageKey = 'ps_gameDataSave';
 
 /**
+ * @typedef {Object} RunStatistic
+ * @property {number} current
+ * @property {number} max
+ */
+
+/**
  * @typedef {Object} GameState
  * @property {string} [name] name of the game state in the gameStates dictionary
  * @property {boolean} gameLoopRunning
@@ -105,6 +111,20 @@ gameStates.BOSS_DEFEATED.validNextStates = [gameStates.PLAYING];
  * Map of oldVersionNumber to migrationFunction that should return the gameDataSave in the next higher version.
  */
 const gameDataMigrations = {};
+
+/**
+ * @type {Object<RunStatistic>}}
+ */
+const DEFAULT_RUN_STATS = {
+    battlesFinished: {current: 0, max: 0},
+    wavesDefeated: {current: 0, max: 0},
+    maxPopulation: {current: 1, max: 1},
+    maxIndustry: {current: 0, max: 0},
+    maxGrowth: {current: 0, max: 0},
+    maxMilitary: {current: 0, max: 0},
+    maxDanger: {current: 0, max: 0},
+    gridStrength: {current: 0, max: 0},
+};
 
 class GameData {
 
@@ -223,6 +243,14 @@ class GameData {
     activeEntities = {};
 
     /**
+     * Starts as a copy of DEFAULT_RUN_STATS.
+     *
+     * @type {Object<RunStatistic>}
+     * @type
+     */
+    stats = Object.assign({}, DEFAULT_RUN_STATS);
+
+    /**
      * @var {{
      *     darkMode: boolean,
      *     sciFiMode: boolean,
@@ -245,26 +273,6 @@ class GameData {
             enableBackgroundAudio: false,
             // musicVolume: 1.0,
         }
-    };
-
-    /**
-     * @typedef {Object} GameStat
-     * @property {number} current
-     * @property {number} max
-     */
-
-    /**
-     * @type {{[key: string]: GameStat}}
-     */
-    stats = {
-        battlesFinished: { current: 0, max: 0 },
-        wavesDefeated: { current: 0, max: 0 },
-        population: { current: 1, max: 1 },
-        industry: { current: 0, max: 0 },
-        growth: { current: 0, max: 0 },
-        military: { current: 0, max: 0 },
-        danger: { current: 0, max: 0 },
-        gridStrength: { current: 0, max: 0 },
     };
 
     skipSave = false;
@@ -326,10 +334,7 @@ class GameData {
             this.activeEntities.modules.add(module.name);
         }
         for (const key in this.stats) {
-            this.stats[key].current = 0;
-            if (key === 'population') {
-                this.stats[key].current = 1;
-            }
+            this.stats[key].current = DEFAULT_RUN_STATS[key].current;
         }
     }
 
@@ -379,12 +384,10 @@ class GameData {
         });
 
         for (const key in this.stats) {
-            if (!this.stats[key]) {
-                this.stats[key] = { current: 0, max: 0 };
-                if (key === 'population') {
-                    this.stats[key] = { current: 1, max: 1 };
-                }
-            }
+            if (this.stats.hasOwnProperty(key)) continue;
+
+            // Copy default stats
+            this.stats[key] = Object.assign({}, DEFAULT_RUN_STATS[key]);
         }
 
         return saveGameFound;
