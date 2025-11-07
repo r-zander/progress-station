@@ -24,7 +24,7 @@ sharedRequirements.FourDPrinterLvl10 = new OperationLevelRequirement('playthroug
     requirement: 10,
 });
 sharedRequirements.CoreBladeLvl10 = new OperationLevelRequirement('playthrough', {
-    operation: moduleOperations.CoreBlade,
+    operation: moduleOperations.KungFuManual,
     requirement: 10,
 });
 sharedRequirements.NovaFliesLvl10 = new FactionLevelsDefeatedRequirement('playthrough', {
@@ -66,7 +66,7 @@ const moduleOperationRequirements = {
     MicroCyborgAutomat: moduleOperations.MicroCyborgAutomat.registerRequirement(
         sharedRequirements.FourDPrinterLvl10,
     ),
-    KungFuManual: moduleOperations.CoreBlade.registerRequirement(
+    KungFuManual: moduleOperations.KungFuManual.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.MicroCyborgAutomat,
             requirement: 10,
@@ -421,7 +421,7 @@ const htmlElementRequirements = {
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="military"]'),
             ],
             requirements: [new OperationLevelRequirement('playthrough', {
-                operation: moduleOperations.CoreBlade,
+                operation: moduleOperations.KungFuManual,
                 requirement: 1,
             })],
         }),

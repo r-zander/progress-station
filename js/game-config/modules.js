@@ -19,8 +19,8 @@ moduleOperations.MicroCyborgAutomat = new ModuleOperation({
     description: 'A handy box that produces little helpers at the press of a button.',
     effects: [{effectType: EffectType.Growth, baseValue: 0.10}], // Not a factor as the player doesn't have military yet
 });
-// TODO rename according to title
-moduleOperations.CoreBlade = new ModuleOperation({
+// TODO rename according to title + write migration
+moduleOperations.KungFuManual = new ModuleOperation({
     title: 'Core Blade', maxXp: 200, gridLoad: 1, xpGain: 15,
     description: 'The weapon of choice for the true captain. When you wield it, the station\'s armaments move as if mirroring your every action.',
     effects: [{effectType: EffectType.Military, baseValue: 0.10}], // Not a factor as the player doesn't have military yet
@@ -208,7 +208,7 @@ const moduleComponents = {
     TinyToolbox: new ModuleComponent({
         title: 'Tiny Toolbox',
         description: 'This compact kit contains everything a captain needs to get the station up and running.',
-        operations: [moduleOperations.MicroCyborgAutomat, moduleOperations.CoreBlade, moduleOperations.PocketLaboratory],
+        operations: [moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual, moduleOperations.PocketLaboratory],
     }),
 
     MinedResource: new ModuleComponent({
