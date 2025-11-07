@@ -89,6 +89,9 @@ function updatePopulation() {
     // Combine both components
     const totalDelta = smoothedGrowthDelta - heatDamage;
     gameData.population = Math.max(gameData.population + applySpeed(totalDelta), 1);
+    if (gameData.population > gameData.stats.maxPopulation.current) {
+        gameData.stats.maxPopulation.current = gameData.population;
+    }
 
     if (gameData.state === gameStates.BOSS_FIGHT && Math.round(gameData.population) === 1) {
         gameData.transitionState(gameStates.DEAD);
@@ -104,6 +107,46 @@ function getPopulationProgressSpeedMultiplier() {
     // Pop 10000 ~= x138
     // Pop 40000 ~= x290
     return Math.max(1, Math.pow(Math.round(gameData.population), 1 / 1.869));
+}
+
+function updateStats() {
+    const danger = attributes.danger.getValue();
+    if (danger > gameData.stats.maxDanger.current) {
+        gameData.stats.maxDanger.current = danger;
+    }
+
+    const growth = attributes.growth.getValue();
+    if (growth > gameData.stats.maxGrowth.current) {
+        gameData.stats.maxGrowth.current = growth;
+    }
+
+    const industry = attributes.industry.getValue();
+    if (industry > gameData.stats.maxIndustry.current) {
+        gameData.stats.maxIndustry.current = industry;
+    }
+
+    const military = attributes.military.getValue();
+    if (military > gameData.stats.maxMilitary.current) {
+        gameData.stats.maxMilitary.current = military;
+    }
+
+    const gridStrength = attributes.gridStrength.getValue();
+    if (gridStrength > gameData.stats.gridStrength.current) {
+        gameData.stats.gridStrength.current = gridStrength;
+    }
+
+    //Population handled in updatePopulation
+}
+
+function updateMaxStats() {
+    gameData.stats.battlesFinished.max = Math.max(getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max);
+    gameData.stats.wavesDefeated.max = Math.max(getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max);
+    gameData.stats.maxPopulation.max = Math.max(gameData.stats.maxPopulation.current, gameData.stats.maxPopulation.max);
+    gameData.stats.maxIndustry.max = Math.max(gameData.stats.maxIndustry.current, gameData.stats.maxIndustry.max);
+    gameData.stats.maxGrowth.max = Math.max(gameData.stats.maxGrowth.current, gameData.stats.maxGrowth.max);
+    gameData.stats.maxMilitary.max = Math.max(gameData.stats.maxMilitary.current, gameData.stats.maxMilitary.max);
+    gameData.stats.maxDanger.max = Math.max(gameData.stats.maxDanger.current, gameData.stats.maxDanger.max);
+    gameData.stats.gridStrength.max = Math.max(gameData.stats.gridStrength.current, gameData.stats.gridStrength.max);
 }
 
 function getGameSpeed() {
@@ -235,6 +278,8 @@ function resetBattle(name) {
 }
 
 function startNewPlaythrough() {
+    updateMaxStats();
+
     setPreviousStationName(gameData.stationName);
     setStationName(new SuffixGenerator(gameData.stationName).getNewName());
     gameData.bossEncounterCount += 1;
@@ -326,4 +371,25 @@ function isBossBattleAvailable() {
 function getTimeUntilBossAppears() {
     const timeLeft = getBossAppearanceCycle() - gameData.cycles;
     return Math.max(0, timeLeft);
+}
+
+function getNumberOfFinishedBattles() {
+    let numberOfBattles = 0;
+    for (const battleName in battles) {
+        const battle = battles[battleName];
+
+        if (battle.isDone()) {
+            numberOfBattles++;
+        }
+    }
+    return numberOfBattles;
+}
+
+function getNumberOfDefeatedWaves() {
+    let number = 0;
+    for (const battleName in battles) {
+        const battle = battles[battleName];
+        number += battle.level;
+    }
+    return number;
 }

@@ -519,3 +519,35 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
         VFX.flash(quickTaskProgressBar);
     }
 });
+
+function spawnFireworkNearElement(element, count = 10) {
+    const rect = element.getBoundingClientRect();
+    const container = document.createElement("div");
+    container.className = "spark-container";
+    // Center container near element once
+    const offsetX = (Math.random() - 0.5) * 20;
+    const offsetY = (Math.random() - 0.5) * 20;
+    container.style.left = `${rect.left + rect.width / 2 + offsetX}px`;
+    container.style.top = `${rect.top + rect.height / 2 + offsetY}px`;
+    document.body.appendChild(container);
+
+    for (let i = 0; i < count; i++) {
+        const spark = document.createElement("div");
+        spark.className = "spark";
+
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 20 + Math.random() * 30;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+
+        spark.style.setProperty("--tx", `${tx}px`);
+        spark.style.setProperty("--ty", `${ty}px`);
+        spark.style.background = `hsl(${35 + Math.random() * 40}, 100%, 60%)`;
+        spark.style.animationDelay = `${Math.random() * 0.2}s`;
+
+        container.appendChild(spark);
+        spark.addEventListener("animationend", () => spark.remove());
+    }
+
+    setTimeout(() => container.remove(), 1000);
+}

@@ -1109,7 +1109,7 @@
             <div class="modal-footer d-flex">
                 <button type="button" class="btn btn-secondary win-only" onclick="continueAfterWin();">Keep playing</button>
                 <button type="button" class="btn btn-primary ms-auto win-only" onclick="resetAfterWin();">Start new game</button>
-                <button type="button" class="btn btn-primary ms-auto loss-only" onclick="restartAfterDead();">Fade to black</button>
+                <button type="button" class="btn btn-primary ms-auto loss-only" onclick="showStatsAfterRun();">Fade to black</button>
             </div>
         </div>
     </div>
@@ -1182,6 +1182,112 @@
         </div>
     </div>
 </div>
+
+<div id="lastRunStatsModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header justify-content-center">
+                <h2 class="my-0 px-3 pb-1 flex-shrink-0">
+                    Last Run Statistics
+                </h2>
+            </div>
+            <div class="modal-body">
+                <!-- MODULES SECTION -->
+                <section class="modules-section mb-4">
+                    <h3 class="fs-5 fw-light">Modules</h3>
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th scope="col">&nbsp;</th>
+                                <th scope="col">New Mastery</th>
+                                <th scope="col">
+                                    <span data-bs-toggle="tooltip" data-bs-placement="top"
+                                          title="Higher module mastery increases operation speed (1 + mastery / 100)">
+                                        Operation XP Multiplier
+                                    </span>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody id="lastRunModulesTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- STATS SECTION -->
+                <section>
+                    <h3 class="fs-5 fw-light mb-3">Stats</h3>
+                    <div class="container-fluid">
+                        <div class="row g-5">
+                            <div class="col-md-4">
+                                <div class="stat-row"><span>Battle waves defeated</span><span id="statWavesDefeated">0</span></div>
+                                <div class="stat-row"><span>Battles finished</span><span id="statBattlesFinished">0</span></div>
+                                <div class="stat-row"><span>Boss levels defeated</span><span id="statBossLevels">0</span></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/population.svg" class="icon" alt="Population Icon"/>
+                                        <span id="populationStatLabel">Population</span>
+                                    </div>
+                                    <span id="statMaxPopulation" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/industry.svg" class="icon" alt="Industry Icon"/>
+                                        <span id="industryStatLabel">Industry</span>
+                                    </div>
+                                    <span id="statMaxIndustry" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/growth.svg" class="icon" alt="Population Icon"/>
+                                        <span id="growthStatLabel">Growth</span>
+                                    </div>
+                                    <span id="statMaxGrowth" class="stat-value">0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/military.svg" class="icon" alt="Military Icon"/>
+                                        <span id="militaryStatLabel">Military</span>
+                                    </div>
+                                    <span id="statMaxMilitary" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/danger.svg" class="icon" alt="Danger Icon"/>
+                                        <span id="dangerStatLabel">Danger</span>
+                                    </div>
+                                    <span id="statMaxDanger" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Total</span>
+                                        <img src="img/icons/grid.svg" class="icon" alt="Grid Strength Icon"/>
+                                        <span id="gridStrengthStatLabel">Grid Strength</span>
+                                    </div>
+                                    <span id="statGridStrength" class="stat-value">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="modal-footer d-flex">
+                <button type="button" class="btn btn-primary ms-auto" onclick="closeLastRunStats();">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="breakpointCssClassesDebug" class="position-fixed start-0 p-3 text-bg-dark hidden" style="bottom: 60px; z-index: 2000;">
 
 </div>
