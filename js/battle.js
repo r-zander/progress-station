@@ -11,6 +11,7 @@ class LayeredTask extends Task {
      * @param {{
      *     title: string,
      *     description?: string,
+     *     xpGain?: number,
      *     maxXp: number,
      *     effects: EffectDefinition[],
      *     targetLevel: number,
@@ -118,6 +119,7 @@ class Battle extends LayeredTask {
         super({
             title: baseData.title + ' ' + baseData.faction.title,
             description: baseData.faction.description,
+            xpGain: BATTLE_BASE_XP_GAIN,
             maxXp: baseData.faction.maxXp * baseData.targetLevel * baseData.difficulty,
             effects: baseData.effects,
             targetLevel: baseData.targetLevel,

@@ -25,3 +25,13 @@ const units = {
  * @since 1.1.2 Reduced base heat from 0.1 to 0.0
  */
 const SPACE_BASE_HEAT = 0.0;
+
+/**
+ * Applies to all tasks, including Grid Strength, Module Operations and Battles - unless defined otherwise.
+ * @type {number}
+ */
+const BASE_XP_GAIN = 10;
+/**
+ * @type {number}
+ */
+const BATTLE_BASE_XP_GAIN = BASE_XP_GAIN;
