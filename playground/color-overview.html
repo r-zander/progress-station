@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Color Overview :: Progress Station</title>
+    <link rel="stylesheet" href="../css/global/_colors.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 40px;
+            background: var(--body-bg-color);
+            color: var(--body-font-color);
+        }
+        
+        .color-section {
+            margin-bottom: 40px;
+        }
+        
+        .color-section h2 {
+            color: var(--active-color);
+            border-bottom: 2px solid var(--active-color);
+            padding-bottom: 8px;
+            break-before: page;
+            padding-top: 1.5rem;
+        }
+        
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        
+        .color-card {
+            background: var(--panel-bg-color);
+            border: 1px solid var(--tab-button-border-color);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .color-swatch {
+            width: 100%;
+            height: 60px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .color-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .color-value {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            user-select: all;
+        }
+        
+        .color-value:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .text-examples {
+            margin-top: 12px;
+            font-size: 14px;
+        }
+        
+        .text-example {
+            padding: 4px 0;
+        }
+        
+        .usage-section {
+            margin-top: 12px;
+            font-size: 13px;
+        }
+        
+        .usage-title {
+            font-weight: bold;
+            color: var(--ps-passive);
+            margin-bottom: 6px;
+        }
+        
+        .usage-item {
+            padding: 2px 0;
+            color: var(--help-font-color);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: var(--active-color);
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            color: var(--ps-passive);
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Progress Station Color Reference</h1>
+        <p>Comprehensive color palette for external artists and developers</p>
+    </div>
+
+    <div class="color-section">
+        <h2 style="break-before: avoid;">Primary Brand Colors</h2>
+        <div class="color-grid" id="primary-colors"></div>
+    </div>
+
+    <div class="color-section">
+        <h2>UI & Interface Colors</h2>
+        <div class="color-grid" id="ui-colors"></div>
+    </div>
+
+    <div class="color-section">
+        <h2>Attribute Colors</h2>
+        <div class="color-grid" id="attribute-colors"></div>
+    </div>
+
+    <div class="color-section">
+        <h2>Background & Special Colors</h2>
+        <div class="color-grid" id="background-colors"></div>
+    </div>
+
+    <script type="text/javascript">
+        const colors = {
+            primary: {
+                '--ps-yellow': '#ECA545',
+                '--ps-orange': '#FD7D45',
+                '--ps-pink1': '#C12F5F',
+                '--ps-red2': '#CB3140',
+                '--ps-red': '#ED3A44',
+                '--ps-purple2': '#AE3EC9',
+                '--ps-dark-blue': '#144A8B',
+                '--ps-blue': '#5D8EC8',
+                '--ps-cyan': '#54E9D6',
+                '--ps-green3': '#2ABF72',
+                '--ps-dark': '#000000',
+                '--ps-light': '#FFFFFF',
+                '--ps-light-transparent100': '#FFFFFF00',
+                '--ps-light-transparent90': '#FFFFFF19',
+                '--ps-passive': '#848484'
+            },
+            ui: {
+                '--active-color': '#ECA545',
+                '--active-color-subtle': '#FFA5004C',
+                '--clickable-interact-border-color': '#FFFFFF',
+                '--backdrop-color': 'rgba(0, 0, 0, 0.6)',
+                '--scrollbar-thumb-color': '#686868',
+                '--scrollbar-track-color': '#424242',
+                '--tab-button-border-color': '#848484',
+                '--tab-button-interact-border-color': '#FFFFFF',
+                '--tab-button-active-border-color': '#ECA545',
+                '--body-bg-color': '#202020',
+                '--body-font-color': '#FFFFFF',
+                '--panel-bg-color': '#1F1F1F',
+                '--panel-bg-color-transparent20': '#1F1F1FCB',
+                '--panel-bg-color-transparent05': '#1F1F1FF2',
+                '--progress-bg-color': '#144A8B',
+                '--progress-bar-color': '#5D8EC8',
+                '--progress-current-bar-color': '#ECA545',
+                '--progress-passive-bg-color': '#575757',
+                '--progress-passive-bar-color': '#848484',
+                '--logo-border-color': '#144A8B',
+                '--help-font-color': '#ACACAC',
+                '--warning-color': '#C80000'
+            },
+            attributes: {
+                '--attr-danger-color': '#FD7D45',
+                '--attr-essence-of-unknown-color': '#C12F5F',
+                '--attr-grid-load-color': '#5D8EC8',
+                '--attr-grid-strength-color': '#144A8B',
+                '--attr-growth-color': '#2ABF72',
+                '--attr-heat-color': '#CB3140',
+                '--attr-industry-color': '#54E9D6',
+                '--attr-military-color': '#9897A9',
+                '--attr-population-color': '#5D8EC8',
+                '--attr-research-color': '#AE3EC9',
+                '--galactic-secret-color': '#C12F5F',
+                '--battle-color': '#ED3A44'
+            },
+            background: {
+                '--background-fade-1-color': '#033038',
+                '--background-fade-2-color': '#162E33',
+                '--background-fade-3-color': '#152124',
+                '--background-fade-4-color': '#0D191C',
+                '--background-fade-5-color': '#021012',
+                '--background-fade-5-color-transparent': '#02101200',
+                '--stars-1-color': '#D7C89C',
+                '--stars-2-color': '#CCBE95',
+                '--stars-3-color': '#C2B58D'
+            }
+        };
+
+        const colorUsage = {
+            '--ps-yellow': ['Active elements', 'Progress current bar', 'Tab active border', 'Text class: none'],
+            '--ps-orange': ['Danger attribute', 'Text class: .text-danger'],
+            '--ps-pink1': ['Essence of Unknown attribute', 'Galactic secret color', 'Text class: .text-essence-of-unknown'],
+            '--ps-red2': ['Heat attribute', 'Text class: .text-heat'],
+            '--ps-red': ['Battle color', 'Text class: none'],
+            '--ps-purple2': ['Research attribute', 'Text class: .text-research'],
+            '--ps-dark-blue': ['Progress background', 'Grid strength attribute', 'Logo border', 'Text class: .text-grid-strength'],
+            '--ps-blue': ['Progress bar', 'Grid load attribute', 'Population attribute', 'Text class: .text-grid-load, .text-population'],
+            '--ps-cyan': ['Industry attribute', 'Text class: .text-industry'],
+            '--ps-green3': ['Growth attribute', 'Text class: .text-growth'],
+            '--ps-dark': ['Base dark color', 'Text class: none'],
+            '--ps-light': ['Base light color', 'Body font color', 'Clickable borders', 'Text class: none'],
+            '--ps-light-transparent100': ['Fully transparent light', 'Text class: none'],
+            '--ps-light-transparent90': ['Semi-transparent light', 'Text class: none'],
+            '--ps-passive': ['Passive elements', 'Tab borders', 'Progress passive bar', 'Text class: none']
+        };
+
+        const textClasses = {
+            'danger': '--ps-orange',
+            'essence-of-unknown': '--ps-pink1',
+            'grid-load': '--ps-blue',
+            'grid-strength': '--ps-dark-blue',
+            'growth': '--ps-green3',
+            'heat': '--ps-red2',
+            'industry': '--ps-cyan',
+            'military': '--attr-military-color',
+            'population': '--ps-blue',
+            'research': '--ps-purple2'
+        };
+
+        function createColorCard(name, value, sectionType = 'other') {
+            const friendlyName = name.replace('--ps-', '').replace('--attr-', '').replace('--', '').replace('-color', '').replace(/-/g, ' ');
+            const capitalizedName = friendlyName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            
+            let textExamples = '';
+            let usageSection = '';
+            
+            // Show text examples for primary colors only
+            if (sectionType === 'primary') {
+                const textClass = Object.keys(textClasses).find(cls => textClasses[cls] === name);
+                if (textClass) {
+                    textExamples = `
+                        <div class="text-examples">
+                            <div class="text-example text-${textClass}">Sample text with .text-${textClass}</div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Show usage information for primary colors
+            if (sectionType === 'primary' && colorUsage[name]) {
+                usageSection = `
+                    <div class="usage-section">
+                        <div class="usage-title">Used for:</div>
+                        ${colorUsage[name].map(usage => `<div class="usage-item">• ${usage}</div>`).join('')}
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="color-card">
+                    <div class="color-swatch" style="background-color: ${value};"></div>
+                    <div class="color-name">${capitalizedName}</div>
+                    <div class="color-value" onclick="copyToClipboard('${value}')" title="Click to copy">${value}</div>
+                    <div class="color-value" onclick="copyToClipboard('${name}')" title="Click to copy CSS variable">${name}</div>
+                    ${textExamples}
+                    ${usageSection}
+                </div>
+            `;
+        }
+
+        function renderColorSection(sectionId, colorObj, sectionType = 'other') {
+            const container = document.getElementById(sectionId);
+            container.innerHTML = Object.entries(colorObj)
+                .map(([name, value]) => createColorCard(name, value, sectionType))
+                .join('');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const notification = document.createElement('div');
+                notification.textContent = 'Copied to clipboard!';
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: var(--active-color);
+                    color: black;
+                    padding: 12px 20px;
+                    border-radius: 4px;
+                    font-weight: bold;
+                    z-index: 1000;
+                    opacity: 0;
+                    transition: opacity 0.3s;
+                `;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.style.opacity = '1', 10);
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => document.body.removeChild(notification), 300);
+                }, 2000);
+            });
+        }
+
+        renderColorSection('primary-colors', colors.primary, 'primary');
+        renderColorSection('ui-colors', colors.ui, 'ui');
+        renderColorSection('attribute-colors', colors.attributes, 'attributes');
+        renderColorSection('background-colors', colors.background, 'background');
+    </script>
+</body>
+</html>
