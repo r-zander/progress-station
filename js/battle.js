@@ -355,7 +355,7 @@ class BossBattle extends Battle {
     }
 
     getRewardsDescription() {
-        return 'Essence of Unknown per defeated level';
+        return 'Essence of Unknown per defeated wave';
     }
 }
 

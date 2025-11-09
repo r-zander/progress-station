@@ -680,7 +680,7 @@ function createFinishedBattlesUI() {
     const domGetter = Dom.get(level3Element);
     domGetter.byClass('header-row').classList.replace('text-bg-light', 'text-bg-dark');
     domGetter.byClass('name').textContent = 'Completed';
-    domGetter.byClass('level').textContent = 'Defeated levels';
+    domGetter.byClass('level').textContent = 'Defeated waves';
     domGetter.byClass('xpGain').classList.add('hidden');
     domGetter.byClass('xpLeft').classList.add('hidden');
     domGetter.byClass('danger').classList.add('hidden');

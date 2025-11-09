@@ -226,7 +226,7 @@
                 </button>
                 <!-- TODO how to display requirements on mobile? -->
                 <div id="battleTabButtonRequirements" class="requirements-container m-2">
-                    <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
+                    <span class="help-text">Required: Defeated Astrogoblins wave 12 / 25</span>
                 </div>
                 <button id="battleTabButton" class="tabButton panel p-3" onClick="setTab('battles');">
                     <!--suppress HtmlUnknownTag -->
@@ -249,7 +249,7 @@
                     <slot id="battlesQuickTaskDisplay"></slot>
                 </button>
                 <div id="locationTabButtonRequirements" class="requirements-container m-2">
-                    <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
+                    <span class="help-text">Required: Defeated Astrogoblins wave 12 / 25</span>
                 </div>
                 <button id="locationTabButton" class="tabButton panel p-3" onClick="setTab('location');">
                     <!--suppress HtmlUnknownTag -->
@@ -1043,15 +1043,15 @@
                         reaches <data value="0">0</data>,
                         you <b>lose the battle</b>.
                     </li>
-                    <li>The boss has <data class="bossTargetLevel" value="10">10</data> levels of defense.</li>
-                    <li>The more levels of the boss that you overcome, the more
+                    <li>The boss has <data class="bossTargetLevel" value="10">10</data> waves of defense.</li>
+                    <li>The more waves of the boss that you overcome, the more
                         <span class="primary-stat" data-attribute="essenceOfUnknown" data-bs-html="true">
                             <img src="" class="icon" alt="" />
                             <span class="label"></span>
                         </span>
                         you will collect.
                     </li>
-                    <li>Overcoming the last level of the boss will <b>win you the game</b>.</li>
+                    <li>Overcoming the last wave of the boss will <b>win you the game</b>.</li>
                 </ul>
             </div>
             <div class="modal-footer d-flex">
@@ -1223,7 +1223,7 @@
                             <div class="col-md-4">
                                 <div class="stat-row"><span>Battle waves defeated</span><span id="statWavesDefeated">0</span></div>
                                 <div class="stat-row"><span>Battles finished</span><span id="statBattlesFinished">0</span></div>
-                                <div class="stat-row"><span>Boss levels defeated</span><span id="statBossLevels">0</span></div>
+                                <div class="stat-row"><span>Boss waves defeated</span><span id="statBossLevels">0</span></div>
                             </div>
                             <div class="col-md-4">
                                 <div class="stat-row">
