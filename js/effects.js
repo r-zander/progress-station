@@ -88,7 +88,7 @@ class Modifier {
         return modifier.modifies
                 .map((effectHolder) => effectHolder.title)
                 .join(', ') + '\n'
-            + modifier.from.attribute.title + ' \u2B9E ' /* Shows: ⮞ */ + modifier.to.attribute.title;
+            + modifier.from.attribute.title + ' ' + Symbols.LEFT_ARROW + ' ' + modifier.to.attribute.title;
     }
 }
 

@@ -7,7 +7,15 @@
  */
 function prepareTitle(title) {
     // Replace regular spaces with non-breaking spaces, ensuring that one title stays on the same line.
-    return title.replaceAll(' ', '\u00A0' /* non-breaking space */);
+    return title.replaceAll(/(?<=\w) (?=\w)/g, Symbols.NON_BREAKING_SPACE);
+}
+
+/**
+ * @param {string} title
+ * @return {string}
+ */
+function deprepareTitle(title) {
+    return title.replaceAll(Symbols.NON_BREAKING_SPACE, ' ');
 }
 
 function withCheats(func) {

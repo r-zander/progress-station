@@ -135,6 +135,26 @@ function getBaseLog(x, y) {
  */
 const nearlyEquals = approximatelyEquals;
 
+const Symbols = {
+    NON_BREAKING_SPACE: '\u00A0',
+
+    /**
+     * Zero-width space. Allows strings to have linebreaks, even between words or non-breaking spaces.
+     */
+    SOFT_BREAK: '\u200B',
+
+    /**
+     * Thinner than a thin space.
+     * @see {@link https://en.wikipedia.org/wiki/Whitespace_character#Hair_spaces_around_dashes}
+     */
+    HAIR_SPACE: '\u200A',
+
+    /**
+     * Shows: ⮞
+     */
+    LEFT_ARROW: '\u2B9E',
+};
+
 const JsTypes = {
     Undefined: 'undefined',
     Boolean: 'boolean',

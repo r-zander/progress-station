@@ -66,7 +66,7 @@ function initBossFightIntro() {
         if (payload.newState !== gameStates.BOSS_FIGHT_INTRO.name) return;
 
         Dom.get().allBySelector('#bossFightIntroModal .bossName').forEach((nameElement) => {
-            nameElement.textContent = bossBattle.title;
+            nameElement.textContent = deprepareTitle(bossBattle.title);
         });
         Dom.get().allBySelector('#bossFightIntroModal .bossTargetLevel').forEach((targetLevelElement) => {
             formatValue(targetLevelElement, bossBattle.targetLevel, {keepNumber: true, forceInteger: true});
@@ -297,7 +297,7 @@ function initGameOver() {
         }
 
         Dom.get().allBySelector('#gameOverModal .bossName').forEach((nameElement) => {
-            nameElement.textContent = bossBattle.title;
+            nameElement.textContent = deprepareTitle(bossBattle.title);
         });
         modal.show();
 

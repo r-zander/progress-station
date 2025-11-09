@@ -1394,15 +1394,16 @@ const battles = {
                 'Chompulor',
             ])
             .skipSeparator()
-            .add(',')
+            .add(', ' + Symbols.SOFT_BREAK)
+            .skipSeparator()
             .add(['the', 'Eternal'])
             .add([
                 'Destroyer',
-                'Shadow of Cosmos',
+                `Shadow ${Symbols.SOFT_BREAK}of Cosmos`,
                 'Essence Harvester',
                 'Decimator',
                 'Devourer',
-                'Jester of Annihilation'
+                `Jester ${Symbols.SOFT_BREAK}of Annihilation`
             ]),
         targetLevel: 10,
         difficulty: 1,
