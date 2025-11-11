@@ -1097,7 +1097,8 @@ function createAttributesUI() {
     const populationFormulaElement = Dom.get(populationRow).byClass('formula');
     populationFormulaElement.classList.remove('hidden');
     populationFormulaElement.innerHTML =
-        '4.26 * (' +  attributes.growth.inlineHtml + '/ 1,000)<sup>0.6</sup>' +
+        '4.26 * (' +  attributes.growth.inlineHtml + '/ 1,000)<sup>0.6</sup><br />' +
+        'x10 if no Battle is engaged<br />' +
         ' - ' + attributes.danger.inlineHtml + '<br />' +
         '&wedgeq; <data value="0" class="delta">?</data> per cycle';
     rows.push(populationRow);
