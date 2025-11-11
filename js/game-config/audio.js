@@ -148,11 +148,11 @@ const ComplexMainThemeMusicState = {
                 fadeInTime: 1500,
                 fadeOutTime: 1500
             },
-            conditions: (ctx) => ctx.energy > 30
+            conditions: (ctx) => 50 >= ctx.energy > 30
         },
         tension: {
             segment: {
-                src: 'audio/music/main_tension.mp3',
+                src: 'audio/music/ps_bgm_mid_layer.mp3',
                 volume: 0.5,
                 loop: true,
                 fadeInTime: 1000,
