@@ -175,7 +175,7 @@ class Battle extends LayeredTask {
 
     /**
      *
-     * @return {BossBattleSavedValues}
+     * @return {BattleSavedValues}
      */
     static newSavedValues() {
         return {
