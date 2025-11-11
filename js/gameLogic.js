@@ -10,28 +10,19 @@ function applySpeed(value) {
     return value * getGameSpeed() / targetTicksPerSecond;
 }
 
-function calculateHeat() {
-    const rawHeat = Effect.getTotalValue([EffectType.Heat]);
-    const totalHeat = gameData.heat + rawHeat;
-    return Math.max(SPACE_BASE_HEAT, totalHeat);
-}
-
 function isAnyBattleActive() {
     return gameData.activeEntities.battles.size === 0;
 }
 
 /**
- * This is what the population delta will settle to if the current growth and heat is maintained.
- * NOTE: this needs to be synced with the {@link updatePopulation} if the formula ever changes.
- *
- * @return {number} the target population delta (without inertia)
+ * @return {number}
  */
 function calculatePopulationDelta() {
     const growth = attributes.growth.getValue();
     const danger = attributes.danger.getValue();
     const population = attributes.population.getValue();
 
-    let populationDelta = Math.log10(growth + 1) * 7500;
+    let populationDelta = Math.pow(growth / 1000, 0.6) * 4.26;
     populationDelta -= danger;
 
     if (!isAnyBattleActive() &&

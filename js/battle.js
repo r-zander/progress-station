@@ -98,6 +98,11 @@ function showDangerModal(onConfirm, onCancel) {
     modal.show();
 }
 
+/**
+ * @typedef {TaskSavedValues} BattleSavedValues
+ * @property {number} progressSpeedMultiplierFloor
+ */
+
 class Battle extends LayeredTask {
     /**
      *
@@ -134,8 +139,6 @@ class Battle extends LayeredTask {
             attributes.military.getValue,
             this.getFlooredPopulationProgressSpeedMultiplier.bind(this),
         ];
-
-        this.progressSpeedMultiplierFloor = 0;
     }
 
     /**
@@ -147,6 +150,63 @@ class Battle extends LayeredTask {
      */
     getFlooredPopulationProgressSpeedMultiplier(){
         return Math.max(getPopulationProgressSpeedMultiplier(), this.progressSpeedMultiplierFloor);
+    }
+
+    /**
+     * @param {BattleSavedValues} savedValues
+     */
+    loadValues(savedValues) {
+        // Set default value for older saved values
+        if (!savedValues.hasOwnProperty('progressSpeedMultiplierFloor')) {
+            savedValues.progressSpeedMultiplierFloor = 0;
+        }
+
+        validateParameter(savedValues, {
+            level: JsTypes.Number,
+            maxLevel: JsTypes.Number,
+            xp: JsTypes.Number,
+            requirementCompleted: JsTypes.Array,
+
+            progressSpeedMultiplierFloor: JsTypes.Number,
+        }, this);
+
+        this.savedValues = savedValues;
+    }
+
+    /**
+     *
+     * @return {BossBattleSavedValues}
+     */
+    static newSavedValues() {
+        return {
+            level: 0,
+            maxLevel: 0,
+            xp: 0,
+            requirementCompleted: [],
+
+            progressSpeedMultiplierFloor: 0,
+        };
+    }
+
+    /**
+     * @return {BattleSavedValues}
+     */
+    getSavedValues() {
+        return this.savedValues;
+    }
+
+    /**
+     * @return {number}
+     */
+    get progressSpeedMultiplierFloor(){
+        return this.savedValues.progressSpeedMultiplierFloor;
+    }
+
+    /**
+     * @param {number} value
+     */
+    set progressSpeedMultiplierFloor(value) {
+        this.savedValues.progressSpeedMultiplierFloor = value;
     }
 
     getMaxLevelMultiplier() {
@@ -195,6 +255,8 @@ class Battle extends LayeredTask {
     }
 
     stop() {
+        this.progressSpeedMultiplierFloor = 0;
+
         gameData.activeEntities.battles.delete(this.name);
         GameEvents.TaskActivityChanged.trigger({
             type: this.type,
@@ -264,6 +326,11 @@ class BossBattle extends Battle {
         this.titleGenerator = baseData.titleGenerator;
     }
 
+    getFlooredPopulationProgressSpeedMultiplier(){
+        // There is no floor for boss battles
+        return getPopulationProgressSpeedMultiplier();
+    }
+
     /**
      * @param {BossBattleSavedValues} savedValues
      */
@@ -273,6 +340,7 @@ class BossBattle extends Battle {
             maxLevel: JsTypes.Number,
             xp: JsTypes.Number,
             requirementCompleted: JsTypes.Array,
+
             title: JsTypes.String,
             distance: JsTypes.Number,
             coveredDistance: JsTypes.Number,

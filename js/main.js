@@ -115,7 +115,7 @@ function setTab(selectedTab) {
                 iterations: 1,
             },
         );
-      
+
     } else {
         content.classList.add('horizontal');
         content.classList.remove('vertical');
@@ -133,7 +133,7 @@ function setTab(selectedTab) {
             },
         );
     }
-    
+
     gameData.selectedTab = selectedTab;
     gameData.save();
 
@@ -1094,14 +1094,12 @@ function createAttributesUI() {
 
     // Population
     const populationRow = createAttributeRow(attributes.population);
-    Dom.get(populationRow).byClass('description').innerHTML +=
-        `<br />Innertia is applied to ${attributes.growth.inlineHtml}.`;
     const populationFormulaElement = Dom.get(populationRow).byClass('formula');
     populationFormulaElement.classList.remove('hidden');
     populationFormulaElement.innerHTML =
-        '7,500 * log10(' +  attributes.growth.inlineHtml +
-        '+ 1) - ' +
-        attributes.danger.inlineHtml + '<br />&wedgeq; <data value="0" class="delta">?</data> per cycle';
+        '4.26 * (' +  attributes.growth.inlineHtml + '/ 1,000)<sup>0.6</sup>' +
+        ' - ' + attributes.danger.inlineHtml + '<br />' +
+        '&wedgeq; <data value="0" class="delta">?</data> per cycle';
     rows.push(populationRow);
 
     // Research
@@ -1896,12 +1894,12 @@ function updateBossBarColor(progress, bossBar) {
     else bossBar.classList.add('lowDanger');
 }
 
-// function updateHeatIndication() {
-//     const heat = attributes.heat.getValue();
-//     const gotHeat = heat > 0.0 && !nearlyEquals(heat, 0.0, 0.01);
-//     Dom.get().byId('heatIndicator').classList.toggle('hidden', !gotHeat);
-//     Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="heat"]').classList.toggle('shake-and-pulse', gotHeat);
-// }
+function updateHeatIndication() {
+    const populationDelta = calculatePopulationDelta();
+    const isPopShrinking = populationDelta < 0.0 && !nearlyEquals(populationDelta, 0.0, 0.01);
+    Dom.get().byId('heatIndicator').classList.toggle('hidden', !isPopShrinking);
+    Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="danger"]').classList.toggle('shake-and-pulse', isPopShrinking);
+}
 
 function updateStationOverview() {
     updateBossProgress();

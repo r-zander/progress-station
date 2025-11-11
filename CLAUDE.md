@@ -79,17 +79,11 @@ This is a pure client-side HTML/JS/CSS project with no build system:
 - **Modules**: Use module activation switches to enable/disable entire modules
 
 ### Attributes System
-- **Population**: Core resource, affected by Growth and Heat, calculated via `populationDelta()`
+- **Population**: Core resource, affected by Growth and Danger, calculated via `calculatePopulationDelta()`
 - **Growth**: Drives population increase, prioritized when population < 95% of theoretical max
-- **Military**: Defense stat, must exceed Danger to prevent Heat damage
-- **Danger**: Risk level from battles/locations, causes Heat if > Military
-- **Heat**: Population damage %, calculated as `max(danger - military, 0) + rawHeat`
+- **Military**: Increases damage against battles
+- **Danger**: Risk level from battles/locations, causes population loss
 - **Industry/Research**: Primary progression stats for unlocking content
-
-### Safety Constraints
-- Danger should never exceed Military to prevent population loss from Heat
-- Population approaches `growth / (0.01 * heat)` in steady state
-- Boss battles disable Growth and inflict direct Heat damage
 
 ### Modal System
 - Game shows Bootstrap modals for story events, boss encounters, and game over

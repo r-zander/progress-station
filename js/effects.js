@@ -23,7 +23,6 @@
 class EffectType {
     static Danger = new EffectType('+', attributes.danger);
     static DangerFactor = new EffectType('x', attributes.danger);
-    static Heat = new EffectType('+', attributes.heat);
     static Energy = new EffectType('+', attributes.energy);
     static EnergyFactor = new EffectType('x', attributes.energy);
     static Growth = new EffectType('+', attributes.growth);

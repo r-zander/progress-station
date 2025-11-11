@@ -524,18 +524,16 @@
             <div id="battles" class="tab p-1 p-lg-3 overflow-hidden">
                 <ul class="tab-help-text help-text m-0">
                     <li class="battles-pose-danger">
-                        Engaged battles pose a
+                        Engaged battles inflict
                         <span class="primary-stat" data-attribute="danger" data-attribute-tooltip="false">
                             <img src="" class="icon" alt="" />
-                            <span class="label"></span>
-                        </span>
-                        that will reduce your population if your
-                        <span class="primary-stat" data-attribute="military" data-attribute-tooltip="false">
-                            <img src="" class="icon" alt=""/>
-                            <span class="label"></span>
-                        </span>
-                        is not high enough.
+                            <span class="label"></span></span>, draining population by that amount each cycle.
                     </li>
+                    <li class="battles-pose-danger">
+                        <span class="primary-stat" data-attribute="population" data-attribute-tooltip="false">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span></span> loss during a battle won't reduce your damage,
+                        but gains still boost it.</li>
                     <li class="battles-pose-danger">Disengage battles by clicking them again.</li>
                     <li class="multiple-battles">Engage as many battles as you like.</li>
                 </ul>
@@ -1008,11 +1006,11 @@
                         </span>.
                     </li>
                     <li>The boss inflicts
-                        <span class="primary-stat" data-attribute="heat" data-bs-html="true">
+                        <span class="primary-stat" data-attribute="danger" data-bs-html="true">
                             <img src="" class="icon" alt="" />
                             <span class="label"></span>
-                        </span>
-                        (not just
+                        </span> based on your population size
+                        (not just a static
                         <span class="primary-stat" data-attribute="danger" data-bs-html="true">
                             <img src="" class="icon" alt="" />
                             <span class="label"></span>

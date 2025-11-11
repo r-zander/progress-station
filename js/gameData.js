@@ -169,21 +169,6 @@ class GameData {
     /**
      * @var {number}
      */
-    lastPopulationDelta;
-
-    /**
-     * @var {number}
-     */
-    heat;
-
-    /**
-     * @var {number}
-     */
-    heatVelocity;
-
-    /**
-     * @var {number}
-     */
     cycles;
 
     /**
@@ -287,9 +272,6 @@ class GameData {
 
     initValues() {
         this.population = 1;
-        this.lastPopulationDelta = 0;
-        this.heat = 0;
-        this.heatVelocity = 0;
         this.cycles = 0;
         this.bossBattleAvailable = false;
     }
