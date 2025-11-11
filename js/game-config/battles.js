@@ -1408,7 +1408,13 @@ const battles = {
         targetLevel: 10,
         difficulty: 1,
         faction: factions.Boss,
-        effects: [{effectType: EffectType.Heat, baseValue: 5}, {effectType: EffectType.GrowthFactor, baseValue: -1.00}],
+        effects: [
+            new DynamicEffectDefinition(EffectType.Danger, () => {
+                // 5% of current population used as damage against population
+                return attributes.population.getValue() * 0.05;
+            }),
+            {effectType: EffectType.GrowthFactor, baseValue: -1.00}
+        ],
         rewards: [],
     }),
 };

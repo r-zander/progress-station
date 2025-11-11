@@ -129,7 +129,24 @@ class Battle extends LayeredTask {
         this.faction = baseData.faction;
         this.rewards = baseData.rewards;
 
-        this.xpMultipliers.push(attributes.military.getValue);
+        // A bit dirty - drop all the regular xpMultipliers as battles don't use them
+        this.xpMultipliers = [
+            attributes.military.getValue,
+            this.getFlooredPopulationProgressSpeedMultiplier.bind(this),
+        ];
+
+        this.progressSpeedMultiplierFloor = 0;
+    }
+
+    /**
+     * To prevent battles from (necessarily) becoming slower over time, they "pin" (or floor) the
+     * PopulationProgressSpeedMultiplier when they are started. Should this multiplier increase
+     * while the battle is active, the battle also speeds up. But it won't slow down below that pinned value.
+     *
+     * @return {number}
+     */
+    getFlooredPopulationProgressSpeedMultiplier(){
+        return Math.max(getPopulationProgressSpeedMultiplier(), this.progressSpeedMultiplierFloor);
     }
 
     getMaxLevelMultiplier() {
@@ -164,6 +181,8 @@ class Battle extends LayeredTask {
             // Can't activate completed battles
             return;
         }
+
+        this.progressSpeedMultiplierFloor = getPopulationProgressSpeedMultiplier();
 
         gameData.activeEntities.battles.add(this.name);
         GameEvents.TaskActivityChanged.trigger({
@@ -355,7 +374,7 @@ class BossBattle extends Battle {
     }
 
     getRewardsDescription() {
-        return 'Essence of Unknown per defeated wave';
+        return attributes.essenceOfUnknown.inlineHtmlWithIcon + ' per defeated wave';
     }
 }
 

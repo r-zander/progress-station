@@ -16,38 +16,8 @@ function calculateHeat() {
     return Math.max(SPACE_BASE_HEAT, totalHeat);
 }
 
-function updateHeat() {
-    const danger = attributes.danger.getValue();
-    const military = attributes.military.getValue();
-    const targetHeat = Math.max(danger - military, 0);
-
-    if (nearlyEquals(gameData.heat, targetHeat)) {
-        gameData.heat = targetHeat;
-        gameData.heatVelocity = 0;
-        return;
-    }
-
-    if (targetHeat > gameData.heat) {
-        // In case the heat target changed direction (was low and is now high), we want to reset the velocity
-        gameData.heatVelocity = Math.max(0, gameData.heatVelocity);
-        gameData.heatVelocity += applySpeed(heatAcceleration / targetTicksPerSecond);
-        if (gameData.heat + gameData.heatVelocity >= targetHeat) {
-            gameData.heat = targetHeat;
-            gameData.heatVelocity = 0;
-        } else {
-            gameData.heat += gameData.heatVelocity;
-        }
-    } else { // targetHeat is smaller than gameData.heat
-        // In case the heat target changed direction (was high and is now low), we want to reset the velocity
-        gameData.heatVelocity = Math.min(0, gameData.heatVelocity);
-        gameData.heatVelocity -= applySpeed(heatAcceleration/ targetTicksPerSecond);
-        if (gameData.heat + gameData.heatVelocity <= targetHeat) {
-            gameData.heat = targetHeat;
-            gameData.heatVelocity = 0;
-        } else {
-            gameData.heat += gameData.heatVelocity;
-        }
-    }
+function isAnyBattleActive() {
+    return gameData.activeEntities.battles.size === 0;
 }
 
 /**
@@ -56,39 +26,34 @@ function updateHeat() {
  *
  * @return {number} the target population delta (without inertia)
  */
-function populationDelta() {
+function calculatePopulationDelta() {
     const growth = attributes.growth.getValue();
-    const heat = attributes.heat.getValue();
+    const danger = attributes.danger.getValue();
     const population = attributes.population.getValue();
-    return (0.1 * growth) - (0.01 * population * heat);
+
+    let populationDelta = Math.log10(growth + 1) * 7500;
+    populationDelta -= danger;
+
+    if (!isAnyBattleActive() &&
+        population < gameData.stats.maxPopulation.current &&
+        populationDelta > 0
+    ) {
+        populationDelta *= 10;
+    }
+
+    // TODO hacky fix for current boss heat inertia problem https://trello.com/c/VHOGIMUV/353-last-few-survivors-take-a-long-time-to-wipe-out
+    if (gameData.stateName === gameStates.BOSS_FIGHT.name) {
+        const MINIMUM_BOSS_POPULATION_DAMAGE = 100.00;
+        populationDelta = Math.min(-MINIMUM_BOSS_POPULATION_DAMAGE, populationDelta);
+    }
+
+    return populationDelta;
 }
 
 function updatePopulation() {
     if (!gameData.state.areAttributesUpdated) return;
 
-    const growth = attributes.growth.getValue();
-    const population = attributes.population.getValue();
-    const heat = attributes.heat.getValue();
-
-    // Split population delta into two components:
-    // 1. Growth component (with inertia)
-    const rawGrowthDelta = 0.1 * growth;
-    // TODO inertia is not scaled with game speed
-    const smoothedGrowthDelta = populationDeltaInertia * gameData.lastPopulationDelta + (1 - populationDeltaInertia) * rawGrowthDelta;
-    gameData.lastPopulationDelta = smoothedGrowthDelta;
-
-    // 2. Heat damage component (no inertia, applied directly)
-    let heatDamage = 0.01 * population * heat;
-
-    // TODO hacky fix for current boss heat inertia problem https://trello.com/c/VHOGIMUV/353-last-few-survivors-take-a-long-time-to-wipe-out
-    if (gameData.stateName === gameStates.BOSS_FIGHT.name) {
-        const MINIMUM_BOSS_POPULATION_DAMAGE = 20.00;
-        heatDamage = Math.max(MINIMUM_BOSS_POPULATION_DAMAGE, heatDamage);
-    }
-
-    // Combine both components
-    const totalDelta = smoothedGrowthDelta - heatDamage;
-    gameData.population = Math.max(gameData.population + applySpeed(totalDelta), 1);
+    gameData.population = Math.max(gameData.population + applySpeed(calculatePopulationDelta()), 1);
     if (gameData.population > gameData.stats.maxPopulation.current) {
         gameData.stats.maxPopulation.current = gameData.population;
     }

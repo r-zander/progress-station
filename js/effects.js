@@ -290,3 +290,34 @@ class Effect {
         return effectType.getDefaultValue() + baseValue * level;
     }
 }
+
+class DynamicEffectDefinition {
+    /**
+     * @type {EffectType}
+     */
+    #effectType;
+
+    /**
+     * @type {function(): number}
+     */
+    #valueFn;
+
+    /**
+     *
+     * @param {EffectType} effectType
+     * @param {function(): number} valueFn
+     */
+    constructor(effectType, valueFn) {
+        this.#effectType = effectType;
+        this.#valueFn = valueFn;
+    }
+
+    get effectType() {
+        return this.#effectType;
+    }
+
+    get baseValue() {
+        return this.#valueFn();
+    }
+
+}
