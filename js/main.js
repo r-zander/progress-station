@@ -605,7 +605,7 @@ function createLevel4BattleElements(battles) {
         level4Element.id = battle.domId;
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
-        domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
+        domGetter.byClass('rewards').innerHTML = battle.getRewardsPerLevelDescription();
         domGetter.byClass('progressBar').addEventListener('click', tryEngageBattle.bind(this, battle));
         domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
         if (battle instanceof BossBattle) {

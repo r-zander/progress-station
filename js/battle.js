@@ -270,7 +270,7 @@ class Battle extends LayeredTask {
      * @returns {number}
      */
     getReward(effectType) {
-        return Effect.getValue(this, effectType, this.rewards, 1);
+        return Effect.getValue(this, effectType, this.rewards, this.level / this.targetLevel);
     }
 
     /**
@@ -279,6 +279,10 @@ class Battle extends LayeredTask {
      */
     getEffect(effectType) {
         return Effect.getValue(this, effectType, this.effects, 1);
+    }
+
+    getRewardsPerLevelDescription() {
+        return Effect.getDescription(this, this.rewards, 1 / this.targetLevel);
     }
 
     getRewardsDescription() {

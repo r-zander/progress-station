@@ -117,6 +117,7 @@ class Effect {
                 result = effectType.combine(result, battle.getReward(effectType));
             } else if (battle.isActive()) {
                 result = effectType.combine(result, battle.getEffect(effectType));
+                result = effectType.combine(result, battle.getReward(effectType));
             }
         }
 
