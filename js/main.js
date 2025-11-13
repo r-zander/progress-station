@@ -924,6 +924,11 @@ function createAttributeBalance(rowElement, effectTypes) {
                 descriptionText,
                 atLeastOneBattleWonToMakeItActive,
             );
+        } 
+        else if (effectType === EffectType.EssenceOfUnknown) {
+            for(const entry of gameData.essenceOfUnknownHistory) {
+                createEssenceOfUnknownBalanceEntry(rowElement, entry);
+            }
         } else {
             for (const key in battles) {
                 /** @type {Battle} */
@@ -958,6 +963,35 @@ function createAttributeBalance(rowElement, effectTypes) {
             );
         }
     }
+}
+
+/**
+ * @param {HTMLElement} rowElement
+ * @param {Object} entry
+ */
+function createEssenceOfUnknownBalanceEntry(rowElement, entry) {
+    const balanceElement = Dom.get(rowElement).byClass('balance');
+    balanceElement.classList.remove('hidden');
+    let historyEntry = entry.savedValues;
+    let descriptionText = '';
+    switch(historyEntry.type) {
+        case 'lost':
+            descriptionText = ('from ' + historyEntry.target + ', lost at ' + historyEntry.cycle + ' IC');
+            break;
+        case 'gain':
+            descriptionText = ('from ' + historyEntry.source + ', gained at ' + historyEntry.cycle + ' IC');
+            break;
+    }
+    let actualEffect = historyEntry.type == 'lost' ? EffectType.EssenceOfUnknownNegative : EffectType.EssenceOfUnknown;
+    
+    createAttributeBalanceEntry(
+        balanceElement,
+        () => (historyEntry.amount),
+        () => [{effectType: actualEffect, baseValue: () => (historyEntry.amount)}],
+        actualEffect,
+        descriptionText,
+        () => (true),
+    );
 }
 
 /**
@@ -1102,6 +1136,12 @@ function createAttributesUI() {
     createAttributeBalance(researchRow, [EffectType.Research, EffectType.ResearchFactor]);
     rows.push(researchRow);
 
+    // EssenceOfUnknown
+    const essenceOfUnknownRow = createAttributeRow(attributes.essenceOfUnknown);
+    Dom.get(essenceOfUnknownRow).byClass('balance').classList.remove('hidden');
+    createAttributeBalance(essenceOfUnknownRow, [EffectType.EssenceOfUnknown, EffectType.EssenceOfUnknownFactor]);
+    rows.push(essenceOfUnknownRow);
+
     slot.append(...rows);
 }
 
@@ -1172,6 +1212,9 @@ function setBattleProgress(progressBar, battle) {
     if (battle.isDone()) {
         progressBar.dataset.layer = String(numberOfLayers);
         domGetter.byClass('progressFill').style.width = '0%';
+        if (battle instanceof BossBattle) {
+            addEssenceGain(5, battle.titleGenerator);
+        }
         return;
     }
 
@@ -1970,6 +2013,7 @@ function updateStationOverview() {
 
     const essenceOfUnknown = attributes.essenceOfUnknown.getValue();
     formatValue(Dom.get().byId('essenceOfUnknownDisplay'), essenceOfUnknown, {forceInteger: true, keepNumber: true});
+    formatValue(Dom.get().bySelector('#attributeRows > .essenceOfUnknown > .value > data'), essenceOfUnknown);
 
     const galacticSecretCost = calculateGalacticSecretCost();
     formatValue(Dom.get().byId('galacticSecretCostDisplay'), galacticSecretCost, {forceInteger: true, keepNumber: true});
@@ -2048,7 +2092,7 @@ function progressGalacticSecrets() {
             // Unlock & pay the required essence of unknown
             galacticSecret.isUnlocked = true;
             galacticSecret.inProgress = false;
-            gameData.essenceOfUnknown -= galacticSecretCost;
+            addEssenceLost(galacticSecretCost, galacticSecret.title);
             GameEvents.TaskLevelChanged.trigger({
                 type: galacticSecret.type,
                 name: galacticSecret.name,
@@ -2059,6 +2103,46 @@ function progressGalacticSecrets() {
         galacticSecret.unlockProgress = 0;
     }
 }
+
+function addEssenceGain(amount, source) {
+    gameData.essenceOfUnknown += amount;
+    logEssenceTransaction('gained', amount, source);
+    gameData.save();
+}
+
+function addEssenceLost(amount, target) {
+    gameData.essenceOfUnknown -= amount;
+    logEssenceTransaction('lost', amount, undefined, target);
+    gameData.save();
+}
+
+function logEssenceTransaction(type, amount, source = undefined, target = undefined) {
+    const cycle = formatNumber(Math.floor(startCycle + gameData.totalCycles));
+    const timestamp = Date.now();
+    const date = new Date(timestamp);
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-based
+    const year = date.getFullYear();
+
+    const formattedDate = `${day}.${month}.${year}`;
+
+    const savedValues = EssenceOfUnknownHistory.newSavedValues(type, amount, source, target, cycle, formattedDate);
+    const entry = new EssenceOfUnknownHistory(savedValues);
+
+    const slot = document.getElementById('attributeRows');
+    const rowElement = slot ? slot.querySelector('.essenceOfUnknown') : null;
+    // const slot = Dom.get().byId('attributeRows');
+    // const rowElement = Dom.get(slot).byClass('essenceOfUnknown');
+    
+    if (!gameData.essenceOfUnknownHistory) {
+        gameData.essenceOfUnknownHistory = [];
+    }
+    gameData.essenceOfUnknownHistory.push(entry);
+    
+    createEssenceOfUnknownBalanceEntry(rowElement, entry);
+}
+
 
 /**
  * Activate the first/saved operation of any component that doesn't
@@ -2371,7 +2455,7 @@ function init() {
     gameData.skipSave = false;
     gameData.save();
     displayLoaded();
-
+    tryEngageBattle(battles.Boss10);
     // Implications are a bit hard to see here:
     // - gameLoop is set to immediateTick --> update + updateLayout will run when gameLoop.start is called
     // - update will stop the gameLoop again - should the gameState require to do so

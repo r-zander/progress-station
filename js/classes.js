@@ -723,6 +723,65 @@ class PointOfInterest extends Entity {
 }
 
 /**
+ * @typedef {Object} EssenceOfUnknownHistorySavedValues
+ * @property {'gain'|'spend'} type
+ * @property {number} amount
+ * @property {string} source
+ * @property {string} [target]
+ * @property {number} cycle
+ * @property {number} timestamp
+ */
+
+class EssenceOfUnknownHistory extends Entity {
+
+
+
+    /**
+     * @param {EssenceOfUnknownHistorySavedValues} savedValues
+     */
+    constructor(savedValues) {
+        super('Essence Of Unknown Entry', `Transaction: ${savedValues.type} ${savedValues.amount} from ${savedValues.source}`);
+        this.savedValues = savedValues;
+    }
+
+    /**
+     * @param {EssenceOfUnknownHistorySavedValues} savedValues
+     */
+    loadValues(savedValues) {
+        validateParameter(savedValues, {
+            type: JsTypes.String,
+            amount: JsTypes.Number,
+            source: JsTypes.String,
+            target: JsTypes.String,
+            cycle: JsTypes.Number,
+            timestamp: JsTypes.Number,
+        }, this);
+        this.savedValues = savedValues;
+    }
+
+    /**
+     * @return {EssenceOfUnknownHistorySavedValues}
+     */
+    getSavedValues() {
+        return this.savedValues;
+    }
+
+    /**
+     * @return {EssenceOfUnknownHistorySavedValues}
+     */
+    static newSavedValues(type, amount, source, target, cycle, timestamp) {
+        return {
+            type,
+            amount,
+            source,
+            target,
+            cycle,
+            timestamp,
+        };
+    }
+}
+
+/**
  * @typedef {Object} GalacticSecretSavedValues
  * @property {boolean} unlocked
  */

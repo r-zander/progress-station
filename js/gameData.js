@@ -197,6 +197,21 @@ class GameData {
     essenceOfUnknown = 0;
 
     /**
+     * @typedef {Object} EssenceTransaction
+     * @property {'gain'|'spend'} type
+     * @property {number} amount
+     * @property {string} source
+     * @property {string} [target]
+     * @property {number} cycle
+     * @property {number} timestamp
+     */
+
+    /**
+     * @type {EssenceOfUnknownHistorySavedValues[]}
+     */
+    essenceOfUnknownHistory = [];
+
+    /**
      * Values from {@link Entity}s that are saved.
      *
      * @var {{
@@ -205,7 +220,8 @@ class GameData {
      *     moduleOperations: Object<TaskSavedValues>,
      *     battles: Object<TaskSavedValues>,
      *     galacticSecrets: Object<GalacticSecretSavedValues>,
-     *     requirements: Object<RequirementSavedValues>
+     *     requirements: Object<RequirementSavedValues>,
+     *     essenceOfUnknownHistory: EssenceOfUnknownHistorySavedValues[]
      * }}
      */
     savedValues;
@@ -295,6 +311,8 @@ class GameData {
         for (const key in requirementRegistry) {
             this.savedValues.requirements[key] = Requirement.newSavedValues();
         }
+
+        this.savedValues.essenceOfUnknownHistory = [];
     }
 
     resetCurrentValues() {
@@ -315,7 +333,6 @@ class GameData {
         let saveGameFound = localStorageItem !== '' && localStorageItem !== null;
         if (saveGameFound) {
             const gameDataSave = JSON.parse(localStorageItem);
-
             this.#checkSaveGameVersion(gameDataSave);
 
             // noinspection JSUnresolvedReference
@@ -351,7 +368,7 @@ class GameData {
             previousState: gameStates.NEW.name,
             newState: this.stateName,
         });
-
+        
         return saveGameFound;
     }
 

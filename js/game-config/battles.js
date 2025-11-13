@@ -46,7 +46,7 @@ const factions = {
     },
 
     Boss: {
-        title: 'Boss', maxXp: 1_000_000_000,
+        title: 'Boss', maxXp: 10,
         description: 'An immense, dark mass of writhing tentacles, teeth and a thousand eyes. The vacuum of space around the station suppresses all noise, ' +
             'but you can feel the hatred of the alien beast and see its determination to destroy everything you have built up.'
     },
@@ -1404,10 +1404,10 @@ const battles = {
                 'Devourer',
                 'Jester of Annihilation'
             ]),
-        targetLevel: 10,
-        difficulty: 1,
+        targetLevel: 1,
+        difficulty: 0,
         faction: factions.Boss,
-        effects: [{effectType: EffectType.Heat, baseValue: 5}, {effectType: EffectType.GrowthFactor, baseValue: -1.00}],
+        effects: [{effectType: EffectType.Heat, baseValue: 0}, {effectType: EffectType.GrowthFactor, baseValue: 0}],
         rewards: [],
     }),
 };

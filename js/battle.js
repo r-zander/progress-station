@@ -341,6 +341,7 @@ class BossBattle extends Battle {
 
     onDone() {
         super.onDone();
+        addEssenceGain(5, baseData.title);
         gameData.transitionState(gameStates.BOSS_DEFEATED);
     }
 
