@@ -685,6 +685,7 @@ function createFinishedBattlesUI() {
     domGetter.byClass('xpGain').classList.add('hidden');
     domGetter.byClass('xpLeft').classList.add('hidden');
     domGetter.byClass('danger').classList.add('hidden');
+    domGetter.byClass('rewards').textContent = 'Total Reward';
 
     /** @type {HTMLElement} */
     const level4Slot = domGetter.byClass('level4');

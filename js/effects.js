@@ -113,11 +113,11 @@ class Effect {
         for (const key in battles) {
             /** @type {Battle} */
             const battle = battles[key];
-            if (battle.isDone()) {
+            if (battle.hasLevels()) {
                 result = effectType.combine(result, battle.getReward(effectType));
-            } else if (battle.isActive()) {
+            }
+            if (battle.isActive()) {
                 result = effectType.combine(result, battle.getEffect(effectType));
-                result = effectType.combine(result, battle.getReward(effectType));
             }
         }
 
@@ -212,15 +212,22 @@ class Effect {
      * @param {EffectsHolder} holder
      * @param {EffectDefinition[]} effects
      * @param {number} level
+     * @param {boolean} [showPercentage] defaults to `false`. If true, will display +5% instead of x1.05
      *
      * @return {string} HTML
      */
-    static getDescription(holder, effects, level) {
+    static getDescription(holder, effects, level, showPercentage = false) {
         const modifiers = Modifier.getActiveModifiers();
 
         return effects.map((effect) => {
             const actualEffectType = Effect.#getActualEffectType(holder, effect, modifiers);
             const effectValue = Effect.#calculateEffectValue(actualEffectType, effect.baseValue, level);
+            if (actualEffectType.operator === 'x' && showPercentage) {
+                return '<data value="' + effectValue + '" class="effect-value">+'
+                    + ((effectValue - 1) * 100).toFixed(2)
+                    + '%</data> '
+                    + actualEffectType.attribute.inlineHtmlWithIcon;
+            }
             return '<data value="' + effectValue + '" class="effect-value">'
                 + actualEffectType.operator
                 + effectValue.toFixed(2)

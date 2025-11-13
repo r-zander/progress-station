@@ -35,6 +35,13 @@ class LayeredTask extends Task {
         return this.level >= this.targetLevel;
     }
 
+    /**
+     * @return {boolean} if at least one level was reached.
+     */
+    hasLevels() {
+        return this.level > 0;
+    }
+
     onDone() {
         // Default no-op
     }
@@ -282,7 +289,7 @@ class Battle extends LayeredTask {
     }
 
     getRewardsPerLevelDescription() {
-        return Effect.getDescription(this, this.rewards, 1 / this.targetLevel);
+        return Effect.getDescription(this, this.rewards, 1 / this.targetLevel, true);
     }
 
     getRewardsDescription() {
