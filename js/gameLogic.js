@@ -15,6 +15,14 @@ function isAnyBattleActive() {
 }
 
 /**
+ * @param {number} population
+ * @return {boolean}
+ */
+function isPopulationRegenerationActive(population) {
+    return !isAnyBattleActive() && population < gameData.stats.maxPopulation.current;
+}
+
+/**
  * @return {number}
  */
 function calculatePopulationDelta() {
@@ -22,17 +30,15 @@ function calculatePopulationDelta() {
     const danger = attributes.danger.getValue();
     const population = attributes.population.getValue();
 
-    let populationDelta = Math.pow(growth / 1000, 0.6) * 4.26;
+    // let populationDelta = Math.pow(growth / 1000, 0.6) * 4.26;
+    let populationDelta = growth;
 
-    if (!isAnyBattleActive() &&
-        population < gameData.stats.maxPopulation.current
+    if (isPopulationRegenerationActive(population)
     ) {
         populationDelta *= 10;
     }
 
     populationDelta -= danger;
-
-
 
     // TODO hacky fix for current boss heat inertia problem https://trello.com/c/VHOGIMUV/353-last-few-survivors-take-a-long-time-to-wipe-out
     if (gameData.stateName === gameStates.BOSS_FIGHT.name) {

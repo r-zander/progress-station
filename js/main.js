@@ -1097,8 +1097,8 @@ function createAttributesUI() {
     const populationFormulaElement = Dom.get(populationRow).byClass('formula');
     populationFormulaElement.classList.remove('hidden');
     populationFormulaElement.innerHTML =
-        '4.26 * (' +  attributes.growth.inlineHtml + '/ 1,000)<sup>0.6</sup><br />' +
-        'x10 if no Battle is engaged<br />' +
+        attributes.growth.inlineHtml + '<br />' +
+        'x10 <small class="help-text">if below max Population and no Battle is engaged</small><br />' +
         ' - ' + attributes.danger.inlineHtml + '<br />' +
         '&wedgeq; <data value="0" class="delta">?</data> per cycle';
     rows.push(populationRow);
@@ -1968,6 +1968,12 @@ function updateStationOverview() {
     formatValue(Dom.get().byId('populationProgressSpeedDisplay'), getPopulationProgressSpeedMultiplier(), {});
     formatValue(Dom.get().bySelector('#attributeRows > .population > .value > data'), population, {forceInteger: true});
     formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), calculatePopulationDelta(), {forceSign: true});
+    const maxPopulationDisplayElement = Dom.get().byId('maxPopulationDisplay');
+    formatValue(maxPopulationDisplayElement, gameData.stats.maxPopulation.current, {forceInteger: true});
+    const regenerationActive = isPopulationRegenerationActive(population);
+    const maxPopulationDisplayParent = maxPopulationDisplayElement.closest('.secondary-stat');
+    maxPopulationDisplayParent.classList.toggle('help-text', !regenerationActive);
+    maxPopulationDisplayParent.classList.toggle('regeneration-active', regenerationActive);
 
     const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);

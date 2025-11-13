@@ -73,7 +73,8 @@ function createAttributeDescriptions() {
     attributes.danger.description = 'Drains ' +  attributes.population.inlineHtml + ' by that amount each cycle.';
     attributes.gridLoad.description = 'Amount of ' + attributes.gridStrength.inlineHtml + ' currently assigned.';
     attributes.gridStrength.description = 'Limits the number of concurrently active Module Operations.';
-    attributes.growth.description = 'Increases ' + attributes.population.inlineHtml + ' per cycle. Impact is enhanced while no Battle is engaged.';
+    attributes.growth.description = 'Increases ' + attributes.population.inlineHtml + ' per cycle.<br />' +
+        'Impact is enhanced while no Battle is engaged and ' + attributes.population.inlineHtml + ' has been higher before.';
     attributes.industry.description = 'Speeds up Module Operations progress.';
     attributes.military.description = 'Increases damage in Battles.';
     // TODO add analysis core in here, once done
