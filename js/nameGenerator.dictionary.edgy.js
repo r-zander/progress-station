@@ -228,8 +228,6 @@ const romanNumbers = [ // Excluded numbers are too long/unaesthetic
     11, 12/*,13*/, 14, 15, 16/*,17,18*/, 19
 ].map(romans.romanize);
 
-const hairSpace = '\u200A';
-
 const numbering = () => [
     new NameGenerator('Any Number Display')
         .add([
@@ -244,7 +242,7 @@ const numbering = () => [
     new NameGenerator('Letter Separator Number')
         .add('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''))
         .skipSeparator()
-        .add(['-', '_', hairSpace + '|' + hairSpace, '/', ':'])
+        .add(['-', '_', Symbols.HAIR_SPACE + '|' + Symbols.HAIR_SPACE, '/', ':'])
         .skipSeparator()
         .add([
             unevenNumbers,
@@ -254,7 +252,7 @@ const numbering = () => [
     new NameGenerator('Letter Separator Roman number')
         .add('ABCDEGHJKLMNOPQRSTUW'.split(''))
         .skipSeparator()
-        .add(['-', hairSpace + '|' + hairSpace, ':'])
+        .add(['-', Symbols.HAIR_SPACE + '|' + Symbols.HAIR_SPACE, ':'])
         .skipSeparator()
         .add(romanNumbers)
         .bound()

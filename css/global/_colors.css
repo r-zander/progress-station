@@ -40,6 +40,7 @@
     --body-font-color: white;
     --panel-bg-color: #1F1F1F;
     --panel-bg-color-transparent20: #1F1F1FCB;
+    --panel-bg-color-transparent10: #1F1F1FE6;
     --panel-bg-color-transparent05: #1F1F1FF2;
 
 
@@ -59,13 +60,12 @@
     --requirement-font-color: #b0b0b0;
 
     /* Attributes */
-    --attr-danger-color: var(--ps-orange);
+    --attr-danger-color: var(--ps-red2);
     --attr-energy-color: var(--ps-yellow);
     --attr-essence-of-unknown-color: var(--ps-pink1);
     --attr-grid-load-color: var(--progress-bar-color);
     --attr-grid-strength-color: var(--progress-bg-color);
     --attr-growth-color: var(--ps-green3);
-    --attr-heat-color: var(--ps-red2);
     --attr-industry-color: var(--ps-cyan);
     --attr-military-color: #9897A9;
     --attr-population-color: var(--ps-blue);
@@ -111,10 +111,6 @@
 
 .text-growth {
     color: var(--attr-growth-color);
-}
-
-.text-heat {
-    color: var(--attr-heat-color);
 }
 
 .text-industry {

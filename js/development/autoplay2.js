@@ -708,7 +708,7 @@ class ConfigurationOptimizer {
         // Growth weight based on population
         const currentPop = attributes.population.getValue();
         const currentGrowth = attributes.growth.getValue();
-        const currentHeat = attributes.heat.getValue();
+        const currentHeat = attributes.danger.getValue();
         const theoreticalMaxPop = currentGrowth / (0.01 * Math.max(currentHeat, 1));
         const popRatio = currentPop / theoreticalMaxPop;
 

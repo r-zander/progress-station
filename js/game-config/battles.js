@@ -1394,20 +1394,27 @@ const battles = {
                 'Chompulor',
             ])
             .skipSeparator()
-            .add(',')
+            .add(', ' + Symbols.SOFT_BREAK)
+            .skipSeparator()
             .add(['the', 'Eternal'])
             .add([
                 'Destroyer',
-                'Shadow of Cosmos',
+                `Shadow ${Symbols.SOFT_BREAK}of Cosmos`,
                 'Essence Harvester',
                 'Decimator',
                 'Devourer',
-                'Jester of Annihilation'
+                `Jester ${Symbols.SOFT_BREAK}of Annihilation`
             ]),
         targetLevel: 1,
         difficulty: 0,
         faction: factions.Boss,
-        effects: [{effectType: EffectType.Heat, baseValue: 0}, {effectType: EffectType.GrowthFactor, baseValue: 0}],
+        effects: [
+            new DynamicEffectDefinition(EffectType.Danger, () => {
+                // 5% of current population used as damage against population
+                return attributes.population.getValue() * 0.05;
+            }),
+            {effectType: EffectType.GrowthFactor, baseValue: -1.00}
+        ],
         rewards: [],
     }),
 };

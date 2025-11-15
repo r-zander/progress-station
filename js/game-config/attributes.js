@@ -40,12 +40,6 @@ const attributes = {
         textClass: 'text-growth',
         getValue: () => Effect.getTotalValue([EffectType.Growth, EffectType.GrowthFactor]),
     },
-    heat: {
-        title: 'Heat',
-        icon: 'img/icons/heat.svg',
-        textClass: 'text-heat',
-        getValue: () => calculateHeat(),
-    },
     industry: {
         title: 'Industry',
         icon: 'img/icons/industry.svg',
@@ -73,28 +67,18 @@ const attributes = {
 };
 
 /**
- * @type {number}
- */
-const heatAcceleration = 3; // in heat / sec²
-
-/**
- * [0; 1)
- * @type {number}
- */
-const populationDeltaInertia = 0.98; // 98% inertia ≙ 10sec speed delay at targetTicksPerSecond 20 and baseGameSpeed 4
-
-/**
  * Define the descriptions of attributes, referencing each other.
  */
 function createAttributeDescriptions() {
-    attributes.danger.description = 'More ' + attributes.danger.inlineHtml + ' than ' + attributes.military.inlineHtml + ' increases ' + attributes.heat.inlineHtml + '.';
+    attributes.danger.description = 'Drains ' +  attributes.population.inlineHtml + ' by that amount each cycle.';
     attributes.gridLoad.description = 'Amount of ' + attributes.gridStrength.inlineHtml + ' currently assigned.';
-    attributes.gridStrength.description = 'Limits the number of concurrently active operations.';
-    attributes.growth.description = 'Increases ' + attributes.population.inlineHtml + '.';
-    attributes.heat.description = 'Reduces ' + attributes.population.inlineHtml + '.';
-    attributes.industry.description = 'Speeds up operations progress.';
-    attributes.military.description = 'Counteracts ' + attributes.danger.inlineHtml + ' and increases damage in Battles.';
-    attributes.population.description = 'Affects all progress speed.';
+    attributes.gridStrength.description = 'Limits the number of concurrently active Module Operations.';
+    attributes.growth.description = 'Increases ' + attributes.population.inlineHtml + ' per cycle.<br />' +
+        'Impact is enhanced while no Battle is engaged and ' + attributes.population.inlineHtml + ' has been higher before.';
+    attributes.industry.description = 'Speeds up Module Operations progress.';
+    attributes.military.description = 'Increases damage in Battles.';
+    // TODO add analysis core in here, once done
+    attributes.population.description = 'Speeds up Module Operations progress and increases damage in Battles.';
     attributes.research.description = 'Unlocks new knowledge. <i>Not useful in the Beta version.</i>';
     attributes.essenceOfUnknown.description = 'Invest to learn Galactic Secrets.';
 }

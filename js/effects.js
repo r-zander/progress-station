@@ -23,7 +23,6 @@
 class EffectType {
     static Danger = new EffectType('+', attributes.danger);
     static DangerFactor = new EffectType('x', attributes.danger);
-    static Heat = new EffectType('+', attributes.heat);
     static Energy = new EffectType('+', attributes.energy);
     static EnergyFactor = new EffectType('x', attributes.energy);
     static Growth = new EffectType('+', attributes.growth);
@@ -90,7 +89,7 @@ class Modifier {
         return modifier.modifies
                 .map((effectHolder) => effectHolder.title)
                 .join(', ') + '\n'
-            + modifier.from.attribute.title + ' \u2B9E ' /* Shows: ⮞ */ + modifier.to.attribute.title;
+            + modifier.from.attribute.title + ' ' + Symbols.LEFT_ARROW + ' ' + modifier.to.attribute.title;
     }
 }
 
@@ -116,9 +115,10 @@ class Effect {
         for (const key in battles) {
             /** @type {Battle} */
             const battle = battles[key];
-            if (battle.isDone()) {
+            if (battle.hasLevels()) {
                 result = effectType.combine(result, battle.getReward(effectType));
-            } else if (battle.isActive()) {
+            }
+            if (battle.isActive()) {
                 result = effectType.combine(result, battle.getEffect(effectType));
             }
         }
@@ -214,15 +214,22 @@ class Effect {
      * @param {EffectsHolder} holder
      * @param {EffectDefinition[]} effects
      * @param {number} level
+     * @param {boolean} [showPercentage] defaults to `false`. If true, will display +5% instead of x1.05
      *
      * @return {string} HTML
      */
-    static getDescription(holder, effects, level) {
+    static getDescription(holder, effects, level, showPercentage = false) {
         const modifiers = Modifier.getActiveModifiers();
 
         return effects.map((effect) => {
             const actualEffectType = Effect.#getActualEffectType(holder, effect, modifiers);
             const effectValue = Effect.#calculateEffectValue(actualEffectType, effect.baseValue, level);
+            if (actualEffectType.operator === 'x' && showPercentage) {
+                return '<data value="' + effectValue + '" class="effect-value">+'
+                    + ((effectValue - 1) * 100).toFixed(2)
+                    + '%</data> '
+                    + actualEffectType.attribute.inlineHtmlWithIcon;
+            }
             return '<data value="' + effectValue + '" class="effect-value">'
                 + actualEffectType.operator
                 + effectValue.toFixed(2)
@@ -291,4 +298,35 @@ class Effect {
     static #calculateEffectValue(effectType, baseValue, level) {
         return effectType.getDefaultValue() + baseValue * level;
     }
+}
+
+class DynamicEffectDefinition {
+    /**
+     * @type {EffectType}
+     */
+    #effectType;
+
+    /**
+     * @type {function(): number}
+     */
+    #valueFn;
+
+    /**
+     *
+     * @param {EffectType} effectType
+     * @param {function(): number} valueFn
+     */
+    constructor(effectType, valueFn) {
+        this.#effectType = effectType;
+        this.#valueFn = valueFn;
+    }
+
+    get effectType() {
+        return this.#effectType;
+    }
+
+    get baseValue() {
+        return this.#valueFn();
+    }
+
 }

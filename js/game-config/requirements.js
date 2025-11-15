@@ -19,13 +19,13 @@ sharedRequirements.attributeResearchUnlocked = new AttributeRequirement('playthr
 });
 sharedRequirements.attributeResearch10 = battleRequirements[1];
 
-sharedRequirements.FourDPrinterLvl20 = new OperationLevelRequirement('playthrough', {
+sharedRequirements.FourDPrinterLvl10 = new OperationLevelRequirement('playthrough', {
     operation: moduleOperations.FourDPrinter,
-    requirement: 20,
+    requirement: 10,
 });
-sharedRequirements.KungFuManualLvl20 = new OperationLevelRequirement('playthrough', {
+sharedRequirements.CoreBladeLvl10 = new OperationLevelRequirement('playthrough', {
     operation: moduleOperations.KungFuManual,
-    requirement: 20,
+    requirement: 10,
 });
 sharedRequirements.NovaFliesLvl10 = new FactionLevelsDefeatedRequirement('playthrough', {
     faction: factions.NovaFlies,
@@ -37,7 +37,7 @@ sharedRequirements.NovaFliesLvl20 = new FactionLevelsDefeatedRequirement(
         faction: factions.NovaFlies,
         requirement: 20,
     },
-    [sharedRequirements.KungFuManualLvl20],
+    [sharedRequirements.CoreBladeLvl10],
 );
 sharedRequirements.PocketLaboratoryLvl10 = new OperationLevelRequirement(
     'playthrough',
@@ -64,12 +64,12 @@ const moduleOperationRequirements = {
 
     // Captain's Quarter
     MicroCyborgAutomat: moduleOperations.MicroCyborgAutomat.registerRequirement(
-        sharedRequirements.FourDPrinterLvl20,
+        sharedRequirements.FourDPrinterLvl10,
     ),
     KungFuManual: moduleOperations.KungFuManual.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.MicroCyborgAutomat,
-            requirement: 20,
+            requirement: 10,
         }),
     ),
     PocketLaboratory: moduleOperations.PocketLaboratory.registerRequirement(
@@ -230,7 +230,7 @@ const moduleOperationRequirements = {
  */
 const modulesRequirements = {
     CaptainsQuarter: modules.CaptainsQuarter.registerRequirement(
-        sharedRequirements.FourDPrinterLvl20,
+        sharedRequirements.FourDPrinterLvl10,
     ),
     MiningBay1: modules.MiningBay.registerRequirement(
         sharedRequirements.PocketLaboratoryLvl10,
@@ -428,14 +428,13 @@ const htmlElementRequirements = {
     battleTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('battleTabButton')],
-            requirements: [sharedRequirements.KungFuManualLvl20],
+            requirements: [sharedRequirements.CoreBladeLvl10],
             elementsToShowRequirements: [Dom.get().byId('battleTabButtonRequirements')],
         }),
     dangerDisplay: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="danger"]'),
-                Dom.get().bySelector('#attributesDisplay > [data-attribute="heat"]'),
                 Dom.lazy().allBySelector('#unfinishedBattles .level3 .danger, #unfinishedBattles .level4 .danger'),
                 ...Dom.get().allByClass('battles-pose-danger'),
             ],

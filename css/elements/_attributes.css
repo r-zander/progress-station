@@ -17,6 +17,12 @@
         & > data {
             display: block;
         }
+
+        > .secondary-stat {
+            line-height: 1;
+            margin-top: -7px;
+            font-size: 0.875rem;
+        }
     }
 }
 
@@ -77,3 +83,7 @@
     mask-size: contain;
     background-color: currentColor;
 }*/
+
+.regeneration-active {
+    color: var(--attr-growth-color);
+}

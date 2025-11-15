@@ -3,6 +3,12 @@
 const localStorageKey = 'ps_gameDataSave';
 
 /**
+ * @typedef {Object} RunStatistic
+ * @property {number} current
+ * @property {number} max
+ */
+
+/**
  * @typedef {Object} GameState
  * @property {string} [name] name of the game state in the gameStates dictionary
  * @property {boolean} gameLoopRunning
@@ -106,6 +112,20 @@ gameStates.BOSS_DEFEATED.validNextStates = [gameStates.PLAYING];
  */
 const gameDataMigrations = {};
 
+/**
+ * @type {Object<RunStatistic>}}
+ */
+const DEFAULT_RUN_STATS = {
+    battlesFinished: {current: 0, max: 0},
+    wavesDefeated: {current: 0, max: 0},
+    maxPopulation: {current: 1, max: 1},
+    maxIndustry: {current: 0, max: 0},
+    maxGrowth: {current: 0, max: 0},
+    maxMilitary: {current: 0, max: 0},
+    maxDanger: {current: 0, max: 0},
+    gridStrength: {current: 0, max: 0},
+};
+
 class GameData {
 
     /**
@@ -145,21 +165,6 @@ class GameData {
      * @var {number}
      */
     population;
-
-    /**
-     * @var {number}
-     */
-    lastPopulationDelta;
-
-    /**
-     * @var {number}
-     */
-    heat;
-
-    /**
-     * @var {number}
-     */
-    heatVelocity;
 
     /**
      * @var {number}
@@ -239,6 +244,14 @@ class GameData {
     activeEntities = {};
 
     /**
+     * Starts as a copy of DEFAULT_RUN_STATS.
+     *
+     * @type {Object<RunStatistic>}
+     * @type
+     */
+    stats = Object.assign({}, DEFAULT_RUN_STATS);
+
+    /**
      * @var {{
      *     darkMode: boolean,
      *     sciFiMode: boolean,
@@ -275,9 +288,6 @@ class GameData {
 
     initValues() {
         this.population = 1;
-        this.lastPopulationDelta = 0;
-        this.heat = 0;
-        this.heatVelocity = 0;
         this.cycles = 0;
         this.bossBattleAvailable = false;
     }
@@ -322,6 +332,9 @@ class GameData {
         this.activeEntities.battles = new Set();
         for (const module of defaultModules) {
             this.activeEntities.modules.add(module.name);
+        }
+        for (const key in this.stats) {
+            this.stats[key].current = DEFAULT_RUN_STATS[key].current;
         }
     }
 
@@ -368,7 +381,14 @@ class GameData {
             previousState: gameStates.NEW.name,
             newState: this.stateName,
         });
-        
+
+        for (const key in this.stats) {
+            if (this.stats.hasOwnProperty(key)) continue;
+
+            // Copy default stats
+            this.stats[key] = Object.assign({}, DEFAULT_RUN_STATS[key]);
+        }
+
         return saveGameFound;
     }
 
