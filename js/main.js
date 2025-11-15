@@ -1009,7 +1009,7 @@ function createEssenceOfUnknownBalanceEntry(rowElement, entry) {
     }
     let actualEffect = historyEntry.type == 'lost' ? EffectType.EssenceOfUnknownNegative : EffectType.EssenceOfUnknown;
     
-    createAttributeBalanceEntry(
+    createAttributeBalanceEntryStaticDescription(
         balanceElement,
         () => (historyEntry.amount),
         () => [{effectType: actualEffect, baseValue: () => (historyEntry.amount)}],
@@ -2118,7 +2118,7 @@ function progressGalacticSecrets() {
 
 function addEssenceGain(amount, source) {
     gameData.essenceOfUnknown += amount;
-    logEssenceTransaction('gained', amount, source);
+    logEssenceTransaction('gain', amount, source);
     gameData.save();
 }
 
@@ -2467,7 +2467,6 @@ function init() {
     gameData.skipSave = false;
     gameData.save();
     displayLoaded();
-    tryEngageBattle(battles.Boss10);
     // Implications are a bit hard to see here:
     // - gameLoop is set to immediateTick --> update + updateLayout will run when gameLoop.start is called
     // - update will stop the gameLoop again - should the gameState require to do so
