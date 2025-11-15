@@ -455,6 +455,39 @@ class BossBattle extends Battle {
     getRewardsDescription() {
         return attributes.essenceOfUnknown.inlineHtmlWithIcon + ' per defeated wave';
     }
+
+    isInDefenseMode() {
+        const actualXp = applySpeed(this.getXpGain());
+        const cappedXp = this.getDefenseModeXpGain();
+        return cappedXp > 0 && actualXp > cappedXp;
+    }
+
+    getDefenseModeXpGain() {
+        const xpPerSecond = this.getMaxXp() / BOSS_MIN_WAVE_DURATION_IN_SECONDS;
+        return Math.max(0, xpPerSecond);
+    };
+
+    getEffect(effectType) {
+        if (this.isInDefenseMode() &&
+            (effectType === EffectType.Danger || effectType === EffectType.DangerFactor)) {
+            return 0;
+        }
+        return super.getEffect(effectType);
+    }
+
+    increaseXp() {
+        const actualXp = applySpeed(this.getXpGain());
+        const cappedXp = this.getDefenseModeXpGain();
+        let appliedXp = actualXp;
+        if (cappedXp > 0 && actualXp > cappedXp) {
+            appliedXp =  applySpeed(cappedXp);
+        }
+
+        this.xp += appliedXp;
+        if (this.xp >= this.getMaxXp()) {
+            this.levelUp();
+        }
+    }
 }
 
 class FactionLevelsDefeatedRequirement extends Requirement {
