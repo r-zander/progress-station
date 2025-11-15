@@ -2114,6 +2114,9 @@ function progressGalacticSecrets() {
 }
 
 function addEssenceGain(amount, source) {
+    if(amount <= 0) {
+        return;
+    }
     gameData.essenceOfUnknown += amount;
     logEssenceTransaction('gain', amount, source);
     gameData.save();
@@ -2464,7 +2467,7 @@ function init() {
     gameData.skipSave = false;
     gameData.save();
     displayLoaded();
-    
+
     // Implications are a bit hard to see here:
     // - gameLoop is set to immediateTick --> update + updateLayout will run when gameLoop.start is called
     // - update will stop the gameLoop again - should the gameState require to do so
