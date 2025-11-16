@@ -112,6 +112,34 @@ const moduleOperationRequirements = {
         }),
     ),
 
+    // MODULE 4
+    // Growth
+    Module4GrowthOperationT2: moduleOperations.Module4GrowthOperationT2.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.Module4GrowthOperationT1,
+            requirement: 100,
+        }),
+    ),
+    Module4GrowthOperationT3: moduleOperations.Module4GrowthOperationT2.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.Module4GrowthOperationT2,
+            requirement: 500,
+        }),
+    ),
+    // Research
+    Module4ResearchOperationT2: moduleOperations.Module4ResearchOperationT2.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.Module4ResearchOperationT1,
+            requirement: 100,
+        }),
+    ),
+    Module4ResearchOperationT3: moduleOperations.Module4ResearchOperationT3.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.Module4ResearchOperationT2,
+            requirement: 500,
+        }),
+    ),
+
     // FURNACE
     // Fuel
     Diesel: moduleOperations.Diesel.registerRequirement(
