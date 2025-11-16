@@ -451,7 +451,7 @@ class GameData {
         const rawValue = importExportBox.value.trim();
 
         try {
-            const decoded = window.atob(rawValue);
+            const decoded = decodeURIComponent(escape(window.atob(rawValue)));
             const parsed = JSON.parse(decoded);
 
             if (!_.isObjectLike(parsed) || Object.keys(parsed).length === 0) {
@@ -470,7 +470,7 @@ class GameData {
 
     export() {
         const importExportBox = document.getElementById('importExportBox');
-        importExportBox.value = window.btoa(gameData.serializeAsJson());
+        importExportBox.value = window.btoa(unescape(encodeURIComponent(gameData.serializeAsJson())));
     }
 
     /**

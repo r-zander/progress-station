@@ -152,7 +152,7 @@ const Symbols = {
     /**
      * Shows: ⮞
      */
-    LEFT_ARROW: '\u2B9E',
+    RIGHT_ARROW: '\u2B9E',
 };
 
 const JsTypes = {
