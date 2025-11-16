@@ -24,6 +24,13 @@ function isAnyBattleActive() {
     return false;
 }
 
+function deactivateAllBattles() {
+    for (const battleName of gameData.activeEntities.battles) {
+        const battle = battles[battleName];
+        battle.stop();
+    }
+}
+
 /**
  * @param {number} population
  * @return {boolean}
@@ -70,8 +77,13 @@ function updatePopulation() {
         gameData.stats.maxPopulation.current = gameData.population;
     }
 
-    if (gameData.state === gameStates.BOSS_FIGHT && Math.round(gameData.population) === 1) {
-        gameData.transitionState(gameStates.DEAD);
+    // Is everyone but the captain dead?
+    if (Math.round(gameData.population) === 1) {
+        if (gameData.state === gameStates.BOSS_FIGHT) {
+            gameData.transitionState(gameStates.DEAD);
+        } else {
+            deactivateAllBattles();
+        }
     }
 }
 
