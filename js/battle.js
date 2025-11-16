@@ -468,8 +468,8 @@ class BossBattle extends Battle {
     };
 
     getEffect(effectType) {
-        if (this.isInDefenseMode() &&
-            (effectType === EffectType.Danger || effectType === EffectType.DangerFactor)) {
+        if ((effectType === EffectType.Danger || effectType === EffectType.DangerFactor) &&
+            this.isInDefenseMode()) {
             return 0;
         }
         return super.getEffect(effectType);
