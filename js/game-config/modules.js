@@ -261,7 +261,7 @@ const moduleComponents = {
         operations: [moduleOperations.Module4GrowthOperationT1, moduleOperations.Module4GrowthOperationT2, moduleOperations.Module4GrowthOperationT3]
     }),
     Module4ResearchComponent: new ModuleComponent({
-        title: 'Gain Growth',
+        title: 'Gain Research',
         description: '',
         operations: [moduleOperations.Module4ResearchOperationT1, moduleOperations.Module4ResearchOperationT2, moduleOperations.Module4ResearchOperationT3]
     }),
