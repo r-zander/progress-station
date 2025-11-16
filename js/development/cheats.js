@@ -59,25 +59,27 @@ function prepareRequirementsForTSV(requirements, locale) {
         result[0] = requirements[0].type;
         result[1] = requirements[0].scope;
         // noinspection IfStatementWithTooManyBranchesJS
-        if (requirements[0] instanceof AttributeRequirement) {
-            result[2] = requirements[0].requirements[0].attribute.name;
-            result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
-        } else if (requirements[0] instanceof OperationLevelRequirement) {
-            result[2] = requirements[0].requirements[0].operation.name;
-            result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
-        } else if (requirements[0] instanceof CyclesPassedRequirement) {
-            result[2] = null;
-            result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
-        } else if (requirements[0] instanceof GalacticSecretRequirement) {
-            result[2] = requirements[0].requirements[0].galacticSecret.name;
-            result[3] = null;
-        } else if (requirements[0] instanceof FactionLevelsDefeatedRequirement) {
-            result[2] = requirements[0].requirements[0].faction.name;
-            result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
-        } else {
+
+        // TODO adjust for new requirements structure
+        // if (requirements[0] instanceof AttributeRequirement) {
+        //     result[2] = requirements[0].requirements[0].attribute.name;
+        //     result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
+        // } else if (requirements[0] instanceof OperationLevelRequirement) {
+        //     result[2] = requirements[0].requirements[0].operation.name;
+        //     result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
+        // } else if (requirements[0] instanceof CyclesPassedRequirement) {
+        //     result[2] = null;
+        //     result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
+        // } else if (requirements[0] instanceof GalacticSecretRequirement) {
+        //     result[2] = requirements[0].requirements[0].galacticSecret.name;
+        //     result[3] = null;
+        // } else if (requirements[0] instanceof FactionLevelsDefeatedRequirement) {
+        //     result[2] = requirements[0].requirements[0].faction.name;
+        //     result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
+        // } else {
             result[2] = 'Unsupported Requirement type';
             result[3] = null;
-        }
+        // }
     }
     return result;
 }
