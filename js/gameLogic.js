@@ -11,7 +11,17 @@ function applySpeed(value) {
 }
 
 function isAnyBattleActive() {
-    return gameData.activeEntities.battles.size > 0;
+    if (gameData.activeEntities.battles.size === 0) return false;
+
+    for (const battleName of gameData.activeEntities.battles) {
+        const battle = battles[battleName];
+
+        // done battles are not considered actually active
+        if (!battle.isDone()) return true;
+    }
+
+    // There are active battles, but not of them are not done
+    return false;
 }
 
 /**
