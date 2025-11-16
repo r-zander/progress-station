@@ -17,6 +17,7 @@ const localStorageKey = 'ps_gameDataSave';
  * @property {boolean} areTasksProgressing
  * @property {boolean} isBossBattleProgressing
  * @property {boolean} canChangeActivation
+ * @property {boolean} canEngageBattles
  * @property {GameState[]} [validNextStates]
  */
 
@@ -31,6 +32,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
     },
     PLAYING: {
         gameLoopRunning: true,
@@ -39,6 +41,7 @@ const gameStates = {
         areTasksProgressing: true,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: true,
     },
     PAUSED: {
         gameLoopRunning: false,
@@ -47,6 +50,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: false,
     },
     TUTORIAL_PAUSED: {
         gameLoopRunning: false,
@@ -55,6 +59,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: false,
     },
     BOSS_FIGHT_INTRO: {
         gameLoopRunning: false,
@@ -63,6 +68,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
     },
     BOSS_FIGHT: {
         gameLoopRunning: true,
@@ -71,6 +77,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: true,
         canChangeActivation: true,
+        canEngageBattles: true,
     },
     BOSS_FIGHT_PAUSED: {
         gameLoopRunning: false,
@@ -79,6 +86,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: false,
     },
     DEAD: {
         gameLoopRunning: false,
@@ -87,6 +95,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
     },
     BOSS_DEFEATED: {
         gameLoopRunning: false,
@@ -95,6 +104,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
     },
 };
 gameStates.NEW.validNextStates = [gameStates.PLAYING];

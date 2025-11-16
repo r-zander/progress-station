@@ -276,6 +276,11 @@ function switchModuleActivation(module) {
  * @param {ModuleOperation} operation
  */
 function tryActivateOperation(component, operation) {
+    if (!gameData.state.canChangeActivation) {
+        VFX.shakePlayButton();
+        return;
+    }
+
     if (operation.isActive('self')) {
         // Already active, nothing to do
         return;
@@ -300,6 +305,11 @@ function tryActivateOperation(component, operation) {
  */
 function tryEngageBattle(battle) {
     if (!gameData.state.canChangeActivation) {
+        VFX.shakePlayButton();
+        return;
+    }
+
+    if (!battle.isActive() && !gameData.state.canEngageBattles) {
         VFX.shakePlayButton();
         return;
     }
