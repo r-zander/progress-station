@@ -43,8 +43,7 @@ function calculatePopulationDelta() {
     // let populationDelta = Math.pow(growth / 1000, 0.6) * 4.26;
     let populationDelta = growth;
 
-    if (isPopulationRegenerationActive(population)
-    ) {
+    if (isPopulationRegenerationActive(population)) {
         populationDelta *= 10;
     }
 
@@ -62,7 +61,17 @@ function calculatePopulationDelta() {
 function updatePopulation() {
     if (!gameData.state.areAttributesUpdated) return;
 
+    const regenerationActive = isPopulationRegenerationActive(gameData.population);
     gameData.population = Math.max(gameData.population + applySpeed(calculatePopulationDelta()), 1);
+    // Make sure we don't regenerate over the maxPopulation
+    if (regenerationActive) {
+        gameData.population = Math.min(gameData.stats.maxPopulation.current, gameData.population);
+
+    // Check if in the next update the regeneration would start
+    } else if (isPopulationRegenerationActive(gameData.population)) {
+        gameData.population = Math.max(gameData.stats.maxPopulation.current, gameData.population);
+    }
+
     if (gameData.population > gameData.stats.maxPopulation.current) {
         gameData.stats.maxPopulation.current = gameData.population;
     }
