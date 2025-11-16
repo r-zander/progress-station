@@ -208,7 +208,7 @@ class GameData {
      *     gridStrength: TaskSavedValues,
      *     modules: Object<ModuleSavedValues>,
      *     moduleOperations: Object<TaskSavedValues>,
-     *     battles: Object<TaskSavedValues>,
+     *     battles: Object<BattleSavedValues>,
      *     galacticSecrets: Object<GalacticSecretSavedValues>,
      *     requirements: Object<RequirementSavedValues>
      * }}
@@ -233,7 +233,7 @@ class GameData {
      * @type {Object<RunStatistic>}
      * @type
      */
-    stats = Object.assign({}, DEFAULT_RUN_STATS);
+    stats = structuredClone(DEFAULT_RUN_STATS);
 
     /**
      * @var {{
@@ -369,7 +369,7 @@ class GameData {
             if (this.stats.hasOwnProperty(key)) continue;
 
             // Copy default stats
-            this.stats[key] = Object.assign({}, DEFAULT_RUN_STATS[key]);
+            this.stats[key] = structuredClone(DEFAULT_RUN_STATS[key]);
         }
 
         return saveGameFound;
