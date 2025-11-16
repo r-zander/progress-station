@@ -47,6 +47,13 @@ sharedRequirements.PocketLaboratoryLvl10 = new OperationLevelRequirement(
     },
     [sharedRequirements.NovaFliesLvl20],
 );
+sharedRequirements.GridStrengtLvl2 = new AttributeRequirement('playthrough', {
+    attribute: attributes.gridStrength,
+    requirement: 2,
+});
+sharedRequirements.StarlightEnclaveVisited = new PointOfInterestVisitedRequirement('playthrough', {
+    pointOfInterest: pointsOfInterest.StarlightEnclave,
+});
 sharedRequirements.AstrogoblinsLvl75 = new FactionLevelsDefeatedRequirement('playthrough', {
     faction: factions.Astrogoblins,
     requirement: 10 + 20 + 30 + 50 + 75, // All battles before Lvl 100
@@ -221,8 +228,6 @@ const moduleOperationRequirements = {
             requirement: 500,
         }),
     ),
-
-
 };
 
 /**
@@ -236,15 +241,19 @@ const modulesRequirements = {
         sharedRequirements.PocketLaboratoryLvl10,
     ),
     MiningBay2: modules.MiningBay.registerRequirement(
-        new AttributeRequirement('playthrough', {
-            attribute: attributes.gridStrength,
-            requirement: 2,
-        }),
+        sharedRequirements.GridStrengtLvl2,
     ),
     MiningBay3: modules.MiningBay.registerRequirement(
-        new PointOfInterestVisitedRequirement('playthrough', {
-            pointOfInterest: pointsOfInterest.StarlightEnclave,
-        }),
+        sharedRequirements.StarlightEnclaveVisited,
+    ),
+    Module4_1: modules.MiningBay.registerRequirement(
+        sharedRequirements.PocketLaboratoryLvl10,
+    ),
+    Module4_2: modules.MiningBay.registerRequirement(
+        sharedRequirements.GridStrengtLvl2,
+    ),
+    Module4_3: modules.MiningBay.registerRequirement(
+        sharedRequirements.StarlightEnclaveVisited,
     ),
     Furnace1: modules.Furnace.registerRequirement(
         new AttributeRequirement('playthrough', {
