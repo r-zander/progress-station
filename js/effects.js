@@ -230,7 +230,12 @@ class Effect {
             }
             return '<data value="' + effectValue + '" class="effect-value">'
                 + actualEffectType.operator
-                + effectValue.toFixed(2)
+                + (effectValue >= 100
+                    ? effectValue.toFixed(0)
+                    : (effectValue >= 10
+                        ? effectValue.toFixed(1)
+                        : effectValue.toFixed(2)
+                    ))
                 + '</data> '
                 + actualEffectType.attribute.inlineHtmlWithIcon;
         }, this).join('\n');

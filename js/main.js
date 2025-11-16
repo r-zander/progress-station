@@ -605,14 +605,15 @@ function createLevel4BattleElements(battles) {
         level4Element.id = battle.domId;
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
-        domGetter.byClass('rewards').innerHTML = battle.getRewardsPerLevelDescription();
         domGetter.byClass('progressBar').addEventListener('click', tryEngageBattle.bind(this, battle));
         domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
         if (battle instanceof BossBattle) {
+            domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
             const dangerElement = domGetter.byClass('danger');
             dangerElement.classList.add('effect');
             dangerElement.innerHTML = battle.getEffectDescription();
         } else {
+            domGetter.byClass('rewards').innerHTML = battle.getRewardsPerLevelDescription();
             formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
         }
 
@@ -1600,7 +1601,11 @@ function updateBattleRows() {
 
         const unfulfilledRequirement = getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattles, maxBattles);
 
-        if (!(battle instanceof BossBattle)) {
+        const domGetter = Dom.get(row);
+        if (battle instanceof BossBattle) {
+            const dangerElement = domGetter.byClass('danger');
+            dangerElement.innerHTML = battle.getEffectDescription();
+        } else {
             if (!updateRequirements(
                 unfulfilledRequirement === null ? null : [unfulfilledRequirement],
                 requirementsContext)
@@ -1615,7 +1620,6 @@ function updateBattleRows() {
             row.classList.remove('hidden');
         }
 
-        const domGetter = Dom.get(row);
         formatValue(domGetter.bySelector('.level > data'), battle.getDisplayedLevel(), {keepNumber: true});
         formatValue(domGetter.bySelector('.xpGain > data'), battle.getXpGain());
         formatValue(domGetter.bySelector('.xpLeft > data'), battle.getXpLeft());

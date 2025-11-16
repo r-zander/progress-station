@@ -49,12 +49,6 @@ function calculatePopulationDelta() {
 
     populationDelta -= danger;
 
-    // TODO hacky fix for current boss heat inertia problem https://trello.com/c/VHOGIMUV/353-last-few-survivors-take-a-long-time-to-wipe-out
-    if (gameData.stateName === gameStates.BOSS_FIGHT.name) {
-        const MINIMUM_BOSS_POPULATION_DAMAGE = 100.00;
-        populationDelta = Math.min(-MINIMUM_BOSS_POPULATION_DAMAGE, populationDelta);
-    }
-
     return populationDelta;
 }
 
