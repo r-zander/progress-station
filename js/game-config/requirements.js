@@ -504,7 +504,7 @@ const htmlElementRequirements = {
             ],
             requirements: [battleRequirements[0]],
         }),
-    galacticSecretsTabButton: new HtmlElementWithRequirement(
+    /*galacticSecretsTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('galacticSecretsTabButton')],
             requirements: [new AttributeRequirement('playthrough', {
@@ -521,5 +521,5 @@ const htmlElementRequirements = {
                 requirement: 1,
             })],
             elementsToShowRequirements: [],
-        }),
+        }),*/
 };

@@ -813,6 +813,93 @@ class GalacticSecret extends Entity {
 }
 
 /**
+ * @typedef {Object} TechnologySavedValues
+ * @property {boolean} unlocked
+ */
+
+class Technologies extends Entity {
+    /**
+     * 0.0 - 1.0
+     * @type {number}
+     */
+    unlockProgress = 0;
+    inProgress = false;
+    lastUpdate = performance.now();
+
+    /**
+     * @param {{
+     *     unlocks: ModuleOperation,
+     * }} baseData
+     */
+    constructor(baseData) {
+        super(Technologies.#createTitle(baseData.unlocks), baseData.unlocks.description);
+
+        this.unlocks = baseData.unlocks;
+        this.unlocks.registerRequirement(new TechnologyRequirement({technologies: this}));
+    }
+
+    /**
+     * @param {ModuleOperation} unlock
+     */
+    static #createTitle(unlock) {
+        return unlock.component.title + ': ' + unlock.title;
+    }
+
+    /**
+     * @param {TechnologySavedValues} savedValues
+     */
+    loadValues(savedValues) {
+        validateParameter(savedValues, {
+            unlocked: JsTypes.Boolean,
+        }, this);
+        this.savedValues = savedValues;
+    }
+
+    /**
+     * @return {TechnologySavedValues}
+     */
+    static newSavedValues() {
+        return {
+            unlocked: false,
+        };
+    }
+
+    /**
+     *
+     * @return {TechnologySavedValues}
+     */
+    getSavedValues() {
+        return this.savedValues;
+    }
+
+    get isUnlocked() {
+        return this.savedValues.unlocked;
+    }
+
+    set isUnlocked(unlocked) {
+        this.savedValues.unlocked = unlocked;
+    }
+
+    update() {
+        const now = performance.now();
+        const timeDelta = now - this.lastUpdate;
+        this.lastUpdate = now;
+        if (this.inProgress) {
+            if (this.unlockProgress < 1) {
+                this.unlockProgress += timeDelta / technologyUnlockDuration;
+            }
+        } else {
+            if (this.unlockProgress > 0) {
+                this.unlockProgress -= timeDelta / technologyUnlockDuration;
+                if (this.unlockProgress < 0) {
+                    this.unlockProgress = 0;
+                }
+            }
+        }
+    }
+}
+
+/**
  * @typedef {Object} RequirementLike
  * @property {function(): string} toHtml
  * @property {function(): boolean} isVisible
@@ -1288,6 +1375,43 @@ class GalacticSecretRequirement extends Requirement {
      */
     toHtmlInternal(baseData) {
         return 'an unraveled Galactic Secret';
+    }
+}
+
+class TechnologyRequirement extends Requirement {
+    /**
+     * @param {{technology: Technologies}} baseData
+     * @param {Requirement[]} [prerequisites]
+     */
+    constructor(baseData, prerequisites) {
+        super('TechnologyRequirement', 'permanent', baseData, prerequisites);
+    }
+
+    generateName() {
+        return `Technology_${this.baseData.technologies.name}`;
+    }
+
+    /**
+     * @param {{technology: Technologies}} baseData
+     * @return {boolean}
+     */
+    getCondition(baseData) {
+        return baseData.technologies.isUnlocked;
+    }
+
+    isVisible() {
+        // Hide Galactic Secret requirements, unless the player currently has Essence of Unknown available
+        // Set data instead of essenceOfUnknown
+        return attributes.essenceOfUnknown.getValue() > 0
+            && super.isVisible();
+    }
+
+    /**
+     * @param {{technology: Technologies}} baseData
+     * @return {string}
+     */
+    toHtmlInternal(baseData) {
+        return 'Technology-Placeholder-Text';
     }
 }
 

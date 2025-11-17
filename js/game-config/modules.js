@@ -83,6 +83,11 @@ moduleOperations.Module4GrowthOperationT3 = new ModuleOperation({
     effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.08}],
 });
 // Research
+moduleOperations.AnalysisCore = new ModuleOperation({
+    title: 'Analysis Core', maxXp: 800, gridLoad: 0, xpGain: 15,
+    description: 'Generates Data over time.',
+    effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.01}],
+});
 moduleOperations.Module4ResearchOperationT1 = new ModuleOperation({
     title: 'T1 Research', maxXp: 800, gridLoad: 1,
     description: '',

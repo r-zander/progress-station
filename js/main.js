@@ -45,7 +45,7 @@ const tabButtons = {
     modules: document.getElementById('modulesTabButton'),
     location: document.getElementById('locationTabButton'),
     battles: document.getElementById('battleTabButton'),
-    galacticSecrets: document.getElementById('galacticSecretsTabButton'),
+    galacticSecrets: document.getElementById('technologiesTabButton'),
     attributes: document.getElementById('attributesDisplay'),
     settings: document.getElementById('settingsTabButton'),
 };
@@ -796,6 +796,22 @@ function createModulesQuickDisplay() {
     slot.replaceWith(...quickDisplayElements);
 }
 
+function createTechnologiesQuickDisplay() {
+    const slot = Dom.get().byId('technologiesQuickTaskDisplay');
+    const quickDisplayElements = [];
+    const task = moduleOperations['AnalysisCore'];
+    const quickDisplayElement = Dom.new.fromTemplate('technologiesQuickTaskDisplayTemplate');
+    const domGetter = Dom.get(quickDisplayElement);
+    console.log('I was here!');
+    quickDisplayElement.classList.add(task.name);
+    domGetter.byClass('name').textContent = task.name;
+    // domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
+
+    quickDisplayElements.push(quickDisplayElement);
+
+    slot.replaceWith(...quickDisplayElements);
+}
+
 function createBattlesQuickDisplay() {
     const slot = Dom.get().byId('battlesQuickTaskDisplay');
     const quickDisplayElements = [];
@@ -1179,6 +1195,21 @@ function updateModulesQuickDisplay() {
             }
         }
     }
+}
+
+function updateTechnologiesQuickDisplay() {
+    const task = moduleOperations['AnalysisCore'];
+
+    let quickDisplayElement = Dom.get().bySelector('.technologiesQuickTaskDisplay.' + task.name);
+    const componentDomGetter = Dom.get(quickDisplayElement);
+
+    quickDisplayElement.classList.remove('hidden');
+    formatValue(
+        componentDomGetter.bySelector('.name > .level'),
+        task.level,
+        {keepNumber: true},
+    );
+    setProgress(componentDomGetter.byClass('progressFill'), task.xp / task.getMaxXp());
 }
 
 /**
@@ -2160,6 +2191,7 @@ function updateUI() {
     updateModulesQuickDisplay();
     updateBattlesQuickDisplay();
     updateLocationQuickDisplay();
+    updateTechnologiesQuickDisplay();
     updateAttributeRows();
 
     updateHtmlElementRequirements();
@@ -2378,6 +2410,7 @@ function init() {
     createGalacticSecretsUI(galacticSecrets, 'galacticSecrets');
     createModulesQuickDisplay();
     createBattlesQuickDisplay();
+    createTechnologiesQuickDisplay();
 
     createAttributesDisplay();
     createAttributesUI();
@@ -2389,6 +2422,8 @@ function init() {
     initAudio();
     initSettings();
     initBossBattleProgressBar();
+
+    // moduleOperations.AnalysisCore.setActive(true);
 
     cleanUpDom();
     BreakpointCssClasses.init();
