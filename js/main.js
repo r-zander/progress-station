@@ -2164,7 +2164,7 @@ function updateUI() {
 
     updateHtmlElementRequirements();
 
-    // updateHeatIndication();
+    updateHeatIndication();
     updateStationOverview();
     updateBodyClasses();
 }
