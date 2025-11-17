@@ -33,6 +33,8 @@ class EffectType {
     static MilitaryFactor = new EffectType('x', attributes.military);
     static Research = new EffectType('+', attributes.research);
     static ResearchFactor = new EffectType('x', attributes.research);
+
+    // TODO why? and if so: gain | spend
     static EssenceOfUnknown = new EffectType('+', attributes.essenceOfUnknown);
     static EssenceOfUnknownNegative = new EffectType('-', attributes.essenceOfUnknown);
 

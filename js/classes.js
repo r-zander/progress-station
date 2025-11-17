@@ -735,9 +735,8 @@ class PointOfInterest extends Entity {
  * @property {number} timestamp
  */
 
+// TODO not sure if necessary
 class EssenceOfUnknownHistory extends Entity {
-
-
 
     /**
      * @param {EssenceOfUnknownHistorySavedValues} savedValues
@@ -774,12 +773,12 @@ class EssenceOfUnknownHistory extends Entity {
      */
     static newSavedValues(type, amount, source, target, cycle, timestamp) {
         return {
-            type,
-            amount,
-            source,
-            target,
-            cycle,
-            timestamp,
+            type: type,
+            amount: amount,
+            source: source,
+            target: target,
+            cycle: cycle,
+            timestamp: timestamp,
         };
     }
 }
