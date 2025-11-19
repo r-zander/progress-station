@@ -669,7 +669,7 @@
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
                                    role="switch" id="audioEnabledSwitch"
-                                   onclick="toggleAudioEnabled();">
+                                   onclick="AudioEngine.toggleEnabled();">
                             <label class="form-check-label" for="audioEnabledSwitch">
                                 Enable
                             </label>
@@ -677,7 +677,7 @@
                         <!--<div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
                                    role="switch" id="audioBackgroundAudioEnabledSwitch"
-                                   onclick="toggleAudioBackgroundAudioEnabled();">
+                                   onclick="AudioEngine.toggleBackgroundAudio();">
                             <label class="form-check-label" for="audioBackgroundAudioEnabledSwitch">
                                 Play audio in background
                             </label>
@@ -1298,7 +1298,6 @@
 <script type="text/javascript" src="js/gameEvents.js"></script>
 <script type="text/javascript" src="js/nameGenerator.dictionary.lighthearted.js"></script>
 <script type="text/javascript" src="js/nameGenerator.js"></script>
-<script type="text/javascript" src="js/audio.js"></script>
 <script type="text/javascript" src="js/development/cheats.js"></script>
 <script type="text/javascript" src="js/classes.js"></script>
 <script type="text/javascript" src="js/battle.js"></script>
@@ -1310,6 +1309,8 @@
 <script type="text/javascript" src="js/game-config/locations.js"></script>
 <script type="text/javascript" src="js/game-config/galactic-secrets.js"></script>
 <script type="text/javascript" src="js/game-config/requirements.js"></script>
+<script type="text/javascript" src="js/game-config/audio.js"></script>
+<script type="text/javascript" src="js/audioEngine.js"></script>
 <script type="text/javascript" src="js/story.js"></script>
 <script type="text/javascript" src="js/gameData.js"></script>
 <script type="text/javascript" src="js/settings.js"></script>

@@ -257,6 +257,7 @@ class Battle extends LayeredTask {
             name: this.name,
             newActivityState: true,
         });
+        AudioEngine.postEvent(AudioEvents.BATTLE_START, this);
 
         updateUiIfNecessary();
     }
@@ -270,6 +271,12 @@ class Battle extends LayeredTask {
             name: this.name,
             newActivityState: false,
         });
+    }
+
+    onDone() {
+        super.onDone();
+
+        AudioEngine.postEvent(AudioEvents.BATTLE_FINISH, this);
     }
 
     /**
