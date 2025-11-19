@@ -134,6 +134,10 @@
                     <data id="populationDisplay" value="1">?</data>
                     (x<data id="populationProgressSpeedDisplay" value="1">?</data>)
                 </div>
+                <div class="secondary-stat">
+                    Max:
+                    <data id="maxPopulationDisplay" value="1">?</data>
+                </div>
             </div>
             <div class="primary-stat" data-attribute="industry"
                  data-bs-placement="bottom" data-bs-html="true">
@@ -164,12 +168,6 @@
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
                 <data id="dangerDisplay" value="1">?</data>
-            </div>
-            <div class="primary-stat" data-attribute="heat"
-                 data-bs-placement="bottom" data-bs-html="true">
-                <img src="" class="icon" alt=""/>
-                <span class="label" style=""></span>
-                <data id="heatDisplay" value="1">?%</data>
             </div>
         </div>
     </header>
@@ -226,11 +224,11 @@
                 </button>
                 <!-- TODO how to display requirements on mobile? -->
                 <div id="battleTabButtonRequirements" class="requirements-container m-2">
-                    <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
+                    <span class="help-text">Required: Defeated Astrogoblins wave 12 / 25</span>
                 </div>
                 <button id="battleTabButton" class="tabButton panel p-3" onClick="setTab('battles');">
                     <!--suppress HtmlUnknownTag -->
-                    <h3>Battle</h3>
+                    <h3>Battles</h3>
                     <template id="battleQuickTaskDisplayTemplate">
                         <div class="quickTaskDisplay mt-2 d-none d-lg-block">
                             <div class="progress battle progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
@@ -249,7 +247,7 @@
                     <slot id="battlesQuickTaskDisplay"></slot>
                 </button>
                 <div id="locationTabButtonRequirements" class="requirements-container m-2">
-                    <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
+                    <span class="help-text">Required: Defeated Astrogoblins wave 12 / 25</span>
                 </div>
                 <button id="locationTabButton" class="tabButton panel p-3" onClick="setTab('location');">
                     <!--suppress HtmlUnknownTag -->
@@ -307,7 +305,7 @@
                         <div class="name" title="Component Description" data-bs-placement="right">
                             Mining Bay
                         </div>
-                        <div title="The sum of all operation levels in this module. Determines the max level after encountering the boss."
+                        <div title="The sum of all operation levels in this module. Determines the module's mastery after encountering the boss."
                              data-bs-placement="top">
                             Level:
                             <data class="level" value="32">32</data>
@@ -319,7 +317,7 @@
                             </div>
                         </div>
                         <div class="maxLevel" data-bs-placement="top">
-                            Max Level:
+                            Mastery:
                             <data value="124">124</data>
                         </div>
                         <div class="gridLoad ms-auto">
@@ -398,7 +396,7 @@
                             <th class="xpLeft numeric">Enemy HP</th>
                             <th class="level numeric">Waves</th>
                             <th class="danger numeric">Danger</th>
-                            <th class="rewards">Reward</th>
+                            <th class="rewards">Reward/Wave</th>
                         </tr>
                         </thead>
                         <tbody class="level4">
@@ -530,18 +528,16 @@
             <div id="battles" class="tab p-1 p-lg-3 overflow-hidden">
                 <ul class="tab-help-text help-text m-0">
                     <li class="battles-pose-danger">
-                        Engaged battles pose a
+                        Engaged battles inflict
                         <span class="primary-stat" data-attribute="danger" data-attribute-tooltip="false">
                             <img src="" class="icon" alt="" />
-                            <span class="label"></span>
-                        </span>
-                        that will reduce your population if your
-                        <span class="primary-stat" data-attribute="military" data-attribute-tooltip="false">
-                            <img src="" class="icon" alt=""/>
-                            <span class="label"></span>
-                        </span>
-                        is not high enough.
+                            <span class="label"></span></span>, draining population by that amount each cycle.
                     </li>
+                    <li class="battles-pose-danger">
+                        <span class="primary-stat" data-attribute="population" data-attribute-tooltip="false">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span></span> loss during a battle won't reduce your damage,
+                        but gains still boost it.</li>
                     <li class="battles-pose-danger">Disengage battles by clicking them again.</li>
                     <li class="multiple-battles">Engage as many battles as you like.</li>
                 </ul>
@@ -1013,18 +1009,12 @@
                             <span class="label"></span>
                         </span>.
                     </li>
-                    <li>The boss inflicts
-                        <span class="primary-stat" data-attribute="heat" data-bs-html="true">
-                            <img src="" class="icon" alt="" />
-                            <span class="label"></span>
-                        </span>
-                        (not just
-                        <span class="primary-stat" data-attribute="danger" data-bs-html="true">
-                            <img src="" class="icon" alt="" />
-                            <span class="label"></span>
-                        </span>!)
-                        and thus directly damaging your
+                    <li>The boss inflicts <b>5%</b> of your
                         <span class="primary-stat" data-attribute="population" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span> size as
+                        <span class="primary-stat" data-attribute="danger" data-bs-html="true">
                             <img src="" class="icon" alt="" />
                             <span class="label"></span>
                         </span>.
@@ -1043,15 +1033,15 @@
                         reaches <data value="0">0</data>,
                         you <b>lose the battle</b>.
                     </li>
-                    <li>The boss has <data class="bossTargetLevel" value="10">10</data> levels of defense.</li>
-                    <li>The more levels of the boss that you overcome, the more
+                    <li>The boss has <data class="bossTargetLevel" value="10">10</data> waves of defense.</li>
+                    <li>The more waves of the boss that you overcome, the more
                         <span class="primary-stat" data-attribute="essenceOfUnknown" data-bs-html="true">
                             <img src="" class="icon" alt="" />
                             <span class="label"></span>
                         </span>
                         you will collect.
                     </li>
-                    <li>Overcoming the last level of the boss will <b>win you the game</b>.</li>
+                    <li>Overcoming the last wave of the boss will <b>win you the game</b>.</li>
                 </ul>
             </div>
             <div class="modal-footer d-flex">
@@ -1102,14 +1092,14 @@
                 <ul class="help-text m-0">
                     <li>In the next play-through, you will progress much faster.</li>
                     <li>Each operation in a module progresses <data value="X" data-unit="%">X</data> faster,
-                        where <data value="X">X</data> is the module's max level.</li>
-                    <li>Max level of modules = sum of that module's operations max level.</li>
+                        where <data value="X">X</data> is the module's mastery.</li>
+                    <li>Module's mastery = sum of that module's operations maximum reached level.</li>
                 </ul>
             </div>
             <div class="modal-footer d-flex">
                 <button type="button" class="btn btn-secondary win-only" onclick="continueAfterWin();">Keep playing</button>
                 <button type="button" class="btn btn-primary ms-auto win-only" onclick="resetAfterWin();">Start new game</button>
-                <button type="button" class="btn btn-primary ms-auto loss-only" onclick="restartAfterDead();">Fade to black</button>
+                <button type="button" class="btn btn-primary ms-auto loss-only" onclick="showStatsAfterRun();">Danger Report!</button>
             </div>
         </div>
     </div>
@@ -1182,6 +1172,112 @@
         </div>
     </div>
 </div>
+
+<div id="lastRunStatsModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header justify-content-center">
+                <h2 class="my-0 px-3 pb-1 flex-shrink-0">
+                    Last Run Statistics
+                </h2>
+            </div>
+            <div class="modal-body">
+                <!-- MODULES SECTION -->
+                <section class="modules-section mb-4">
+                    <h3 class="fs-5 fw-light">Modules</h3>
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th scope="col">&nbsp;</th>
+                                <th scope="col">New Mastery</th>
+                                <th scope="col">
+                                    <span data-bs-toggle="tooltip" data-bs-placement="top"
+                                          title="Higher module mastery increases operation speed (1 + mastery / 100)">
+                                        Operation XP Multiplier
+                                    </span>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody id="lastRunModulesTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- STATS SECTION -->
+                <section>
+                    <h3 class="fs-5 fw-light mb-3">Stats</h3>
+                    <div class="container-fluid">
+                        <div class="row g-5">
+                            <div class="col-md-4">
+                                <div class="stat-row"><span>Battle waves defeated</span><span id="statWavesDefeated">0</span></div>
+                                <div class="stat-row"><span>Battles finished</span><span id="statBattlesFinished">0</span></div>
+                                <div class="stat-row"><span>Boss waves defeated</span><span id="statBossLevels">0</span></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/population.svg" class="icon" alt="Population Icon"/>
+                                        <span id="populationStatLabel">Population</span>
+                                    </div>
+                                    <span id="statMaxPopulation" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/industry.svg" class="icon" alt="Industry Icon"/>
+                                        <span id="industryStatLabel">Industry</span>
+                                    </div>
+                                    <span id="statMaxIndustry" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/growth.svg" class="icon" alt="Population Icon"/>
+                                        <span id="growthStatLabel">Growth</span>
+                                    </div>
+                                    <span id="statMaxGrowth" class="stat-value">0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/military.svg" class="icon" alt="Military Icon"/>
+                                        <span id="militaryStatLabel">Military</span>
+                                    </div>
+                                    <span id="statMaxMilitary" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/danger.svg" class="icon" alt="Danger Icon"/>
+                                        <span id="dangerStatLabel">Danger</span>
+                                    </div>
+                                    <span id="statMaxDanger" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Total</span>
+                                        <img src="img/icons/grid.svg" class="icon" alt="Grid Strength Icon"/>
+                                        <span id="gridStrengthStatLabel">Grid Strength</span>
+                                    </div>
+                                    <span id="statGridStrength" class="stat-value">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="modal-footer d-flex">
+                <button type="button" class="btn btn-primary ms-auto" onclick="closeLastRunStats();">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="breakpointCssClassesDebug" class="position-fixed start-0 p-3 text-bg-dark hidden" style="bottom: 60px; z-index: 2000;">
 
 </div>
@@ -1221,6 +1317,5 @@
 <script type="text/javascript" src="js/gameLogic.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/vfx.js"></script>
-<script type="text/javascript" src="js/development/autoplay2.js"></script>
 </body>
 </html>

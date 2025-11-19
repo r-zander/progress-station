@@ -129,6 +129,7 @@ class Task extends Entity {
      * @param {{
      *     title: string,
      *     description?: string,
+     *     xpGain?: number,
      *     maxXp: number,
      *     effects: EffectDefinition[],
      * }} baseData
@@ -136,6 +137,7 @@ class Task extends Entity {
     constructor(baseData) {
         super(baseData.title, baseData.description);
 
+        this.xpGain = isNumber(baseData.xpGain) ? baseData.xpGain : BASE_XP_GAIN;
         this.maxXp = baseData.maxXp;
         this.effects = baseData.effects;
         this.xpMultipliers = [];
@@ -239,7 +241,7 @@ class Task extends Entity {
     }
 
     getXpGain() {
-        return applyMultipliers(10, this.xpMultipliers);
+        return applyMultipliers(this.xpGain, this.xpMultipliers);
     }
 
     /**
@@ -561,6 +563,7 @@ class ModuleOperation extends Task {
      * @param {{
      *     title: string,
      *     description?: string,
+     *     xpGain?: number,
      *     maxXp: number,
      *     gridLoad: number,
      *     effects: EffectDefinition[]
@@ -833,9 +836,9 @@ class GalacticSecret extends Entity {
  */
 class Requirement {
     /**
-     * This list is only used during initialization. Afterward its 
+     * This list is only used during initialization. Afterward its
      * discarded, and you have to use the global `requirementRegistry`.
-     * 
+     *
      * @type {Requirement[]}
      */
     static allRequirements = [];

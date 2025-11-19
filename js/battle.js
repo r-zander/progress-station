@@ -11,6 +11,7 @@ class LayeredTask extends Task {
      * @param {{
      *     title: string,
      *     description?: string,
+     *     xpGain?: number,
      *     maxXp: number,
      *     effects: EffectDefinition[],
      *     targetLevel: number,
@@ -32,6 +33,13 @@ class LayeredTask extends Task {
 
     isDone() {
         return this.level >= this.targetLevel;
+    }
+
+    /**
+     * @return {boolean} if at least one level was reached.
+     */
+    hasLevels() {
+        return this.level > 0;
     }
 
     onDone() {
@@ -97,6 +105,11 @@ function showDangerModal(onConfirm, onCancel) {
     modal.show();
 }
 
+/**
+ * @typedef {TaskSavedValues} BattleSavedValues
+ * @property {number} progressSpeedMultiplierFloor
+ */
+
 class Battle extends LayeredTask {
     /**
      *
@@ -118,6 +131,7 @@ class Battle extends LayeredTask {
         super({
             title: baseData.title + ' ' + baseData.faction.title,
             description: baseData.faction.description,
+            xpGain: BATTLE_BASE_XP_GAIN,
             maxXp: baseData.faction.maxXp * baseData.targetLevel * baseData.difficulty,
             effects: baseData.effects,
             targetLevel: baseData.targetLevel,
@@ -127,7 +141,79 @@ class Battle extends LayeredTask {
         this.faction = baseData.faction;
         this.rewards = baseData.rewards;
 
-        this.xpMultipliers.push(attributes.military.getValue);
+        // A bit dirty - drop all the regular xpMultipliers as battles don't use them
+        this.xpMultipliers = [
+            attributes.military.getValue,
+            this.getFlooredPopulationProgressSpeedMultiplier.bind(this),
+        ];
+    }
+
+    /**
+     * To prevent battles from (necessarily) becoming slower over time, they "pin" (or floor) the
+     * PopulationProgressSpeedMultiplier when they are started. Should this multiplier increase
+     * while the battle is active, the battle also speeds up. But it won't slow down below that pinned value.
+     *
+     * @return {number}
+     */
+    getFlooredPopulationProgressSpeedMultiplier(){
+        return Math.max(getPopulationProgressSpeedMultiplier(), this.progressSpeedMultiplierFloor);
+    }
+
+    /**
+     * @param {BattleSavedValues} savedValues
+     */
+    loadValues(savedValues) {
+        // Set default value for older saved values
+        if (!savedValues.hasOwnProperty('progressSpeedMultiplierFloor')) {
+            savedValues.progressSpeedMultiplierFloor = 0;
+        }
+
+        validateParameter(savedValues, {
+            level: JsTypes.Number,
+            maxLevel: JsTypes.Number,
+            xp: JsTypes.Number,
+            requirementCompleted: JsTypes.Array,
+
+            progressSpeedMultiplierFloor: JsTypes.Number,
+        }, this);
+
+        this.savedValues = savedValues;
+    }
+
+    /**
+     *
+     * @return {BattleSavedValues}
+     */
+    static newSavedValues() {
+        return {
+            level: 0,
+            maxLevel: 0,
+            xp: 0,
+            requirementCompleted: [],
+
+            progressSpeedMultiplierFloor: 0,
+        };
+    }
+
+    /**
+     * @return {BattleSavedValues}
+     */
+    getSavedValues() {
+        return this.savedValues;
+    }
+
+    /**
+     * @return {number}
+     */
+    get progressSpeedMultiplierFloor(){
+        return this.savedValues.progressSpeedMultiplierFloor;
+    }
+
+    /**
+     * @param {number} value
+     */
+    set progressSpeedMultiplierFloor(value) {
+        this.savedValues.progressSpeedMultiplierFloor = value;
     }
 
     getMaxLevelMultiplier() {
@@ -163,6 +249,8 @@ class Battle extends LayeredTask {
             return;
         }
 
+        this.progressSpeedMultiplierFloor = getPopulationProgressSpeedMultiplier();
+
         gameData.activeEntities.battles.add(this.name);
         GameEvents.TaskActivityChanged.trigger({
             type: this.type,
@@ -175,6 +263,8 @@ class Battle extends LayeredTask {
     }
 
     stop() {
+        this.progressSpeedMultiplierFloor = 0;
+
         gameData.activeEntities.battles.delete(this.name);
         GameEvents.TaskActivityChanged.trigger({
             type: this.type,
@@ -194,7 +284,7 @@ class Battle extends LayeredTask {
      * @returns {number}
      */
     getReward(effectType) {
-        return Effect.getValue(this, effectType, this.rewards, 1);
+        return Effect.getValue(this, effectType, this.rewards, this.level / this.targetLevel);
     }
 
     /**
@@ -203,6 +293,10 @@ class Battle extends LayeredTask {
      */
     getEffect(effectType) {
         return Effect.getValue(this, effectType, this.effects, 1);
+    }
+
+    getRewardsPerLevelDescription() {
+        return Effect.getDescription(this, this.rewards, 1 / this.targetLevel, true);
     }
 
     getRewardsDescription() {
@@ -250,6 +344,11 @@ class BossBattle extends Battle {
         this.titleGenerator = baseData.titleGenerator;
     }
 
+    getFlooredPopulationProgressSpeedMultiplier(){
+        // There is no floor for boss battles
+        return getPopulationProgressSpeedMultiplier();
+    }
+
     /**
      * @param {BossBattleSavedValues} savedValues
      */
@@ -259,6 +358,7 @@ class BossBattle extends Battle {
             maxLevel: JsTypes.Number,
             xp: JsTypes.Number,
             requirementCompleted: JsTypes.Array,
+
             title: JsTypes.String,
             distance: JsTypes.Number,
             coveredDistance: JsTypes.Number,
@@ -360,7 +460,7 @@ class BossBattle extends Battle {
     }
 
     getRewardsDescription() {
-        return 'Essence of Unknown per defeated level';
+        return attributes.essenceOfUnknown.inlineHtmlWithIcon + ' per defeated wave';
     }
 }
 

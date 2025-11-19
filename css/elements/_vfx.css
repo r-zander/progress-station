@@ -229,3 +229,33 @@
         text-shadow: 0 0 0 currentColor;
     }
 }
+
+.spark-container {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.spark {
+    position: absolute;
+    width: 0.3rem;
+    height: 0.3rem;
+    border-radius: 50%;
+    background: hsl(50, 100%, 60%);
+    transform: translate(0, 0);
+    animation: sparkFly 0.7s ease-out forwards;
+    --tx: 0px;
+    --ty: 10px;
+}
+
+@keyframes sparkFly {
+    0% {
+        transform: translate(0, 0) scale(0.4);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(1);
+        opacity: 0;
+    }
+}

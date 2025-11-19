@@ -5,28 +5,28 @@
  */
 const moduleOperations = {};
 moduleOperations.StandbyGenerator = new ModuleOperation({
-    title: 'Standby Generator', maxXp: 50, gridLoad: 0,
+    title: 'Standby Generator', maxXp: 50, gridLoad: 0, xpGain: 15,
     description: 'The ole reliable of power sources. It may grumble and spew smoke, but it\'ll keep the lights on when all else fails.',
     effects: [{effectType: EffectType.Energy, baseValue: 0.5}],
 });
 moduleOperations.FourDPrinter = new ModuleOperation({
-    title: '4D Printer', maxXp: 50, gridLoad: 1,
+    title: '4D Printer', maxXp: 50, gridLoad: 1, xpGain: 15,
     description: 'Prints anything from spare parts to midnight snacks. Adds a dimension of convenience to survival.',
     effects: [{effectType: EffectType.Industry, baseValue: 0.05}],
 });
 moduleOperations.MicroCyborgAutomat = new ModuleOperation({
-    title: 'Micro Cyborg Automat', maxXp: 100, gridLoad: 1,
+    title: 'Micro Cyborg Automat', maxXp: 100, gridLoad: 1, xpGain: 15,
     description: 'A handy box that produces little helpers at the press of a button.',
     effects: [{effectType: EffectType.Growth, baseValue: 0.10}], // Not a factor as the player doesn't have military yet
 });
-// TODO rename according to title
+// TODO rename according to title + write migration
 moduleOperations.KungFuManual = new ModuleOperation({
-    title: 'Battle Station Manual', maxXp: 200, gridLoad: 1,
-    description: 'Space combat made easy for the station captain that does not shy away from danger.',
+    title: 'Core Blade', maxXp: 200, gridLoad: 1, xpGain: 15,
+    description: 'The weapon of choice for the true captain. When you wield it, the station\'s armaments move as if mirroring your every action.',
     effects: [{effectType: EffectType.Military, baseValue: 0.10}], // Not a factor as the player doesn't have military yet
 });
 moduleOperations.PocketLaboratory = new ModuleOperation({
-    title: 'Pocket Laboratory', maxXp: 400, gridLoad: 1,
+    title: 'Pocket Laboratory', maxXp: 400, gridLoad: 1, xpGain: 15,
     description: 'A lab that fits in your pocket, for when you need to science the heck out of something on the go.',
     effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.01}],
 });
@@ -64,6 +64,39 @@ moduleOperations.TenDrills = new ModuleOperation({
     title: 'TenDrills', maxXp: 10_000, gridLoad: 4,
     description: 'Alien tentacles, able to consume celestial bodies, turning them into perfectly refined resources.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.06}, {effectType: EffectType.IndustryFactor, baseValue: 0.05}],
+});
+
+// Growth
+moduleOperations.Module4GrowthOperationT1 = new ModuleOperation({
+    title: 'T1 Growth', maxXp: 400, gridLoad: 1,
+    description: '',
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.01}],
+});
+moduleOperations.Module4GrowthOperationT2 = new ModuleOperation({
+    title: 'T2 Growth', maxXp: 2_000, gridLoad: 2,
+    description: '',
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.03}],
+});
+moduleOperations.Module4GrowthOperationT3 = new ModuleOperation({
+    title: 'T3 Growth', maxXp: 20_000, gridLoad: 4,
+    description: '',
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.08}],
+});
+// Research
+moduleOperations.Module4ResearchOperationT1 = new ModuleOperation({
+    title: 'T1 Research', maxXp: 800, gridLoad: 1,
+    description: '',
+    effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.01}],
+});
+moduleOperations.Module4ResearchOperationT2 = new ModuleOperation({
+    title: 'T2 Research', maxXp: 4_000, gridLoad: 2,
+    description: '',
+    effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.03}],
+});
+moduleOperations.Module4ResearchOperationT3 = new ModuleOperation({
+    title: 'T3 Research', maxXp: 40_000, gridLoad: 4,
+    description: '',
+    effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.08}],
 });
 
 // Furnace
@@ -145,7 +178,7 @@ moduleOperations.AntiMissileSwarm = new ModuleOperation({
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.10}],
 });
 
-//Population
+// Population
 moduleOperations.Survivors = new ModuleOperation({
     title: 'Pick up survivors', maxXp: 4_000, gridLoad: 1,
     description: 'Space is vast, but you’re not leaving anyone behind. Rescue survivors to add their skills and stories to your crew.',
@@ -222,6 +255,17 @@ const moduleComponents = {
         operations: [moduleOperations.BigSpinny, moduleOperations.AsteroidChomper, moduleOperations.TenDrills]
     }),
 
+    Module4GrowthComponent: new ModuleComponent({
+        title: 'Gain Growth',
+        description: '',
+        operations: [moduleOperations.Module4GrowthOperationT1, moduleOperations.Module4GrowthOperationT2, moduleOperations.Module4GrowthOperationT3]
+    }),
+    Module4ResearchComponent: new ModuleComponent({
+        title: 'Gain Research',
+        description: '',
+        operations: [moduleOperations.Module4ResearchOperationT1, moduleOperations.Module4ResearchOperationT2, moduleOperations.Module4ResearchOperationT3]
+    }),
+
     Fuel: new ModuleComponent({
         title: 'Fuel',
         description: 'The heart\'s fire of the station, what will you use to power the furnace?',
@@ -276,6 +320,11 @@ const modules = {
         description: 'For some, space is vast and empty. For others, its the greatest treasure trove there is.',
         components: [moduleComponents.MinedResource, moduleComponents.Drill],
     }),
+    Module4: new Module({
+        title: 'Module 4',
+        description: '',
+        components: [moduleComponents.Module4GrowthComponent, moduleComponents.Module4ResearchComponent],
+    }),
     Furnace: new Module({
         title: 'Furnace Module',
         description: 'The beating heart of industry, transforming raw into refined, ordinary into extraordinary. The forge of future tech.',
@@ -307,6 +356,7 @@ const moduleCategories = {
             modules.ISASM,
             modules.CaptainsQuarter,
             modules.MiningBay,
+            modules.Module4,
             modules.Furnace,
             modules.Defensive,
             modules.Quarters

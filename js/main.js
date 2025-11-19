@@ -18,7 +18,8 @@ let gameLoop = null;
  *   effectType: EffectType,
  *   getEffect: function(EffectType): number,
  *   getEffects: function(): EffectDefinition[],
- *   isActive: function(): boolean
+ *   isActive: function(): boolean,
+ *   updateDescription?: function(),
  * }[]
  * }
  */
@@ -276,6 +277,11 @@ function switchModuleActivation(module) {
  * @param {ModuleOperation} operation
  */
 function tryActivateOperation(component, operation) {
+    if (!gameData.state.canChangeActivation) {
+        VFX.shakePlayButton();
+        return;
+    }
+
     if (operation.isActive('self')) {
         // Already active, nothing to do
         return;
@@ -300,6 +306,11 @@ function tryActivateOperation(component, operation) {
  */
 function tryEngageBattle(battle) {
     if (!gameData.state.canChangeActivation) {
+        VFX.shakePlayButton();
+        return;
+    }
+
+    if (!battle.isActive() && !gameData.state.canEngageBattles) {
         VFX.shakePlayButton();
         return;
     }
@@ -605,14 +616,15 @@ function createLevel4BattleElements(battles) {
         level4Element.id = battle.domId;
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
-        domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
         domGetter.byClass('progressBar').addEventListener('click', tryEngageBattle.bind(this, battle));
         domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
         if (battle instanceof BossBattle) {
+            domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
             const dangerElement = domGetter.byClass('danger');
             dangerElement.classList.add('effect');
             dangerElement.innerHTML = battle.getEffectDescription();
         } else {
+            domGetter.byClass('rewards').innerHTML = battle.getRewardsPerLevelDescription();
             formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
         }
 
@@ -681,10 +693,11 @@ function createFinishedBattlesUI() {
     const domGetter = Dom.get(level3Element);
     domGetter.byClass('header-row').classList.replace('text-bg-light', 'text-bg-dark');
     domGetter.byClass('name').textContent = 'Completed';
-    domGetter.byClass('level').textContent = 'Defeated levels';
+    domGetter.byClass('level').textContent = 'Defeated waves';
     domGetter.byClass('xpGain').classList.add('hidden');
     domGetter.byClass('xpLeft').classList.add('hidden');
     domGetter.byClass('danger').classList.add('hidden');
+    domGetter.byClass('rewards').textContent = 'Total Reward';
 
     /** @type {HTMLElement} */
     const level4Slot = domGetter.byClass('level4');
@@ -831,21 +844,14 @@ function createAttributeRow(attribute) {
  * @param {string} name
  * @param {function():boolean} isActiveFn
  */
-function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, effectType, name, isActiveFn) {
+function createAttributeBalanceEntryStaticDescription(balanceElement, getEffectFn, getEffectsFn, effectType, name, isActiveFn) {
     const affectsEffectType = getEffectsFn()
         .find((effect) => effect.effectType === effectType) !== undefined;
     if (!affectsEffectType) return;
 
     const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
     const domGetter = Dom.get(balanceEntryElement);
-    const descriptionElement = domGetter.byClass('name');
-    const updateDescription = () => {
-        const description = typeof name === 'function' ? name() : name;
-        descriptionElement.textContent = '(' + description + ')';
-    };
-
-    updateDescription();
-
+    domGetter.byClass('name').textContent = '(' + name + ')';
     domGetter.byClass('operator').textContent = effectType.operator;
     attributeBalanceEntries.push({
         element: balanceEntryElement,
@@ -853,7 +859,39 @@ function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, 
         getEffect: getEffectFn,
         getEffects: getEffectsFn,
         isActive: isActiveFn,
-        updateDescription,
+    });
+    balanceElement.append(balanceEntryElement);
+}
+
+/**
+ *
+ * @param {HTMLElement} balanceElement
+ * @param {function(EffectType): number} getEffectFn
+ * @param {function(): EffectDefinition[]} getEffectsFn
+ * @param {EffectType} effectType
+ * @param {function(): string} descriptionFn
+ * @param {function():boolean} isActiveFn
+ */
+function createAttributeBalanceEntryDynamicDescription(balanceElement, getEffectFn, getEffectsFn, effectType, descriptionFn, isActiveFn) {
+    const affectsEffectType = getEffectsFn()
+        .find((effect) => effect.effectType === effectType) !== undefined;
+    if (!affectsEffectType) return;
+
+    const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
+    const domGetter = Dom.get(balanceEntryElement);
+    const descriptionElement = domGetter.byClass('name');
+    domGetter.byClass('operator').textContent = effectType.operator;
+    const updateDescriptionFn = () => {
+        descriptionElement.textContent = '(' + descriptionFn() + ')';
+    };
+    updateDescriptionFn();
+    attributeBalanceEntries.push({
+        element: balanceEntryElement,
+        effectType: effectType,
+        getEffect: getEffectFn,
+        getEffects: getEffectsFn,
+        isActive: isActiveFn,
+        updateDescription: updateDescriptionFn,
     });
     balanceElement.append(balanceEntryElement);
 }
@@ -885,7 +923,7 @@ function createAttributeBalance(rowElement, effectTypes) {
             const module = modules[moduleName];
             for (const component of module.components) {
                 for (const operation of component.operations) {
-                    createAttributeBalanceEntry(
+                    createAttributeBalanceEntryStaticDescription(
                         balanceElement,
                         operation.getEffect.bind(operation),
                         operation.getEffects.bind(operation),
@@ -897,39 +935,37 @@ function createAttributeBalance(rowElement, effectTypes) {
             }
         }
         if (effectType === EffectType.MilitaryFactor) {
-            // let battlesWonLength = () => (Object.keys(battles).filter(key => battles[key].isDone() && battles[key].getReward(effectType)).length); not an option because getReward(effectType) returns 1 even if its +Military because it backs up to effectType.defaultValue of xMilitary which is 1
             let battlesWonLength = () => {
                 let count = 0;
                 for (const key in battles) {
                     const b = battles[key];
-                    if (b.isDone() && b.getReward(effectType)) {
-                        for(const reward in b.rewards) {
-                            const rewardEffectType = b.rewards[reward].effectType;
-                            if(rewardEffectType === effectType) {
-                                count++;
-                                break;
-                            }
+                    if (!b.isDone()) continue;
+                    for(const reward in b.rewards) {
+                        const rewardEffectType = b.rewards[reward].effectType;
+                        if(rewardEffectType === effectType) {
+                            count++;
+                            break;
                         }
                     }
                 }
                 return count;
             };
-            let battleValueFromRewards = () => (Math.pow(1.05, battlesWonLength()));
-            let atLeastOneBattleWonToMakeItActive = () => (battleValueFromRewards() > 1 ? true : false);
-            let descriptionText = () => ('x1.05 for ' + battlesWonLength() + ' battles defeated');
-            createAttributeBalanceEntry(
+            let battleValueFromRewardsFn = () => (Math.pow(standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue, battlesWonLength()));
+            let atLeastOneBattleWonToMakeItActiveFn = () => (battleValueFromRewardsFn() > 1 ? true : false);
+            let descriptionTextFn = () => ('x' + (standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue) + ' for ' + battlesWonLength() + ' battles defeated');
+            createAttributeBalanceEntryDynamicDescription(
                 balanceElement,
-                battleValueFromRewards,
-                () => [{effectType: effectType, baseValue: battleValueFromRewards}],
+                battleValueFromRewardsFn,
+                () => [{effectType: effectType, baseValue: battleValueFromRewardsFn}],
                 effectType,
-                descriptionText,
-                atLeastOneBattleWonToMakeItActive,
+                descriptionTextFn,
+                atLeastOneBattleWonToMakeItActiveFn,
             );
         } else {
             for (const key in battles) {
                 /** @type {Battle} */
                 const battle = battles[key];
-                createAttributeBalanceEntry(
+                createAttributeBalanceEntryStaticDescription(
                     balanceElement,
                     battle.getReward.bind(battle),
                     () => battle.rewards,
@@ -937,7 +973,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                     'Defeated ' + battle.title,
                     battle.isDone.bind(battle),
                 );
-                createAttributeBalanceEntry(
+                createAttributeBalanceEntryStaticDescription(
                     balanceElement,
                     battle.getEffect.bind(battle),
                     battle.getEffects.bind(battle),
@@ -949,7 +985,7 @@ function createAttributeBalance(rowElement, effectTypes) {
         }
         for (const key in pointsOfInterest) {
             const pointOfInterest = pointsOfInterest[key];
-            createAttributeBalanceEntry(
+            createAttributeBalanceEntryStaticDescription(
                 balanceElement,
                 pointOfInterest.getEffect.bind(pointOfInterest),
                 pointOfInterest.getEffects.bind(pointOfInterest),
@@ -1057,21 +1093,6 @@ function createAttributesUI() {
     createAttributeBalance(growthRow, [EffectType.Growth, EffectType.GrowthFactor]);
     rows.push(growthRow);
 
-    // Heat
-    const heatRow = createAttributeRow(attributes.heat);
-    Dom.get(heatRow).byClass('description').innerHTML +=
-        `<br />Acceleration is applied to reach the target ${attributes.heat.inlineHtml}.` +
-        (SPACE_BASE_HEAT > 0.0
-            ? `The total can never be less than <data value="${SPACE_BASE_HEAT.toFixed(0.1)}">${formatNumber(SPACE_BASE_HEAT)}</data> - space is dangerous!`
-            : '');
-    const heatFormulaElement = Dom.get(heatRow).byClass('formula');
-    heatFormulaElement.classList.remove('hidden');
-    heatFormulaElement.innerHTML = `<ul class="balance m-0 list-unstyled">
-    <li class="balanceEntry">${attributes.danger.inlineHtml} - ${attributes.military.inlineHtml}</li>
-    <li><span class="operator">+</span> raw ${attributes.heat.inlineHtml} from Boss</li>
-</ul>`;
-    rows.push(heatRow);
-
     // Industry
     const industryRow = createAttributeRow(attributes.industry);
     Dom.get(industryRow).byClass('balance').classList.remove('hidden');
@@ -1086,15 +1107,13 @@ function createAttributesUI() {
 
     // Population
     const populationRow = createAttributeRow(attributes.population);
-    Dom.get(populationRow).byClass('description').innerHTML +=
-        `<br />Innertia is applied to ${attributes.growth.inlineHtml}.`;
     const populationFormulaElement = Dom.get(populationRow).byClass('formula');
     populationFormulaElement.classList.remove('hidden');
     populationFormulaElement.innerHTML =
-        '(0.1 * ' +  attributes.growth.inlineHtml +
-        ') - (0.01 * ' +
-        attributes.population.inlineHtml + ' * ' +
-        attributes.heat.inlineHtml + ')<br />&wedgeq; <data value="0" class="delta">?</data> per cycle';
+        attributes.growth.inlineHtml + '<br />' +
+        'x10 <small class="help-text">if below max Population and no Battle is engaged</small><br />' +
+        ' - ' + attributes.danger.inlineHtml + '<br />' +
+        '&wedgeq; <data value="0" class="delta">?</data> per cycle';
     rows.push(populationRow);
 
     // Research
@@ -1593,7 +1612,11 @@ function updateBattleRows() {
 
         const unfulfilledRequirement = getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattles, maxBattles);
 
-        if (!(battle instanceof BossBattle)) {
+        const domGetter = Dom.get(row);
+        if (battle instanceof BossBattle) {
+            const dangerElement = domGetter.byClass('danger');
+            dangerElement.innerHTML = battle.getEffectDescription();
+        } else {
             if (!updateRequirements(
                 unfulfilledRequirement === null ? null : [unfulfilledRequirement],
                 requirementsContext)
@@ -1608,7 +1631,6 @@ function updateBattleRows() {
             row.classList.remove('hidden');
         }
 
-        const domGetter = Dom.get(row);
         formatValue(domGetter.bySelector('.level > data'), battle.getDisplayedLevel(), {keepNumber: true});
         formatValue(domGetter.bySelector('.xpGain > data'), battle.getXpGain());
         formatValue(domGetter.bySelector('.xpLeft > data'), battle.getXpLeft());
@@ -1741,8 +1763,10 @@ function updateAttributeRows() {
             formatValue(
                 Dom.get(balanceEntry.element).byClass('entryValue'),
                 balanceEntry.getEffect(balanceEntry.effectType),
-                balanceEntry.updateDescription?.(),
             );
+            if (isFunction(balanceEntry.updateDescription)) {
+                balanceEntry.updateDescription();
+            }
             balanceEntry.element.classList.remove('hidden');
         } else {
             balanceEntry.element.classList.add('hidden');
@@ -1888,10 +1912,10 @@ function updateBossBarColor(progress, bossBar) {
 }
 
 function updateHeatIndication() {
-    const heat = attributes.heat.getValue();
-    const gotHeat = heat > 0.0 && !nearlyEquals(heat, 0.0, 0.01);
-    Dom.get().byId('heatIndicator').classList.toggle('hidden', !gotHeat);
-    Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="heat"]').classList.toggle('shake-and-pulse', gotHeat);
+    const populationDelta = calculatePopulationDelta();
+    const isPopShrinking = populationDelta < 0.0 && !nearlyEquals(populationDelta, 0.0, 0.01);
+    Dom.get().byId('heatIndicator').classList.toggle('hidden', !isPopShrinking);
+    Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="danger"]').classList.toggle('shake-and-pulse', isPopShrinking);
 }
 
 function updateStationOverview() {
@@ -1947,10 +1971,6 @@ function updateStationOverview() {
     formatValue(Dom.get().byId('growthDisplay'), growth);
     formatValue(Dom.get().bySelector('#attributeRows > .growth > .value > data'), growth);
 
-    const heat = attributes.heat.getValue();
-    formatValue(Dom.get().byId('heatDisplay'), heat);
-    formatValue(Dom.get().bySelector('#attributeRows > .heat > .value > data'), heat);
-
     const industry = attributes.industry.getValue();
     formatValue(Dom.get().byId('industryDisplay'), industry);
     formatValue(Dom.get().bySelector('#attributeRows > .industry > .value > data'), industry);
@@ -1963,7 +1983,13 @@ function updateStationOverview() {
     formatValue(Dom.get().byId('populationDisplay'), population, {forceInteger: true});
     formatValue(Dom.get().byId('populationProgressSpeedDisplay'), getPopulationProgressSpeedMultiplier(), {});
     formatValue(Dom.get().bySelector('#attributeRows > .population > .value > data'), population, {forceInteger: true});
-    formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), populationDelta(), {forceSign: true});
+    formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), calculatePopulationDelta(), {forceSign: true});
+    const maxPopulationDisplayElement = Dom.get().byId('maxPopulationDisplay');
+    formatValue(maxPopulationDisplayElement, gameData.stats.maxPopulation.current, {forceInteger: true});
+    const regenerationActive = isPopulationRegenerationActive(population);
+    const maxPopulationDisplayParent = maxPopulationDisplayElement.closest('.secondary-stat');
+    maxPopulationDisplayParent.classList.toggle('help-text', !regenerationActive);
+    maxPopulationDisplayParent.classList.toggle('regeneration-active', regenerationActive);
 
     const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);
@@ -2157,8 +2183,8 @@ function update(deltaTime, totalTime, isLastUpdateInTick, gameLoop) {
     progressGalacticSecrets();
     activateComponentOperations();
     doTasks();
-    updateHeat();
     updatePopulation();
+    updateStats();
     musicContext.update();
 
     if (isLastUpdateInTick // Only update the UI once in an accumulated update

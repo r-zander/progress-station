@@ -10,88 +10,80 @@ function applySpeed(value) {
     return value * getGameSpeed() / targetTicksPerSecond;
 }
 
-function calculateHeat() {
-    const rawHeat = Effect.getTotalValue([EffectType.Heat]);
-    const totalHeat = gameData.heat + rawHeat;
-    return Math.max(SPACE_BASE_HEAT, totalHeat);
-}
+function isAnyBattleActive() {
+    if (gameData.activeEntities.battles.size === 0) return false;
 
-function updateHeat() {
-    const danger = attributes.danger.getValue();
-    const military = attributes.military.getValue();
-    const targetHeat = Math.max(danger - military, 0);
+    for (const battleName of gameData.activeEntities.battles) {
+        const battle = battles[battleName];
 
-    if (nearlyEquals(gameData.heat, targetHeat)) {
-        gameData.heat = targetHeat;
-        gameData.heatVelocity = 0;
-        return;
+        // done battles are not considered actually active
+        if (!battle.isDone()) return true;
     }
 
-    if (targetHeat > gameData.heat) {
-        // In case the heat target changed direction (was low and is now high), we want to reset the velocity
-        gameData.heatVelocity = Math.max(0, gameData.heatVelocity);
-        gameData.heatVelocity += applySpeed(heatAcceleration / targetTicksPerSecond);
-        if (gameData.heat + gameData.heatVelocity >= targetHeat) {
-            gameData.heat = targetHeat;
-            gameData.heatVelocity = 0;
-        } else {
-            gameData.heat += gameData.heatVelocity;
-        }
-    } else { // targetHeat is smaller than gameData.heat
-        // In case the heat target changed direction (was high and is now low), we want to reset the velocity
-        gameData.heatVelocity = Math.min(0, gameData.heatVelocity);
-        gameData.heatVelocity -= applySpeed(heatAcceleration/ targetTicksPerSecond);
-        if (gameData.heat + gameData.heatVelocity <= targetHeat) {
-            gameData.heat = targetHeat;
-            gameData.heatVelocity = 0;
-        } else {
-            gameData.heat += gameData.heatVelocity;
-        }
+    // There are active battles, but not of them are not done
+    return false;
+}
+
+function deactivateAllBattles() {
+    for (const battleName of gameData.activeEntities.battles) {
+        const battle = battles[battleName];
+        battle.stop();
     }
 }
 
 /**
- * This is what the population delta will settle to if the current growth and heat is maintained.
- * NOTE: this needs to be synced with the {@link updatePopulation} if the formula ever changes.
- *
- * @return {number} the target population delta (without inertia)
+ * @param {number} population
+ * @return {boolean}
  */
-function populationDelta() {
+function isPopulationRegenerationActive(population) {
+    return !isAnyBattleActive() && population < gameData.stats.maxPopulation.current;
+}
+
+/**
+ * @return {number}
+ */
+function calculatePopulationDelta() {
     const growth = attributes.growth.getValue();
-    const heat = attributes.heat.getValue();
+    const danger = attributes.danger.getValue();
     const population = attributes.population.getValue();
-    return (0.1 * growth) - (0.01 * population * heat);
+
+    // let populationDelta = Math.pow(growth / 1000, 0.6) * 4.26;
+    let populationDelta = growth;
+
+    if (isPopulationRegenerationActive(population)) {
+        populationDelta *= 10;
+    }
+
+    populationDelta -= danger;
+
+    return populationDelta;
 }
 
 function updatePopulation() {
     if (!gameData.state.areAttributesUpdated) return;
 
-    const growth = attributes.growth.getValue();
-    const population = attributes.population.getValue();
-    const heat = attributes.heat.getValue();
+    const regenerationActive = isPopulationRegenerationActive(gameData.population);
+    gameData.population = Math.max(gameData.population + applySpeed(calculatePopulationDelta()), 1);
+    // Make sure we don't regenerate over the maxPopulation
+    if (regenerationActive) {
+        gameData.population = Math.min(gameData.stats.maxPopulation.current, gameData.population);
 
-    // Split population delta into two components:
-    // 1. Growth component (with inertia)
-    const rawGrowthDelta = 0.1 * growth;
-    // TODO inertia is not scaled with game speed
-    const smoothedGrowthDelta = populationDeltaInertia * gameData.lastPopulationDelta + (1 - populationDeltaInertia) * rawGrowthDelta;
-    gameData.lastPopulationDelta = smoothedGrowthDelta;
-
-    // 2. Heat damage component (no inertia, applied directly)
-    let heatDamage = 0.01 * population * heat;
-
-    // TODO hacky fix for current boss heat inertia problem https://trello.com/c/VHOGIMUV/353-last-few-survivors-take-a-long-time-to-wipe-out
-    if (gameData.stateName === gameStates.BOSS_FIGHT.name) {
-        const MINIMUM_BOSS_POPULATION_DAMAGE = 20.00;
-        heatDamage = Math.max(MINIMUM_BOSS_POPULATION_DAMAGE, heatDamage);
+    // Check if in the next update the regeneration would start
+    } else if (isPopulationRegenerationActive(gameData.population)) {
+        gameData.population = Math.max(gameData.stats.maxPopulation.current, gameData.population);
     }
 
-    // Combine both components
-    const totalDelta = smoothedGrowthDelta - heatDamage;
-    gameData.population = Math.max(gameData.population + applySpeed(totalDelta), 1);
+    if (gameData.population > gameData.stats.maxPopulation.current) {
+        gameData.stats.maxPopulation.current = gameData.population;
+    }
 
-    if (gameData.state === gameStates.BOSS_FIGHT && Math.round(gameData.population) === 1) {
-        gameData.transitionState(gameStates.DEAD);
+    // Is everyone but the captain dead?
+    if (Math.round(gameData.population) === 1) {
+        if (gameData.state === gameStates.BOSS_FIGHT) {
+            gameData.transitionState(gameStates.DEAD);
+        } else {
+            deactivateAllBattles();
+        }
     }
 }
 
@@ -104,6 +96,46 @@ function getPopulationProgressSpeedMultiplier() {
     // Pop 10000 ~= x138
     // Pop 40000 ~= x290
     return Math.max(1, Math.pow(Math.round(gameData.population), 1 / 1.869));
+}
+
+function updateStats() {
+    const danger = attributes.danger.getValue();
+    if (danger > gameData.stats.maxDanger.current) {
+        gameData.stats.maxDanger.current = danger;
+    }
+
+    const growth = attributes.growth.getValue();
+    if (growth > gameData.stats.maxGrowth.current) {
+        gameData.stats.maxGrowth.current = growth;
+    }
+
+    const industry = attributes.industry.getValue();
+    if (industry > gameData.stats.maxIndustry.current) {
+        gameData.stats.maxIndustry.current = industry;
+    }
+
+    const military = attributes.military.getValue();
+    if (military > gameData.stats.maxMilitary.current) {
+        gameData.stats.maxMilitary.current = military;
+    }
+
+    const gridStrength = attributes.gridStrength.getValue();
+    if (gridStrength > gameData.stats.gridStrength.current) {
+        gameData.stats.gridStrength.current = gridStrength;
+    }
+
+    //Population handled in updatePopulation
+}
+
+function updateMaxStats() {
+    gameData.stats.battlesFinished.max = Math.max(getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max);
+    gameData.stats.wavesDefeated.max = Math.max(getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max);
+    gameData.stats.maxPopulation.max = Math.max(gameData.stats.maxPopulation.current, gameData.stats.maxPopulation.max);
+    gameData.stats.maxIndustry.max = Math.max(gameData.stats.maxIndustry.current, gameData.stats.maxIndustry.max);
+    gameData.stats.maxGrowth.max = Math.max(gameData.stats.maxGrowth.current, gameData.stats.maxGrowth.max);
+    gameData.stats.maxMilitary.max = Math.max(gameData.stats.maxMilitary.current, gameData.stats.maxMilitary.max);
+    gameData.stats.maxDanger.max = Math.max(gameData.stats.maxDanger.current, gameData.stats.maxDanger.max);
+    gameData.stats.gridStrength.max = Math.max(gameData.stats.gridStrength.current, gameData.stats.gridStrength.max);
 }
 
 function getGameSpeed() {
@@ -235,6 +267,8 @@ function resetBattle(name) {
 }
 
 function startNewPlaythrough() {
+    updateMaxStats();
+
     setPreviousStationName(gameData.stationName);
     setStationName(new SuffixGenerator(gameData.stationName).getNewName());
     gameData.bossEncounterCount += 1;
@@ -326,4 +360,25 @@ function isBossBattleAvailable() {
 function getTimeUntilBossAppears() {
     const timeLeft = getBossAppearanceCycle() - gameData.cycles;
     return Math.max(0, timeLeft);
+}
+
+function getNumberOfFinishedBattles() {
+    let numberOfBattles = 0;
+    for (const battleName in battles) {
+        const battle = battles[battleName];
+
+        if (battle.isDone()) {
+            numberOfBattles++;
+        }
+    }
+    return numberOfBattles;
+}
+
+function getNumberOfDefeatedWaves() {
+    let number = 0;
+    for (const battleName in battles) {
+        const battle = battles[battleName];
+        number += battle.level;
+    }
+    return number;
 }

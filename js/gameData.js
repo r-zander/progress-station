@@ -3,6 +3,12 @@
 const localStorageKey = 'ps_gameDataSave';
 
 /**
+ * @typedef {Object} RunStatistic
+ * @property {number} current
+ * @property {number} max
+ */
+
+/**
  * @typedef {Object} GameState
  * @property {string} [name] name of the game state in the gameStates dictionary
  * @property {boolean} gameLoopRunning
@@ -11,6 +17,7 @@ const localStorageKey = 'ps_gameDataSave';
  * @property {boolean} areTasksProgressing
  * @property {boolean} isBossBattleProgressing
  * @property {boolean} canChangeActivation
+ * @property {boolean} canEngageBattles
  * @property {GameState[]} [validNextStates]
  */
 
@@ -25,6 +32,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
     },
     PLAYING: {
         gameLoopRunning: true,
@@ -33,6 +41,7 @@ const gameStates = {
         areTasksProgressing: true,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: true,
     },
     PAUSED: {
         gameLoopRunning: false,
@@ -41,6 +50,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: false,
     },
     TUTORIAL_PAUSED: {
         gameLoopRunning: false,
@@ -49,6 +59,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: false,
     },
     BOSS_FIGHT_INTRO: {
         gameLoopRunning: false,
@@ -57,6 +68,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
     },
     BOSS_FIGHT: {
         gameLoopRunning: true,
@@ -65,6 +77,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: true,
         canChangeActivation: true,
+        canEngageBattles: true,
     },
     BOSS_FIGHT_PAUSED: {
         gameLoopRunning: false,
@@ -73,6 +86,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: false,
     },
     DEAD: {
         gameLoopRunning: false,
@@ -81,6 +95,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
     },
     BOSS_DEFEATED: {
         gameLoopRunning: false,
@@ -89,6 +104,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
     },
 };
 gameStates.NEW.validNextStates = [gameStates.PLAYING];
@@ -105,6 +121,20 @@ gameStates.BOSS_DEFEATED.validNextStates = [gameStates.PLAYING];
  * Map of oldVersionNumber to migrationFunction that should return the gameDataSave in the next higher version.
  */
 const gameDataMigrations = {};
+
+/**
+ * @type {Object<RunStatistic>}}
+ */
+const DEFAULT_RUN_STATS = {
+    battlesFinished: {current: 0, max: 0},
+    wavesDefeated: {current: 0, max: 0},
+    maxPopulation: {current: 1, max: 1},
+    maxIndustry: {current: 0, max: 0},
+    maxGrowth: {current: 0, max: 0},
+    maxMilitary: {current: 0, max: 0},
+    maxDanger: {current: 0, max: 0},
+    gridStrength: {current: 0, max: 0},
+};
 
 class GameData {
 
@@ -149,21 +179,6 @@ class GameData {
     /**
      * @var {number}
      */
-    lastPopulationDelta;
-
-    /**
-     * @var {number}
-     */
-    heat;
-
-    /**
-     * @var {number}
-     */
-    heatVelocity;
-
-    /**
-     * @var {number}
-     */
     cycles;
 
     /**
@@ -203,7 +218,7 @@ class GameData {
      *     gridStrength: TaskSavedValues,
      *     modules: Object<ModuleSavedValues>,
      *     moduleOperations: Object<TaskSavedValues>,
-     *     battles: Object<TaskSavedValues>,
+     *     battles: Object<BattleSavedValues>,
      *     galacticSecrets: Object<GalacticSecretSavedValues>,
      *     requirements: Object<RequirementSavedValues>
      * }}
@@ -221,6 +236,14 @@ class GameData {
      * }}
      */
     activeEntities = {};
+
+    /**
+     * Starts as a copy of DEFAULT_RUN_STATS.
+     *
+     * @type {Object<RunStatistic>}
+     * @type
+     */
+    stats = structuredClone(DEFAULT_RUN_STATS);
 
     /**
      * @var {{
@@ -259,9 +282,6 @@ class GameData {
 
     initValues() {
         this.population = 1;
-        this.lastPopulationDelta = 0;
-        this.heat = 0;
-        this.heatVelocity = 0;
         this.cycles = 0;
         this.bossBattleAvailable = false;
     }
@@ -304,6 +324,9 @@ class GameData {
         this.activeEntities.battles = new Set();
         for (const module of defaultModules) {
             this.activeEntities.modules.add(module.name);
+        }
+        for (const key in this.stats) {
+            this.stats[key].current = DEFAULT_RUN_STATS[key].current;
         }
     }
 
@@ -351,6 +374,13 @@ class GameData {
             previousState: gameStates.NEW.name,
             newState: this.stateName,
         });
+
+        for (const key in this.stats) {
+            if (this.stats.hasOwnProperty(key)) continue;
+
+            // Copy default stats
+            this.stats[key] = structuredClone(DEFAULT_RUN_STATS[key]);
+        }
 
         return saveGameFound;
     }
@@ -431,7 +461,7 @@ class GameData {
         const rawValue = importExportBox.value.trim();
 
         try {
-            const decoded = window.atob(rawValue);
+            const decoded = decodeURIComponent(escape(window.atob(rawValue)));
             const parsed = JSON.parse(decoded);
 
             if (!_.isObjectLike(parsed) || Object.keys(parsed).length === 0) {
@@ -450,7 +480,7 @@ class GameData {
 
     export() {
         const importExportBox = document.getElementById('importExportBox');
-        importExportBox.value = window.btoa(gameData.serializeAsJson());
+        importExportBox.value = window.btoa(unescape(encodeURIComponent(gameData.serializeAsJson())));
     }
 
     /**
