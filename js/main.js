@@ -161,6 +161,7 @@ function setPointOfInterest(name) {
         name: name,
         newActivityState: true,
     });
+    AudioEngine.postEvent(AudioEvents.CHANGE_LOCATION, pointsOfInterest[name]);
 
     updateUiIfNecessary();
 }
@@ -262,6 +263,7 @@ function switchModuleActivation(module) {
 
     const gridLoadAfterActivation = attributes.gridLoad.getValue() + module.getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
+        AudioEngine.postEvent(AudioEvents.INSUFFICIENT_POWER_GRID, module);
         VFX.highlightText(Dom.get().bySelector(`#${module.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
         Dom.get().byId('switch_' + module.domId).checked = false;
         return;
@@ -276,6 +278,11 @@ function switchModuleActivation(module) {
  * @param {ModuleOperation} operation
  */
 function tryActivateOperation(component, operation) {
+    if (!gameData.state.canChangeActivation) {
+        VFX.shakePlayButton();
+        return;
+    }
+
     if (operation.isActive('self')) {
         // Already active, nothing to do
         return;
@@ -285,6 +292,7 @@ function tryActivateOperation(component, operation) {
         + operation.getGridLoad()
         - component.getActiveOperation().getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
+        AudioEngine.postEvent(AudioEvents.INSUFFICIENT_POWER_GRID, operation);
         VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad > data`), 'flash-text-denied-long', 'flash-text-denied-long');
         VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad > .floating-warning `), 'show', 'flash-floating-warning');
         return;
@@ -300,6 +308,11 @@ function tryActivateOperation(component, operation) {
  */
 function tryEngageBattle(battle) {
     if (!gameData.state.canChangeActivation) {
+        VFX.shakePlayButton();
+        return;
+    }
+
+    if (!battle.isActive() && !gameData.state.canEngageBattles) {
         VFX.shakePlayButton();
         return;
     }
@@ -605,14 +618,15 @@ function createLevel4BattleElements(battles) {
         level4Element.id = battle.domId;
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
-        domGetter.byClass('rewards').innerHTML = battle.getRewardsPerLevelDescription();
         domGetter.byClass('progressBar').addEventListener('click', tryEngageBattle.bind(this, battle));
         domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
         if (battle instanceof BossBattle) {
+            domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
             const dangerElement = domGetter.byClass('danger');
             dangerElement.classList.add('effect');
             dangerElement.innerHTML = battle.getEffectDescription();
         } else {
+            domGetter.byClass('rewards').innerHTML = battle.getRewardsPerLevelDescription();
             formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
         }
 
@@ -1640,7 +1654,11 @@ function updateBattleRows() {
 
         const unfulfilledRequirement = getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattles, maxBattles);
 
-        if (!(battle instanceof BossBattle)) {
+        const domGetter = Dom.get(row);
+        if (battle instanceof BossBattle) {
+            const dangerElement = domGetter.byClass('danger');
+            dangerElement.innerHTML = battle.getEffectDescription();
+        } else {
             if (!updateRequirements(
                 unfulfilledRequirement === null ? null : [unfulfilledRequirement],
                 requirementsContext)
@@ -1655,7 +1673,6 @@ function updateBattleRows() {
             row.classList.remove('hidden');
         }
 
-        const domGetter = Dom.get(row);
         formatValue(domGetter.bySelector('.level > data'), battle.getDisplayedLevel(), {keepNumber: true});
         formatValue(domGetter.bySelector('.xpGain > data'), battle.getXpGain());
         formatValue(domGetter.bySelector('.xpLeft > data'), battle.getXpLeft());
@@ -1939,7 +1956,10 @@ function updateBossBarColor(progress, bossBar) {
 function updateHeatIndication() {
     const populationDelta = calculatePopulationDelta();
     const isPopShrinking = populationDelta < 0.0 && !nearlyEquals(populationDelta, 0.0, 0.01);
-    Dom.get().byId('heatIndicator').classList.toggle('hidden', !isPopShrinking);
+    const indicatorHidden = Dom.get().byId('heatIndicator').classList.toggle('hidden', !isPopShrinking);
+    if (!indicatorHidden) {
+        AudioEngine.postEvent(AudioEvents.HEAT_WARNING);
+    }
     Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="danger"]').classList.toggle('shake-and-pulse', isPopShrinking);
 }
 
@@ -2234,7 +2254,7 @@ function updateUI() {
 
     updateHtmlElementRequirements();
 
-    // updateHeatIndication();
+    updateHeatIndication();
     updateStationOverview();
     updateBodyClasses();
 }
@@ -2254,6 +2274,7 @@ function update(deltaTime, totalTime, isLastUpdateInTick, gameLoop) {
     doTasks();
     updatePopulation();
     updateStats();
+    musicContext.update();
 
     if (isLastUpdateInTick // Only update the UI once in an accumulated update
         || !gameData.state.gameLoopRunning // we are about to stop the game loop, so now is the time to update the UI
@@ -2456,7 +2477,7 @@ function init() {
     initTabBehavior();
     initTooltips();
     initStationName();
-    initAudio();
+    AudioEngine.init();
     initSettings();
     initBossBattleProgressBar();
 

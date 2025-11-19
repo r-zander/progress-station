@@ -91,7 +91,7 @@ class Modifier {
         return modifier.modifies
                 .map((effectHolder) => effectHolder.title)
                 .join(', ') + '\n'
-            + modifier.from.attribute.title + ' ' + Symbols.LEFT_ARROW + ' ' + modifier.to.attribute.title;
+            + modifier.from.attribute.title + ' ' + Symbols.RIGHT_ARROW + ' ' + modifier.to.attribute.title;
     }
 }
 
@@ -120,7 +120,7 @@ class Effect {
             if (battle.hasLevels()) {
                 result = effectType.combine(result, battle.getReward(effectType));
             }
-            if (battle.isActive()) {
+            if (battle.isActive() && !battle.isDone()) {
                 result = effectType.combine(result, battle.getEffect(effectType));
             }
         }
@@ -234,7 +234,12 @@ class Effect {
             }
             return '<data value="' + effectValue + '" class="effect-value">'
                 + actualEffectType.operator
-                + effectValue.toFixed(2)
+                + (effectValue >= 100
+                    ? effectValue.toFixed(0)
+                    : (effectValue >= 10
+                        ? effectValue.toFixed(1)
+                        : effectValue.toFixed(2)
+                    ))
                 + '</data> '
                 + actualEffectType.attribute.inlineHtmlWithIcon;
         }, this).join('\n');

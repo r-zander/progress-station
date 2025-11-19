@@ -11,7 +11,24 @@ function applySpeed(value) {
 }
 
 function isAnyBattleActive() {
-    return gameData.activeEntities.battles.size > 0;
+    if (gameData.activeEntities.battles.size === 0) return false;
+
+    for (const battleName of gameData.activeEntities.battles) {
+        const battle = battles[battleName];
+
+        // done battles are not considered actually active
+        if (!battle.isDone()) return true;
+    }
+
+    // There are active battles, but not of them are not done
+    return false;
+}
+
+function deactivateAllBattles() {
+    for (const battleName of gameData.activeEntities.battles) {
+        const battle = battles[battleName];
+        battle.stop();
+    }
 }
 
 /**
@@ -33,18 +50,11 @@ function calculatePopulationDelta() {
     // let populationDelta = Math.pow(growth / 1000, 0.6) * 4.26;
     let populationDelta = growth;
 
-    if (isPopulationRegenerationActive(population)
-    ) {
+    if (isPopulationRegenerationActive(population)) {
         populationDelta *= 10;
     }
 
     populationDelta -= danger;
-
-    // TODO hacky fix for current boss heat inertia problem https://trello.com/c/VHOGIMUV/353-last-few-survivors-take-a-long-time-to-wipe-out
-    if (gameData.stateName === gameStates.BOSS_FIGHT.name) {
-        const MINIMUM_BOSS_POPULATION_DAMAGE = 100.00;
-        populationDelta = Math.min(-MINIMUM_BOSS_POPULATION_DAMAGE, populationDelta);
-    }
 
     return populationDelta;
 }
@@ -52,13 +62,28 @@ function calculatePopulationDelta() {
 function updatePopulation() {
     if (!gameData.state.areAttributesUpdated) return;
 
+    const regenerationActive = isPopulationRegenerationActive(gameData.population);
     gameData.population = Math.max(gameData.population + applySpeed(calculatePopulationDelta()), 1);
+    // Make sure we don't regenerate over the maxPopulation
+    if (regenerationActive) {
+        gameData.population = Math.min(gameData.stats.maxPopulation.current, gameData.population);
+
+    // Check if in the next update the regeneration would start
+    } else if (isPopulationRegenerationActive(gameData.population)) {
+        gameData.population = Math.max(gameData.stats.maxPopulation.current, gameData.population);
+    }
+
     if (gameData.population > gameData.stats.maxPopulation.current) {
         gameData.stats.maxPopulation.current = gameData.population;
     }
 
-    if (gameData.state === gameStates.BOSS_FIGHT && Math.round(gameData.population) === 1) {
-        gameData.transitionState(gameStates.DEAD);
+    // Is everyone but the captain dead?
+    if (Math.round(gameData.population) === 1) {
+        if (gameData.state === gameStates.BOSS_FIGHT) {
+            gameData.transitionState(gameStates.DEAD);
+        } else {
+            deactivateAllBattles();
+        }
     }
 }
 
@@ -171,15 +196,19 @@ function updateBossDistance() {
 function togglePause() {
     switch (gameData.state) {
         case gameStates.PLAYING:
+            AudioEngine.postEvent(AudioEvents.ON_PAUSE);
             gameData.transitionState(gameStates.PAUSED);
             break;
         case gameStates.PAUSED:
+            AudioEngine.postEvent(AudioEvents.ON_PLAY);
             gameData.transitionState(gameStates.PLAYING);
             break;
         case gameStates.BOSS_FIGHT:
+            AudioEngine.postEvent(AudioEvents.ON_PAUSE);
             gameData.transitionState(gameStates.BOSS_FIGHT_PAUSED);
             break;
         case gameStates.BOSS_FIGHT_PAUSED:
+            AudioEngine.postEvent(AudioEvents.ON_PLAY);
             gameData.transitionState(gameStates.BOSS_FIGHT);
             break;
         // Any other state is ignored

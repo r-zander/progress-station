@@ -66,6 +66,39 @@ moduleOperations.TenDrills = new ModuleOperation({
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.06}, {effectType: EffectType.IndustryFactor, baseValue: 0.05}],
 });
 
+// Growth
+moduleOperations.Module4GrowthOperationT1 = new ModuleOperation({
+    title: 'T1 Growth', maxXp: 400, gridLoad: 1,
+    description: '',
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.01}],
+});
+moduleOperations.Module4GrowthOperationT2 = new ModuleOperation({
+    title: 'T2 Growth', maxXp: 2_000, gridLoad: 2,
+    description: '',
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.03}],
+});
+moduleOperations.Module4GrowthOperationT3 = new ModuleOperation({
+    title: 'T3 Growth', maxXp: 20_000, gridLoad: 4,
+    description: '',
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.08}],
+});
+// Research
+moduleOperations.Module4ResearchOperationT1 = new ModuleOperation({
+    title: 'T1 Research', maxXp: 800, gridLoad: 1,
+    description: '',
+    effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.01}],
+});
+moduleOperations.Module4ResearchOperationT2 = new ModuleOperation({
+    title: 'T2 Research', maxXp: 4_000, gridLoad: 2,
+    description: '',
+    effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.03}],
+});
+moduleOperations.Module4ResearchOperationT3 = new ModuleOperation({
+    title: 'T3 Research', maxXp: 40_000, gridLoad: 4,
+    description: '',
+    effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.08}],
+});
+
 // Furnace
 moduleOperations.Garbage = new ModuleOperation({
     title: 'Garbage', maxXp: 500, gridLoad: 1,
@@ -145,7 +178,7 @@ moduleOperations.AntiMissileSwarm = new ModuleOperation({
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.10}],
 });
 
-//Population
+// Population
 moduleOperations.Survivors = new ModuleOperation({
     title: 'Pick up survivors', maxXp: 4_000, gridLoad: 1,
     description: 'Space is vast, but you’re not leaving anyone behind. Rescue survivors to add their skills and stories to your crew.',
@@ -222,6 +255,17 @@ const moduleComponents = {
         operations: [moduleOperations.BigSpinny, moduleOperations.AsteroidChomper, moduleOperations.TenDrills]
     }),
 
+    Module4GrowthComponent: new ModuleComponent({
+        title: 'Gain Growth',
+        description: '',
+        operations: [moduleOperations.Module4GrowthOperationT1, moduleOperations.Module4GrowthOperationT2, moduleOperations.Module4GrowthOperationT3]
+    }),
+    Module4ResearchComponent: new ModuleComponent({
+        title: 'Gain Research',
+        description: '',
+        operations: [moduleOperations.Module4ResearchOperationT1, moduleOperations.Module4ResearchOperationT2, moduleOperations.Module4ResearchOperationT3]
+    }),
+
     Fuel: new ModuleComponent({
         title: 'Fuel',
         description: 'The heart\'s fire of the station, what will you use to power the furnace?',
@@ -276,6 +320,11 @@ const modules = {
         description: 'For some, space is vast and empty. For others, its the greatest treasure trove there is.',
         components: [moduleComponents.MinedResource, moduleComponents.Drill],
     }),
+    Module4: new Module({
+        title: 'Module 4',
+        description: '',
+        components: [moduleComponents.Module4GrowthComponent, moduleComponents.Module4ResearchComponent],
+    }),
     Furnace: new Module({
         title: 'Furnace Module',
         description: 'The beating heart of industry, transforming raw into refined, ordinary into extraordinary. The forge of future tech.',
@@ -307,6 +356,7 @@ const moduleCategories = {
             modules.ISASM,
             modules.CaptainsQuarter,
             modules.MiningBay,
+            modules.Module4,
             modules.Furnace,
             modules.Defensive,
             modules.Quarters

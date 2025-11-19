@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AudioEngine Test :: Progress Station</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #444;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        button {
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:active {
+            background-color: #004085;
+        }
+        button.danger {
+            background-color: #dc3545;
+        }
+        button.danger:hover {
+            background-color: #c82333;
+        }
+        .info {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #004085;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .control-group input[type="range"] {
+            width: 100%;
+        }
+        .value-display {
+            color: #007bff;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>AudioEngine Test</h1>
+
+    <div class="info" id="statusInfo">
+        Initializing audio system...
+    </div>
+
+    <!-- Sound Effect Tests -->
+    <div class="panel">
+        <h2>Sound Effects (PostEvent)</h2>
+        <div class="button-grid">
+            <button onclick="testUIClick()">UI Click</button>
+            <button onclick="testUIHover()">UI Hover</button>
+            <button onclick="testUITab()">UI Tab Switch</button>
+            <button onclick="testUINotification()">UI Notification</button>
+            <button onclick="testOperationActivate()">Operation Activate</button>
+            <button onclick="testBattleStart()">Battle Start</button>
+            <button onclick="testBattleWin()">Battle Win</button>
+            <button onclick="testBattleLose()">Battle Lose</button>
+            <button onclick="testLevelUp()">Level Up</button>
+            <button onclick="testMilestone()">Milestone</button>
+        </div>
+    </div>
+
+    <!-- Music Context Tests -->
+    <div class="panel">
+        <h2>Music Context (RTPC System)</h2>
+        <div class="control-group">
+            <label>
+                Tension: <span class="value-display" id="tensionDisplay">0</span>
+            </label>
+            <input type="range" id="tensionSlider" min="0" max="100" value="0"
+                   oninput="updateTension(this.value)">
+        </div>
+        <div class="control-group">
+            <label>
+                Energy: <span class="value-display" id="energyDisplay">0</span>
+            </label>
+            <input type="range" id="energySlider" min="0" max="100" value="0"
+                   oninput="updateEnergy(this.value)">
+        </div>
+        <div class="control-group">
+            <label>Phase:</label>
+            <div class="button-grid">
+                <button onclick="setPhase('exploration')">Exploration</button>
+                <button onclick="setPhase('combat')">Combat</button>
+                <button onclick="setPhase('victory')">Victory</button>
+                <button onclick="setPhase('defeat')">Defeat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Utility Controls -->
+    <div class="panel">
+        <h2>Controls</h2>
+        <div class="button-grid">
+            <button class="danger" onclick="AudioEngine.StopAll()">Stop All Sounds</button>
+            <button onclick="testMultipleEvents()">Test Multiple Events</button>
+            <button onclick="testRandomization()">Test Randomization (10x)</button>
+        </div>
+    </div>
+
+    <!-- Test Results -->
+    <div class="panel">
+        <h2>Test Results</h2>
+        <div id="testResults" style="font-family: monospace; font-size: 12px; color: #333;">
+            No tests run yet.
+        </div>
+    </div>
+
+    <script src="vendor/howler.js-2.2.4/howler.core.min.js"></script>
+    <script src="js/audioEngine.js"></script>
+    <script src="js/game-config/audio.js"></script>
+    <script>
+        let testLog = [];
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            testLog.push(`[${timestamp}] ${message}`);
+            document.getElementById('testResults').innerHTML = testLog.slice(-20).join('<br>');
+            console.log(message);
+        }
+
+        // Initialize audio system
+        try {
+            initializeAudio();
+            document.getElementById('statusInfo').textContent = 'Audio system initialized successfully!';
+            document.getElementById('statusInfo').className = 'info success';
+            log('✓ Audio system initialized');
+        } catch (e) {
+            document.getElementById('statusInfo').textContent = 'Error initializing audio: ' + e.message;
+            log('✗ Failed to initialize: ' + e.message);
+        }
+
+        // Sound effect tests
+        function testUIClick() {
+            AudioEngine.PostEvent(AudioEvents.UI.BUTTON_CLICK);
+            log('PostEvent: UI.BUTTON_CLICK');
+        }
+
+        function testUIHover() {
+            AudioEngine.PostEvent(AudioEvents.UI.BUTTON_HOVER);
+            log('PostEvent: UI.BUTTON_HOVER');
+        }
+
+        function testUITab() {
+            AudioEngine.PostEvent(AudioEvents.UI.TAB_SWITCH);
+            log('PostEvent: UI.TAB_SWITCH');
+        }
+
+        function testUINotification() {
+            AudioEngine.PostEvent(AudioEvents.UI.NOTIFICATION);
+            log('PostEvent: UI.NOTIFICATION');
+        }
+
+        function testOperationActivate() {
+            AudioEngine.PostEvent(AudioEvents.GAMEPLAY.OPERATION_ACTIVATE);
+            log('PostEvent: GAMEPLAY.OPERATION_ACTIVATE');
+        }
+
+        function testBattleStart() {
+            AudioEngine.PostEvent(AudioEvents.GAMEPLAY.BATTLE_START);
+            log('PostEvent: GAMEPLAY.BATTLE_START');
+        }
+
+        function testBattleWin() {
+            AudioEngine.PostEvent(AudioEvents.GAMEPLAY.BATTLE_WIN);
+            log('PostEvent: GAMEPLAY.BATTLE_WIN');
+        }
+
+        function testBattleLose() {
+            AudioEngine.PostEvent(AudioEvents.GAMEPLAY.BATTLE_LOSE);
+            log('PostEvent: GAMEPLAY.BATTLE_LOSE');
+        }
+
+        function testLevelUp() {
+            AudioEngine.PostEvent(AudioEvents.GAMEPLAY.LEVEL_UP);
+            log('PostEvent: GAMEPLAY.LEVEL_UP');
+        }
+
+        function testMilestone() {
+            AudioEngine.PostEvent(AudioEvents.GAMEPLAY.MILESTONE);
+            log('PostEvent: GAMEPLAY.MILESTONE');
+        }
+
+        // Music context tests
+        function updateTension(value) {
+            document.getElementById('tensionDisplay').textContent = value;
+            AudioEngine.SetRTPCValue('tension', parseFloat(value));
+            log(`SetRTPCValue: tension = ${value}`);
+        }
+
+        function updateEnergy(value) {
+            document.getElementById('energyDisplay').textContent = value;
+            AudioEngine.SetRTPCValue('energy', parseFloat(value));
+            log(`SetRTPCValue: energy = ${value}`);
+        }
+
+        function setPhase(phase) {
+            AudioEngine.SetMusicContext({ phase: phase });
+            log(`SetMusicContext: phase = ${phase}`);
+        }
+
+        // Complex tests
+        function testMultipleEvents() {
+            log('Testing multiple events in sequence...');
+            AudioEngine.PostEvent(AudioEvents.UI.BUTTON_CLICK);
+            setTimeout(() => AudioEngine.PostEvent(AudioEvents.GAMEPLAY.OPERATION_ACTIVATE), 200);
+            setTimeout(() => AudioEngine.PostEvent(AudioEvents.UI.NOTIFICATION), 400);
+            setTimeout(() => {
+                log('✓ Multiple events test completed');
+            }, 600);
+        }
+
+        function testRandomization() {
+            log('Testing randomization (playing same event 10 times)...');
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    AudioEngine.PostEvent(AudioEvents.UI.BUTTON_CLICK);
+                }, i * 150);
+            }
+            setTimeout(() => {
+                log('✓ Randomization test completed (listen for variations)');
+            }, 1600);
+        }
+
+        // Test helper functions
+        function testHelperFunctions() {
+            log('Testing helper functions:');
+
+            // Test dB to linear conversion
+            const db0 = AudioEngine._dbToLinear(0);
+            const dbMinus6 = AudioEngine._dbToLinear(-6);
+            log(`  _dbToLinear(0) = ${db0.toFixed(2)} (expected ~1.00)`);
+            log(`  _dbToLinear(-6) = ${dbMinus6.toFixed(2)} (expected ~0.50)`);
+
+            // Test cents to rate conversion
+            const cents0 = AudioEngine._centsToRate(0);
+            const cents100 = AudioEngine._centsToRate(100);
+            log(`  _centsToRate(0) = ${cents0.toFixed(2)} (expected 1.00)`);
+            log(`  _centsToRate(100) = ${cents100.toFixed(2)} (expected ~1.06)`);
+
+            log('✓ Helper function tests completed');
+        }
+
+        // Run helper function tests on load
+        setTimeout(testHelperFunctions, 500);
+
+        log('Test page ready. Click buttons to test AudioEngine functionality.');
+    </script>
+</body>
+</html>

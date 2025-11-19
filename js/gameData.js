@@ -17,6 +17,7 @@ const localStorageKey = 'ps_gameDataSave';
  * @property {boolean} areTasksProgressing
  * @property {boolean} isBossBattleProgressing
  * @property {boolean} canChangeActivation
+ * @property {boolean} canEngageBattles
  * @property {GameState[]} [validNextStates]
  */
 
@@ -31,6 +32,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
     },
     PLAYING: {
         gameLoopRunning: true,
@@ -39,6 +41,7 @@ const gameStates = {
         areTasksProgressing: true,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: true,
     },
     PAUSED: {
         gameLoopRunning: false,
@@ -47,6 +50,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: false,
     },
     TUTORIAL_PAUSED: {
         gameLoopRunning: false,
@@ -55,6 +59,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: false,
     },
     BOSS_FIGHT_INTRO: {
         gameLoopRunning: false,
@@ -63,6 +68,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
     },
     BOSS_FIGHT: {
         gameLoopRunning: true,
@@ -71,6 +77,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: true,
         canChangeActivation: true,
+        canEngageBattles: true,
     },
     BOSS_FIGHT_PAUSED: {
         gameLoopRunning: false,
@@ -79,6 +86,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: false,
     },
     DEAD: {
         gameLoopRunning: false,
@@ -87,6 +95,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
     },
     BOSS_DEFEATED: {
         gameLoopRunning: false,
@@ -95,6 +104,7 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
     },
 };
 gameStates.NEW.validNextStates = [gameStates.PLAYING];
@@ -223,7 +233,7 @@ class GameData {
      *     gridStrength: TaskSavedValues,
      *     modules: Object<ModuleSavedValues>,
      *     moduleOperations: Object<TaskSavedValues>,
-     *     battles: Object<TaskSavedValues>,
+     *     battles: Object<BattleSavedValues>,
      *     galacticSecrets: Object<GalacticSecretSavedValues>,
      *     requirements: Object<RequirementSavedValues>,
      *     essenceOfUnknownHistory: EssenceOfUnknownHistorySavedValues[]
@@ -249,7 +259,7 @@ class GameData {
      * @type {Object<RunStatistic>}
      * @type
      */
-    stats = Object.assign({}, DEFAULT_RUN_STATS);
+    stats = structuredClone(DEFAULT_RUN_STATS);
 
     /**
      * @var {{
@@ -272,7 +282,8 @@ class GameData {
             toastAnswered: false,
             masterVolume: 0.7,
             enableBackgroundAudio: false,
-            // musicVolume: 1.0,
+            musicVolume: 0.7,
+            soundVolume: 1.0,
         }
     };
 
@@ -386,7 +397,7 @@ class GameData {
             if (this.stats.hasOwnProperty(key)) continue;
 
             // Copy default stats
-            this.stats[key] = Object.assign({}, DEFAULT_RUN_STATS[key]);
+            this.stats[key] = structuredClone(DEFAULT_RUN_STATS[key]);
         }
 
         return saveGameFound;
@@ -468,7 +479,7 @@ class GameData {
         const rawValue = importExportBox.value.trim();
 
         try {
-            const decoded = window.atob(rawValue);
+            const decoded = decodeURIComponent(escape(window.atob(rawValue)));
             const parsed = JSON.parse(decoded);
 
             if (!_.isObjectLike(parsed) || Object.keys(parsed).length === 0) {
@@ -487,7 +498,7 @@ class GameData {
 
     export() {
         const importExportBox = document.getElementById('importExportBox');
-        importExportBox.value = window.btoa(gameData.serializeAsJson());
+        importExportBox.value = window.btoa(unescape(encodeURIComponent(gameData.serializeAsJson())));
     }
 
     /**
