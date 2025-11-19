@@ -17,6 +17,13 @@ const AudioEvents = {
     BATTLE_FINISH: 'BATTLE_FINISH',
     GRID_UPGRADE: 'GRID_UPGRADE',
     CHANGE_LOCATION: 'CHANGE_LOCATION',
+    BOSS_APPEARANCE: 'BOSS_APPEARANCE',
+    GAME_OVER_DEFEAT: 'GAME_OVER_DEFEAT',
+    GAME_OVER_WIN: 'GAME_OVER_WIN',
+    HEAT_WARNING: 'HEAT_WARNING',
+    INSUFFICIENT_POWER_GRID: 'INSUFFICIENT_POWER_GRID',
+    ON_PAUSE: 'ON_PAUSE',
+    ON_PLAY: 'ON_PLAY',
 };
 
 const MusicIds = {
@@ -82,41 +89,66 @@ const SoundBank = {
         volume: 1.0,
     },
 
-        [AudioEvents.CHANGE_LOCATION]: {
+    [AudioEvents.CHANGE_LOCATION]: {
         src: [
             'audio/sfx/new_location.mp3',
         ],
         volume: 1.0,
     },
 
-    // [AudioEvents.UI.BUTTON_HOVER]: {
-    //     src: ['audio/sounds/245645__unfa__cartoon-pop-clean.mp3'],
-    //     volume: 0.2,
-    //     randomization: {
-    //         pitch: { min: 50, max: 100 },
-    //         volume: { min: -3, max: 0 }
-    //     },
-    //     pool: 3
-    // },
-    //
-    // [AudioEvents.UI.TAB_SWITCH]: {
-    //     src: ['audio/sounds/245645__unfa__cartoon-pop-clean.mp3'],
-    //     volume: 0.4,
-    //     randomization: {
-    //         pitch: { min: -50, max: -20 },
-    //         volume: { min: -2, max: 1 }
-    //     },
-    //     pool: 3
-    // },
-    //
-    // [AudioEvents.UI.NOTIFICATION]: {
-    //     src: ['audio/sounds/245645__unfa__cartoon-pop-clean.mp3'],
-    //     volume: 0.6,
-    //     randomization: {
-    //         pitch: { min: 100, max: 200 }
-    //     },
-    //     pool: 5
-    // }
+    [AudioEvents.BOSS_APPEARANCE]: {
+        src: [
+            'audio/sfx/boss_arrives.mp3',
+        ],
+        volume: 1.0,
+    },
+
+    [AudioEvents.GAME_OVER_DEFEAT]: {
+        src: [
+            'audio/sfx/bossfight_lost.mp3',
+        ],
+        volume: 1.0,
+    },
+
+    [AudioEvents.GAME_OVER_WIN]: {
+        src: [
+            'audio/sfx/bossfight_won.mp3',
+        ],
+        volume: 1.0,
+    },
+
+    [AudioEvents.HEAT_WARNING]: {
+        src: [
+            'audio/sfx/heat_warning.mp3',
+        ],
+        volume: 1.0,
+        // Safety, not sure how often this might get triggered otherwise
+        playbackLimit: {
+            time: 5000,
+        }
+    },
+
+    [AudioEvents.INSUFFICIENT_POWER_GRID]: {
+        src: [
+            'audio/sfx/insufficient_power_grid.mp3',
+        ],
+        volume: 1.0,
+    },
+
+    [AudioEvents.ON_PAUSE]: {
+        src: [
+            'audio/sfx/pause.mp3',
+        ],
+        volume: 1.0,
+    },
+
+    [AudioEvents.ON_PLAY]: {
+        src: [
+            'audio/sfx/play.mp3',
+        ],
+        volume: 1.0,
+    },
+
 };
 
 // ============================================
@@ -197,7 +229,7 @@ const MainThemeMusicState = {
         base: {
             segment: {
                 src: './audio/main-theme.mp3',
-                volume: 0.5,
+                volume: 1.0,
                 loop: true,
                 fadeInTime: 2000,
                 fadeOutTime: 2000

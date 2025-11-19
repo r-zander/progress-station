@@ -32,6 +32,7 @@ function initIntro() {
 function initBossAppearance() {
     const modal = new bootstrap.Modal(document.getElementById('bossAppearanceModal'));
     GameEvents.BossAppearance.subscribe(function () {
+        AudioEngine.postEvent(AudioEvents.BOSS_APPEARANCE, bossBattle);
         modal.show();
     });
 
@@ -289,8 +290,10 @@ function initGameOver() {
     GameEvents.GameStateChanged.subscribe((payload) => {
         let bossDefeated;
         if (payload.newState === gameStates.BOSS_DEFEATED.name) {
+            AudioEngine.postEvent(AudioEvents.GAME_OVER_WIN);
             bossDefeated = true;
         } else if (payload.newState === gameStates.DEAD.name) {
+            AudioEngine.postEvent(AudioEvents.GAME_OVER_DEFEAT);
             bossDefeated = false;
         } else {
             return;

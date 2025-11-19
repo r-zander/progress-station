@@ -263,6 +263,7 @@ function switchModuleActivation(module) {
 
     const gridLoadAfterActivation = attributes.gridLoad.getValue() + module.getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
+        AudioEngine.postEvent(AudioEvents.INSUFFICIENT_POWER_GRID, module);
         VFX.highlightText(Dom.get().bySelector(`#${module.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
         Dom.get().byId('switch_' + module.domId).checked = false;
         return;
@@ -291,6 +292,7 @@ function tryActivateOperation(component, operation) {
         + operation.getGridLoad()
         - component.getActiveOperation().getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
+        AudioEngine.postEvent(AudioEvents.INSUFFICIENT_POWER_GRID, operation);
         VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad > data`), 'flash-text-denied-long', 'flash-text-denied-long');
         VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad > .floating-warning `), 'show', 'flash-floating-warning');
         return;
@@ -1914,7 +1916,10 @@ function updateBossBarColor(progress, bossBar) {
 function updateHeatIndication() {
     const populationDelta = calculatePopulationDelta();
     const isPopShrinking = populationDelta < 0.0 && !nearlyEquals(populationDelta, 0.0, 0.01);
-    Dom.get().byId('heatIndicator').classList.toggle('hidden', !isPopShrinking);
+    const indicatorHidden = Dom.get().byId('heatIndicator').classList.toggle('hidden', !isPopShrinking);
+    if (!indicatorHidden) {
+        AudioEngine.postEvent(AudioEvents.HEAT_WARNING);
+    }
     Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="danger"]').classList.toggle('shake-and-pulse', isPopShrinking);
 }
 

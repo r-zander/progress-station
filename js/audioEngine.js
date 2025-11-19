@@ -30,12 +30,18 @@
  */
 
 /**
+ * @typedef {Object} PlaybackLimit
+ * @property {number} time - Minimum time between triggers (in ms)
+ */
+
+/**
  * @typedef {Object} SoundBankEntry
  * @property {string|string[]} src - Single file or array for variations
  * @property {number} [volume] - Base volume (0-1)
  * @property {boolean} [loop] - Whether to loop the sound
  * @property {'random'|'sequence'} [containerType] - Playback container type
  * @property {Randomization} [randomization] - Randomization settings
+ * @property {PlaybackLimit} [playbackLimit] - Playback limit settings
  * @property {number} [pool] - Max concurrent instances
  * @property {Object.<string, [number, number]>} [sprite] - Audio sprites
  */
@@ -285,7 +291,7 @@ class AudioEngine {
     /** @type {boolean} Track if audio was enabled during this session */
     static #wasAudioEnabled = false;
 
-    /** @type {Object.<string, Object>} Loaded sound banks with their Howl instances */
+    /** @type {Object.<string, {name: string, events: Object.<string, {entry: SoundBank, howls: Howl[]}> }>} Loaded sound banks with their Howl instances */
     static #banks = {};
 
     /** @type {Object.<string, Array>} Recent play history for avoidRepeat */
@@ -293,6 +299,9 @@ class AudioEngine {
 
     /** @type {Object.<string, number>} Sequence counters for 'sequence' container type */
     static #sequenceCounters = {};
+
+    /** @type {Object.<string, number>} Last play timestamps for playback limiting */
+    static #lastPlayTimes = {};
 
     /** @type {MusicContext|null} Current music context */
     static #musicContext = null;
@@ -325,7 +334,9 @@ class AudioEngine {
 
         // Set initial volume and mute state
         Howler.mute(!gameData.settings.audio.enabled);
-        AudioEngine.setVolume(gameData.settings.audio.masterVolume);
+        AudioEngine.setMasterVolume(gameData.settings.audio.masterVolume);
+        AudioEngine.setMusicVolume(gameData.settings.audio.musicVolume);
+        AudioEngine.setSoundVolume(gameData.settings.audio.soundVolume);
 
         // Load audio config from game config
         initializeAudio();
@@ -373,7 +384,7 @@ class AudioEngine {
                 entry: entry,
                 howls: srcArray.map(src => new Howl({
                     src: [src],
-                    volume: entry.volume !== undefined ? entry.volume : 1.0,
+                    volume: (entry.volume !== undefined ? entry.volume : 1.0) * gameData.settings.audio.musicVolume,
                     loop: entry.loop || false,
                     pool: entry.pool || 5,
                     sprite: entry.sprite || undefined,
@@ -409,6 +420,19 @@ class AudioEngine {
         }
 
         const entry = eventData.entry;
+
+        // Check playback limit
+        if (entry.playbackLimit && isNumber(entry.playbackLimit.time)) {
+            const now = performance.now();
+            const lastPlayTime = AudioEngine.#lastPlayTimes[event];
+
+            if (isNumber(lastPlayTime) && (now - lastPlayTime) < entry.playbackLimit.time) {
+                return; // Skip - minimum re-trigger time not reached
+            }
+
+            AudioEngine.#lastPlayTimes[event] = now;
+        }
+
         const howls = eventData.howls;
         const srcArray = Array.isArray(entry.src) ? entry.src : [entry.src];
 
@@ -418,7 +442,7 @@ class AudioEngine {
 
         // Apply randomization
         const randomization = entry.randomization || {};
-        let volume = entry.volume !== undefined ? entry.volume : 1.0;
+        let volume = (entry.volume !== undefined ? entry.volume : 1.0) * gameData.settings.audio.soundVolume;
         let rate = 1.0;
         let delay = 0;
 
@@ -557,13 +581,43 @@ class AudioEngine {
     }
 
     /**
-     * Set the master volume for the audio system
      * @param {number} newValue - Volume value from 0.0 to 1.0
      * @returns {void}
      */
-    static setVolume(newValue) {
+    static setMasterVolume(newValue) {
         // noinspection JSCheckFunctionSignatures
         Howler.volume(AudioEngine.#mapVolumeThreeZone(newValue));
+    }
+
+    /**
+     * @param {number} newValue
+     */
+    static setMusicVolume(newValue) {
+        const newVolume = AudioEngine.#mapVolumeThreeZone(newValue);
+        for (const layerKey in AudioEngine.#activeLayers) {
+            const layer = AudioEngine.#activeLayers[layerKey];
+            if (layer.howl) {
+                // TODO jeez...
+                const layerKeyParts = layerKey.split('##');
+                const stateName = layerKeyParts[0];
+                const layerName = layerKeyParts[1];
+                layer.howl.volume(AudioEngine.#musicStates[stateName].layers[layerName].segment.volume * newVolume);
+            }
+        }
+    }
+
+    /**
+     * @param {number} newValue
+     */
+    static setSoundVolume(newValue) {
+        const newVolume = AudioEngine.#mapVolumeThreeZone(newValue);
+        for (const bankName in AudioEngine.#banks) {
+            const bank = AudioEngine.#banks[bankName];
+            for (const eventName in bank.events) {
+                const eventData = bank.events[eventName];
+                eventData.howls.forEach(howl => howl.volume(eventData.entry.volume * newVolume) );
+            }
+        }
     }
 
     /**
@@ -750,7 +804,7 @@ class AudioEngine {
 
             for (const layerName in musicState.layers) {
                 const layer = musicState.layers[layerName];
-                const layerKey = stateName + '_' + layerName;
+                const layerKey = AudioEngine.#getLayerKey(stateName, layerName);
                 const shouldBeActive = layer.conditions(AudioEngine.#musicContext);
                 const isActive = AudioEngine.#activeLayers[layerKey] !== undefined;
 
@@ -797,13 +851,13 @@ class AudioEngine {
      * @param {MusicLayer} layer
      */
     static #startLayer(stateName, layerName, layer) {
-        const layerKey = `${stateName}_${layerName}`;
+        const layerKey = AudioEngine.#getLayerKey(stateName, layerName);
         const segment = layer.segment;
 
         // Create Howl for this layer
         const howl = new Howl({
             src: [segment.src],
-            volume: segment.volume,
+            volume: segment.volume * gameData.settings.audio.musicVolume,
             loop: segment.loop,
             preload: true,
         });
@@ -813,13 +867,17 @@ class AudioEngine {
         // Fade in if specified
         if (isNumber(segment.fadeInTime) && segment.fadeInTime > 0) {
             howl.volume(0, soundId);
-            howl.fade(0, segment.volume, segment.fadeInTime, soundId);
+            howl.fade(0, segment.volume * gameData.settings.audio.musicVolume, segment.fadeInTime, soundId);
         }
 
         AudioEngine.#activeLayers[layerKey] = {
             howl: howl,
             soundId: soundId,
         };
+    }
+
+    static #getLayerKey(stateName, layerName) {
+        return `${stateName}##${layerName}`;
     }
 
     /**
@@ -830,7 +888,7 @@ class AudioEngine {
      * @param {MusicLayer} layer
      */
     static #stopLayer(stateName, layerName, layer) {
-        const layerKey = `${stateName}_${layerName}`;
+        const layerKey = AudioEngine.#getLayerKey(stateName, layerName);
         const activeLayer = AudioEngine.#activeLayers[layerKey];
 
         if (!activeLayer) {
@@ -842,7 +900,7 @@ class AudioEngine {
         // Fade out if specified
         if (isNumber(segment.fadeOutTime) && segment.fadeOutTime > 0) {
             activeLayer.howl.fade(
-                segment.volume,
+                segment.volume * gameData.settings.audio.musicVolume,
                 0,
                 segment.fadeOutTime,
                 activeLayer.soundId,

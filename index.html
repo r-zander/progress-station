@@ -683,12 +683,28 @@
                             </label>
                         </div>-->
                     </div>
-                    <div class="col-sm-2"><label for="range4" class="form-label">Master Volume</label></div>
+                    <div class="col-sm-2"><label for="masterVolumeRange" class="form-label">Master Volume</label></div>
                     <div class="col-sm-10">
                         <div class="d-flex">
-                            <input type="range" class="form-range" id="range4" style="max-width: 20em"
+                            <input type="range" class="form-range" id="masterVolumeRange" style="max-width: 20em"
                                    min="0.0" max="1.0" step="0.01" />
-                            <output for="range4" id="rangeValue" aria-hidden="true">6</output>
+                            <output for="masterVolumeRange" id="masterVolumeOutput" aria-hidden="true">6</output>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"><label for="musicVolumeRange" class="form-label">Music Volume</label></div>
+                    <div class="col-sm-10">
+                        <div class="d-flex">
+                            <input type="range" class="form-range" id="musicVolumeRange" style="max-width: 20em"
+                                   min="0.0" max="1.0" step="0.01" />
+                            <output for="musicVolumeRange" id="musicVolumeOutput" aria-hidden="true">6</output>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"><label for="soundVolumeRange" class="form-label">Sound Volume</label></div>
+                    <div class="col-sm-10">
+                        <div class="d-flex">
+                            <input type="range" class="form-range" id="soundVolumeRange" style="max-width: 20em"
+                                   min="0.0" max="1.0" step="0.01" />
+                            <output for="soundVolumeRange" id="soundVolumeOutput" aria-hidden="true">6</output>
                         </div>
                     </div>
                 </div>

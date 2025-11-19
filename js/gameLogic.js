@@ -196,15 +196,19 @@ function updateBossDistance() {
 function togglePause() {
     switch (gameData.state) {
         case gameStates.PLAYING:
+            AudioEngine.postEvent(AudioEvents.ON_PAUSE);
             gameData.transitionState(gameStates.PAUSED);
             break;
         case gameStates.PAUSED:
+            AudioEngine.postEvent(AudioEvents.ON_PLAY);
             gameData.transitionState(gameStates.PLAYING);
             break;
         case gameStates.BOSS_FIGHT:
+            AudioEngine.postEvent(AudioEvents.ON_PAUSE);
             gameData.transitionState(gameStates.BOSS_FIGHT_PAUSED);
             break;
         case gameStates.BOSS_FIGHT_PAUSED:
+            AudioEngine.postEvent(AudioEvents.ON_PLAY);
             gameData.transitionState(gameStates.BOSS_FIGHT);
             break;
         // Any other state is ignored
