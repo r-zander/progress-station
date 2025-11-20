@@ -999,6 +999,61 @@ function createAttributeBalance(rowElement, effectTypes) {
     }
 }
 
+function createEssenceOfUnknownHistoryEntryDescription(entry) {
+    const isGain = entry.amount > 0;
+    /** @type {string} */
+    let descriptionText;
+
+    if (isGain) {
+        switch (entry.entity.type) {
+            case 'BossBattle':
+                descriptionText = `from ${entry.entity.level} defeated Boss waves`;
+                break;
+            default:
+                console.error('Essence of Unknown history: Unsupported entry.entity.type for gained essence', entry.entity.type);
+                break;
+        }
+    } else {
+        switch (entry.entity.type) {
+            case 'GalacticSecret':
+                descriptionText = `for ${entry.entity.name}`;
+                break;
+            default:
+                console.error('Essence of Unknown history: Unsupported entry.entity.type for spent essence', entry.entity.type);
+                break;
+        }
+    }
+    descriptionText += ` (${formatNumber(entry.cycle)} IC)`;
+    return descriptionText;
+}
+
+/**
+ * @param {HTMLElement} balanceElement
+ * @param {EssenceHistoryEntry} entry
+ */
+function createEssenceOfUnknownBalanceEntry(balanceElement, entry) {
+    const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
+    const domGetter = Dom.get(balanceEntryElement);
+
+    domGetter.byClass('name').textContent = createEssenceOfUnknownHistoryEntryDescription(entry);
+    domGetter.byClass('operator').textContent = (entry.amount > 0) ? '+' : '-';
+    formatValue(domGetter.byClass('entryValue'),  Math.abs(entry.amount));
+
+    balanceElement.append(balanceEntryElement);
+}
+
+/**
+ * @param {HTMLElement} rowElement
+ */
+function createEssenceOfUnknownBalance(rowElement) {
+    const balanceElement = Dom.get(rowElement).byClass('balance');
+    balanceElement.classList.remove('hidden');
+
+    for (const entry of gameData.essenceOfUnknownHistory) {
+        createEssenceOfUnknownBalanceEntry(balanceElement, entry);
+    }
+}
+
 /**
  * @param {HTMLElement} rowElement
  */
@@ -1123,6 +1178,11 @@ function createAttributesUI() {
     Dom.get(researchRow).byClass('balance').classList.remove('hidden');
     createAttributeBalance(researchRow, [EffectType.Research, EffectType.ResearchFactor]);
     rows.push(researchRow);
+
+    // EssenceOfUnknown
+    const essenceOfUnknownRow = createAttributeRow(attributes.essenceOfUnknown);
+    createEssenceOfUnknownBalance(essenceOfUnknownRow);
+    rows.push(essenceOfUnknownRow);
 
     slot.append(...rows);
 }
@@ -2002,6 +2062,7 @@ function updateStationOverview() {
 
     const essenceOfUnknown = attributes.essenceOfUnknown.getValue();
     formatValue(Dom.get().byId('essenceOfUnknownDisplay'), essenceOfUnknown, {forceInteger: true, keepNumber: true});
+    formatValue(Dom.get().bySelector('#attributeRows > .essenceOfUnknown > .value > data'), essenceOfUnknown);
 
     const galacticSecretCost = calculateGalacticSecretCost();
     formatValue(Dom.get().byId('galacticSecretCostDisplay'), galacticSecretCost, {forceInteger: true, keepNumber: true});
@@ -2080,7 +2141,7 @@ function progressGalacticSecrets() {
             // Unlock & pay the required essence of unknown
             galacticSecret.isUnlocked = true;
             galacticSecret.inProgress = false;
-            gameData.essenceOfUnknown -= galacticSecretCost;
+            addEssenceLost(galacticSecretCost, galacticSecret.type, galacticSecret.title);
             GameEvents.TaskLevelChanged.trigger({
                 type: galacticSecret.type,
                 name: galacticSecret.name,
@@ -2091,6 +2152,70 @@ function progressGalacticSecrets() {
         galacticSecret.unlockProgress = 0;
     }
 }
+
+/**
+ * @param {number} amount - gained
+ * @param {string} entityType
+ * @param {string} entityName
+ * @param {number} [entityLevel]
+ */
+function addEssenceGain(amount, entityType, entityName, entityLevel) {
+    console.assert(amount > 0);
+
+    gameData.essenceOfUnknown += amount;
+    logEssenceTransaction(amount, entityType, entityName, entityLevel);
+    gameData.save();
+}
+
+/**
+ * @param {number} amount - lost
+ * @param {string} entityType
+ * @param {string} entityName
+ * @param {number} [entityLevel]
+ */
+function addEssenceLost(amount, entityType, entityName, entityLevel) {
+    console.assert(amount > 0);
+
+    gameData.essenceOfUnknown -= amount;
+    logEssenceTransaction(-amount, entityType, entityName, entityLevel);
+    gameData.save();
+}
+
+/**
+ * @param {number} amount - Positive for gain, negative for spend
+ * @param {string} entityType
+ * @param {string} entityName
+ * @param {number} [entityLevel]
+ */
+function logEssenceTransaction(amount, entityType, entityName, entityLevel) {
+    const cycle = Math.floor(startCycle + gameData.totalCycles);
+    const timestamp = Date.now();
+
+    /** @type {EssenceHistoryEntry} */
+    const entry = {
+        amount: amount,
+        entity: {
+            type: entityType,
+            name: entityName,
+            level: entityLevel,
+        },
+        cycle: cycle,
+        timestamp: timestamp
+    };
+
+    if (!gameData.essenceOfUnknownHistory) {
+        gameData.essenceOfUnknownHistory = [];
+    }
+    gameData.essenceOfUnknownHistory.push(entry);
+
+    const slot = document.getElementById('attributeRows');
+    const rowElement = slot ? slot.querySelector('.essenceOfUnknown') : null;
+    if (rowElement !== null) {
+        const balanceElement = Dom.get(rowElement).byClass('balance');
+        createEssenceOfUnknownBalanceEntry(balanceElement, entry);
+    }
+}
+
 
 /**
  * Activate the first/saved operation of any component that doesn't
