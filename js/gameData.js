@@ -212,17 +212,22 @@ class GameData {
     essenceOfUnknown = 0;
 
     /**
-     * @typedef {Object} EssenceTransaction
-     * @property {'gain'|'spend'} type
-     * @property {number} amount
-     * @property {string} source
-     * @property {string} [target]
-     * @property {number} cycle
-     * @property {number} timestamp
+     * @typedef {Object} EntryEntity
+     * @property {string} type
+     * @property {string} name
+     * @property {number} [level]
      */
 
     /**
-     * @type {EssenceOfUnknownHistorySavedValues[]}
+     * @typedef {Object} EssenceHistoryEntry
+     * @property {number} amount - Positive for gain, negative for spend
+     * @property {EntryEntity} entity
+     * @property {number} cycle
+     * @property {number} timestamp epoch milliseconds in UTC aka Date.now() when the entry was created
+     */
+
+    /**
+     * @type {EssenceHistoryEntry[]}
      */
     essenceOfUnknownHistory = [];
 
@@ -235,8 +240,7 @@ class GameData {
      *     moduleOperations: Object<TaskSavedValues>,
      *     battles: Object<BattleSavedValues>,
      *     galacticSecrets: Object<GalacticSecretSavedValues>,
-     *     requirements: Object<RequirementSavedValues>,
-     *     essenceOfUnknownHistory: EssenceOfUnknownHistorySavedValues[]
+     *     requirements: Object<RequirementSavedValues>
      * }}
      */
     savedValues;
@@ -332,8 +336,6 @@ class GameData {
         for (const key in requirementRegistry) {
             this.savedValues.requirements[key] = Requirement.newSavedValues();
         }
-
-        this.savedValues.essenceOfUnknownHistory = [];
     }
 
     resetCurrentValues() {

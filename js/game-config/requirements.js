@@ -522,4 +522,13 @@ const htmlElementRequirements = {
             })],
             elementsToShowRequirements: [],
         }),
+    essenceOfUnknownHistory: new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [Dom.lazy().bySelector('#attributeRows > tr.essenceOfUnknown')],
+            requirements: [new AttributeRequirement('permanent', {
+                attribute: attributes.essenceOfUnknown,
+                requirement: 1,
+            })],
+            elementsToShowRequirements: [],
+        }),
 };
