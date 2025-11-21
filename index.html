@@ -214,8 +214,9 @@
                                     <span class="component text-truncate">Component</span>
                                     <span class="me-1">:</span>
                                     <span class="operation text-truncate me-1">Operation</span>
-                                    <span class="me-1">lvl</span>
+                                    <span class="me-1 lvl">lvl</span>
                                     <data value="0" class="level">0</data>
+                                    <data value="0" class="dataAmount dataAmount-right hidden">0</data>
                                 </div>
                             </div>
                         </div>
@@ -260,6 +261,13 @@
                         <span class="pointOfInterest text-truncate">Point of Interest</span>
                     </div>
                 </button>
+                
+                <button id="technologyTabButton" class="tabButton panel p-3" onClick="setTab('technology');">
+                    <h3>Technology</h3>
+                    
+                    <slot id="analysisQuickTaskDisplay"></slot>
+                </button>
+
                 <button id="galacticSecretsTabButton" class="tabButton panel p-3" onClick="setTab('galacticSecrets');">
                     <!--suppress HtmlUnknownTag -->
                     <h3>Galactic Secrets</h3>
@@ -548,6 +556,13 @@
                 <slot id="sectorTable"></slot>
                 <div class="requirements-container">
                     <slot id="sectorRequirements"></slot>
+                </div>
+            </div>
+
+            <div id="technology" class="tab p-1 p-lg-3">
+                <div class="table-container">
+                    <p class="help-text">Technology: manage the Analysis Core and related systems.</p>
+                    <slot id="technologyContent"></slot>
                 </div>
             </div>
 
@@ -1332,6 +1347,6 @@
 <script type="text/javascript" src="js/settings.js"></script>
 <script type="text/javascript" src="js/gameLogic.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
-<script type="text/javascript" src="js/vfx.js"></script>
+<!--<script type="text/javascript" src="js/vfx.js"></script>-->
 </body>
 </html>

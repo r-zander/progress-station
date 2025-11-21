@@ -315,3 +315,9 @@ a[target="_blank"]:after {
 .rounded-bottom-start {
     border-bottom-left-radius: var(--corner-length);
 }
+
+.dataAmount-right {
+    margin-left: auto;
+    text-align: right;
+    white-space: nowrap;
+}

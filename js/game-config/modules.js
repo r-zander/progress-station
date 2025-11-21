@@ -83,6 +83,37 @@ moduleOperations.Module4GrowthOperationT3 = new ModuleOperation({
     effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.08}],
 });
 // Research
+moduleOperations.AnalysisCore = new ModuleOperation({
+    title: 'Analysis Core', maxXp: 800, gridLoad: 0,
+    description: 'Generates Data over time.',
+    effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.01}],
+});
+
+// Noch nicht so schön gelöst. Auslagern!
+moduleOperations.AnalysisCore.xpMultipliers = [
+    moduleOperations.AnalysisCore.getMaxLevelMultiplier.bind(moduleOperations.AnalysisCore),
+    () => getPopulationProgressSpeedMultiplier(),
+    // Use 1 + research value so zero research doesn't zero progress
+    () => 1 + attributes.research.getValue(),
+];
+
+moduleOperations.AnalysisCore.getMaxXp = function () {
+    const perDataIncrease = 0.05; // +5%
+    const dataCount = (typeof gameData !== 'undefined' && isNumber(gameData.dataGeneratedThisRun)) ? gameData.dataGeneratedThisRun : 0;
+    const baseMultiplier = 1 + dataCount * perDataIncrease;
+    const base = this.maxXp * baseMultiplier;
+    return Math.round(base * (this.level + 1) * Math.pow(1.01, this.level));
+};
+
+moduleOperations.AnalysisCore.onLevelUp = function (previousLevel, newLevel) {
+    const gained = newLevel - previousLevel;
+    if (gained > 0) {
+        if (typeof gameData !== 'undefined' && isNumber(gameData.dataGeneratedThisRun)) {
+            gameData.dataGeneratedThisRun += gained;
+        }
+    }
+    Task.prototype.onLevelUp.call(this, previousLevel, newLevel);
+};
 moduleOperations.Module4ResearchOperationT1 = new ModuleOperation({
     title: 'T1 Research', maxXp: 800, gridLoad: 1,
     description: '',
@@ -263,7 +294,7 @@ const moduleComponents = {
     Module4ResearchComponent: new ModuleComponent({
         title: 'Gain Research',
         description: '',
-        operations: [moduleOperations.Module4ResearchOperationT1, moduleOperations.Module4ResearchOperationT2, moduleOperations.Module4ResearchOperationT3]
+        operations: [moduleOperations.AnalysisCore, moduleOperations.Module4ResearchOperationT1, moduleOperations.Module4ResearchOperationT2, moduleOperations.Module4ResearchOperationT3]
     }),
 
     Fuel: new ModuleComponent({

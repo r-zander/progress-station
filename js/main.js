@@ -45,6 +45,7 @@ const tabButtons = {
     modules: document.getElementById('modulesTabButton'),
     location: document.getElementById('locationTabButton'),
     battles: document.getElementById('battleTabButton'),
+    technology: document.getElementById('technologyTabButton'),
     galacticSecrets: document.getElementById('galacticSecretsTabButton'),
     attributes: document.getElementById('attributesDisplay'),
     settings: document.getElementById('settingsTabButton'),
@@ -799,6 +800,28 @@ function createModulesQuickDisplay() {
     slot.replaceWith(...quickDisplayElements);
 }
 
+function createAnalysisQuickDisplay() {
+    const slot = Dom.get().byId('analysisQuickTaskDisplay');
+
+    const operation = moduleOperations.AnalysisCore;
+
+    const componentQuickTaskDisplayElement = Dom.new.fromTemplate('componentQuickTaskDisplayTemplate');
+    componentQuickTaskDisplayElement.id = 'analysisQuick';
+    componentQuickTaskDisplayElement.title = operation.title;
+    componentQuickTaskDisplayElement.classList.add(operation.name);
+    const componentDomGetter = Dom.get(componentQuickTaskDisplayElement);
+    componentDomGetter.bySelector('.name > .component').textContent = ''; 
+    componentDomGetter.bySelector('.name > .operation').textContent = operation.title; 
+    componentDomGetter.bySelector('.name > .lvl').textContent = 'Data: ';
+    
+    componentDomGetter.bySelector('.name > .me-1').classList.add('hidden');
+    componentDomGetter.bySelector('.name > .level').classList.add('hidden');
+    componentDomGetter.bySelector('.name > .dataAmount').classList.remove('hidden');
+    componentDomGetter.bySelector('.name > .dataAmount').textContent = 'Data: $(gameData.dataGeneratedThisRun)';
+
+    slot.replaceWith(componentQuickTaskDisplayElement);
+}
+
 function createBattlesQuickDisplay() {
     const slot = Dom.get().byId('battlesQuickTaskDisplay');
     const quickDisplayElements = [];
@@ -1322,6 +1345,22 @@ function updateLocationQuickDisplay() {
     const domGetter = Dom.get(quickDisplay);
     domGetter.byClass('sector').textContent = activePointOfInterest.sector.title;
     domGetter.byClass('pointOfInterest').textContent = activePointOfInterest.title;
+}
+
+function updateAnalysisQuickDisplay() {
+    const element = Dom.get().byId('analysisQuick');
+
+    const domGetter = Dom.get(element);
+    const operation = moduleOperations.AnalysisCore;
+
+    const dataAmountElement = domGetter.bySelector('.dataAmount');
+    if (dataAmountElement) {
+        formatValue(dataAmountElement, gameData.dataGeneratedThisRun, {forceInteger: true, keepNumber: true});
+    }
+    const progressFill = domGetter.byClass('progressFill');
+    console.log("Data: " + gameData.dataGeneratedThisRun);
+    setProgress(progressFill, operation.xp / Math.max(1, operation.getMaxXp()));
+    progressFill.classList.toggle('current', operation.isActive && operation.isActive('self'));
 }
 
 /**
@@ -2291,6 +2330,7 @@ function updateUI() {
     updateModulesQuickDisplay();
     updateBattlesQuickDisplay();
     updateLocationQuickDisplay();
+    updateAnalysisQuickDisplay();
     updateAttributeRows();
 
     updateHtmlElementRequirements();
@@ -2509,6 +2549,7 @@ function init() {
     createBattlesUI(battles, 'battlesTable');
     createGalacticSecretsUI(galacticSecrets, 'galacticSecrets');
     createModulesQuickDisplay();
+    createAnalysisQuickDisplay();
     createBattlesQuickDisplay();
 
     createAttributesDisplay();
@@ -2518,7 +2559,7 @@ function init() {
     initTabBehavior();
     initTooltips();
     initStationName();
-    AudioEngine.init();
+    // AudioEngine.init();
     initSettings();
     initBossBattleProgressBar();
 
@@ -2529,7 +2570,8 @@ function init() {
     gameData.skipSave = false;
     gameData.save();
     displayLoaded();
-
+    attributes.research.getValue = () => 2; 
+    attributes.growth.getValue = () => 2;// TODO remove - for testing only
     // Implications are a bit hard to see here:
     // - gameLoop is set to immediateTick --> update + updateLayout will run when gameLoop.start is called
     // - update will stop the gameLoop again - should the gameState require to do so

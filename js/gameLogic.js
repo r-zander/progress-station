@@ -230,6 +230,9 @@ function forcePause() {
 }
 
 function doTasks() {
+
+    moduleOperations['AnalysisCore'].do();
+
     for (const key of gameData.activeEntities.operations) {
         const operation = moduleOperations[key];
         if (!operation.isActive('parent')) continue;
