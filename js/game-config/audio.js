@@ -73,6 +73,9 @@ const SoundBank = {
         //     volume: { min: -2, max: 2 },
         //     pitch: { min: -30, max: 30 }
         // },
+        playbackLimit: {
+            time: 1000,
+        }
     },
 
     [AudioEvents.BATTLE_FINISH]: {
