@@ -120,7 +120,7 @@ const moduleOperationRequirements = {
             requirement: 100,
         }),
     ),
-    Module4GrowthOperationT3: moduleOperations.Module4GrowthOperationT2.registerRequirement(
+    Module4GrowthOperationT3: moduleOperations.Module4GrowthOperationT3.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.Module4GrowthOperationT2,
             requirement: 500,
@@ -521,5 +521,14 @@ const htmlElementRequirements = {
                 requirement: 1,
             })],
             elementsToShowRequirements: [],
-        }),*/
+        }),
+    essenceOfUnknownHistory: new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [Dom.lazy().bySelector('#attributeRows > tr.essenceOfUnknown')],
+            requirements: [new AttributeRequirement('permanent', {
+                attribute: attributes.essenceOfUnknown,
+                requirement: 1,
+            })],
+            elementsToShowRequirements: [],
+        }),
 };

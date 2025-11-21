@@ -212,6 +212,26 @@ class GameData {
     essenceOfUnknown = 0;
 
     /**
+     * @typedef {Object} EntryEntity
+     * @property {string} type
+     * @property {string} name
+     * @property {number} [level]
+     */
+
+    /**
+     * @typedef {Object} EssenceHistoryEntry
+     * @property {number} amount - Positive for gain, negative for spend
+     * @property {EntryEntity} entity
+     * @property {number} cycle
+     * @property {number} timestamp epoch milliseconds in UTC aka Date.now() when the entry was created
+     */
+
+    /**
+     * @type {EssenceHistoryEntry[]}
+     */
+    essenceOfUnknownHistory = [];
+
+    /**
      * Values from {@link Entity}s that are saved.
      *
      * @var {{
@@ -266,7 +286,8 @@ class GameData {
             toastAnswered: false,
             masterVolume: 0.7,
             enableBackgroundAudio: false,
-            // musicVolume: 1.0,
+            musicVolume: 0.7,
+            soundVolume: 1.0,
         }
     };
 
@@ -338,7 +359,6 @@ class GameData {
         let saveGameFound = localStorageItem !== '' && localStorageItem !== null;
         if (saveGameFound) {
             const gameDataSave = JSON.parse(localStorageItem);
-
             this.#checkSaveGameVersion(gameDataSave);
 
             // noinspection JSUnresolvedReference

@@ -161,6 +161,7 @@ function setPointOfInterest(name) {
         name: name,
         newActivityState: true,
     });
+    AudioEngine.postEvent(AudioEvents.CHANGE_LOCATION, pointsOfInterest[name]);
 
     updateUiIfNecessary();
 }
@@ -262,6 +263,7 @@ function switchModuleActivation(module) {
 
     const gridLoadAfterActivation = attributes.gridLoad.getValue() + module.getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
+        AudioEngine.postEvent(AudioEvents.INSUFFICIENT_POWER_GRID, module);
         VFX.highlightText(Dom.get().bySelector(`#${module.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
         Dom.get().byId('switch_' + module.domId).checked = false;
         return;
@@ -290,6 +292,7 @@ function tryActivateOperation(component, operation) {
         + operation.getGridLoad()
         - component.getActiveOperation().getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
+        AudioEngine.postEvent(AudioEvents.INSUFFICIENT_POWER_GRID, operation);
         VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad > data`), 'flash-text-denied-long', 'flash-text-denied-long');
         VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad > .floating-warning `), 'show', 'flash-floating-warning');
         return;
@@ -1012,6 +1015,61 @@ function createAttributeBalance(rowElement, effectTypes) {
     }
 }
 
+function createEssenceOfUnknownHistoryEntryDescription(entry) {
+    const isGain = entry.amount > 0;
+    /** @type {string} */
+    let descriptionText;
+
+    if (isGain) {
+        switch (entry.entity.type) {
+            case 'BossBattle':
+                descriptionText = `from ${entry.entity.level} defeated Boss waves`;
+                break;
+            default:
+                console.error('Essence of Unknown history: Unsupported entry.entity.type for gained essence', entry.entity.type);
+                break;
+        }
+    } else {
+        switch (entry.entity.type) {
+            case 'GalacticSecret':
+                descriptionText = `for ${entry.entity.name}`;
+                break;
+            default:
+                console.error('Essence of Unknown history: Unsupported entry.entity.type for spent essence', entry.entity.type);
+                break;
+        }
+    }
+    descriptionText += ` (${formatNumber(entry.cycle)} IC)`;
+    return descriptionText;
+}
+
+/**
+ * @param {HTMLElement} balanceElement
+ * @param {EssenceHistoryEntry} entry
+ */
+function createEssenceOfUnknownBalanceEntry(balanceElement, entry) {
+    const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
+    const domGetter = Dom.get(balanceEntryElement);
+
+    domGetter.byClass('name').textContent = createEssenceOfUnknownHistoryEntryDescription(entry);
+    domGetter.byClass('operator').textContent = (entry.amount > 0) ? '+' : '-';
+    formatValue(domGetter.byClass('entryValue'),  Math.abs(entry.amount));
+
+    balanceElement.append(balanceEntryElement);
+}
+
+/**
+ * @param {HTMLElement} rowElement
+ */
+function createEssenceOfUnknownBalance(rowElement) {
+    const balanceElement = Dom.get(rowElement).byClass('balance');
+    balanceElement.classList.remove('hidden');
+
+    for (const entry of gameData.essenceOfUnknownHistory) {
+        createEssenceOfUnknownBalanceEntry(balanceElement, entry);
+    }
+}
+
 /**
  * @param {HTMLElement} rowElement
  */
@@ -1136,6 +1194,11 @@ function createAttributesUI() {
     Dom.get(researchRow).byClass('balance').classList.remove('hidden');
     createAttributeBalance(researchRow, [EffectType.Research, EffectType.ResearchFactor]);
     rows.push(researchRow);
+
+    // EssenceOfUnknown
+    const essenceOfUnknownRow = createAttributeRow(attributes.essenceOfUnknown);
+    createEssenceOfUnknownBalance(essenceOfUnknownRow);
+    rows.push(essenceOfUnknownRow);
 
     slot.append(...rows);
 }
@@ -1944,7 +2007,10 @@ function updateBossBarColor(progress, bossBar) {
 function updateHeatIndication() {
     const populationDelta = calculatePopulationDelta();
     const isPopShrinking = populationDelta < 0.0 && !nearlyEquals(populationDelta, 0.0, 0.01);
-    Dom.get().byId('heatIndicator').classList.toggle('hidden', !isPopShrinking);
+    const indicatorHidden = Dom.get().byId('heatIndicator').classList.toggle('hidden', !isPopShrinking);
+    if (!indicatorHidden) {
+        AudioEngine.postEvent(AudioEvents.HEAT_WARNING);
+    }
     Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="danger"]').classList.toggle('shake-and-pulse', isPopShrinking);
 }
 
@@ -2027,6 +2093,7 @@ function updateStationOverview() {
 
     const essenceOfUnknown = attributes.essenceOfUnknown.getValue();
     formatValue(Dom.get().byId('essenceOfUnknownDisplay'), essenceOfUnknown, {forceInteger: true, keepNumber: true});
+    formatValue(Dom.get().bySelector('#attributeRows > .essenceOfUnknown > .value > data'), essenceOfUnknown);
 
     const galacticSecretCost = calculateGalacticSecretCost();
     formatValue(Dom.get().byId('galacticSecretCostDisplay'), galacticSecretCost, {forceInteger: true, keepNumber: true});
@@ -2105,7 +2172,7 @@ function progressGalacticSecrets() {
             // Unlock & pay the required essence of unknown
             galacticSecret.isUnlocked = true;
             galacticSecret.inProgress = false;
-            gameData.essenceOfUnknown -= galacticSecretCost;
+            addEssenceLost(galacticSecretCost, galacticSecret.type, galacticSecret.title);
             GameEvents.TaskLevelChanged.trigger({
                 type: galacticSecret.type,
                 name: galacticSecret.name,
@@ -2116,6 +2183,70 @@ function progressGalacticSecrets() {
         galacticSecret.unlockProgress = 0;
     }
 }
+
+/**
+ * @param {number} amount - gained
+ * @param {string} entityType
+ * @param {string} entityName
+ * @param {number} [entityLevel]
+ */
+function addEssenceGain(amount, entityType, entityName, entityLevel) {
+    console.assert(amount > 0);
+
+    gameData.essenceOfUnknown += amount;
+    logEssenceTransaction(amount, entityType, entityName, entityLevel);
+    gameData.save();
+}
+
+/**
+ * @param {number} amount - lost
+ * @param {string} entityType
+ * @param {string} entityName
+ * @param {number} [entityLevel]
+ */
+function addEssenceLost(amount, entityType, entityName, entityLevel) {
+    console.assert(amount > 0);
+
+    gameData.essenceOfUnknown -= amount;
+    logEssenceTransaction(-amount, entityType, entityName, entityLevel);
+    gameData.save();
+}
+
+/**
+ * @param {number} amount - Positive for gain, negative for spend
+ * @param {string} entityType
+ * @param {string} entityName
+ * @param {number} [entityLevel]
+ */
+function logEssenceTransaction(amount, entityType, entityName, entityLevel) {
+    const cycle = Math.floor(startCycle + gameData.totalCycles);
+    const timestamp = Date.now();
+
+    /** @type {EssenceHistoryEntry} */
+    const entry = {
+        amount: amount,
+        entity: {
+            type: entityType,
+            name: entityName,
+            level: entityLevel,
+        },
+        cycle: cycle,
+        timestamp: timestamp
+    };
+
+    if (!gameData.essenceOfUnknownHistory) {
+        gameData.essenceOfUnknownHistory = [];
+    }
+    gameData.essenceOfUnknownHistory.push(entry);
+
+    const slot = document.getElementById('attributeRows');
+    const rowElement = slot ? slot.querySelector('.essenceOfUnknown') : null;
+    if (rowElement !== null) {
+        const balanceElement = Dom.get(rowElement).byClass('balance');
+        createEssenceOfUnknownBalanceEntry(balanceElement, entry);
+    }
+}
+
 
 /**
  * Activate the first/saved operation of any component that doesn't
@@ -2196,7 +2327,7 @@ function updateUI() {
 
     updateHtmlElementRequirements();
 
-    updateHeatIndication();
+    // updateHeatIndication();
     updateStationOverview();
     updateBodyClasses();
 }
@@ -2216,6 +2347,7 @@ function update(deltaTime, totalTime, isLastUpdateInTick, gameLoop) {
     doTasks();
     updatePopulation();
     updateStats();
+    musicContext.update();
 
     if (isLastUpdateInTick // Only update the UI once in an accumulated update
         || !gameData.state.gameLoopRunning // we are about to stop the game loop, so now is the time to update the UI
@@ -2419,7 +2551,7 @@ function init() {
     initTabBehavior();
     initTooltips();
     initStationName();
-    initAudio();
+    AudioEngine.init();
     initSettings();
     initBossBattleProgressBar();
 

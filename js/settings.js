@@ -22,7 +22,7 @@ function createLinkBehavior() {
  */
 function disableAudioFromToast(toastId) {
     gameData.settings.audio.toastAnswered = true;
-    toggleAudioEnabled(false);
+    AudioEngine.toggleEnabled(false);
     const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId(toastId));
     toast.hide();
 }
@@ -32,7 +32,7 @@ function disableAudioFromToast(toastId) {
  */
 function enableAudioFromToast(toastId) {
     gameData.settings.audio.toastAnswered = true;
-    toggleAudioEnabled(true);
+    AudioEngine.toggleEnabled(true);
     const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId(toastId));
     toast.hide();
 }
@@ -110,6 +110,49 @@ function setBackground(background) {
     gameData.save();
 }
 
+/**
+ * Sets up a volume slider with its output display and change handler.
+ * @param {string} rangeId - The ID of the range input element
+ * @param {string} outputId - The ID of the output display element
+ * @param {function(): number} getValue - Getter for the current volume value
+ * @param {function(number): void} setValue - Setter called when volume changes
+ */
+function setupVolumeSlider(rangeId, outputId, getValue, setValue) {
+    const rangeInput = Dom.get().byId(rangeId);
+    const rangeOutput = Dom.get().byId(outputId);
+
+    const currentValue = getValue();
+    rangeInput.value = currentValue;
+    rangeOutput.textContent = (currentValue * 100).toFixed(0) + '%';
+
+    rangeInput.addEventListener('input', function() {
+        const newValue = parseFloat(this.value);
+        setValue(newValue);
+        rangeOutput.textContent = (newValue * 100).toFixed(0) + '%';
+        gameData.save();
+    });
+}
+
+// const settings = {
+//     vfx: {
+//         followProgressBars: new Observable(gameData.settings.vfx.followProgressBars),
+//         splashOnLevelUp: new Observable(gameData.settings.vfx.splashOnLevelUp),
+//         flashOnLevelUp: new Observable(gameData.settings.vfx.flashOnLevelUp),
+//     },
+//     audio: {
+//         enabled: new ObservableProperty(
+//             () => gameData.settings.audio.enabled,
+//             (value) => { gameData.settings.audio.enabled = value;},
+//             JsTypes.Boolean,
+//         ),
+//         toastAnswered: new Observable(gameData.settings.audio.toastAnswered),
+//         masterVolume: new Observable(gameData.settings.audio.masterVolume),
+//         enableBackgroundAudio: new Observable(gameData.settings.audio.enableBackgroundAudio),
+//         // musicVolume: 1.0, new Observable(gameData.settings.audio.musicVolume),
+//     }
+// };
+
+
 function initSettings() {
     const background = gameData.settings.background;
     if (isString(background)) {
@@ -129,16 +172,28 @@ function initSettings() {
 
     // gameData.settings.audio.* is applied in the audio module itself - we just need to adjust the UI
     Dom.get().byId('audioEnabledSwitch').checked = gameData.settings.audio.enabled;
-    const rangeInput = Dom.get().byId('range4');
-    const rangeOutput = Dom.get().byId('rangeValue');
-    rangeInput.value = gameData.settings.audio.masterVolume;
-    rangeOutput.textContent = (parseFloat(gameData.settings.audio.masterVolume) * 100).toFixed(0) + '%';
 
-    rangeInput.addEventListener('input', function() {
-        const newValue = parseFloat(this.value);
-        gameData.settings.audio.masterVolume = newValue;
-        setAudioVolume(newValue);
-        rangeOutput.textContent = (newValue * 100).toFixed(0) + '%';
-        gameData.save();
-    });
+    setupVolumeSlider('masterVolumeRange', 'masterVolumeOutput',
+        () => gameData.settings.audio.masterVolume,
+        (value) => {
+            gameData.settings.audio.masterVolume = value;
+            AudioEngine.setMasterVolume(value);
+        }
+    );
+
+    setupVolumeSlider('musicVolumeRange', 'musicVolumeOutput',
+        () => gameData.settings.audio.musicVolume,
+        (value) => {
+            gameData.settings.audio.musicVolume = value;
+            AudioEngine.setMusicVolume(value);
+        }
+    );
+
+    setupVolumeSlider('soundVolumeRange', 'soundVolumeOutput',
+        () => gameData.settings.audio.soundVolume,
+        (value) => {
+            gameData.settings.audio.soundVolume = value;
+            AudioEngine.setSoundVolume(value);
+        }
+    );
 }

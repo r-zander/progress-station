@@ -157,17 +157,17 @@
                 <span class="label" style=""></span>
                 <data id="growthDisplay" value="1">?</data>
             </div>
-            <div class="primary-stat" data-attribute="military"
-                 data-bs-placement="bottom" data-bs-html="true">
-                <img src="" class="icon" alt=""/>
-                <span class="label" style=""></span>
-                <data id="militaryDisplay" value="1">?</data>
-            </div>
             <div class="primary-stat" data-attribute="danger"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
                 <data id="dangerDisplay" value="1">?</data>
+            </div>
+            <div class="primary-stat" data-attribute="military"
+                 data-bs-placement="bottom" data-bs-html="true">
+                <img src="" class="icon" alt=""/>
+                <span class="label" style=""></span>
+                <data id="militaryDisplay" value="1">?</data>
             </div>
         </div>
     </header>
@@ -600,7 +600,7 @@
                                 <td class="description"></td>
                             </tr>
                         </template>
-                        <template id="balanceEntryTemplate">
+                        <template id="balanceEntryTemplate" class="keep">
                             <li class="balanceEntry">
                                 <span class="operator"></span>
                                 <data value="0" class="entryValue">?</data>
@@ -685,7 +685,7 @@
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
                                    role="switch" id="audioEnabledSwitch"
-                                   onclick="toggleAudioEnabled();">
+                                   onclick="AudioEngine.toggleEnabled();">
                             <label class="form-check-label" for="audioEnabledSwitch">
                                 Enable
                             </label>
@@ -693,18 +693,34 @@
                         <!--<div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
                                    role="switch" id="audioBackgroundAudioEnabledSwitch"
-                                   onclick="toggleAudioBackgroundAudioEnabled();">
+                                   onclick="AudioEngine.toggleBackgroundAudio();">
                             <label class="form-check-label" for="audioBackgroundAudioEnabledSwitch">
                                 Play audio in background
                             </label>
                         </div>-->
                     </div>
-                    <div class="col-sm-2"><label for="range4" class="form-label">Master Volume</label></div>
+                    <div class="col-sm-2"><label for="masterVolumeRange" class="form-label">Master Volume</label></div>
                     <div class="col-sm-10">
                         <div class="d-flex">
-                            <input type="range" class="form-range" id="range4" style="max-width: 20em"
+                            <input type="range" class="form-range" id="masterVolumeRange" style="max-width: 20em"
                                    min="0.0" max="1.0" step="0.01" />
-                            <output for="range4" id="rangeValue" aria-hidden="true">6</output>
+                            <output for="masterVolumeRange" id="masterVolumeOutput" aria-hidden="true">6</output>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"><label for="musicVolumeRange" class="form-label">Music Volume</label></div>
+                    <div class="col-sm-10">
+                        <div class="d-flex">
+                            <input type="range" class="form-range" id="musicVolumeRange" style="max-width: 20em"
+                                   min="0.0" max="1.0" step="0.01" />
+                            <output for="musicVolumeRange" id="musicVolumeOutput" aria-hidden="true">6</output>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"><label for="soundVolumeRange" class="form-label">Sound Volume</label></div>
+                    <div class="col-sm-10">
+                        <div class="d-flex">
+                            <input type="range" class="form-range" id="soundVolumeRange" style="max-width: 20em"
+                                   min="0.0" max="1.0" step="0.01" />
+                            <output for="soundVolumeRange" id="soundVolumeOutput" aria-hidden="true">6</output>
                         </div>
                     </div>
                 </div>
@@ -1115,7 +1131,7 @@
             <div class="modal-footer d-flex">
                 <button type="button" class="btn btn-secondary win-only" onclick="continueAfterWin();">Keep playing</button>
                 <button type="button" class="btn btn-primary ms-auto win-only" onclick="resetAfterWin();">Start new game</button>
-                <button type="button" class="btn btn-primary ms-auto loss-only" onclick="showStatsAfterRun();">Danger Report!</button>
+                <button type="button" class="btn btn-primary ms-auto loss-only" onclick="showStatsAfterRun();">Damage Report!</button>
             </div>
         </div>
     </div>
@@ -1314,7 +1330,6 @@
 <script type="text/javascript" src="js/gameEvents.js"></script>
 <script type="text/javascript" src="js/nameGenerator.dictionary.lighthearted.js"></script>
 <script type="text/javascript" src="js/nameGenerator.js"></script>
-<script type="text/javascript" src="js/audio.js"></script>
 <script type="text/javascript" src="js/development/cheats.js"></script>
 <script type="text/javascript" src="js/classes.js"></script>
 <script type="text/javascript" src="js/battle.js"></script>
@@ -1327,6 +1342,8 @@
 <script type="text/javascript" src="js/game-config/galactic-secrets.js"></script>
 <script type="text/javascript" src="js/game-config/technologies.js"></script>
 <script type="text/javascript" src="js/game-config/requirements.js"></script>
+<script type="text/javascript" src="js/game-config/audio.js"></script>
+<script type="text/javascript" src="js/audioEngine.js"></script>
 <script type="text/javascript" src="js/story.js"></script>
 <script type="text/javascript" src="js/gameData.js"></script>
 <script type="text/javascript" src="js/settings.js"></script>
