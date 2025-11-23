@@ -475,6 +475,10 @@ class BossBattle extends Battle {
         return super.getEffect(effectType);
     }
 
+    getRawEffect(effectType) {
+        return super.getEffect(effectType);
+    }
+
     increaseXp() {
         const actualXp = applySpeed(this.getXpGain());
         const cappedXp = this.getDefenseModeXpGain();
