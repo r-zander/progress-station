@@ -10,13 +10,17 @@ const technologies = {};
 // ============================================================================
 
 // I.S.A.S.M / Rescue Capsule
+// TODO --> Not technology gated
 technologies.FourDPrinter = new Technology({
     unlocks: moduleOperations.FourDPrinter,
     baseCost: 3,
     requirements: [sharedRequirements.attributeGridStrength1],
 });
 
+
+
 // Captain's Quarter
+// TODO --> No requirements anymore, just a technology to buy
 technologies.MicroCyborgAutomat = new Technology({
     unlocks: moduleOperations.MicroCyborgAutomat,
     baseCost: 3,
@@ -32,6 +36,7 @@ technologies.KungFuManual = new Technology({
     })],
 });
 
+// TODO --> Not technology gated, unlocks with sharedRequirements.FourDPrinterLvl10 + move upwards (here and in the Captain's Quarter module)
 technologies.PocketLaboratory = new Technology({
     unlocks: moduleOperations.PocketLaboratory,
     baseCost: 3,
