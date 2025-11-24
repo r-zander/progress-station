@@ -262,6 +262,7 @@ function doTasks() {
     }
 
     gridStrength.do();
+    analysisCore.do();
 }
 
 function resetBattle(name) {
@@ -315,11 +316,21 @@ function playthroughReset(maxLevelBehavior) {
     }
 
     gridStrength.reset(maxLevelBehavior);
+    analysisCore.reset(maxLevelBehavior);
 
     for (const key in battles) {
         const battle = battles[key];
         battle.reset(maxLevelBehavior);
     }
+
+    // Reset technologies (playthrough scope)
+    for (const key in technologies) {
+        const technology = technologies[key];
+        technology.isUnlocked = false;
+    }
+
+    // Reset Data to 0
+    gameData.data = 0;
 
     for (const key in moduleCategories) {
         const category = moduleCategories[key];

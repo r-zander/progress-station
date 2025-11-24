@@ -1,0 +1,84 @@
+#analysisCore {
+    .ticks {
+        margin-top: -25px;
+        height: calc(25px + 1rem);
+    }
+
+    .tick {
+        width: 1px;
+        height: calc(100% - 0.5rem);
+        background-color: currentColor;
+
+        &:nth-child(5n+1),
+        .large {
+            height: 100%;
+        }
+    }
+
+    .icon {
+        height: 18px;
+        filter: brightness(0);
+    }
+}
+
+.analysis-core-bar {
+    background-color: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.analysis-core-bar .progress {
+    height: 30px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.analysis-core-bar .progress-fill {
+    background: linear-gradient(90deg, #5C7CFA, #748FFC);
+}
+
+.analysis-core-bar .progress-text {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.analysis-core-bar .data-display {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.7);
+}
+
+/* Technologies Table Styling */
+.technology-row {
+    transition: background-color 0.2s ease;
+}
+
+.technology-row.clickable {
+    cursor: pointer;
+}
+
+.technology-row.clickable:hover {
+    background-color: rgba(92, 124, 250, 0.1);
+}
+
+.technology-row .state-badge {
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+.technology-row td {
+    vertical-align: middle;
+    padding: 8px;
+}
+
+.technology-name {
+    font-weight: bold;
+}
+
+/* Data attribute color */
+.text-data {
+    color: #5C7CFA !important;
+}
+
+[data-attribute="data"] .icon {
+    filter: none;
+}

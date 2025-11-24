@@ -766,8 +766,76 @@ function createGalacticSecretsUI() {
         }
     });
 
-    const level4Slot = Dom.get().bySelector('#galacticSecrets tbody.level4');
+    const level4Slot = Dom.get().bySelector('#galacticSecretsTableBody');
     level4Slot.append(...level4Elements);
+}
+
+function createTechnologiesUI() {
+    const tbody = Dom.get().byId('technologiesTableBody');
+
+    for (const key in technologies) {
+        const technology = technologies[key];
+        const row = document.createElement('tr');
+        row.id = `technology_${key}`;
+        row.classList.add('technology-row');
+
+        // Technology Name
+        const nameCell = document.createElement('td');
+        nameCell.textContent = technology.title;
+        nameCell.classList.add('technology-name');
+        row.appendChild(nameCell);
+
+        // State
+        const stateCell = document.createElement('td');
+        stateCell.classList.add('state');
+        const stateBadge = document.createElement('span');
+        stateBadge.classList.add('badge', 'state-badge');
+        stateCell.appendChild(stateBadge);
+        row.appendChild(stateCell);
+
+        // Type
+        const typeCell = document.createElement('td');
+        typeCell.textContent = technology.type;
+        typeCell.classList.add('type');
+        row.appendChild(typeCell);
+
+        // Belongs to
+        const belongsToCell = document.createElement('td');
+        belongsToCell.textContent = technology.getBelongsTo();
+        belongsToCell.classList.add('belongs-to');
+        row.appendChild(belongsToCell);
+
+        // Effect
+        const effectCell = document.createElement('td');
+        effectCell.classList.add('effect');
+        if (technology.unlocks.hasOwnProperty('getEffectDescription')) {
+            effectCell.innerHTML = technology.unlocks.getEffectDescription(1);
+        } else {
+            effectCell.textContent = '-';
+        }
+        row.appendChild(effectCell);
+
+        // Cost
+        const costCell = document.createElement('td');
+        // TODO attribute icon
+        costCell.innerHTML = `<data class="value" value="${technology.getCost()}" = data-unit="Data">${technology.getCost()}</data>`;
+        costCell.classList.add('cost');
+        row.appendChild(costCell);
+
+        // Add click handler for purchase
+        row.addEventListener('click', () => {
+            // TODO same feedback as for insufficient Essence of Unknown
+            if (technology.canPurchase()) {
+                technology.purchase();
+                gameData.save();
+            }
+        });
+
+        // Add clickable styling when affordable
+        row.classList.toggle('clickable', technology.canPurchase());
+
+        tbody.appendChild(row);
+    }
 }
 
 function createModulesQuickDisplay() {
@@ -1819,6 +1887,65 @@ function updateGalacticSecretRows() {
     }
 }
 
+function updateAnalysisCoreUI() {
+    const analysisCoreElement = Dom.get().byId('analysisCore');
+    if (analysisCoreElement === null) return;
+
+    const domGetter = Dom.get(analysisCoreElement);
+    const progressFill = domGetter.byClass('progressFill');
+    const levelData = domGetter.bySelector('.level');
+    const xpData = domGetter.bySelector('.xp > data');
+    const maxXpData = domGetter.bySelector('.xpLeft > data');
+    const currentDataDisplay = Dom.get().byId('currentDataDisplay');
+
+    // Update level and XP
+    formatValue(levelData, analysisCore.level);
+    formatValue(xpData, Math.floor(analysisCore.xp));
+    formatValue(maxXpData, analysisCore.getXpLeft());
+    formatValue(currentDataDisplay, gameData.data);
+
+    // Update progress bar
+    const progress = analysisCore.level === 0 ? 0 : analysisCore.xp / analysisCore.getMaxXp();
+    setProgress(progressFill, progress);
+}
+
+function updateTechnologiesUI() {
+    for (const key in technologies) {
+        const technology = technologies[key];
+        const row = Dom.get().byId(`technology_${key}`);
+        if (row === null) continue;
+
+        const domGetter = Dom.get(row);
+        const stateBadge = domGetter.byClass('state-badge');
+
+        // Update state
+        const state = technology.getState();
+        stateBadge.textContent = state;
+        stateBadge.classList.remove('bg-success', 'bg-warning', 'bg-danger', 'bg-secondary');
+
+        switch (state) {
+            case 'Unlocked':
+                stateBadge.classList.add('bg-secondary');
+                row.classList.remove('clickable');
+                break;
+            case 'Affordable':
+                stateBadge.classList.add('bg-success');
+                row.classList.add('clickable');
+                break;
+            case 'Locked':
+                stateBadge.classList.add('bg-warning');
+                row.classList.remove('clickable');
+                break;
+            case 'Missing requirement':
+                stateBadge.classList.add('bg-danger');
+                row.classList.remove('clickable');
+                break;
+        }
+
+        formatValue(domGetter.bySelector('.cost > data'), technology.getCost(), {forceInteger: true, unit: 'Data'});
+    }
+}
+
 function updateAttributeRows() {
     for (const balanceEntry of attributeBalanceEntries) {
         if (balanceEntry.isActive()) {
@@ -2287,6 +2414,8 @@ function updateUI() {
     updateBattleRows();
     updateSectorRows();
     updateGalacticSecretRows();
+    updateAnalysisCoreUI();
+    updateTechnologiesUI();
 
     updateModulesQuickDisplay();
     updateBattlesQuickDisplay();
@@ -2508,6 +2637,7 @@ function init() {
     createSectorsUI(sectors, 'sectorTable');
     createBattlesUI(battles, 'battlesTable');
     createGalacticSecretsUI(galacticSecrets, 'galacticSecrets');
+    createTechnologiesUI();
     createModulesQuickDisplay();
     createBattlesQuickDisplay();
 

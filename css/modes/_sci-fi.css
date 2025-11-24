@@ -33,6 +33,16 @@
         }
     }
 
+    #analysisCore {
+        /* Flip cut corner to indicate the different progress nature */
+        .progress,
+        .progress-bar {
+            border-radius: 0;
+            border-bottom-right-radius: 44px 29px;
+            border-top-right-radius: calc(var(--corner-length) / 2);
+        }
+    }
+
     .progress.battle {
         > .single-particle-wrapper {
             translate: -15px 0;

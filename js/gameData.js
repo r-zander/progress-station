@@ -212,6 +212,11 @@ class GameData {
     essenceOfUnknown = 0;
 
     /**
+     * @var {number}
+     */
+    data = 0;
+
+    /**
      * @typedef {Object} EntryEntity
      * @property {string} type
      * @property {string} name
@@ -236,10 +241,12 @@ class GameData {
      *
      * @var {{
      *     gridStrength: TaskSavedValues,
+     *     analysisCore: TaskSavedValues,
      *     modules: Object<ModuleSavedValues>,
      *     moduleOperations: Object<TaskSavedValues>,
      *     battles: Object<BattleSavedValues>,
      *     galacticSecrets: Object<GalacticSecretSavedValues>,
+     *     technologies: Object<TechnologySavedValues>,
      *     requirements: Object<RequirementSavedValues>
      * }}
      */
@@ -311,6 +318,7 @@ class GameData {
         this.savedValues = {};
 
         this.savedValues.gridStrength = GridStrength.newSavedValues();
+        this.savedValues.analysisCore = AnalysisCore.newSavedValues();
 
         this.savedValues.modules = {};
         for (const key in modules) {
@@ -330,6 +338,11 @@ class GameData {
         this.savedValues.galacticSecrets = {};
         for (const key in galacticSecrets) {
             this.savedValues.galacticSecrets[key] = GalacticSecret.newSavedValues();
+        }
+
+        this.savedValues.technologies = {};
+        for (const key in technologies) {
+            this.savedValues.technologies[key] = Technology.newSavedValues();
         }
 
         this.savedValues.requirements = {};
@@ -370,6 +383,7 @@ class GameData {
         }
 
         gridStrength.loadValues(this.savedValues.gridStrength);
+        analysisCore.loadValues(this.savedValues.analysisCore);
 
         for (const key in moduleOperations) {
             moduleOperations[key].loadValues(this.savedValues.moduleOperations[key]);
@@ -384,6 +398,10 @@ class GameData {
 
         for (const key in galacticSecrets) {
             galacticSecrets[key].loadValues(this.savedValues.galacticSecrets[key]);
+        }
+
+        for (const key in technologies) {
+            technologies[key].loadValues(this.savedValues.technologies[key]);
         }
 
         for (const key in requirementRegistry) {

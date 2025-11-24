@@ -352,6 +352,51 @@ class GridStrength extends Task {
     }
 }
 
+class AnalysisCore extends Task {
+    totalDataGenerated = 0;
+
+    constructor(baseData) {
+        super(baseData);
+    }
+
+    getXpGain() {
+        const researchValue = attributes.research.getValue();
+        const populationModifier = getPopulationProgressSpeedMultiplier();
+        return researchValue * populationModifier;
+    }
+
+    /**
+     * @return {number}
+     */
+    getAnalysisCoreLevel() {
+        return this.level;
+    }
+
+    getMaxXp() {
+        return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.6, this.level));
+    }
+
+    onLevelUp(previousLevel, newLevel) {
+        super.onLevelUp(previousLevel, newLevel);
+        gameData.data += 1;
+        this.totalDataGenerated += 1;
+    }
+
+    getSavedValues() {
+        return {
+            ...super.getSavedValues(),
+            totalDataGenerated: this.totalDataGenerated,
+        };
+    }
+
+    loadSavedValues(savedValues) {
+        super.loadSavedValues(savedValues);
+        if (isNumber(savedValues.totalDataGenerated)) {
+            this.totalDataGenerated = savedValues.totalDataGenerated;
+        }
+    }
+}
+
 class ModuleCategory extends Entity {
 
     /**
@@ -817,6 +862,173 @@ class GalacticSecret extends Entity {
                 }
             }
         }
+    }
+}
+
+/**
+ * @typedef {Object} TechnologySavedValues
+ * @property {boolean} unlocked
+ */
+
+class Technology extends Entity {
+    /**
+     * @param {{
+     *     unlocks: Entity,
+     *     baseCost: number,
+     *     requirements?: Requirement[],
+     * }} baseData
+     */
+    constructor(baseData) {
+        super(Technology.#createTitle(baseData.unlocks), Technology.#createDescription(baseData.unlocks));
+
+        this.unlocks = baseData.unlocks;
+        this.baseCost = baseData.baseCost;
+        this.requirements = baseData.requirements || [];
+        this.type = baseData.unlocks.type || baseData.unlocks.constructor.name;
+
+        // Register a TechnologyRequirement on the entity being unlocked
+        // (Only if the entity has a registerRequirement method - HTML elements don't)
+        if (isFunction(this.unlocks.registerRequirement)) {
+            this.unlocks.registerRequirement(new TechnologyRequirement({technology: this}));
+        }
+    }
+
+    /**
+     * @param {Entity} unlock
+     */
+    static #createTitle(unlock) {
+        return unlock.title;
+    }
+
+    /**
+     * @param {Entity} unlock
+     */
+    static #createDescription(unlock) {
+        return unlock.description || '';
+    }
+
+    // TODO makes sense? seems weird with the static generators above
+    get name(){
+        return this.unlocks.name;
+    }
+
+    /**
+     * @return {number}
+     */
+    getCost() {
+        return this.baseCost;
+    }
+
+    /**
+     * @param {TechnologySavedValues} savedValues
+     */
+    loadValues(savedValues) {
+        validateParameter(savedValues, {
+            unlocked: JsTypes.Boolean,
+        }, this);
+        this.savedValues = savedValues;
+    }
+
+    /**
+     * @return {TechnologySavedValues}
+     */
+    static newSavedValues() {
+        return {
+            unlocked: false,
+        };
+    }
+
+    /**
+     * @return {TechnologySavedValues}
+     */
+    getSavedValues() {
+        return this.savedValues;
+    }
+
+    get isUnlocked() {
+        return this.savedValues.unlocked;
+    }
+
+    set isUnlocked(unlocked) {
+        this.savedValues.unlocked = unlocked;
+    }
+
+    /**
+     * @return {boolean}
+     */
+    canAfford() {
+        return gameData.data >= this.getCost();
+    }
+
+    /**
+     * @return {boolean}
+     */
+    requirementsMet() {
+        return this.requirements.every(req => req.isCompleted());
+    }
+
+    /**
+     * @return {boolean}
+     */
+    canPurchase() {
+        return this.canAfford() && this.requirementsMet() && !this.isUnlocked;
+    }
+
+    /**
+     * Purchase this technology
+     * @return {boolean} true if purchase was successful
+     */
+    purchase() {
+        if (!this.canPurchase()) {
+            return false;
+        }
+
+        gameData.data -= this.getCost();
+        this.isUnlocked = true;
+
+        return true;
+    }
+
+    /**
+     * Get the parent entity name (e.g., module category for modules, module for operations, sector for POIs)
+     * @return {string}
+     */
+    getBelongsTo() {
+        const unlocks = this.unlocks;
+
+        if (unlocks.hasOwnProperty('moduleCategory')) {
+            // This is a Module
+            return unlocks.moduleCategory.title;
+        } else if (unlocks.hasOwnProperty('component')) {
+            // This is a ModuleOperation
+            return unlocks.component.title;
+        } else if (unlocks.hasOwnProperty('sector')) {
+            // This is a PointOfInterest
+            return unlocks.sector.title;
+        } else if (unlocks.type === 'Sector') {
+            // This is a Sector
+            return 'Locations';
+        } else {
+            // HTML element or other
+            return 'UI';
+        }
+    }
+
+    /**
+     * Get the state of this technology
+     * @return {string} "Unlocked" | "Affordable" | "Missing requirement" | "Locked"
+     */
+    getState() {
+        if (this.isUnlocked) {
+            return 'Unlocked';
+        }
+        if (!this.requirementsMet()) {
+            return 'Missing requirement';
+        }
+        if (this.canAfford()) {
+            return 'Affordable';
+        }
+        return 'Locked';
     }
 }
 
@@ -1296,6 +1508,42 @@ class GalacticSecretRequirement extends Requirement {
      */
     toHtmlInternal(baseData) {
         return 'an unraveled Galactic Secret';
+    }
+}
+
+class TechnologyRequirement extends Requirement {
+    /**
+     * @param {{technology: Technology}} baseData
+     * @param {Requirement[]} [prerequisites]
+     */
+    constructor(baseData, prerequisites) {
+        super('TechnologyRequirement', 'playthrough', baseData, prerequisites);
+    }
+
+    generateName() {
+        return `Technology_${this.baseData.technology.name}`;
+    }
+
+    /**
+     * @param {{technology: Technology}} baseData
+     * @return {boolean}
+     */
+    getCondition(baseData) {
+        return baseData.technology.isUnlocked;
+    }
+
+    isVisible() {
+        // Show technology requirements when player has research unlocked
+        return attributes.research.getValue() > 0
+            && super.isVisible();
+    }
+
+    /**
+     * @param {{technology: Technology}} baseData
+     * @return {string}
+     */
+    toHtmlInternal(baseData) {
+        return `unlock Technology: <span class="name">${baseData.technology.title}</span>`;
     }
 }
 
