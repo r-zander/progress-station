@@ -13,6 +13,7 @@ const pointsOfInterest = {
              * yet, so multiplying it would yield still 0 industry
              */
             {effectType: EffectType.Industry, baseValue: 1},
+            {effectType: EffectType.Research, baseValue: 1},
             {effectType: EffectType.Danger, baseValue: 0}],
         modifiers: [],
     }),

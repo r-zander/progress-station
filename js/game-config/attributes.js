@@ -111,4 +111,4 @@ function createGridStrengthAndLoadDescription() {
 }
 
 const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 500});
-const analysisCore = new AnalysisCore({name:'AnalysisCore', title: 'Analysis Core', maxXp: 500});
+const analysisCore = new AnalysisCore({name:'AnalysisCore', title: 'Analysis Core', maxXp: 200});

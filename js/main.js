@@ -443,7 +443,7 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
                 return;
             }
             switchElement.checked = !switchElement.checked;
-            switchModuleActivation.call(this, module, { target: switchElement });
+            switchModuleActivation(module);
         });
 
         initTooltip(level2DomGetter.byClass('maxLevel'), {
@@ -1892,21 +1892,17 @@ function updateAnalysisCoreUI() {
     if (analysisCoreElement === null) return;
 
     const domGetter = Dom.get(analysisCoreElement);
-    const progressFill = domGetter.byClass('progressFill');
-    const levelData = domGetter.bySelector('.level');
-    const xpData = domGetter.bySelector('.xp > data');
-    const maxXpData = domGetter.bySelector('.xpLeft > data');
-    const currentDataDisplay = Dom.get().byId('currentDataDisplay');
 
-    // Update level and XP
-    formatValue(levelData, analysisCore.level);
-    formatValue(xpData, Math.floor(analysisCore.xp));
-    formatValue(maxXpData, analysisCore.getXpLeft());
-    formatValue(currentDataDisplay, gameData.data);
+    formatValue(Dom.get().byId('currentDataDisplay'), gameData.data);
+    formatValue(domGetter.bySelector('.level'), analysisCore.level);
 
-    // Update progress bar
-    const progress = analysisCore.level === 0 ? 0 : analysisCore.xp / analysisCore.getMaxXp();
-    setProgress(progressFill, progress);
+    setBigProgress(
+        analysisCore,
+        domGetter.byClass('xp'),
+        domGetter.byClass('xpLeft'),
+        domGetter.byClass('progressFill'),
+        attributes.research.getValue() > 0,
+        formatValue);
 }
 
 function updateTechnologiesUI() {
@@ -1967,6 +1963,33 @@ function updateAttributeRows() {
     }
 }
 
+/**
+ *
+ * @param {Task} task
+ * @param {HTMLElement} energyGeneratedElement
+ * @param {HTMLElement} energyLeftElement
+ * @param {HTMLElement} progressFillElement
+ * @param {boolean} progressActive
+ * @param {function(HTMLElement, number, {}?): string} formatFn
+ */
+function setBigProgress(task, energyGeneratedElement, energyLeftElement, progressFillElement, progressActive, formatFn) {
+    const xpGain = task.getXpGain();
+    const xpLeft = task.getXpLeft();
+    const progress = task.xp / task.getMaxXp();
+
+    formatFn(Dom.get(energyGeneratedElement).bySelector('data'), xpGain, {forceSign: true});
+    formatFn(Dom.get(energyLeftElement).bySelector('data'), xpLeft);
+
+    progressFillElement.classList.toggle('current', progressActive);
+    const energyProgress = setProgress(progressFillElement, progress);
+
+    // Using right alignment to respect the energyLeft element
+    const relativeEnergy = 100 * (1 - energyProgress);
+    const leftLimit = energyGeneratedElement.offsetWidth + (gameData.settings.sciFiMode ? 30 : 0);
+    const rightLimit = energyLeftElement.offsetWidth;
+    energyGeneratedElement.style.right = `clamp(${rightLimit}px, ${relativeEnergy}%, calc(100% - ${leftLimit}px))`;
+}
+
 function updateEnergyGridBar() {
     const energyDisplayElement = Dom.get().byId('energyGridDisplay');
     const domGetter = Dom.get(energyDisplayElement);
@@ -2011,20 +2034,13 @@ function updateEnergyGridBar() {
         gridStrengthBox.classList.toggle('in-use', index < currentGridLoad);
     });
 
-    const energyGeneratedElement = domGetter.byClass('energyGenerated');
-    formatEnergyValue(gridStrength.getXpGain(), Dom.get(energyGeneratedElement).bySelector('data'), {forceSign: true});
-    const energyLeftElement = domGetter.byClass('energyLeft');
-    formatEnergyValue(gridStrength.getXpLeft(), Dom.get(energyLeftElement).bySelector('data'));
-
-    const progressFillElement = domGetter.byClass('progressFill');
-    progressFillElement.classList.toggle('current', attributes.energy.getValue() > 0);
-    const energyProgress = setProgress(progressFillElement, gridStrength.xp / gridStrength.getMaxXp());
-
-    // Using right alignment to respect the energyLeft element
-    const relativeEnergy = 100 * (1 - energyProgress);
-    const leftLimit = energyGeneratedElement.offsetWidth + (gameData.settings.sciFiMode ? 30 : 0);
-    const rightLimit = energyLeftElement.offsetWidth;
-    energyGeneratedElement.style.right = `clamp(${rightLimit}px, ${relativeEnergy}%, calc(100% - ${leftLimit}px))`;
+    setBigProgress(
+        gridStrength,
+        domGetter.byClass('energyGenerated'),
+        domGetter.byClass('energyLeft'),
+        domGetter.byClass('progressFill'),
+        attributes.energy.getValue() > 0,
+        formatEnergyValue);
 }
 
 function updateBossProgress() {
@@ -2186,6 +2202,9 @@ function updateStationOverview() {
     const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);
     formatValue(Dom.get().bySelector('#attributeRows > .research > .value > data'), research);
+
+    const data = attributes.data.getValue();
+    formatValue(Dom.get().byId('dataDisplay'), data, {forceInteger: true, keepNumber: true});
 
     const essenceOfUnknown = attributes.essenceOfUnknown.getValue();
     formatValue(Dom.get().byId('essenceOfUnknownDisplay'), essenceOfUnknown, {forceInteger: true, keepNumber: true});
@@ -2583,6 +2602,7 @@ function initRequirements() {
 function initConfigNames() {
     assignNames(gameStates);
     gridStrength.name = 'gridStrength';
+    analysisCore.name = 'analysisCore';
     assignNames(attributes);
     assignNames(moduleCategories);
     assignNames(modules);

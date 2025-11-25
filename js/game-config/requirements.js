@@ -7,14 +7,30 @@
  * NOTE: Operation requirements are now handled by the Technology system (see technologies.js)
  * Technology objects automatically register TechnologyRequirements on operations when created
  */
-const moduleOperationRequirements = {};
+const moduleOperationRequirements = {
+    // I.S.A.S.M
+    // Rescue Capsule
+    FourDPrinter: moduleOperations.FourDPrinter.registerRequirement(
+        sharedRequirements.attributeGridStrength1,
+    ),
+
+    // CAPTAIN'S QUARTER
+    // TinyToolbox
+    PocketLaboratory: moduleOperations.PocketLaboratory.registerRequirement(
+        sharedRequirements.FourDPrinterLvl10,
+    ),
+};
 
 /**
  * @type {Object<Requirement>}
  * NOTE: Module requirements are now handled by the Technology system (see technologies.js)
  * Technology objects automatically register TechnologyRequirements on modules when created
  */
-const modulesRequirements = {};
+const modulesRequirements = {
+    CaptainsQuarter: modules.CaptainsQuarter.registerRequirement(
+        sharedRequirements.FourDPrinterLvl10,
+    ),
+};
 
 /**
  * @type {Object<Requirement>}
@@ -64,6 +80,22 @@ const htmlElementRequirements = {
                 requirement: 1,
             })],
         }),
+    researchDisplay: new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [
+                Dom.get().bySelector('#attributesDisplay > [data-attribute="research"]'),
+            ],
+            requirements: [new OperationLevelRequirement('playthrough', {
+                operation: moduleOperations.PocketLaboratory,
+                requirement: 1,
+            })],
+        }),
+    galacticSecretsTabButton: new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [Dom.get().byId('galacticSecretsTabButton')],
+            requirements: [sharedRequirements.PocketLaboratoryLvl10],
+            elementsToShowRequirements: [Dom.get().byId('galacticSecretsTabButtonRequirements')],
+        }),
     growthDisplay: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [
@@ -106,13 +138,6 @@ const htmlElementRequirements = {
             ],
             requirements: [sharedRequirements.NovaFliesLvl10],
         }),
-    researchDisplay: new HtmlElementWithRequirement(
-        {
-            elementsWithRequirements: [
-                Dom.get().bySelector('#attributesDisplay > [data-attribute="research"]'),
-            ],
-            requirements: [sharedRequirements.attributeResearchUnlocked],
-        }),
     locationTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('locationTabButton')],
@@ -126,32 +151,27 @@ const htmlElementRequirements = {
             ],
             requirements: [battleRequirements[0]],
         }),
-    // galacticSecretsTabButton: new HtmlElementWithRequirement(
-    //     {
-    //         elementsWithRequirements: [Dom.get().byId('galacticSecretsTabButton')],
-    //         requirements: [new AttributeRequirement('playthrough', {
-    //             attribute: attributes.essenceOfUnknown,
-    //             requirement: 1,
-    //         })],
-    //         elementsToShowRequirements: [],
-    //     }),
+
+
     // TODO figure out essence of unknown integration with Technology
     essenceOfUnknownLabel: new HtmlElementWithRequirement(
         {
-            elementsWithRequirements: [Dom.get().bySelector('#galacticSecretsTabButton > .primary-stat')],
+            elementsWithRequirements: [Dom.get().bySelector('#galacticSecretsTabButton > .primary-stat[data-attribute="essenceOfUnknown"]')],
             requirements: [new AttributeRequirement('update', {
                 attribute: attributes.essenceOfUnknown,
                 requirement: 1,
             })],
             elementsToShowRequirements: [],
         }),
+    galacticSecretsSection: new HtmlElementWithRequirement({
+        elementsWithRequirements: [Dom.get().byId('galacticSecretsSection')],
+        requirements: [sharedRequirements.essenceOfUnknowFound],
+        elementsToShowRequirements: [],
+    }),
     essenceOfUnknownHistory: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.lazy().bySelector('#attributeRows > tr.essenceOfUnknown')],
-            requirements: [new AttributeRequirement('permanent', {
-                attribute: attributes.essenceOfUnknown,
-                requirement: 1,
-            })],
+            requirements: [sharedRequirements.essenceOfUnknowFound],
             elementsToShowRequirements: [],
         }),
 };

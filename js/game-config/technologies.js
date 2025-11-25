@@ -9,22 +9,17 @@ const technologies = {};
 // OPERATION TECHNOLOGIES (3 Data each)
 // ============================================================================
 
-// I.S.A.S.M / Rescue Capsule
-// TODO --> Not technology gated
-technologies.FourDPrinter = new Technology({
-    unlocks: moduleOperations.FourDPrinter,
-    baseCost: 3,
-    requirements: [sharedRequirements.attributeGridStrength1],
-});
-
-
+// I.S.A.S.M
+// FourDPrinter does not require a Technology
 
 // Captain's Quarter
-// TODO --> No requirements anymore, just a technology to buy
+// PocketLaboratory does not require a Technology
+
 technologies.MicroCyborgAutomat = new Technology({
     unlocks: moduleOperations.MicroCyborgAutomat,
     baseCost: 3,
-    requirements: [sharedRequirements.FourDPrinterLvl10],
+    // No requirements - player just need to collect enough Data
+    requirements: [],
 });
 
 technologies.KungFuManual = new Technology({
@@ -34,13 +29,6 @@ technologies.KungFuManual = new Technology({
         operation: moduleOperations.MicroCyborgAutomat,
         requirement: 10,
     })],
-});
-
-// TODO --> Not technology gated, unlocks with sharedRequirements.FourDPrinterLvl10 + move upwards (here and in the Captain's Quarter module)
-technologies.PocketLaboratory = new Technology({
-    unlocks: moduleOperations.PocketLaboratory,
-    baseCost: 3,
-    requirements: [sharedRequirements.NovaFliesLvl20],
 });
 
 // Mining Bay - Mined Resource
@@ -282,11 +270,7 @@ technologies.GloryToTheGreatHeroes = new Technology({
 // MODULE TECHNOLOGIES (5 Data each)
 // ============================================================================
 
-technologies.CaptainsQuarter = new Technology({
-    unlocks: modules.CaptainsQuarter,
-    baseCost: 5,
-    requirements: [sharedRequirements.FourDPrinterLvl10],
-});
+// Captain's Quarter does not require a Technology
 
 technologies.MiningBay = new Technology({
     unlocks: modules.MiningBay,

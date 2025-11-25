@@ -373,7 +373,7 @@ class AnalysisCore extends Task {
     }
 
     getMaxXp() {
-        return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.6, this.level));
+        return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.127, this.level));
     }
 
     onLevelUp(previousLevel, newLevel) {
@@ -1534,7 +1534,7 @@ class TechnologyRequirement extends Requirement {
 
     isVisible() {
         // Show technology requirements when player has research unlocked
-        return attributes.research.getValue() > 0
+        return htmlElementRequirements.galacticSecretsTabButton.isCompleted()
             && super.isVisible();
     }
 

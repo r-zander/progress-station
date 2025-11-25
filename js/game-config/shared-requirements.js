@@ -43,7 +43,6 @@ sharedRequirements.PocketLaboratoryLvl10 = new OperationLevelRequirement(
         operation: moduleOperations.PocketLaboratory,
         requirement: 10,
     },
-    [sharedRequirements.NovaFliesLvl20],
 );
 sharedRequirements.GridStrengtLvl2 = new AttributeRequirement('playthrough', {
     attribute: attributes.gridStrength,
@@ -55,4 +54,8 @@ sharedRequirements.StarlightEnclaveVisited = new PointOfInterestVisitedRequireme
 sharedRequirements.AstrogoblinsLvl75 = new FactionLevelsDefeatedRequirement('playthrough', {
     faction: factions.Astrogoblins,
     requirement: 10 + 20 + 30 + 50 + 75, // All battles before Lvl 100
+});
+sharedRequirements.essenceOfUnknowFound = new AttributeRequirement('permanent', {
+    attribute: attributes.essenceOfUnknown,
+    requirement: 1,
 });

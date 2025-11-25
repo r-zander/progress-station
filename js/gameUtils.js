@@ -108,11 +108,11 @@ function formatValue(dataElement, value, config = {}) {
 
 /**
  *
- * @param {number} amount
  * @param {HTMLDataElement} dataElement
+ * @param {number} amount
  * @param {{prefixes?: string[], unit?: string, forceSign?: boolean}} formatConfig
  */
-function formatEnergyValue(amount, dataElement, formatConfig = {}) {
+function formatEnergyValue(dataElement, amount, formatConfig = {}) {
     formatValue(dataElement, amount, Object.assign({
         unit: units.energy,
         prefixes: metricPrefixes,

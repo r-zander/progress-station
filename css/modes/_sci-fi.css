@@ -41,6 +41,13 @@
             border-bottom-right-radius: 44px 29px;
             border-top-right-radius: calc(var(--corner-length) / 2);
         }
+
+        .progress {
+            > .xp,
+            > .xpLeft {
+                margin-right: 30px;
+            }
+        }
     }
 
     .progress.battle {

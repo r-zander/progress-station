@@ -14,6 +14,12 @@ moduleOperations.FourDPrinter = new ModuleOperation({
     description: 'Prints anything from spare parts to midnight snacks. Adds a dimension of convenience to survival.',
     effects: [{effectType: EffectType.Industry, baseValue: 0.05}],
 });
+
+moduleOperations.PocketLaboratory = new ModuleOperation({
+    title: 'Pocket Laboratory', maxXp: 400, gridLoad: 1, xpGain: 15,
+    description: 'A lab that fits in your pocket, for when you need to science the heck out of something on the go.',
+    effects: [{effectType: EffectType.Research, baseValue: 0.50}],
+});
 moduleOperations.MicroCyborgAutomat = new ModuleOperation({
     title: 'Micro Cyborg Automat', maxXp: 100, gridLoad: 1, xpGain: 15,
     description: 'A handy box that produces little helpers at the press of a button.',
@@ -24,11 +30,6 @@ moduleOperations.KungFuManual = new ModuleOperation({
     title: 'Core Blade', maxXp: 200, gridLoad: 1, xpGain: 15,
     description: 'The weapon of choice for the true captain. When you wield it, the station\'s armaments move as if mirroring your every action.',
     effects: [{effectType: EffectType.Military, baseValue: 0.10}], // Not a factor as the player doesn't have military yet
-});
-moduleOperations.PocketLaboratory = new ModuleOperation({
-    title: 'Pocket Laboratory', maxXp: 400, gridLoad: 1, xpGain: 15,
-    description: 'A lab that fits in your pocket, for when you need to science the heck out of something on the go.',
-    effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.01}],
 });
 
 // Mining
@@ -241,7 +242,7 @@ const moduleComponents = {
     TinyToolbox: new ModuleComponent({
         title: 'Tiny Toolbox',
         description: 'This compact kit contains everything a captain needs to get the station up and running.',
-        operations: [moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual, moduleOperations.PocketLaboratory],
+        operations: [moduleOperations.PocketLaboratory, moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual],
     }),
 
     MinedResource: new ModuleComponent({
