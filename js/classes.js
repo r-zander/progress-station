@@ -353,8 +353,6 @@ class GridStrength extends Task {
 }
 
 class AnalysisCore extends Task {
-    totalDataGenerated = 0;
-
     constructor(baseData) {
         super(baseData);
     }
@@ -365,13 +363,6 @@ class AnalysisCore extends Task {
         return researchValue * populationModifier;
     }
 
-    /**
-     * @return {number}
-     */
-    getAnalysisCoreLevel() {
-        return this.level;
-    }
-
     getMaxXp() {
         return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.127, this.level));
     }
@@ -379,21 +370,6 @@ class AnalysisCore extends Task {
     onLevelUp(previousLevel, newLevel) {
         super.onLevelUp(previousLevel, newLevel);
         gameData.data += 1;
-        this.totalDataGenerated += 1;
-    }
-
-    getSavedValues() {
-        return {
-            ...super.getSavedValues(),
-            totalDataGenerated: this.totalDataGenerated,
-        };
-    }
-
-    loadSavedValues(savedValues) {
-        super.loadSavedValues(savedValues);
-        if (isNumber(savedValues.totalDataGenerated)) {
-            this.totalDataGenerated = savedValues.totalDataGenerated;
-        }
     }
 }
 
@@ -411,6 +387,9 @@ class ModuleCategory extends Entity {
         super(baseData.title, baseData.description);
 
         this.modules = baseData.modules;
+        for (const module of this.modules) {
+            module.registerCategory(this);
+        }
     }
 }
 
@@ -420,6 +399,9 @@ class ModuleCategory extends Entity {
  */
 
 class Module extends Entity {
+
+    /** @var {ModuleCategory} */
+    moduleCategory = null;
 
     /**
      *
@@ -437,6 +419,14 @@ class Module extends Entity {
         for (const component of this.components) {
             component.registerModule(this);
         }
+    }
+
+    /**
+     * @param {ModuleCategory} moduleCategory
+     */
+    registerCategory(moduleCategory) {
+        console.assert(this.moduleCategory === null, 'Module Category already registered.');
+        this.moduleCategory = moduleCategory;
     }
 
     /**
@@ -872,6 +862,14 @@ class GalacticSecret extends Entity {
 
 class Technology extends Entity {
     /**
+     * 0.0 - 1.0
+     * @type {number}
+     */
+    unlockProgress = 0;
+    inProgress = false;
+    lastUpdate = performance.now();
+
+    /**
      * @param {{
      *     unlocks: Entity,
      *     baseCost: number,
@@ -974,19 +972,46 @@ class Technology extends Entity {
         return this.canAfford() && this.requirementsMet() && !this.isUnlocked;
     }
 
-    /**
-     * Purchase this technology
-     * @return {boolean} true if purchase was successful
-     */
-    purchase() {
-        if (!this.canPurchase()) {
-            return false;
+    update() {
+        const now = performance.now();
+        const timeDelta = now - this.lastUpdate;
+        this.lastUpdate = now;
+        if (this.inProgress) {
+            if (this.unlockProgress < 1) {
+                this.unlockProgress += timeDelta / technologiesUnlockDuration;
+            }
+        } else {
+            if (this.unlockProgress > 0) {
+                this.unlockProgress -= timeDelta / technologiesUnlockDuration;
+                if (this.unlockProgress < 0) {
+                    this.unlockProgress = 0;
+                }
+            }
         }
+    }
 
-        gameData.data -= this.getCost();
-        this.isUnlocked = true;
+    // /**
+    //  * Purchase this technology
+    //  * @return {boolean} true if purchase was successful
+    //  */
+    // purchase() {
+    //     if (!this.canPurchase()) {
+    //         return false;
+    //     }
+    //
+    //     gameData.data -= this.getCost();
+    //     this.isUnlocked = true;
+    //
+    //     return true;
+    // }
 
-        return true;
+    getFormattedType(){
+        switch (this.type) {
+            case 'HtmlElement':
+                return 'Control';
+            default:
+                return _.startCase(this.type);
+        }
     }
 
     /**
@@ -1010,7 +1035,7 @@ class Technology extends Entity {
             return 'Locations';
         } else {
             // HTML element or other
-            return 'UI';
+            return 'Station Feature';
         }
     }
 
@@ -1028,7 +1053,7 @@ class Technology extends Entity {
         if (this.canAfford()) {
             return 'Affordable';
         }
-        return 'Locked';
+        return 'Too expensive';
     }
 }
 
@@ -1538,12 +1563,23 @@ class TechnologyRequirement extends Requirement {
             && super.isVisible();
     }
 
+    toHtml() {
+        if (this.baseData.technology.requirementsMet()) {
+            return super.toHtml();
+        }
+
+        return this.baseData.technology.requirements
+            .map(requirement => requirement.toHtml())
+            .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
+            .join(', ');
+    }
+
     /**
      * @param {{technology: Technology}} baseData
      * @return {string}
      */
     toHtmlInternal(baseData) {
-        return `unlock Technology: <span class="name">${baseData.technology.title}</span>`;
+        return `'<span class="name">${baseData.technology.title}</span>' Technology`;
     }
 }
 

@@ -71,6 +71,7 @@
     --attr-population-color: var(--ps-blue);
     --attr-research-color: var(--ps-purple2);
 
+    --technology-color: var(--attr-research-color);
     --galactic-secret-color: var(--attr-essence-of-unknown-color);
     --battle-color: var(--ps-red);
 
@@ -127,4 +128,8 @@
 
 .text-research {
     color: var(--attr-research-color);
+}
+
+.text-data, .text-technology {
+    color: var(--technology-color)
 }

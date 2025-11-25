@@ -96,8 +96,8 @@ function createAttributeDescriptions() {
     attributes.industry.description = 'Speeds up Module Operations progress.';
     attributes.military.description = 'Increases damage in Battles.';
     // TODO add analysis core in here, once done
-    attributes.population.description = 'Speeds up Module Operations progress and increases damage in Battles.';
-    attributes.research.description = 'Accelerates Analysis Core progression, which generates ' + attributes.data.inlineHtml + ' for unlocking Technologies.';
+    attributes.population.description = 'Speeds up Module Operations and Analysis Core progress and increases damage in Battles.';
+    attributes.research.description = 'Speeds up Analysis Core progress, to generate ' + attributes.data.inlineHtml + ' for unlocking Technologies.';
     attributes.essenceOfUnknown.description = 'Invest to learn Galactic Secrets.';
 }
 

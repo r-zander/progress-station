@@ -781,9 +781,38 @@ function createTechnologiesUI() {
 
         // Technology Name
         const nameCell = document.createElement('td');
-        nameCell.textContent = technology.title;
+        nameCell.innerHTML =
+            `<div class="technology progress progressBar descriptionTooltip clickable" role="progressbar" aria-label="Technology"
+                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="${technology.title}"
+                 data-bs-placement="right">
+                <div class="moduleOperation progressFill progress-bar progress-bar-striped" style="width: 0%"></div>
+                <div class="progress-text d-flex px-2">
+                    <span class="name text-truncate">${technology.title}</span>
+                </div>
+            </div>
+            <div class="requirements-container">
+                <div class="requirements help-text"></div>
+            </div>`;
         nameCell.classList.add('technology-name');
         row.appendChild(nameCell);
+
+        row.querySelector('.progressBar').addEventListener('pointerdown', (event) => {
+            if (technology.isUnlocked) return;
+
+            const technologyCost = technology.getCost();
+            if (technologyCost > attributes.data.getValue()) {
+                // TODO
+                // visuallyDenyGalacticSecretUnlock(galacticSecret);
+                return;
+            }
+
+            const tooltip = bootstrap.Tooltip.getInstance(event.currentTarget);
+            if (tooltip !== null) {
+                tooltip.hide();
+                tooltip.disable();
+            }
+            technology.inProgress = true;
+        });
 
         // State
         const stateCell = document.createElement('td');
@@ -795,7 +824,7 @@ function createTechnologiesUI() {
 
         // Type
         const typeCell = document.createElement('td');
-        typeCell.textContent = technology.type;
+        typeCell.textContent = technology.getFormattedType()
         typeCell.classList.add('type');
         row.appendChild(typeCell);
 
@@ -808,7 +837,7 @@ function createTechnologiesUI() {
         // Effect
         const effectCell = document.createElement('td');
         effectCell.classList.add('effect');
-        if (technology.unlocks.hasOwnProperty('getEffectDescription')) {
+        if (isFunction(technology.unlocks['getEffectDescription'])) {
             effectCell.innerHTML = technology.unlocks.getEffectDescription(1);
         } else {
             effectCell.textContent = '-';
@@ -822,20 +851,19 @@ function createTechnologiesUI() {
         costCell.classList.add('cost');
         row.appendChild(costCell);
 
-        // Add click handler for purchase
-        row.addEventListener('click', () => {
-            // TODO same feedback as for insufficient Essence of Unknown
-            if (technology.canPurchase()) {
-                technology.purchase();
-                gameData.save();
-            }
-        });
-
-        // Add clickable styling when affordable
-        row.classList.toggle('clickable', technology.canPurchase());
-
         tbody.appendChild(row);
     }
+
+    window.addEventListener('pointerup', () => {
+        for (const key in technologies) {
+            const technology = technologies[key];
+            technology.inProgress = false;
+            const tooltip = bootstrap.Tooltip.getInstance(Dom.get().bySelector('#' + technology.domId + ' .progressBar'));
+            if (tooltip !== null) {
+                tooltip.enable();
+            }
+        }
+    });
 }
 
 function createModulesQuickDisplay() {
@@ -1310,6 +1338,19 @@ function updateModulesQuickDisplay() {
             }
         }
     }
+}
+
+function updateTechnologiesQuickDisplay() {
+    let quickDisplayElement = Dom.get().bySelector('#galacticSecretsTabButton > .quickTaskDisplay');
+    const componentDomGetter = Dom.get(quickDisplayElement);
+
+
+    const progressFillElement = componentDomGetter.byClass('progressFill');
+    progressFillElement.classList.toggle('current', attributes.research.getValue() > 0);
+    setProgress(progressFillElement, analysisCore.xp / analysisCore.getMaxXp());
+
+    const data = attributes.data.getValue();
+    formatValue(Dom.get().byId('dataDisplay'), data, {forceInteger: true, keepNumber: true});
 }
 
 /**
@@ -1905,13 +1946,15 @@ function updateAnalysisCoreUI() {
         formatValue);
 }
 
+const technologiesRequirementHtmlCache = {};
+
 function updateTechnologiesUI() {
     for (const key in technologies) {
         const technology = technologies[key];
         const row = Dom.get().byId(`technology_${key}`);
-        if (row === null) continue;
 
         const domGetter = Dom.get(row);
+        const nameCell = domGetter.byClass('technology-name');
         const stateBadge = domGetter.byClass('state-badge');
 
         // Update state
@@ -1919,22 +1962,57 @@ function updateTechnologiesUI() {
         stateBadge.textContent = state;
         stateBadge.classList.remove('bg-success', 'bg-warning', 'bg-danger', 'bg-secondary');
 
+        const progressElement = domGetter.byClass('progress');
+        const progressBarElement = domGetter.byClass('progressBar');
+        const progressFillElement = domGetter.byClass('progressFill');
+        const requirementsElement = domGetter.byClass('requirements');
+
         switch (state) {
             case 'Unlocked':
+                progressElement.classList.remove('hidden');
+                requirementsElement.classList.add('hidden');
+                progressFillElement.classList.add('unlocked');
+                progressBarElement.classList.add('unlocked');
+                progressBarElement.classList.remove('clickable');
+
+                progressFillElement.style.removeProperty('width');
+
                 stateBadge.classList.add('bg-secondary');
-                row.classList.remove('clickable');
                 break;
             case 'Affordable':
+                progressElement.classList.remove('hidden');
+                requirementsElement.classList.add('hidden');
+                progressFillElement.classList.toggle('unlocked', technology.inProgress);
+                progressBarElement.classList.remove('unlocked');
+                progressBarElement.classList.add('clickable');
+                setProgress(progressFillElement, technology.unlockProgress);
+
                 stateBadge.classList.add('bg-success');
-                row.classList.add('clickable');
                 break;
-            case 'Locked':
+            case 'Too expensive':
+                progressElement.classList.remove('hidden');
+                requirementsElement.classList.add('hidden');
+                progressFillElement.classList.remove('unlocked');
+                progressBarElement.classList.remove('unlocked');
+                progressBarElement.classList.remove('clickable');
+
                 stateBadge.classList.add('bg-warning');
-                row.classList.remove('clickable');
                 break;
             case 'Missing requirement':
+                progressElement.classList.add('hidden');
+                requirementsElement.classList.remove('hidden');
+                progressFillElement.classList.remove('unlocked');
+                progressBarElement.classList.remove('unlocked');
+                progressBarElement.classList.remove('clickable');
+                const html = technology.getUnfulfilledRequirements()
+                    .map(requirement => requirement.toHtml())
+                    .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
+                    .join(', ');
+                if (html !== technologiesRequirementHtmlCache[key]) {
+                    requirementsElement.innerHTML = html;
+                    technologiesRequirementHtmlCache[key] = html;
+                }
                 stateBadge.classList.add('bg-danger');
-                row.classList.remove('clickable');
                 break;
         }
 
@@ -2203,9 +2281,6 @@ function updateStationOverview() {
     formatValue(Dom.get().byId('researchDisplay'), research);
     formatValue(Dom.get().bySelector('#attributeRows > .research > .value > data'), research);
 
-    const data = attributes.data.getValue();
-    formatValue(Dom.get().byId('dataDisplay'), data, {forceInteger: true, keepNumber: true});
-
     const essenceOfUnknown = attributes.essenceOfUnknown.getValue();
     formatValue(Dom.get().byId('essenceOfUnknownDisplay'), essenceOfUnknown, {forceInteger: true, keepNumber: true});
     formatValue(Dom.get().bySelector('#attributeRows > .essenceOfUnknown > .value > data'), essenceOfUnknown);
@@ -2272,6 +2347,34 @@ function visuallyDenyGalacticSecretUnlock(galacticSecret) {
     VFX.highlightText(Dom.get().byId('essenceOfUnknownDisplay'), 'flash-text-denied', 'flash-text-denied');
 }
 
+function progressTechnologies() {
+    for (const key in technologies) {
+        const technology = technologies[key];
+        technology.update();
+        if (technology.unlockProgress < 1) {
+            continue;
+        }
+
+        const technologyCost = technology.getCost();
+        if (technologyCost > attributes.data.getValue()) {
+            // TODO
+            // visuallyDenyGalacticSecretUnlock(technology);
+        } else {
+            // Unlock & pay the required essence of unknown
+            technology.isUnlocked = true;
+            technology.inProgress = false;
+            addDataLost(technologyCost, technology.type, technology.title);
+            GameEvents.TaskLevelChanged.trigger({
+                type: technology.type,
+                name: technology.name,
+                previousLevel: 0,
+                nextLevel: 1,
+            });
+        }
+        technology.unlockProgress = 0;
+    }
+}
+
 function progressGalacticSecrets() {
     for (const key in galacticSecrets) {
         const galacticSecret = galacticSecrets[key];
@@ -2297,6 +2400,21 @@ function progressGalacticSecrets() {
         }
         galacticSecret.unlockProgress = 0;
     }
+}
+
+/**
+ * @param {number} amount - lost
+ * @param {string} entityType
+ * @param {string} entityName
+ * @param {number} [entityLevel]
+ */
+function addDataLost(amount, entityType, entityName, entityLevel) {
+    console.assert(amount > 0);
+
+    gameData.data -= amount;
+    // TODO
+    // logDataTransaction(-amount, entityType, entityName, entityLevel);
+    gameData.save();
 }
 
 /**
@@ -2437,8 +2555,10 @@ function updateUI() {
     updateTechnologiesUI();
 
     updateModulesQuickDisplay();
+    updateTechnologiesQuickDisplay();
     updateBattlesQuickDisplay();
     updateLocationQuickDisplay();
+
     updateAttributeRows();
 
     updateHtmlElementRequirements();
@@ -2458,6 +2578,7 @@ function updateUI() {
 function update(deltaTime, totalTime, isLastUpdateInTick, gameLoop) {
     increaseCycle();
     updateBossDistance();
+    progressTechnologies();
     progressGalacticSecrets();
     activateComponentOperations();
     doTasks();

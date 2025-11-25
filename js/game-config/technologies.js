@@ -1,18 +1,22 @@
 'use strict';
 
+const technologiesUnlockDuration = 1000; // milliseconds
+
 /**
  * @type {Object<Technology>}
  */
 const technologies = {};
 
 // ============================================================================
-// OPERATION TECHNOLOGIES (3 Data each)
+// TECHNOLOGIES in unlock order
+//
+// The order here is the order in the Technologies tab!
 // ============================================================================
 
-// I.S.A.S.M
+// I.S.A.S.M does not require a Technology
 // FourDPrinter does not require a Technology
 
-// Captain's Quarter
+// Captain's Quarter does not require a Technology
 // PocketLaboratory does not require a Technology
 
 technologies.MicroCyborgAutomat = new Technology({
@@ -29,6 +33,35 @@ technologies.KungFuManual = new Technology({
         operation: moduleOperations.MicroCyborgAutomat,
         requirement: 10,
     })],
+});
+
+technologies.battleTabButton = new Technology({
+    unlocks: {
+        type: 'HtmlElement',
+        title: 'Battle Tab',
+        name: 'battleTabButton',
+    },
+    baseCost: 1,
+    requirements: [sharedRequirements.CoreBladeLvl10],
+});
+
+technologies.locationTabButton = new Technology({
+    unlocks: {
+        type: 'HtmlElement',
+        title: 'Location Tab',
+        name: 'locationTabButton',
+    },
+    baseCost: 1,
+    requirements: [sharedRequirements.NovaFliesLvl20],
+});
+
+technologies.MiningBay = new Technology({
+    unlocks: modules.MiningBay,
+    baseCost: 5,
+    requirements: [
+        sharedRequirements.GridStrengtLvl2,
+        sharedRequirements.StarlightEnclaveVisited,
+    ],
 });
 
 // Mining Bay - Mined Resource
@@ -69,6 +102,15 @@ technologies.TenDrills = new Technology({
     })],
 });
 
+technologies.Module4 = new Technology({
+    unlocks: modules.Module4,
+    baseCost: 5,
+    requirements: [
+        sharedRequirements.GridStrengtLvl2,
+        sharedRequirements.StarlightEnclaveVisited,
+    ],
+});
+
 // Module 4 - Growth
 technologies.Module4GrowthOperationT2 = new Technology({
     unlocks: moduleOperations.Module4GrowthOperationT2,
@@ -105,6 +147,29 @@ technologies.Module4ResearchOperationT3 = new Technology({
         operation: moduleOperations.Module4ResearchOperationT2,
         requirement: 500,
     })],
+});
+
+technologies.GrowthLocationLow = new Technology({
+    unlocks: pointsOfInterest.GrowthLocationLow,
+    baseCost: 2,
+    requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
+        faction: factions.NovaFlies,
+        requirement: 250,
+    })],
+});
+
+technologies.Furnace = new Technology({
+    unlocks: modules.Furnace,
+    baseCost: 5,
+    requirements: [
+        new AttributeRequirement('playthrough', {
+            attribute: attributes.gridStrength,
+            requirement: 4,
+        }),
+        new PointOfInterestVisitedRequirement('playthrough', {
+            pointOfInterest: pointsOfInterest.GrowthLocationLow,
+        }),
+    ],
 });
 
 // Furnace - Fuel
@@ -163,6 +228,49 @@ technologies.MicroalloyGlass = new Technology({
     })],
 });
 
+technologies.BetaSector = new Technology({
+    unlocks: sectors.BetaSector,
+    baseCost: 3,
+    requirements: [
+        new FactionLevelsDefeatedRequirement('playthrough', {
+            faction: factions.Astrogoblins,
+            requirement: 250,
+        }, [sharedRequirements.AstrogoblinsLvl75]),
+    ],
+});
+
+technologies.ResearchLocationMedium = new Technology({
+    unlocks: pointsOfInterest.ResearchLocationMedium,
+    baseCost: 2,
+    requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
+        faction: factions.Scavengers,
+        requirement: 50,
+    })],
+});
+
+technologies.GrowthLocationMedium = new Technology({
+    unlocks: pointsOfInterest.GrowthLocationMedium,
+    baseCost: 2,
+    requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
+        faction: factions.MeteorMaws,
+        requirement: 20,
+    })],
+});
+
+technologies.Defensive = new Technology({
+    unlocks: modules.Defensive,
+    baseCost: 5,
+    requirements: [
+        new AttributeRequirement('playthrough', {
+            attribute: attributes.gridStrength,
+            requirement: 6,
+        }),
+        new PointOfInterestVisitedRequirement('playthrough', {
+            pointOfInterest: pointsOfInterest.ResearchLocationMedium,
+        }),
+    ],
+});
+
 // Defensive Module - Protection
 technologies.PulseShield = new Technology({
     unlocks: moduleOperations.PulseShield,
@@ -199,6 +307,47 @@ technologies.AntiMissileSwarm = new Technology({
         operation: moduleOperations.LaserTurrets,
         requirement: 500,
     })],
+});
+
+technologies.GammaSector = new Technology({
+    unlocks: sectors.GammaSector,
+    baseCost: 3,
+    requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
+        faction: factions.SpacePirates,
+        requirement: 20,
+    })],
+});
+
+technologies.ResearchLocationHigh = new Technology({
+    unlocks: pointsOfInterest.ResearchLocationHigh,
+    baseCost: 2,
+    requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
+        faction: factions.VoidVikings,
+        requirement: 5,
+    })],
+});
+
+technologies.GrowthLocationHigh = new Technology({
+    unlocks: pointsOfInterest.GrowthLocationHigh,
+    baseCost: 2,
+    requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
+        faction: factions.MeteorMaws,
+        requirement: 1800,
+    })],
+});
+
+technologies.Quarters = new Technology({
+    unlocks: modules.Quarters,
+    baseCost: 5,
+    requirements: [
+        new AttributeRequirement('playthrough', {
+            attribute: attributes.gridStrength,
+            requirement: 8,
+        }),
+        new PointOfInterestVisitedRequirement('playthrough', {
+            pointOfInterest: pointsOfInterest.GrowthLocationMedium,
+        }),
+    ],
 });
 
 // Quarters Module - Crew Expansion
@@ -266,126 +415,12 @@ technologies.GloryToTheGreatHeroes = new Technology({
     })],
 });
 
-// ============================================================================
-// MODULE TECHNOLOGIES (5 Data each)
-// ============================================================================
-
-// Captain's Quarter does not require a Technology
-
-technologies.MiningBay = new Technology({
-    unlocks: modules.MiningBay,
-    baseCost: 5,
-    requirements: [
-        sharedRequirements.PocketLaboratoryLvl10,
-        sharedRequirements.GridStrengtLvl2,
-        sharedRequirements.StarlightEnclaveVisited,
-    ],
-});
-
-technologies.Module4 = new Technology({
-    unlocks: modules.Module4,
-    baseCost: 5,
-    requirements: [
-        sharedRequirements.PocketLaboratoryLvl10,
-        sharedRequirements.GridStrengtLvl2,
-        sharedRequirements.StarlightEnclaveVisited,
-    ],
-});
-
-technologies.Furnace = new Technology({
-    unlocks: modules.Furnace,
-    baseCost: 5,
-    requirements: [
-        new AttributeRequirement('playthrough', {
-            attribute: attributes.gridStrength,
-            requirement: 4,
-        }),
-        new PointOfInterestVisitedRequirement('playthrough', {
-            pointOfInterest: pointsOfInterest.GrowthLocationLow,
-        }),
-    ],
-});
-
-technologies.Defensive = new Technology({
-    unlocks: modules.Defensive,
-    baseCost: 5,
-    requirements: [
-        new AttributeRequirement('playthrough', {
-            attribute: attributes.gridStrength,
-            requirement: 6,
-        }),
-        new PointOfInterestVisitedRequirement('playthrough', {
-            pointOfInterest: pointsOfInterest.ResearchLocationMedium,
-        }),
-    ],
-});
-
-technologies.Quarters = new Technology({
-    unlocks: modules.Quarters,
-    baseCost: 5,
-    requirements: [
-        new AttributeRequirement('playthrough', {
-            attribute: attributes.gridStrength,
-            requirement: 8,
-        }),
-        new PointOfInterestVisitedRequirement('playthrough', {
-            pointOfInterest: pointsOfInterest.GrowthLocationMedium,
-        }),
-    ],
-});
-
-// ============================================================================
-// POINT OF INTEREST TECHNOLOGIES (2 Data each)
-// ============================================================================
-
-technologies.StarlightEnclave = new Technology({
-    unlocks: pointsOfInterest.StarlightEnclave,
-    baseCost: 2,
-    requirements: [sharedRequirements.PocketLaboratoryLvl10],
-});
-
-technologies.GrowthLocationLow = new Technology({
-    unlocks: pointsOfInterest.GrowthLocationLow,
-    baseCost: 2,
+technologies.DeltaSector = new Technology({
+    unlocks: sectors.DeltaSector,
+    baseCost: 3,
     requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
-        faction: factions.NovaFlies,
-        requirement: 250,
-    })],
-});
-
-technologies.ResearchLocationMedium = new Technology({
-    unlocks: pointsOfInterest.ResearchLocationMedium,
-    baseCost: 2,
-    requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
-        faction: factions.Scavengers,
-        requirement: 50,
-    })],
-});
-
-technologies.GrowthLocationMedium = new Technology({
-    unlocks: pointsOfInterest.GrowthLocationMedium,
-    baseCost: 2,
-    requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
-        faction: factions.MeteorMaws,
-        requirement: 20,
-    })],
-});
-
-technologies.ResearchLocationHigh = new Technology({
-    unlocks: pointsOfInterest.ResearchLocationHigh,
-    baseCost: 2,
-    requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
-        faction: factions.VoidVikings,
+        faction: factions.AstralSharks,
         requirement: 5,
-    })],
-});
-
-technologies.GrowthLocationHigh = new Technology({
-    unlocks: pointsOfInterest.GrowthLocationHigh,
-    baseCost: 2,
-    requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
-        faction: factions.MeteorMaws,
-        requirement: 1800,
     })],
 });
 
@@ -406,202 +441,3 @@ technologies.GrowthLocationExtreme = new Technology({
         requirement: 200,
     })],
 });
-
-// ============================================================================
-// SECTOR TECHNOLOGIES (3 Data each)
-// ============================================================================
-
-technologies.BetaSector = new Technology({
-    unlocks: sectors.BetaSector,
-    baseCost: 3,
-    requirements: [
-        sharedRequirements.AstrogoblinsLvl75,
-        new FactionLevelsDefeatedRequirement('playthrough', {
-            faction: factions.Astrogoblins,
-            requirement: 250,
-        }, [sharedRequirements.AstrogoblinsLvl75]),
-    ],
-});
-
-technologies.GammaSector = new Technology({
-    unlocks: sectors.GammaSector,
-    baseCost: 3,
-    requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
-        faction: factions.SpacePirates,
-        requirement: 20,
-    })],
-});
-
-technologies.DeltaSector = new Technology({
-    unlocks: sectors.DeltaSector,
-    baseCost: 3,
-    requirements: [new FactionLevelsDefeatedRequirement('playthrough', {
-        faction: factions.AstralSharks,
-        requirement: 5,
-    })],
-});
-
-// ============================================================================
-// HTML ELEMENT TECHNOLOGIES (1 Data each)
-// ============================================================================
-
-// technologies.energyGridDisplay = new Technology({
-//     unlocks: {
-//         type: 'HtmlElement',
-//         title: 'Energy Grid Display',
-//         name: 'energyGridDisplay',
-//     },
-//     baseCost: 1,
-//     requirements: [new OperationLevelRequirement('playthrough', {
-//         operation: moduleOperations.StandbyGenerator,
-//         requirement: 1,
-//     })],
-// });
-
-// technologies.gridStrengthElements = new Technology({
-//     unlocks: {
-//         type: 'HtmlElement',
-//         title: 'Grid Strength Display',
-//         name: 'gridStrengthElements',
-//     },
-//     baseCost: 1,
-//     requirements: [sharedRequirements.attributeGridStrength1],
-// });
-
-// technologies.industryDisplay = new Technology({
-//     unlocks: {
-//         type: 'HtmlElement',
-//         title: 'Industry Display',
-//         name: 'industryDisplay',
-//     },
-//     baseCost: 1,
-//     requirements: [new OperationLevelRequirement('playthrough', {
-//         operation: moduleOperations.FourDPrinter,
-//         requirement: 1,
-//     })],
-// });
-
-// technologies.growthDisplay = new Technology({
-//     unlocks: {
-//         type: 'HtmlElement',
-//         title: 'Growth Display',
-//         name: 'growthDisplay',
-//     },
-//     baseCost: 1,
-//     requirements: [new OperationLevelRequirement('playthrough', {
-//         operation: moduleOperations.MicroCyborgAutomat,
-//         requirement: 1,
-//     })],
-// });
-//
-// technologies.militaryDisplay = new Technology({
-//     unlocks: {
-//         type: 'HtmlElement',
-//         title: 'Military Display',
-//         name: 'militaryDisplay',
-//     },
-//     baseCost: 1,
-//     requirements: [new OperationLevelRequirement('playthrough', {
-//         operation: moduleOperations.KungFuManual,
-//         requirement: 1,
-//     })],
-// });
-
-technologies.battleTabButton = new Technology({
-    unlocks: {
-        type: 'HtmlElement',
-        title: 'Battle Tab',
-        name: 'battleTabButton',
-    },
-    baseCost: 1,
-    requirements: [sharedRequirements.CoreBladeLvl10],
-});
-
-// technologies.dangerDisplay = new Technology({
-//     unlocks: {
-//         type: 'HtmlElement',
-//         title: 'Danger Display',
-//         name: 'dangerDisplay',
-//     },
-//     baseCost: 1,
-//     requirements: [sharedRequirements.NovaFliesLvl10],
-// });
-//
-// technologies.completedBattles = new Technology({
-//     unlocks: {
-//         type: 'HtmlElement',
-//         title: 'Completed Battles Display',
-//         name: 'completedBattles',
-//     },
-//     baseCost: 1,
-//     requirements: [sharedRequirements.NovaFliesLvl10],
-// });
-//
-// technologies.researchDisplay = new Technology({
-//     unlocks: {
-//         type: 'HtmlElement',
-//         title: 'Research Display',
-//         name: 'researchDisplay',
-//     },
-//     baseCost: 1,
-//     requirements: [sharedRequirements.attributeResearchUnlocked],
-// });
-
-technologies.locationTabButton = new Technology({
-    unlocks: {
-        type: 'HtmlElement',
-        title: 'Location Tab',
-        name: 'locationTabButton',
-    },
-    baseCost: 1,
-    requirements: [sharedRequirements.PocketLaboratoryLvl10],
-});
-
-// technologies.battleMultiEngageHelp = new Technology({
-//     unlocks: {
-//         type: 'HtmlElement',
-//         title: 'Multi-Battle Help',
-//         name: 'battleMultiEngageHelp',
-//     },
-//     baseCost: 1,
-//     requirements: [battleRequirements[0]],
-// });
-//
-// technologies.galacticSecretsTabButton = new Technology({
-//     unlocks: {
-//         type: 'HtmlElement',
-//         title: 'Galactic Secrets Tab',
-//         name: 'galacticSecretsTabButton',
-//     },
-//     baseCost: 1,
-//     requirements: [new AttributeRequirement('playthrough', {
-//         attribute: attributes.essenceOfUnknown,
-//         requirement: 1,
-//     })],
-// });
-//
-// technologies.essenceOfUnknownLabel = new Technology({
-//     unlocks: {
-//         type: 'HtmlElement',
-//         title: 'Essence Label',
-//         name: 'essenceOfUnknownLabel',
-//     },
-//     baseCost: 1,
-//     requirements: [new AttributeRequirement('update', {
-//         attribute: attributes.essenceOfUnknown,
-//         requirement: 1,
-//     })],
-// });
-//
-// technologies.essenceOfUnknownHistory = new Technology({
-//     unlocks: {
-//         type: 'HtmlElement',
-//         title: 'Essence History',
-//         name: 'essenceOfUnknownHistory',
-//     },
-//     baseCost: 1,
-//     requirements: [new AttributeRequirement('permanent', {
-//         attribute: attributes.essenceOfUnknown,
-//         requirement: 1,
-//     })],
-// });

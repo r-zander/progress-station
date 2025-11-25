@@ -37,7 +37,11 @@ const modulesRequirements = {
  * NOTE: Point of Interest requirements are now handled by the Technology system (see technologies.js)
  * Technology objects automatically register TechnologyRequirements on POIs when created
  */
-const pointsOfInterestRequirements = {};
+const pointsOfInterestRequirements = {
+    StarlightEnclave: pointsOfInterest.StarlightEnclave.registerRequirement(
+        sharedRequirements.NovaFliesLvl20,
+    ),
+};
 
 /**
  * @type {Object<Requirement>}
@@ -151,8 +155,6 @@ const htmlElementRequirements = {
             ],
             requirements: [battleRequirements[0]],
         }),
-
-
     // TODO figure out essence of unknown integration with Technology
     essenceOfUnknownLabel: new HtmlElementWithRequirement(
         {
