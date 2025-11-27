@@ -85,7 +85,7 @@ const battles = {
     Astrogoblins10: new Battle({
         title: 'Wimpy',
         targetLevel: 10,
-        difficulty: 1,
+        difficulty: 2,
         faction: factions.Astrogoblins,
         effects: [{effectType: EffectType.Danger, baseValue: 2}],
         rewards: [
@@ -107,7 +107,7 @@ const battles = {
     Astrogoblins20: new Battle({
         title: 'Courageous',
         targetLevel: 20,
-        difficulty: 1,
+        difficulty: 1.5,
         faction: factions.Astrogoblins,
         effects: [{effectType: EffectType.Danger, baseValue: 6}],
         rewards: [
@@ -120,7 +120,7 @@ const battles = {
         targetLevel: 50,
         difficulty: 1,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 8}],
+        effects: [{effectType: EffectType.Danger, baseValue: 7}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 3},
             standardBattleMilitaryReward,
@@ -140,7 +140,7 @@ const battles = {
     CometCrawlers10: new Battle({
         title: 'Handful of',
         targetLevel: 10,
-        difficulty: 1,
+        difficulty: 3,
         faction: factions.CometCrawlers,
         effects: [{effectType: EffectType.Danger, baseValue: 15}],
         rewards: [
@@ -153,7 +153,7 @@ const battles = {
         targetLevel: 75,
         difficulty: 1,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 30}],
+        effects: [{effectType: EffectType.Danger, baseValue: 25}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 4},
             standardBattleMilitaryReward,
@@ -164,7 +164,7 @@ const battles = {
         targetLevel: 100,
         difficulty: 1,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 50}],
+        effects: [{effectType: EffectType.Danger, baseValue: 40}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 6},
             standardBattleMilitaryReward,
@@ -173,9 +173,9 @@ const battles = {
     Astrogoblins50: new Battle({
         title: 'Fearless',
         targetLevel: 50,
-        difficulty: 1,
+        difficulty: 1.2,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 65}],
+        effects: [{effectType: EffectType.Danger, baseValue: 50}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 6},
             standardBattleMilitaryReward,
@@ -184,9 +184,9 @@ const battles = {
     CometCrawlers20: new Battle({
         title: 'Small swarm of',
         targetLevel: 20,
-        difficulty: 2,
+        difficulty: 2.5,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 80}],
+        effects: [{effectType: EffectType.Danger, baseValue: 60}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 4},
             standardBattleMilitaryReward,
@@ -197,7 +197,7 @@ const battles = {
         targetLevel: 150,
         difficulty: 1,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 120}],
+        effects: [{effectType: EffectType.Danger, baseValue: 80}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 9},
             standardBattleMilitaryReward,
@@ -217,7 +217,7 @@ const battles = {
     CometCrawlers30: new Battle({
         title: 'Starving',
         targetLevel: 30,
-        difficulty: 2,
+        difficulty: 8,
         faction: factions.CometCrawlers,
         effects: [{effectType: EffectType.Danger, baseValue: 120}],
         rewards: [
@@ -228,9 +228,9 @@ const battles = {
     Scavengers10: new Battle({
         title: 'Lost',
         targetLevel: 10,
-        difficulty: 20,
+        difficulty: 25,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 130}],
+        effects: [{effectType: EffectType.Danger, baseValue: 150}],
         rewards: [
             {effectType: EffectType.Research, baseValue: 4},
             standardBattleMilitaryReward,
@@ -241,7 +241,7 @@ const battles = {
         targetLevel: 200,
         difficulty: 1,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 250}],
+        effects: [{effectType: EffectType.Danger, baseValue: 200}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 14},
             standardBattleMilitaryReward,
@@ -250,9 +250,9 @@ const battles = {
     Astrogoblins100: new Battle({
         title: 'Feral',
         targetLevel: 100,
-        difficulty: 5,
+        difficulty: 4,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 280}],
+        effects: [{effectType: EffectType.Danger, baseValue: 250}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 13},
             standardBattleMilitaryReward,
@@ -263,7 +263,7 @@ const battles = {
         targetLevel: 300,
         difficulty: 1,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 450}],
+        effects: [{effectType: EffectType.Danger, baseValue: 300}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 20},
             standardBattleMilitaryReward,
@@ -272,9 +272,9 @@ const battles = {
     Astrogoblins150: new Battle({
         title: 'Rogue',
         targetLevel: 150,
-        difficulty: 2,
+        difficulty: 3,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 550}],
+        effects: [{effectType: EffectType.Danger, baseValue: 400}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 19},
             standardBattleMilitaryReward,
@@ -285,7 +285,7 @@ const battles = {
         targetLevel: 50,
         difficulty: 10,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 665}],
+        effects: [{effectType: EffectType.Danger, baseValue: 500}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 9},
             standardBattleMilitaryReward,
@@ -296,7 +296,7 @@ const battles = {
         targetLevel: 20,
         difficulty: 50,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 885}],
+        effects: [{effectType: EffectType.Danger, baseValue: 700}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 6},
             standardBattleMilitaryReward,
@@ -307,7 +307,7 @@ const battles = {
         targetLevel: 200,
         difficulty: 1,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 1205}],
+        effects: [{effectType: EffectType.Danger, baseValue: 900}],
         rewards: [
             {effectType: EffectType.Research, baseValue: 27},
             standardBattleMilitaryReward,
@@ -318,7 +318,7 @@ const battles = {
         targetLevel: 75,
         difficulty: 40,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 1250}],
+        effects: [{effectType: EffectType.Danger, baseValue: 1_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 13},
             standardBattleMilitaryReward,
@@ -329,7 +329,7 @@ const battles = {
         targetLevel: 500,
         difficulty: 1,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 2_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 1_500}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 29},
             standardBattleMilitaryReward,
@@ -338,9 +338,9 @@ const battles = {
     MeteorMaws10: new Battle({
         title: 'Two',
         targetLevel: 10,
-        difficulty: 50,
+        difficulty: 500,
         faction: factions.MeteorMaws,
-        effects: [{effectType: EffectType.Danger, baseValue: 3_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 2_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 5},
             standardBattleMilitaryReward,
@@ -351,7 +351,7 @@ const battles = {
         targetLevel: 30,
         difficulty: 20,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 4_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 2_500}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 8},
             standardBattleMilitaryReward,
@@ -362,7 +362,7 @@ const battles = {
         targetLevel: 300,
         difficulty: 1,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 5_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 3_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 39},
             standardBattleMilitaryReward,
@@ -373,7 +373,7 @@ const battles = {
         targetLevel: 100,
         difficulty: 40,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 6_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 4_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 19},
             standardBattleMilitaryReward,
@@ -384,7 +384,7 @@ const battles = {
         targetLevel: 750,
         difficulty: 1,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 7_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 5_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 41},
             standardBattleMilitaryReward,
@@ -393,9 +393,9 @@ const battles = {
     CometCrawlers150: new Battle({
         title: 'Glitz eating',
         targetLevel: 150,
-        difficulty: 10,
+        difficulty: 30,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 10_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 7_500}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 28},
             standardBattleMilitaryReward,
@@ -404,9 +404,9 @@ const battles = {
     Scavengers50: new Battle({
         title: 'Reckless',
         targetLevel: 50,
-        difficulty: 50,
+        difficulty: 150,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 25_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 10_000}],
         rewards: [
             {effectType: EffectType.Research, baseValue: 12},
             standardBattleMilitaryReward,
@@ -415,9 +415,9 @@ const battles = {
     NovaFlies1000: new Battle({
         title: 'Ultra',
         targetLevel: 1000,
-        difficulty: 1,
+        difficulty: 0.75,
         faction: factions.NovaFlies,
-        effects: [{effectType: EffectType.Danger, baseValue: 50_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 12_500}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 60},
             standardBattleMilitaryReward,
@@ -426,9 +426,9 @@ const battles = {
     Astrogoblins500: new Battle({
         title: 'Horde of',
         targetLevel: 500,
-        difficulty: 1,
+        difficulty: 50,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 100_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 15_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 57},
             standardBattleMilitaryReward,
@@ -437,9 +437,9 @@ const battles = {
     MeteorMaws20: new Battle({
         title: 'Hungry',
         targetLevel: 20,
-        difficulty: 100,
+        difficulty: 20000,
         faction: factions.MeteorMaws,
-        effects: [{effectType: EffectType.Danger, baseValue: 250_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 20_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 7},
             standardBattleMilitaryReward,
@@ -448,9 +448,9 @@ const battles = {
     CometCrawlers200: new Battle({
         title: 'Endless',
         targetLevel: 200,
-        difficulty: 40,
+        difficulty: 800,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 500_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 25_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 41},
             standardBattleMilitaryReward,
@@ -459,9 +459,9 @@ const battles = {
     Scavengers75: new Battle({
         title: 'Insatiable',
         targetLevel: 75,
-        difficulty: 250,
+        difficulty: 5000,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 1_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 50_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 18},
             standardBattleMilitaryReward,
@@ -470,9 +470,9 @@ const battles = {
     Astrogoblins750: new Battle({
         title: 'Legendary',
         targetLevel: 750,
-        difficulty: 1,
+        difficulty: 10,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 1_500_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 75_000}],
         rewards: [
             {effectType: EffectType.Research, baseValue: 83},
             standardBattleMilitaryReward,
@@ -481,9 +481,9 @@ const battles = {
     MeteorMaws30: new Battle({
         title: 'Gobbling',
         targetLevel: 30,
-        difficulty: 2_000,
+        difficulty: 200_000,
         faction: factions.MeteorMaws,
-        effects: [{effectType: EffectType.Danger, baseValue: 2_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 100_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 11},
             standardBattleMilitaryReward,
@@ -492,9 +492,9 @@ const battles = {
     SpacePirates10: new Battle({
         title: 'Roaming',
         targetLevel: 10,
-        difficulty: 10_000,
+        difficulty: 100_000,
         faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 2_500_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 125_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 6},
             standardBattleMilitaryReward,
@@ -503,9 +503,9 @@ const battles = {
     CometCrawlers300: new Battle({
         title: 'Infestation of',
         targetLevel: 300,
-        difficulty: 40,
+        difficulty: 400,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 3_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 150_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 59},
             standardBattleMilitaryReward,
@@ -514,9 +514,9 @@ const battles = {
     Scavengers100: new Battle({
         title: 'Ruthless',
         targetLevel: 100,
-        difficulty: 2_500,
+        difficulty: 25_000,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 4_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 175_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 26},
             standardBattleMilitaryReward,
@@ -527,7 +527,7 @@ const battles = {
         targetLevel: 1000,
         difficulty: 1,
         faction: factions.Astrogoblins,
-        effects: [{effectType: EffectType.Danger, baseValue: 6_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 200_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 120},
             standardBattleMilitaryReward,
@@ -536,9 +536,9 @@ const battles = {
     MeteorMaws50: new Battle({
         title: 'Clew of',
         targetLevel: 50,
-        difficulty: 5_000,
+        difficulty: 50_000,
         faction: factions.MeteorMaws,
-        effects: [{effectType: EffectType.Danger, baseValue: 8_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 225_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 15},
             standardBattleMilitaryReward,
@@ -547,9 +547,9 @@ const battles = {
     Scavengers150: new Battle({
         title: 'Marauding',
         targetLevel: 150,
-        difficulty: 2_500,
+        difficulty: 50_000,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 10_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 250_000}],
         rewards: [
             {effectType: EffectType.Research, baseValue: 37},
             standardBattleMilitaryReward,
@@ -560,7 +560,7 @@ const battles = {
         targetLevel: 500,
         difficulty: 50,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 20_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 275_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 86},
             standardBattleMilitaryReward,
@@ -569,9 +569,9 @@ const battles = {
     SpacePirates20: new Battle({
         title: 'Organized',
         targetLevel: 20,
-        difficulty: 20_000,
+        difficulty: 200_000,
         faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 30_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 300_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 9},
             standardBattleMilitaryReward,
@@ -582,7 +582,7 @@ const battles = {
         targetLevel: 200,
         difficulty: 5_000,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 35_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 350_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 54},
             standardBattleMilitaryReward,
@@ -591,9 +591,9 @@ const battles = {
     MeteorMaws75: new Battle({
         title: 'Devouring',
         targetLevel: 75,
-        difficulty: 10_000,
+        difficulty: 50_000,
         faction: factions.MeteorMaws,
-        effects: [{effectType: EffectType.Danger, baseValue: 40_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 400_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 22},
             standardBattleMilitaryReward,
@@ -602,9 +602,9 @@ const battles = {
     CometCrawlers750: new Battle({
         title: 'All-munching',
         targetLevel: 750,
-        difficulty: 5,
+        difficulty: 50,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 45_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 450_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 124},
             standardBattleMilitaryReward,
@@ -613,9 +613,9 @@ const battles = {
     SpacePirates30: new Battle({
         title: 'Cruising',
         targetLevel: 30,
-        difficulty: 100_000,
+        difficulty: 500_000,
         faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 50_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 500_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 13},
             standardBattleMilitaryReward,
@@ -624,9 +624,9 @@ const battles = {
     MeteorMaws100: new Battle({
         title: 'Radiant',
         targetLevel: 100,
-        difficulty: 10_000,
+        difficulty: 100_000,
         faction: factions.MeteorMaws,
-        effects: [{effectType: EffectType.Danger, baseValue: 60_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 550_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 32},
             standardBattleMilitaryReward,
@@ -635,9 +635,9 @@ const battles = {
     StarMantas10: new Battle({
         title: 'Peaceful',
         targetLevel: 10,
-        difficulty: 500_000,
+        difficulty: 50_000_000,
         faction: factions.StarMantas,
-        effects: [{effectType: EffectType.Danger, baseValue: 65_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 600_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 7},
             standardBattleMilitaryReward,
@@ -646,9 +646,9 @@ const battles = {
     Scavengers300: new Battle({
         title: 'Army of',
         targetLevel: 300,
-        difficulty: 1_000,
+        difficulty: 100_000,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 75_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 650_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 79},
             standardBattleMilitaryReward,
@@ -657,9 +657,9 @@ const battles = {
     CometCrawlers1000: new Battle({
         title: 'Eclipsing',
         targetLevel: 1000,
-        difficulty: 5,
+        difficulty: 50,
         faction: factions.CometCrawlers,
-        effects: [{effectType: EffectType.Danger, baseValue: 100_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 700_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 180},
             standardBattleMilitaryReward,
@@ -668,9 +668,9 @@ const battles = {
     MeteorMaws150: new Battle({
         title: 'Glitz hardened',
         targetLevel: 150,
-        difficulty: 10_000,
+        difficulty: 100_000,
         faction: factions.MeteorMaws,
-        effects: [{effectType: EffectType.Danger, baseValue:110_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue:800_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 47},
             standardBattleMilitaryReward,
@@ -679,9 +679,9 @@ const battles = {
     SpacePirates50: new Battle({
         title: 'Dominating',
         targetLevel: 50,
-        difficulty: 100_000,
+        difficulty: 1_000_000,
         faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 125_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 900_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 18},
             standardBattleMilitaryReward,
@@ -692,7 +692,7 @@ const battles = {
         targetLevel: 500,
         difficulty: 1_000,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 250_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 1_000_000}],
         rewards: [
             {effectType: EffectType.Research, baseValue: 114},
             standardBattleMilitaryReward,
@@ -703,7 +703,7 @@ const battles = {
         targetLevel: 200,
         difficulty: 10_000,
         faction: factions.MeteorMaws,
-        effects: [{effectType: EffectType.Danger, baseValue: 300_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 2_500_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 68},
             standardBattleMilitaryReward,
@@ -714,7 +714,7 @@ const battles = {
         targetLevel: 20,
         difficulty: 500_000,
         faction: factions.StarMantas,
-        effects: [{effectType: EffectType.Danger, baseValue: 350_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 5_000_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 10},
             standardBattleMilitaryReward,
@@ -725,7 +725,7 @@ const battles = {
         targetLevel: 75,
         difficulty: 100_000,
         faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 375_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 7_500_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 27},
             standardBattleMilitaryReward,
@@ -736,7 +736,7 @@ const battles = {
         targetLevel: 750,
         difficulty: 10,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 400_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 10_000_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 165},
             standardBattleMilitaryReward,
@@ -747,7 +747,7 @@ const battles = {
         targetLevel: 300,
         difficulty: 10_000,
         faction: factions.MeteorMaws,
-        effects: [{effectType: EffectType.Danger, baseValue: 450_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 15_000_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 98},
             standardBattleMilitaryReward,
@@ -758,7 +758,7 @@ const battles = {
         targetLevel: 30,
         difficulty: 500_000,
         faction: factions.StarMantas,
-        effects: [{effectType: EffectType.Danger, baseValue: 500_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 20_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 15},
             standardBattleMilitaryReward,
@@ -769,7 +769,7 @@ const battles = {
         targetLevel: 10,
         difficulty: 2_000_000,
         faction: factions.VoidVikings,
-        effects: [{effectType: EffectType.Danger, baseValue: 525_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 25_000_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 8},
             standardBattleMilitaryReward,
@@ -780,7 +780,7 @@ const battles = {
         targetLevel: 100,
         difficulty: 100_000,
         faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 550_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 30_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 39},
             standardBattleMilitaryReward,
@@ -791,7 +791,7 @@ const battles = {
         targetLevel: 1000,
         difficulty: 5,
         faction: factions.Scavengers,
-        effects: [{effectType: EffectType.Danger, baseValue: 575_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 40_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 240},
             standardBattleMilitaryReward,
@@ -802,7 +802,7 @@ const battles = {
         targetLevel: 150,
         difficulty: 100_000,
         faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 600_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 50_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 56},
             standardBattleMilitaryReward,
@@ -813,7 +813,7 @@ const battles = {
         targetLevel: 500,
         difficulty: 1_000,
         faction: factions.MeteorMaws,
-        effects: [{effectType: EffectType.Danger, baseValue: 625_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 60_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 143},
             standardBattleMilitaryReward,
@@ -824,7 +824,7 @@ const battles = {
         targetLevel: 50,
         difficulty: 600_000,
         faction: factions.StarMantas,
-        effects: [{effectType: EffectType.Danger, baseValue: 650_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 70_000_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 21},
             standardBattleMilitaryReward,
@@ -835,7 +835,7 @@ const battles = {
         targetLevel: 20,
         difficulty: 2_500_000,
         faction: factions.VoidVikings,
-        effects: [{effectType: EffectType.Danger, baseValue: 675_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 80_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 12},
             standardBattleMilitaryReward,
@@ -846,7 +846,7 @@ const battles = {
         targetLevel: 200,
         difficulty: 100_000,
         faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 700_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 90_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 81},
             standardBattleMilitaryReward,
@@ -857,7 +857,7 @@ const battles = {
         targetLevel: 750,
         difficulty: 75,
         faction: factions.MeteorMaws,
-        effects: [{effectType: EffectType.Danger, baseValue: 750_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 100_000_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 207},
             standardBattleMilitaryReward,
@@ -868,7 +868,7 @@ const battles = {
         targetLevel: 75,
         difficulty: 500_000,
         faction: factions.StarMantas,
-        effects: [{effectType: EffectType.Danger, baseValue: 800_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 110_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 31},
             standardBattleMilitaryReward,
@@ -879,7 +879,7 @@ const battles = {
         targetLevel: 10,
         difficulty: 15_000_000,
         faction: factions.ThunderDragon,
-        effects: [{effectType: EffectType.Danger, baseValue: 900_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 120_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 9},
             standardBattleMilitaryReward,
@@ -890,7 +890,7 @@ const battles = {
         targetLevel: 30,
         difficulty: 2_800_000,
         faction: factions.VoidVikings,
-        effects: [{effectType: EffectType.Danger, baseValue: 1_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 130_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 17},
             standardBattleMilitaryReward,
@@ -901,7 +901,7 @@ const battles = {
         targetLevel: 300,
         difficulty: 10_000,
         faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 2_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 140_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 118},
             standardBattleMilitaryReward,
@@ -912,7 +912,7 @@ const battles = {
         targetLevel: 1000,
         difficulty: 8,
         faction: factions.MeteorMaws,
-        effects: [{effectType: EffectType.Danger, baseValue: 3_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 150_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 300},
             standardBattleMilitaryReward,
@@ -923,7 +923,7 @@ const battles = {
         targetLevel: 100,
         difficulty: 500_000,
         faction: factions.StarMantas,
-        effects: [{effectType: EffectType.Danger, baseValue: 4_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 160_000_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 45},
             standardBattleMilitaryReward,
@@ -934,7 +934,7 @@ const battles = {
         targetLevel: 150,
         difficulty: 300_000,
         faction: factions.StarMantas,
-        effects: [{effectType: EffectType.Danger, baseValue: 4_500_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 170_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 65},
             standardBattleMilitaryReward,
@@ -945,7 +945,7 @@ const battles = {
         targetLevel: 50,
         difficulty: 2_000_000,
         faction: factions.VoidVikings,
-        effects: [{effectType: EffectType.Danger, baseValue: 5_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 180_000_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 24},
             standardBattleMilitaryReward,
@@ -956,7 +956,7 @@ const battles = {
         targetLevel: 500,
         difficulty: 5_000,
         faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 5_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 190_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 171},
             standardBattleMilitaryReward,
@@ -967,7 +967,7 @@ const battles = {
         targetLevel: 20,
         difficulty: 16_000_000,
         faction: factions.ThunderDragon,
-        effects: [{effectType: EffectType.Danger, baseValue: 5_500_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 200_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 13},
             standardBattleMilitaryReward,
@@ -978,7 +978,7 @@ const battles = {
         targetLevel: 200,
         difficulty: 100_000,
         faction: factions.StarMantas,
-        effects: [{effectType: EffectType.Danger, baseValue: 5_500_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 225_000_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 95},
             standardBattleMilitaryReward,
@@ -989,7 +989,7 @@ const battles = {
         targetLevel: 10,
         difficulty: 25_000_000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 6_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 250_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 10},
             standardBattleMilitaryReward,
@@ -1000,7 +1000,7 @@ const battles = {
         targetLevel: 75,
         difficulty: 2_000_000,
         faction: factions.VoidVikings,
-        effects: [{effectType: EffectType.Danger, baseValue: 7_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 275_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 35},
             standardBattleMilitaryReward,
@@ -1011,7 +1011,7 @@ const battles = {
         targetLevel: 750,
         difficulty: 100,
         faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 7_500_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 300_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 248},
             standardBattleMilitaryReward,
@@ -1022,7 +1022,7 @@ const battles = {
         targetLevel: 30,
         difficulty: 16_000_000,
         faction: factions.ThunderDragon,
-        effects: [{effectType: EffectType.Danger, baseValue: 8_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 350_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 19},
             standardBattleMilitaryReward,
@@ -1033,7 +1033,7 @@ const battles = {
         targetLevel: 300,
         difficulty: 100_000,
         faction: factions.StarMantas,
-        effects: [{effectType: EffectType.Danger, baseValue: 8_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 400_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 138},
             standardBattleMilitaryReward,
@@ -1044,7 +1044,7 @@ const battles = {
         targetLevel: 100,
         difficulty: 2_500_000,
         faction: factions.VoidVikings,
-        effects: [{effectType: EffectType.Danger, baseValue: 8_500_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 500_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 51},
             standardBattleMilitaryReward,
@@ -1055,7 +1055,7 @@ const battles = {
         targetLevel: 1000,
         difficulty: 100,
         faction: factions.SpacePirates,
-        effects: [{effectType: EffectType.Danger, baseValue: 8_500_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 600_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 360},
             standardBattleMilitaryReward,
@@ -1066,7 +1066,7 @@ const battles = {
         targetLevel: 50,
         difficulty: 10_000_000,
         faction: factions.ThunderDragon,
-        effects: [{effectType: EffectType.Danger, baseValue: 8_500_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 700_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 27},
             standardBattleMilitaryReward,
@@ -1077,7 +1077,7 @@ const battles = {
         targetLevel: 20,
         difficulty: 25_000_000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 9_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 800_000_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 15},
             standardBattleMilitaryReward,
@@ -1088,7 +1088,7 @@ const battles = {
         targetLevel: 150,
         difficulty: 1_000_000,
         faction: factions.VoidVikings,
-        effects: [{effectType: EffectType.Danger, baseValue: 9_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 900_000_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 75},
             standardBattleMilitaryReward,
@@ -1099,7 +1099,7 @@ const battles = {
         targetLevel: 500,
         difficulty: 5_000,
         faction: factions.StarMantas,
-        effects: [{effectType: EffectType.Danger, baseValue: 9_500_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 1_000_000_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 200},
             standardBattleMilitaryReward,
@@ -1110,7 +1110,7 @@ const battles = {
         targetLevel: 200,
         difficulty: 1_000_000,
         faction: factions.VoidVikings,
-        effects: [{effectType: EffectType.Danger, baseValue: 10_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 1_100_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 108},
             standardBattleMilitaryReward,
@@ -1121,7 +1121,7 @@ const battles = {
         targetLevel: 75,
         difficulty: 12_000_000,
         faction: factions.ThunderDragon,
-        effects: [{effectType: EffectType.Danger, baseValue: 10_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 1_200_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 40},
             standardBattleMilitaryReward,
@@ -1132,7 +1132,7 @@ const battles = {
         targetLevel: 30,
         difficulty: 26_000_000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 11_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 1_300_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 21},
             standardBattleMilitaryReward,
@@ -1143,7 +1143,7 @@ const battles = {
         targetLevel: 750,
         difficulty: 300,
         faction: factions.StarMantas,
-        effects: [{effectType: EffectType.Danger, baseValue: 12_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 1_400_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 290},
             standardBattleMilitaryReward,
@@ -1154,7 +1154,7 @@ const battles = {
         targetLevel: 100,
         difficulty: 3_000_000,
         faction: factions.ThunderDragon,
-        effects: [{effectType: EffectType.Danger, baseValue: 15_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 1_500_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 58},
             standardBattleMilitaryReward,
@@ -1165,7 +1165,7 @@ const battles = {
         targetLevel: 300,
         difficulty: 100_000,
         faction: factions.VoidVikings,
-        effects: [{effectType: EffectType.Danger, baseValue: 20_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 1_750_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 157},
             standardBattleMilitaryReward,
@@ -1176,7 +1176,7 @@ const battles = {
         targetLevel: 1000,
         difficulty: 100,
         faction: factions.StarMantas,
-        effects: [{effectType: EffectType.Danger, baseValue: 25_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 2_000_000_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 420},
             standardBattleMilitaryReward,
@@ -1187,7 +1187,7 @@ const battles = {
         targetLevel: 50,
         difficulty: 26_000_000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 30_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 2_500_000_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 31},
             standardBattleMilitaryReward,
@@ -1198,7 +1198,7 @@ const battles = {
         targetLevel: 150,
         difficulty: 1_000_000,
         faction: factions.ThunderDragon,
-        effects: [{effectType: EffectType.Danger, baseValue: 35_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 3_000_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 84},
             standardBattleMilitaryReward,
@@ -1209,7 +1209,7 @@ const battles = {
         targetLevel: 500,
         difficulty: 2_000,
         faction: factions.VoidVikings,
-        effects: [{effectType: EffectType.Danger, baseValue: 40_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 4_000_000_000}],
         rewards: [
             {effectType: EffectType.Industry, baseValue: 228},
             standardBattleMilitaryReward,
@@ -1220,7 +1220,7 @@ const battles = {
         targetLevel: 75,
         difficulty: 2_000_000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 42_500_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 5_000_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 44},
             standardBattleMilitaryReward,
@@ -1231,7 +1231,7 @@ const battles = {
         targetLevel: 200,
         difficulty: 100_000,
         faction: factions.ThunderDragon,
-        effects: [{effectType: EffectType.Danger, baseValue: 45_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 6_000_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 122},
             standardBattleMilitaryReward,
@@ -1242,7 +1242,7 @@ const battles = {
         targetLevel: 100,
         difficulty: 8_000_000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 47_500_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 7_000_000_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 64},
             standardBattleMilitaryReward,
@@ -1253,7 +1253,7 @@ const battles = {
         targetLevel: 750,
         difficulty: 100,
         faction: factions.VoidVikings,
-        effects: [{effectType: EffectType.Danger, baseValue: 50_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 8_000_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 331},
             standardBattleMilitaryReward,
@@ -1264,7 +1264,7 @@ const battles = {
         targetLevel: 300,
         difficulty: 10_000,
         faction: factions.ThunderDragon,
-        effects: [{effectType: EffectType.Danger, baseValue: 52_500_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 9_000_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 177},
             standardBattleMilitaryReward,
@@ -1275,7 +1275,7 @@ const battles = {
         targetLevel: 1000,
         difficulty: 1_000,
         faction: factions.VoidVikings,
-        effects: [{effectType: EffectType.Danger, baseValue: 55_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 10_000_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 480},
             standardBattleMilitaryReward,
@@ -1286,7 +1286,7 @@ const battles = {
         targetLevel: 150,
         difficulty: 800_000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 60_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 11_000_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 93},
             standardBattleMilitaryReward,
@@ -1297,7 +1297,7 @@ const battles = {
         targetLevel: 500,
         difficulty: 100_000,
         faction: factions.ThunderDragon,
-        effects: [{effectType: EffectType.Danger, baseValue: 60_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 12_000_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 257},
             standardBattleMilitaryReward,
@@ -1308,7 +1308,7 @@ const battles = {
         targetLevel: 200,
         difficulty: 100_000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 65_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 13_000_000_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 135},
             standardBattleMilitaryReward,
@@ -1319,7 +1319,7 @@ const battles = {
         targetLevel: 750,
         difficulty: 10_000,
         faction: factions.ThunderDragon,
-        effects: [{effectType: EffectType.Danger, baseValue: 65_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 14_000_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 372},
             standardBattleMilitaryReward,
@@ -1330,7 +1330,7 @@ const battles = {
         targetLevel: 300,
         difficulty: 200_000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 70_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 15_000_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 196},
             standardBattleMilitaryReward,
@@ -1341,7 +1341,7 @@ const battles = {
         targetLevel: 1000,
         difficulty: 100_000,
         faction: factions.ThunderDragon,
-        effects: [{effectType: EffectType.Danger, baseValue: 70_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 16_000_000_000}],
         rewards: [
             {effectType: EffectType.Energy, baseValue: 540},
             standardBattleMilitaryReward,
@@ -1352,7 +1352,7 @@ const battles = {
         targetLevel: 500,
         difficulty: 200_000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 75_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 17_000_000_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 285},
             standardBattleMilitaryReward,
@@ -1363,7 +1363,7 @@ const battles = {
         targetLevel: 750,
         difficulty: 1_000_000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 80_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 18_000_000_000}],
         rewards: [
             {effectType: EffectType.Military, baseValue: 414},
             standardBattleMilitaryReward,
@@ -1374,7 +1374,7 @@ const battles = {
         targetLevel: 1000,
         difficulty: 30_000_000,
         faction: factions.AstralSharks,
-        effects: [{effectType: EffectType.Danger, baseValue: 100_000_000_000}],
+        effects: [{effectType: EffectType.Danger, baseValue: 20_000_000_000}],
         rewards: [
             {effectType: EffectType.Growth, baseValue: 600},
             standardBattleMilitaryReward,

@@ -152,15 +152,20 @@ moduleOperations.GlitzPlating = new ModuleOperation({
     description: 'Tougher than a Comet Crawler\'s shell, this armor resists most of galaxy\'s temper.',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.01}],
 });
-moduleOperations.PulseShield = new ModuleOperation({
-    title: 'Pulse Shield', maxXp: 4_000, gridLoad: 2,
-    description: 'A shimmering barrier that not only guards against oncoming threats but sends projectiles back from whence they came.',
+moduleOperations.NanoHardener = new ModuleOperation({
+    title: 'Nano Hardener', maxXp: 4_000, gridLoad: 2,
+    description: 'Active Nano Robots that make the armor layer one of the hardest materials in the galaxy.',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.03}],
 });
+moduleOperations.PulseShield = new ModuleOperation({
+    title: 'Pulse Shield', maxXp: 8_000, gridLoad: 3,
+    description: 'A shimmering barrier that not only guards against oncoming threats but sends projectiles back from whence they came.',
+    effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.08}],
+});
 moduleOperations.BulletSponge = new ModuleOperation({
-    title: 'Bullet Sponge', maxXp: 8_000, gridLoad: 4,
+    title: 'Bullet Sponge', maxXp: 16_000, gridLoad: 4,
     description:'This enchantment laughs in the face of danger, soaking up damage like a thirsty traveler in a desert.',
-    effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.09}],
+    effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.16}],
 });
 
 moduleOperations.RapidRumbleTower = new ModuleOperation({
@@ -281,7 +286,7 @@ const moduleComponents = {
     Protection: new ModuleComponent({
         title: 'Protection',
         description: 'A shield against the void\'s dangers. Become a fortress among the stars!',
-        operations: [moduleOperations.GlitzPlating, moduleOperations.PulseShield, moduleOperations.BulletSponge],
+        operations: [moduleOperations.GlitzPlating, moduleOperations.NanoHardener, moduleOperations.PulseShield, moduleOperations.BulletSponge],
     }),
     Turrets: new ModuleComponent({
         title: 'Turrets',

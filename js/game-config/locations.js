@@ -53,7 +53,7 @@ const pointsOfInterest = {
             {effectType: EffectType.GrowthFactor, baseValue: 0},
             {effectType: EffectType.IndustryFactor, baseValue: 9},
             {effectType: EffectType.EnergyFactor, baseValue: -0.2},
-            {effectType: EffectType.Danger, baseValue: 450}],
+            {effectType: EffectType.Danger, baseValue: 250}],
         modifiers: [],
     }),
     ResearchLocationMedium: new PointOfInterest({
@@ -63,7 +63,7 @@ const pointsOfInterest = {
             {effectType: EffectType.GrowthFactor, baseValue: 0.2},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
             {effectType: EffectType.EnergyFactor, baseValue: 9},
-            {effectType: EffectType.Danger, baseValue: 850}],
+            {effectType: EffectType.Danger, baseValue: 350}],
         modifiers: [],
     }),
     GrowthLocationMedium: new PointOfInterest({
@@ -72,7 +72,7 @@ const pointsOfInterest = {
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 9},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
-            {effectType: EffectType.Danger, baseValue: 1500}],
+            {effectType: EffectType.Danger, baseValue: 500}],
         modifiers: [],
     }),
 
@@ -93,7 +93,7 @@ const pointsOfInterest = {
             {effectType: EffectType.GrowthFactor, baseValue: 0.2},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
             {effectType: EffectType.EnergyFactor, baseValue: 19},
-            {effectType: EffectType.Danger, baseValue: 3000}],
+            {effectType: EffectType.Danger, baseValue: 2000}],
         modifiers: [],
     }),
     GrowthLocationHigh: new PointOfInterest({
@@ -102,7 +102,7 @@ const pointsOfInterest = {
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 19},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
-            {effectType: EffectType.Danger, baseValue: 5000}],
+            {effectType: EffectType.Danger, baseValue: 3000}],
         modifiers: [],
     }),
 
@@ -123,7 +123,7 @@ const pointsOfInterest = {
             {effectType: EffectType.GrowthFactor, baseValue: 0.2},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
             {effectType: EffectType.EnergyFactor, baseValue: 49},
-            {effectType: EffectType.Danger, baseValue: 30000}],
+            {effectType: EffectType.Danger, baseValue: 20000}],
         modifiers: [],
     }),
     GrowthLocationExtreme: new PointOfInterest({
@@ -132,7 +132,7 @@ const pointsOfInterest = {
         effects: [
             {effectType: EffectType.GrowthFactor, baseValue: 49},
             {effectType: EffectType.IndustryFactor, baseValue: -0.2},
-            {effectType: EffectType.Danger, baseValue: 50000}],
+            {effectType: EffectType.Danger, baseValue: 30000}],
         modifiers: [],
     }),
 };
