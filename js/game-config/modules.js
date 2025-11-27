@@ -5,29 +5,29 @@
  */
 const moduleOperations = {};
 moduleOperations.StandbyGenerator = new ModuleOperation({
-    title: 'Standby Generator', maxXp: 50, gridLoad: 0, xpGain: 15,
+    title: 'Standby Generator', maxXp: 20, gridLoad: 0, xpGain: 10,
     description: 'The ole reliable of power sources. It may grumble and spew smoke, but it\'ll keep the lights on when all else fails.',
     effects: [{effectType: EffectType.Energy, baseValue: 0.5}],
 });
 moduleOperations.FourDPrinter = new ModuleOperation({
-    title: '4D Printer', maxXp: 50, gridLoad: 1, xpGain: 15,
+    title: '4D Printer', maxXp: 35, gridLoad: 1, xpGain: 10,
     description: 'Prints anything from spare parts to midnight snacks. Adds a dimension of convenience to survival.',
     effects: [{effectType: EffectType.Industry, baseValue: 0.05}],
 });
 
 moduleOperations.PocketLaboratory = new ModuleOperation({
-    title: 'Pocket Laboratory', maxXp: 400, gridLoad: 1, xpGain: 15,
+    title: 'Pocket Laboratory', maxXp: 70, gridLoad: 1, xpGain: 10,
     description: 'A lab that fits in your pocket, for when you need to science the heck out of something on the go.',
     effects: [{effectType: EffectType.Research, baseValue: 0.50}],
 });
 moduleOperations.MicroCyborgAutomat = new ModuleOperation({
-    title: 'Micro Cyborg Automat', maxXp: 100, gridLoad: 1, xpGain: 15,
+    title: 'Micro Cyborg Automat', maxXp: 140, gridLoad: 1, xpGain: 10,
     description: 'A handy box that produces little helpers at the press of a button.',
     effects: [{effectType: EffectType.Growth, baseValue: 0.10}], // Not a factor as the player doesn't have military yet
 });
 // TODO rename according to title + write migration
 moduleOperations.KungFuManual = new ModuleOperation({
-    title: 'Core Blade', maxXp: 200, gridLoad: 1, xpGain: 15,
+    title: 'Core Blade', maxXp: 200, gridLoad: 1, xpGain: 10,
     description: 'The weapon of choice for the true captain. When you wield it, the station\'s armaments move as if mirroring your every action.',
     effects: [{effectType: EffectType.Military, baseValue: 0.10}], // Not a factor as the player doesn't have military yet
 });

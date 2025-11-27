@@ -89,15 +89,12 @@ const htmlElementRequirements = {
             elementsWithRequirements: [
                 Dom.get().bySelector('#attributesDisplay > [data-attribute="research"]'),
             ],
-            requirements: [new OperationLevelRequirement('playthrough', {
-                operation: moduleOperations.PocketLaboratory,
-                requirement: 1,
-            })],
+            requirements: [sharedRequirements.PocketLaboratoryLvl1],
         }),
     galacticSecretsTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('galacticSecretsTabButton')],
-            requirements: [sharedRequirements.PocketLaboratoryLvl10],
+            requirements: [sharedRequirements.PocketLaboratoryLvl1],
             elementsToShowRequirements: [Dom.get().byId('galacticSecretsTabButtonRequirements')],
         }),
     growthDisplay: new HtmlElementWithRequirement(

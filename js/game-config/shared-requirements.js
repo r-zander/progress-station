@@ -37,11 +37,11 @@ sharedRequirements.NovaFliesLvl20 = new FactionLevelsDefeatedRequirement(
     },
     [sharedRequirements.CoreBladeLvl10],
 );
-sharedRequirements.PocketLaboratoryLvl10 = new OperationLevelRequirement(
+sharedRequirements.PocketLaboratoryLvl1 = new OperationLevelRequirement(
     'playthrough',
     {
         operation: moduleOperations.PocketLaboratory,
-        requirement: 10,
+        requirement: 1,
     },
 );
 sharedRequirements.GridStrengtLvl2 = new AttributeRequirement('playthrough', {
