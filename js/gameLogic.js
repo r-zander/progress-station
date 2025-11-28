@@ -283,7 +283,9 @@ function startNewPlaythrough() {
     for (let level = 0; level < bossBattle.level; level++) {
         grantedEssenceOfUnknown += Math.pow(2, level);
     }
-    addEssenceGain(grantedEssenceOfUnknown, bossBattle.type, bossBattle.name, bossBattle.level);
+    if (grantedEssenceOfUnknown > 0) {
+        addEssenceGain(grantedEssenceOfUnknown, bossBattle.type, bossBattle.name, bossBattle.level);
+    }
 
     playthroughReset('UPDATE_MAX_LEVEL');
 }
