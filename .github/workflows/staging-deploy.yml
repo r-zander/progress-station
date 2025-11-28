@@ -27,7 +27,10 @@ jobs:
           # Build list of commits, truncating message at first line break
           commit_list=$(echo "$COMMITS_JSON" | jq -r '
             .[] |
-            "- [`\(.id[0:7])`](" + .url + ") \((.message | split("\n")[0])) — by \(.author.username)"
+            (.message | split("\n") | map(select(length > 0)) | length) as $total_lines |
+            "- [`\(.id[0:7])`](" + .url + ") \((.message | split("\n")[0]))" +
+            (if $total_lines > 1 then " [\($total_lines - 1) details]" else "" end) +
+            " — by \(.author.username)"
           ')
 
           json=$(jq -n \
