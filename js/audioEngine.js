@@ -218,28 +218,23 @@ class ProgressStationMusicContext {
         }
         this.highestAttribute = highestAttribute;
 
-        // Collect progress speeds from all active tasks
         const progressSpeeds = [];
 
-        // Add progress speeds from all active operations (in hierarchy)
         for (const operationName in moduleOperations) {
             const operation = moduleOperations[operationName];
-            if (operation.isActive('inHierarchy') && operation.isProgressing()) {
+            if (operation.isActive('inHierarchy')) {
                 progressSpeeds.push(operation.getDelta());
             }
         }
 
-        // Add progress speed from gridStrength
-        if (gridStrength.isProgressing()) {
-            progressSpeeds.push(gridStrength.getDelta());
-        }
+        progressSpeeds.push(gridStrength.getDelta());
+        progressSpeeds.push(analysisCore.getDelta());
 
-        // Add progress speeds from all active battles
         for (const battleName of gameData.activeEntities.battles) {
             const battle = battles[battleName];
-            if (battle.isProgressing()) {
-                progressSpeeds.push(battle.getDelta());
-            }
+            if (battle.isDone()) continue;
+
+            progressSpeeds.push(battle.getDelta());
         }
 
         // Calculate statistics

@@ -226,6 +226,8 @@ class Task extends Entity {
      * value change per cycle. Inversion of number of cycles to increase value by 1.
      */
     getDelta() {
+        if (this.getXpGain() <= 0) return 0;
+
         return this.getXpGain() / this.getMaxXp();
     }
 

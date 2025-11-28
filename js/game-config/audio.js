@@ -175,7 +175,7 @@ const SoundBank = {
 // This is a placeholder structure for when music assets are available
 
 /** @type {import('../audioEngine.js').MusicState} */
-const ComplexMainThemeMusicState = {
+const LayeredMainThemeMusicState = {
     name: MusicIds.MAIN_THEME,
     layers: {
         initial: {
@@ -186,7 +186,7 @@ const ComplexMainThemeMusicState = {
                 fadeInTime: 1000,
                 fadeOutTime: 1000
             },
-            conditions: (ctx) => true // Always playing
+            conditions: (_) => true, // Always playing
         },
         slow_progress: {
             segment: {
@@ -196,7 +196,9 @@ const ComplexMainThemeMusicState = {
                 fadeInTime: 1000,
                 fadeOutTime: 1000
             },
-            conditions: (ctx) => 50 >= ctx.energy > 30
+            conditions: (musicContext) => {
+                return musicContext.maxProgressSpeed <= 0.20;
+            },
         },
         medium_progress: {
             segment: {
@@ -206,7 +208,17 @@ const ComplexMainThemeMusicState = {
                 fadeInTime: 1000,
                 fadeOutTime: 1000
             },
-            conditions: (ctx) => ctx.tension > 50
+            conditions: (musicContext) => {
+                // Slow progress?
+                if (musicContext.maxProgressSpeed <= 0.20) return false;
+
+                // Fast progress?
+                if (musicContext.maxProgressSpeed > 5.00) return false;
+                if (musicContext.totalProgressSpeed > 40.00) return false;
+
+                // Then it's medium!
+                return true;
+            },
         },
         fast_progress: {
             segment: {
@@ -216,7 +228,13 @@ const ComplexMainThemeMusicState = {
                 fadeInTime: 1000,
                 fadeOutTime: 1000
             },
-            conditions: (ctx) => ctx.tension > 50
+            conditions: (musicContext) => {
+                if (musicContext.maxProgressSpeed > 5.00) return true;
+                if (musicContext.totalProgressSpeed > 40.00) return true;
+
+                // Not fast enough...
+                return false;
+            },
         }
     }
 };
@@ -248,22 +266,22 @@ const CombatMusicState = {
     }
 };
 
-/** @type {import('../audioEngine.js').MusicState} */
-const MainThemeMusicState = {
-    name: MusicIds.MAIN_THEME,
-    layers: {
-        base: {
-            segment: {
-                src: './audio/main-theme.mp3',
-                volume: 1.0,
-                loop: true,
-                fadeInTime: 2000,
-                fadeOutTime: 2000
-            },
-            conditions: (ctx) => true // Always playing
-        }
-    }
-};
+// /** @type {import('../audioEngine.js').MusicState} */
+// const MainThemeMusicState = {
+//     name: MusicIds.MAIN_THEME,
+//     layers: {
+//         base: {
+//             segment: {
+//                 src: './audio/main-theme.mp3',
+//                 volume: 1.0,
+//                 loop: true,
+//                 fadeInTime: 2000,
+//                 fadeOutTime: 2000
+//             },
+//             conditions: (ctx) => true // Always playing
+//         }
+//     }
+// };
 
 // ============================================
 // INITIALIZATION
@@ -277,7 +295,7 @@ function initializeAudio() {
     AudioEngine.loadBank('Game', SoundBank);
 
     // Register music states (when music is available)
-    AudioEngine.registerMusicState(MainThemeMusicState);
+    AudioEngine.registerMusicState(LayeredMainThemeMusicState);
     // AudioEngine.registerMusicState(ComplexMainThemeMusicState);
     // AudioEngine.registerMusicState(CombatMusicState);
 }
