@@ -16,6 +16,8 @@ const AudioEvents = {
     BATTLE_START: 'BATTLE_START',
     BATTLE_FINISH: 'BATTLE_FINISH',
     GRID_UPGRADE: 'GRID_UPGRADE',
+    PLUS_DATA: 'PLUS_DATA',
+    TECHNOLOGY_UNLOCKED: 'TECHNOLOGY_UNLOCKED',
     CHANGE_LOCATION: 'CHANGE_LOCATION',
     BOSS_APPEARANCE: 'BOSS_APPEARANCE',
     GAME_OVER_DEFEAT: 'GAME_OVER_DEFEAT',
@@ -88,6 +90,20 @@ const SoundBank = {
     [AudioEvents.GRID_UPGRADE]: {
         src: [
             'audio/sfx/grid_up.mp3',
+        ],
+        volume: 1.0,
+    },
+
+    [AudioEvents.PLUS_DATA]: {
+        src: [
+            'audio/sfx/new_data_level.mp3',
+        ],
+        volume: 1.0,
+    },
+
+    [AudioEvents.TECHNOLOGY_UNLOCKED]: {
+        src: [
+            'audio/sfx/unlock_tech.mp3',
         ],
         volume: 1.0,
     },

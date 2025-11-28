@@ -370,6 +370,7 @@ class AnalysisCore extends Task {
     onLevelUp(previousLevel, newLevel) {
         super.onLevelUp(previousLevel, newLevel);
         gameData.data += 1;
+        AudioEngine.postEvent(AudioEvents.PLUS_DATA, this);
     }
 }
 
@@ -948,6 +949,7 @@ class Technology extends Entity {
     }
 
     set isUnlocked(unlocked) {
+        AudioEngine.postEvent(AudioEvents.TECHNOLOGY_UNLOCKED, this);
         this.savedValues.unlocked = unlocked;
     }
 
