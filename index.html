@@ -438,8 +438,14 @@
                             <div class="progress-text name text-truncate px-2">Wimpy Astrogoblins</div>
                         </div>
                     </td>
-                    <td class="xpGain numeric">
-                        <data value="1600" data-suffix="k">1.6</data>
+                    <td class="xpGainRow dataRow numeric">
+                        <div class="xpCappedValue numeric shieldedText hidden">vs Shield:
+                            <data value="0" data-suffix="k">1.6</data>
+                        </div>
+                        <div class="xpGain numeric">
+                            <span class="capped-prefix text-passive hidden">After: </span>
+                            <data value="0" data-suffix="k">1.6</data>
+                        </div>
                     </td>
                     <td class="xpLeft numeric">
                         <data value="4550" data-suffix="k">45.5</data>
@@ -447,8 +453,14 @@
                     <td class="level numeric">
                         <data value="53">53</data>
                     </td>
-                    <td class="danger numeric">
-                        <data value="200">200</data>
+                    <td class="dangerRow dataRow numeric">
+                        <div class="dangerCappedValue numeric shieldedText hidden">Shielded:
+                            <data value="0">200</data>
+                        </div>
+                        <div class="danger numeric">
+                            <span class="capped-prefix text-passive hidden">After: </span>
+                            <data value="0">200</data>
+                        </div>
                     </td>
                     <td class="rewards">
                         +2.0 Research
@@ -1137,7 +1149,7 @@
                 </p>
                 <p>
                     The vacuum of space around your station suppresses all noise, but you can feel the hatred of
-                    the alien beast and see it's determination to destroy everything you have built up.
+                    the alien beast and see its determination to destroy everything you have built up.
                 </p>
                 <ul class="help-text m-0">
                     <li>Your damage output is multiplied by your
@@ -1185,6 +1197,18 @@
                     </li>
                     <li>Overcoming the last wave of the boss will <b>win you the game</b>.</li>
                 </ul>
+                <section id="bossDefenseModeExplanation" class="mt-3 p-2 border rounded bg-dark">
+                    <h5 class="fw-semibold mb-2">Boss Shield Active</h5>
+                    <p>
+                        The boss recognized your <b>overwhelming military power</b> and is protecting itself with a shield!
+                        It cannot use its aura of destruction while the shield is active:
+                    </p>
+                    <ul>
+                        <li>You do <b>limited damage</b> to the boss while the shield is active.</li>
+                        <li><b>Danger</b> Effects from the boss are temporarily disabled.</li>
+                    </ul>
+                </section>
+
             </div>
             <div class="modal-footer d-flex">
                 <button type="button" class="btn btn-secondary"

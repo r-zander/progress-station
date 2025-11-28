@@ -73,6 +73,7 @@ function initBossFightIntro() {
             formatValue(targetLevelElement, bossBattle.targetLevel, {keepNumber: true, forceInteger: true});
         });
         Dom.get().byId('delayBossBattleButton').classList.toggle('hidden', bossBattle.distance === 0);
+        Dom.get().byId('bossDefenseModeExplanation').classList.toggle('hidden', !bossBattle.isInDefenseMode());
         modal.show();
     });
 

@@ -40,3 +40,15 @@
         }
     }
 }
+
+.text-passive {
+    color: var(--ps-passive);
+}
+
+.dataRow {
+    text-align: right;
+}
+
+.shieldedText {
+    color: var(--ps-cyan);
+}

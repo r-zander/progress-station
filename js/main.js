@@ -618,16 +618,45 @@ function createLevel4BattleElements(battles) {
         level4Element.id = battle.domId;
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
+        // domGetter.byClass('rewards').innerHTML = battle.getRewardsPerLevelDescription();
         domGetter.byClass('progressBar').addEventListener('click', tryEngageBattle.bind(this, battle));
         domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
+
+        const dangerElement = domGetter.byClass('dangerRow');
+        const normalData = dangerElement.querySelector('.danger data');
+
         if (battle instanceof BossBattle) {
             domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
-            const dangerElement = domGetter.byClass('danger');
-            dangerElement.classList.add('effect');
-            dangerElement.innerHTML = battle.getEffectDescription();
+            const inDefenseMode = battle.isInDefenseMode();
+
+            const normalDiv = dangerElement.querySelector('.danger');
+            normalDiv.classList.toggle('text-passive', inDefenseMode);
+            normalDiv.querySelector('.capped-prefix').classList.toggle('hidden', !inDefenseMode);
+            dangerElement.classList.toggle('text-passive', inDefenseMode);
+            dangerElement.classList.toggle('effect', !inDefenseMode);
+
+            if (inDefenseMode) {
+                const shieldedDiv = dangerElement.querySelector('.dangerCappedValue');
+                shieldedDiv.classList.remove('hidden');
+                normalDiv.classList.add('hidden');
+                const shieldedData = shieldedDiv.querySelector('data');
+                formatValue(shieldedData, battle.getRawEffect(EffectType.Danger));
+
+                const shieldStatus = document.createElement('div');
+                shieldStatus.className = 'shields-active-status';
+                shieldStatus.style.color = 'var(--ps-cyan)';
+                shieldStatus.style.marginTop = '4px';
+
+                const iconHTML = '<img src="img/icons/shield.svg" class="icon-shield" alt="shield icon" style="width:1em;vertical-align:middle;margin-right:0.3em;">';
+                shieldStatus.innerHTML = `${iconHTML} Boss shields active: Station damage capped, heat aura disabled.`;
+                const progressBar = domGetter.byClass('progressBar');
+                progressBar.parentNode.insertBefore(shieldStatus, progressBar.nextSibling);
+            } else {
+                dangerElement.innerHTML = battle.getEffectDescription();
+            }
         } else {
             domGetter.byClass('rewards').innerHTML = battle.getRewardsPerLevelDescription();
-            formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
+            formatValue(normalData, battle.getEffect(EffectType.Danger));
         }
 
         level4Elements.push(level4Element);
@@ -1804,6 +1833,7 @@ function updateBattleRows() {
 
         formatValue(domGetter.bySelector('.level > data'), battle.getDisplayedLevel(), {keepNumber: true});
         formatValue(domGetter.bySelector('.xpGain > data'), battle.getXpGain());
+        domGetter.bySelector('.xpCappedValue').classList.add('hidden');
         formatValue(domGetter.bySelector('.xpLeft > data'), battle.getXpLeft());
 
         setBattleProgress(domGetter.byClass('progressBar'), battle);
@@ -1822,6 +1852,17 @@ function updateBattleRows() {
 
     if (isBossBattleAvailable() && !bossBattle.isDone()) {
         bossRow.classList.remove('hidden');
+        const bossInDefenseMode = bossBattle.isInDefenseMode();
+        bossRow.querySelector('.xpCappedValue').classList.toggle('hidden', !bossInDefenseMode);
+        bossRow.querySelector('.capped-prefix').classList.toggle('hidden', !bossInDefenseMode);
+        bossRow.querySelector('.xpGain').classList.toggle('text-passive', bossInDefenseMode);
+        bossRow.querySelector('.progress').classList.toggle('glowShield', bossInDefenseMode);
+
+        formatValue(bossRow.querySelector('.xpGain > data'), bossBattle.getXpGain());
+        if (bossInDefenseMode){
+            formatValue(bossRow.querySelector('.xpCappedValue > data'), bossBattle.getDefenseModeXpGain());
+        }
+
         if (visibleBattles < bossBattle.distance) {
             // There are fewer battles visible than the boss distance --> move boss in last position.
             // Is the bossRow already the last element?
