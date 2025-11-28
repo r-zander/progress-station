@@ -23,15 +23,3 @@ const units = {
  * @type {number}
  */
 const BASE_XP_GAIN = 10;
-/**
- * @type {number}
- */
-const BATTLE_BASE_XP_GAIN = BASE_XP_GAIN;
-
-/**
- * If a wave takes less time, xp gain will be capped and defense mode triggered.
- * Seconds value based on Game Speed 1.
- * @type {number}
- */
-const BOSS_MIN_WAVE_DURATION_IN_SECONDS = 30;
-

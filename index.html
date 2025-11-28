@@ -422,6 +422,13 @@
                         </thead>
                         <tbody class="level4">
                         <!-- repeat level 4 row -->
+                        <tr id="bossBattleDefenseModeHelp" class="hidden">
+                            <td colspan="6" style="color: var(--ps-cyan); margin-top: 4px">
+                                <img src="img/icons/shield.svg" class="icon-shield" alt="shield icon"
+                                     style="width: 1em; vertical-align: middle; margin-right: 0.3em;" />
+                                Boss shields active: Station damage capped, heat aura disabled.
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -438,12 +445,16 @@
                             <div class="progress-text name text-truncate px-2">Wimpy Astrogoblins</div>
                         </div>
                     </td>
-                    <td class="xpGainRow dataRow numeric">
-                        <div class="xpCappedValue numeric shieldedText hidden">vs Shield:
+                    <td class="xpGain numeric for-regular-battle">
+                        <data value="1600" data-suffix="k">1.6</data>
+                    </td>
+                    <td class="xpGainCell numeric effect for-boss-battle">
+                        <div class="xpCappedValue defense-value">
+                            <span>vs Shield:</span>
                             <data value="0" data-suffix="k">1.6</data>
                         </div>
-                        <div class="xpGain numeric">
-                            <span class="capped-prefix text-passive hidden">After: </span>
+                        <div class="xpGain attack-value">
+                            <span class="capped-prefix">After: </span>
                             <data value="0" data-suffix="k">1.6</data>
                         </div>
                     </td>
@@ -453,14 +464,19 @@
                     <td class="level numeric">
                         <data value="53">53</data>
                     </td>
-                    <td class="dangerRow dataRow numeric">
-                        <div class="dangerCappedValue numeric shieldedText hidden">Shielded:
+                    <td class="danger numeric for-regular-battle">
+                        <data value="200">200</data>
+                    </td>
+                    <td class="dangerCell numeric effect for-boss-battle">
+                        <div class="dangerCappedValue defense-value">
+                            <span>Shielded:</span>
+                            <data value="0">0</data>
+                        </div>
+                        <div class="danger attack-value">
+                            <span class="capped-prefix">After: </span>
                             <data value="0">200</data>
                         </div>
-                        <div class="danger numeric">
-                            <span class="capped-prefix text-passive hidden">After: </span>
-                            <data value="0">200</data>
-                        </div>
+                        <div class="other-effects"></div>
                     </td>
                     <td class="rewards">
                         +2.0 Research
@@ -1197,15 +1213,19 @@
                     </li>
                     <li>Overcoming the last wave of the boss will <b>win you the game</b>.</li>
                 </ul>
-                <section id="bossDefenseModeExplanation" class="mt-3 p-2 border rounded bg-dark">
-                    <h5 class="fw-semibold mb-2">Boss Shield Active</h5>
-                    <p>
+                <section id="bossDefenseModeExplanation"
+                         class="mt-3 p-2 border rounded bg-dark glow-shield">
+                    <h5 class="fs-5 fw-light mb-2">Boss Shield Active</h5>
+                    <p class="mb-1">
                         The boss recognized your <b>overwhelming military power</b> and is protecting itself with a shield!
-                        It cannot use its aura of destruction while the shield is active:
+                        While the shield is active:
                     </p>
-                    <ul>
-                        <li>You do <b>limited damage</b> to the boss while the shield is active.</li>
-                        <li><b>Danger</b> Effects from the boss are temporarily disabled.</li>
+                    <ul class="help-text m-0">
+                        <li>Your station's <b>damage</b> is capped to a <b>percentage</b> of the <b>current wave's HP</b></li>
+                        <li>It cannot use its aura of destruction - <span class="primary-stat" data-attribute="danger" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span> is disabled.</li>
                     </ul>
                 </section>
 

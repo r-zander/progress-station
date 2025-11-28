@@ -145,31 +145,6 @@
     }
 }
 
-.progress.glowShield {
-    border-radius: 56px 15px 10px 10px / 32px 15px 10px 10px;
-    box-shadow:
-            0 0 12px 4px var(--ps-cyan),
-            0 0 24px 12px rgba(0,255,255,0.14);
-    animation: shieldGlowPulse 3s infinite alternate;
-    transition: box-shadow 0.3s;
-    position: relative;
-    z-index: 1;
-    overflow: visible !important;
-}
-
-@keyframes shieldGlowPulse {
-    0%,100%{
-        box-shadow:
-                0 0 5px 2px var(--ps-cyan),
-                0 0 10px 4px rgba(var(--ps-cyan-rgb),0.12);
-    }
-    50% {
-        box-shadow:
-                0 0 12px 4px var(--ps-cyan),
-                0 0 24px 12px rgba(var(--ps-cyan-rgb),0.18);
-    }
-}
-
 #locationQuickDisplay {
     border-radius: var(--corner-length);
     background-color: var(--progress-current-bar-color);

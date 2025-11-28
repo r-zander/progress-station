@@ -320,6 +320,12 @@ class Battle extends LayeredTask {
  */
 
 class BossBattle extends Battle {
+
+    /**
+     * @type {string|null}
+     */
+    rewardsDescription = null;
+
     /**
      *
      * @param {{
@@ -456,11 +462,20 @@ class BossBattle extends Battle {
     }
     // noinspection JSCheckFunctionSignatures
     getEffectDescription() {
-        return super.getEffectDescription(1);
+        // Danger is handled differently
+        return Effect.getDescriptionExcept(this, this.effects, 1, EffectType.Danger);
     }
 
     getRewardsDescription() {
-        return attributes.essenceOfUnknown.inlineHtmlWithIcon + ' per defeated wave';
+        if (this.rewardsDescription === null) {
+            // Custom Essence of Unknown mark-up for slim columns
+            const attribute = attributes.essenceOfUnknown;
+            this.rewardsDescription = `<span class="inline-attribute" style="white-space: normal; display: inline;">
+    <img src="${attribute.icon}" class="inline-attribute icon" />${Symbols.NON_BREAKING_SPACE}${attribute.inlineHtml}
+</span>`;
+        }
+
+        return this.rewardsDescription;
     }
 
     isInDefenseMode() {
@@ -470,14 +485,15 @@ class BossBattle extends Battle {
     }
 
     getDefenseModeXpGain() {
-        const xpPerSecond = this.getMaxXp() / BOSS_MIN_WAVE_DURATION_IN_SECONDS;
+        const xpPerSecond = this.getMaxXp() / bossDefenseMode.minWaveDurationInSeconds;
         return Math.max(0, xpPerSecond);
     };
 
     getEffect(effectType) {
         if ((effectType === EffectType.Danger || effectType === EffectType.DangerFactor) &&
-            this.isInDefenseMode()) {
-            return 0;
+            this.isInDefenseMode()
+        ) {
+            return bossDefenseMode.danger;
         }
         return super.getEffect(effectType);
     }

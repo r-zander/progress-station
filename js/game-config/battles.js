@@ -1,6 +1,11 @@
 'use strict';
 
 /**
+ * @type {number}
+ */
+const BATTLE_BASE_XP_GAIN = BASE_XP_GAIN;
+
+/**
  * @type {Object<FactionDefinition>}
  */
 const factions = {
@@ -1434,6 +1439,24 @@ function getBossProgressForeshadowingText(progress) {
  */
 const bossBattleDefaultDistance = 4;
 const bossBattleApproachInterval = 200; // Cycles
+const bossDefenseMode = {
+    /**
+     * If a wave takes less time, xp gain will be capped to enforce this
+     * duration and defense mode triggered.
+     *
+     * Seconds value based on Game Speed 1.
+     *
+     * @type {number}
+     */
+    minWaveDurationInSeconds: 30,
+    /**
+     * How much Danger does the boss produce while in defense mode?
+     *
+     * @type {number}
+     */
+    danger: 0,
+};
+
 /** @type {BossBattle} */
 const bossBattle = battles.Boss10;
 

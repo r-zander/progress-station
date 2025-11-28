@@ -618,45 +618,24 @@ function createLevel4BattleElements(battles) {
         level4Element.id = battle.domId;
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
-        // domGetter.byClass('rewards').innerHTML = battle.getRewardsPerLevelDescription();
         domGetter.byClass('progressBar').addEventListener('click', tryEngageBattle.bind(this, battle));
-        domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
-
-        const dangerElement = domGetter.byClass('dangerRow');
-        const normalData = dangerElement.querySelector('.danger data');
 
         if (battle instanceof BossBattle) {
-            domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
-            const inDefenseMode = battle.isInDefenseMode();
-
-            const normalDiv = dangerElement.querySelector('.danger');
-            normalDiv.classList.toggle('text-passive', inDefenseMode);
-            normalDiv.querySelector('.capped-prefix').classList.toggle('hidden', !inDefenseMode);
-            dangerElement.classList.toggle('text-passive', inDefenseMode);
-            dangerElement.classList.toggle('effect', !inDefenseMode);
-
-            if (inDefenseMode) {
-                const shieldedDiv = dangerElement.querySelector('.dangerCappedValue');
-                shieldedDiv.classList.remove('hidden');
-                normalDiv.classList.add('hidden');
-                const shieldedData = shieldedDiv.querySelector('data');
-                formatValue(shieldedData, battle.getRawEffect(EffectType.Danger));
-
-                const shieldStatus = document.createElement('div');
-                shieldStatus.className = 'shields-active-status';
-                shieldStatus.style.color = 'var(--ps-cyan)';
-                shieldStatus.style.marginTop = '4px';
-
-                const iconHTML = '<img src="img/icons/shield.svg" class="icon-shield" alt="shield icon" style="width:1em;vertical-align:middle;margin-right:0.3em;">';
-                shieldStatus.innerHTML = `${iconHTML} Boss shields active: Station damage capped, heat aura disabled.`;
-                const progressBar = domGetter.byClass('progressBar');
-                progressBar.parentNode.insertBefore(shieldStatus, progressBar.nextSibling);
-            } else {
-                dangerElement.innerHTML = battle.getEffectDescription();
+            for (let element of domGetter.allBySelector('.for-regular-battle')) {
+                element.remove();
             }
+
+            domGetter.byClass('progressFill').classList.add('bossBattle');
+            formatValue(domGetter.bySelector('.dangerCell > .dangerCappedValue > data'), bossDefenseMode.danger);
+            domGetter.bySelector('.dangerCell > .other-effects').innerHTML = battle.getEffectDescription();
+            domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
         } else {
+            for (const element of domGetter.allBySelector('.for-boss-battle')) {
+                element.remove();
+            }
+            domGetter.byClass('progressFill').classList.remove('bossBattle');
             domGetter.byClass('rewards').innerHTML = battle.getRewardsPerLevelDescription();
-            formatValue(normalData, battle.getEffect(EffectType.Danger));
+            formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
         }
 
         level4Elements.push(level4Element);
@@ -707,6 +686,9 @@ function createLevel4FinishedBattleElements(battles) {
         domGetter.byClass('xpLeft').classList.add('hidden');
         domGetter.byClass('danger').classList.add('hidden');
         domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
+        for (const element of domGetter.allBySelector('.for-boss-battle')) {
+            element.remove();
+        }
 
         // unshift --> battles in reverse order
         level4Elements.unshift(level4Element);
@@ -740,6 +722,8 @@ function createFinishedBattlesUI() {
 function createBattlesUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
     slot.replaceWith(createUnfinishedBattlesUI(), createFinishedBattlesUI());
+
+    Dom.get().byId('bossBattleDefenseModeHelp').classList.add('hidden');
 }
 
 function createGalacticSecretsUI() {
@@ -1251,10 +1235,10 @@ function createAttributesUI() {
     const rows = [];
 
     // Danger
-    const dangerRow = createAttributeRow(attributes.danger);
-    Dom.get(dangerRow).byClass('balance').classList.remove('hidden');
-    createAttributeBalance(dangerRow, [EffectType.Danger, EffectType.DangerFactor]);
-    rows.push(dangerRow);
+    const dangerCell = createAttributeRow(attributes.danger);
+    Dom.get(dangerCell).byClass('balance').classList.remove('hidden');
+    createAttributeBalance(dangerCell, [EffectType.Danger, EffectType.DangerFactor]);
+    rows.push(dangerCell);
 
     // Grid Load
     const gridLoadRow = createAttributeRow(attributes.gridLoad);
@@ -1814,8 +1798,10 @@ function updateBattleRows() {
 
         const domGetter = Dom.get(row);
         if (battle instanceof BossBattle) {
-            const dangerElement = domGetter.byClass('danger');
-            dangerElement.innerHTML = battle.getEffectDescription();
+            formatValue(
+                domGetter.bySelector('.dangerCell > .danger > data'),
+                battle.getRawEffect(EffectType.Danger)
+            );
         } else {
             if (!updateRequirements(
                 unfulfilledRequirement === null ? null : [unfulfilledRequirement],
@@ -1833,7 +1819,6 @@ function updateBattleRows() {
 
         formatValue(domGetter.bySelector('.level > data'), battle.getDisplayedLevel(), {keepNumber: true});
         formatValue(domGetter.bySelector('.xpGain > data'), battle.getXpGain());
-        domGetter.bySelector('.xpCappedValue').classList.add('hidden');
         formatValue(domGetter.bySelector('.xpLeft > data'), battle.getXpLeft());
 
         setBattleProgress(domGetter.byClass('progressBar'), battle);
@@ -1852,18 +1837,30 @@ function updateBattleRows() {
 
     if (isBossBattleAvailable() && !bossBattle.isDone()) {
         bossRow.classList.remove('hidden');
-        const bossInDefenseMode = bossBattle.isInDefenseMode();
-        bossRow.querySelector('.xpCappedValue').classList.toggle('hidden', !bossInDefenseMode);
-        bossRow.querySelector('.capped-prefix').classList.toggle('hidden', !bossInDefenseMode);
-        bossRow.querySelector('.xpGain').classList.toggle('text-passive', bossInDefenseMode);
-        bossRow.querySelector('.progress').classList.toggle('glowShield', bossInDefenseMode);
 
-        formatValue(bossRow.querySelector('.xpGain > data'), bossBattle.getXpGain());
-        if (bossInDefenseMode){
-            formatValue(bossRow.querySelector('.xpCappedValue > data'), bossBattle.getDefenseModeXpGain());
-        }
+        if (bossBattle.isActive()) {
+            const bossDomGetter = Dom.get(bossRow);
+            const bossInDefenseMode = bossBattle.isInDefenseMode();
+            const bossBattleDefenseModeHelp = Dom.get().byId('bossBattleDefenseModeHelp');
 
-        if (visibleBattles < bossBattle.distance) {
+            bossDomGetter.byClass('progress').classList.toggle('glow-shield', bossInDefenseMode);
+            bossDomGetter.byClass('xpGainCell').classList.toggle('defense-mode', bossInDefenseMode);
+            bossDomGetter.byClass('dangerCell').classList.toggle('defense-mode', bossInDefenseMode);
+            bossBattleDefenseModeHelp.classList.toggle('hidden', !bossInDefenseMode);
+            if (bossInDefenseMode) {
+                formatValue(bossDomGetter.bySelector('.xpCappedValue > data'), bossBattle.getDefenseModeXpGain());
+
+                if (bossRow.nextElementSibling !== bossBattleDefenseModeHelp) {
+                    bossRow.after(bossBattleDefenseModeHelp);
+                }
+            }
+            // Boss should be in first position.
+            if (bossRow.previousElementSibling !== null) { // Do not update the DOM if not necessary
+                Dom.get()
+                    .bySelector('#unfinishedBattles tbody.level4')
+                    .prepend(bossRow);
+            }
+        } else if (visibleBattles < bossBattle.distance) {
             // There are fewer battles visible than the boss distance --> move boss in last position.
             // Is the bossRow already the last element?
             if (bossRow.nextElementSibling !== requirementsContext.requirementsElement) { // Do not update the DOM if not necessary
