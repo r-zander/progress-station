@@ -1,6 +1,6 @@
 'use strict';
 
-const technologiesUnlockDuration = 1000; // milliseconds
+const technologiesUnlockDuration = 600; // milliseconds
 
 /**
  * @type {Object<Technology>}
