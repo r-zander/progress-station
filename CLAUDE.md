@@ -59,6 +59,13 @@ This is a pure client-side HTML/JS/CSS project with no build system:
 - Game uses FastDOM for performance-optimized DOM operations
 - No package.json - this is a vanilla JavaScript project
 
+### Development Code Pattern
+- **NEVER call development code from production code**: Code in `/js/development/` should NEVER be called from `main.js` or other production files
+- **Self-initialization**: Development modules should self-initialize by calling their init function at the bottom of their IIFE
+- **Production build separation**: The `/js/development/` folder is excluded from production builds, so any references to it from production code will break the game
+- **Example**: `AudioEngineDebug` self-initializes and restores state from localStorage without any call from `main.js`
+- Development modules like `AutoPlay` or `AudioEngineDebug` should store its enabled flags into localStorage with the key pattern `'ps_<systemName>_<toggleName>'`, e.g. `'ps_audioEngineDebug_overlayEnabled'`. And then restore its state on init --> Goal is to allow the game to reload at any time without overhead for the developer.
+
 ### Code Style
 - **No falsy/truthy checks**: Always use explicit type checks instead of relying on falsy/truthy values
   - Use `isFunction()`, `isNumber()`, `isString()`, etc. for type checking

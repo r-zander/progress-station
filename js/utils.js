@@ -699,9 +699,14 @@ const BreakpointCssClasses = (() => {
         debugEnabled = enabled;
 
         if (enabled) {
+            document.body.insertAdjacentHTML(
+                'beforeend',
+                '<div id="breakpointCssClassesDebug" class="position-fixed start-0 p-3 text-bg-dark hidden" style="bottom: 60px; z-index: 2000;"></div>'
+            );
+
             updateDebugDisplay();
         } else {
-            hideDebugDisplay();
+            document.getElementById('breakpointCssClassesDebug').remove();
         }
     }
 

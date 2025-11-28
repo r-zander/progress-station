@@ -2,9 +2,6 @@
 // AUDIO EVENTS (Type-safe event strings)
 // ============================================
 
-// TODO @Dementum all this setup is merely an example - you can delete
-//  and change EVERYTHING to set up the music experience you wish.
-
 /**
  * @typedef {string} AudioEvent
  */
@@ -181,30 +178,40 @@ const SoundBank = {
 const ComplexMainThemeMusicState = {
     name: MusicIds.MAIN_THEME,
     layers: {
-        ambient: {
+        initial: {
             segment: {
                 src: 'audio/music/ps_bgm_initial_layer.mp3',
-                volume: 0.5,
+                volume: 1.0,
                 loop: true,
-                fadeInTime: 2000,
-                fadeOutTime: 2000
+                fadeInTime: 1000,
+                fadeOutTime: 1000
             },
             conditions: (ctx) => true // Always playing
         },
-        energy: {
+        slow_progress: {
             segment: {
                 src: 'audio/music/ps_bgm_low_layer.mp3',
-                volume: 0.6,
+                volume: 1.0,
                 loop: true,
-                fadeInTime: 1500,
-                fadeOutTime: 1500
+                fadeInTime: 1000,
+                fadeOutTime: 1000
             },
             conditions: (ctx) => 50 >= ctx.energy > 30
         },
-        tension: {
+        medium_progress: {
             segment: {
                 src: 'audio/music/ps_bgm_mid_layer.mp3',
-                volume: 0.5,
+                volume: 1.0,
+                loop: true,
+                fadeInTime: 1000,
+                fadeOutTime: 1000
+            },
+            conditions: (ctx) => ctx.tension > 50
+        },
+        fast_progress: {
+            segment: {
+                src: 'audio/music/ps_bgm_high_layer.mp3',
+                volume: 1.0,
                 loop: true,
                 fadeInTime: 1000,
                 fadeOutTime: 1000

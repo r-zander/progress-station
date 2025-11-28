@@ -409,6 +409,19 @@ const cheats = {
             });
         },
     },
+    AudioEngine: {
+        enableDebug: () => {
+            AudioEngineDebug.enableOverlay();
+            AudioEngineDebug.enableStatistics();
+        },
+        disableDebug: () => {
+            AudioEngineDebug.disableStatistics();
+            AudioEngineDebug.disableOverlay();
+        },
+        getStatistics: () => {
+            return AudioEngineDebug.getStatistics();
+        },
+    },
 };
 
 // Debugging output
