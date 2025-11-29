@@ -180,6 +180,10 @@ function summonBoss(){
     gameData.transitionState(gameStates.TUTORIAL_PAUSED);
     GameEvents.BossAppearance.trigger(undefined);
     bossBarAcceleratedProgress = 0;
+
+    // Force some updates, as this method could happen in between game loop updates
+    musicContext.update();
+    updateUiIfNecessary();
 }
 
 function updateBossDistance() {

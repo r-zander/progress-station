@@ -28,7 +28,6 @@ const AudioEvents = {
 const MusicIds = {
     MAIN_THEME: 'Music_MainTheme',
     COMBAT_THEME: 'Music_Combat',
-    VICTORY_THEME: 'Music_Victory',
 };
 
 // ============================================
@@ -240,51 +239,56 @@ const LayeredMainThemeMusicState = {
                 // Not fast enough...
                 return false;
             },
-        }
-    }
-};
-
-/** @type {import('../audioEngine.js').MusicState} */
-const CombatMusicState = {
-    name: MusicIds.COMBAT_THEME,
-    layers: {
-        combat_bass: {
-            segment: {
-                src: 'audio/music/combat_bass.mp3',
-                volume: 0.7,
-                loop: true,
-                fadeInTime: 500,
-                fadeOutTime: 1000
-            },
-            conditions: (ctx) => ctx.phase === 'combat'
         },
-        combat_drums: {
+        boss: {
             segment: {
-                src: 'audio/music/combat_drums.mp3',
-                volume: 0.8,
+                src: 'audio/music/ps_bgm_bossbattle.mp3',
+                volume: 1.0,
                 loop: true,
-                fadeInTime: 500,
-                fadeOutTime: 1000
+                fadeInTime: 0,
+                fadeOutTime: 3000, // TODO would be cool to have longer fade-out for the end of the battle and shorter fade-outs for pauses
             },
-            conditions: (ctx) => ctx.phase === 'combat' && ctx.tension > 60
-        }
+            conditions: (_) => {
+                if (!gameData.state.musicBossPlaying) return false;
+
+                return true; // Always playing
+            },
+        },
     }
 };
 
 // /** @type {import('../audioEngine.js').MusicState} */
-// const MainThemeMusicState = {
-//     name: MusicIds.MAIN_THEME,
+// const CombatMusicState = {
+//     name: MusicIds.COMBAT_THEME,
 //     layers: {
-//         base: {
+//         initial: {
 //             segment: {
-//                 src: './audio/main-theme.mp3',
+//                 src: 'audio/music/ps_bgm_initial_layer.mp3',
+//                 volume: 0.5,
+//                 loop: true,
+//                 fadeInTime: 600,
+//                 fadeOutTime: 600
+//             },
+//             conditions: (_) => {
+//                 if (!gameData.state.musicInitialLayerPlaying) return false;
+//
+//                 return true; // Always playing
+//             },
+//         },
+//         boss: {
+//             segment: {
+//                 src: 'audio/music/ps_bgm_bossbattle.mp3',
 //                 volume: 1.0,
 //                 loop: true,
-//                 fadeInTime: 2000,
-//                 fadeOutTime: 2000
+//                 fadeInTime: 0,
+//                 fadeOutTime: 8000
 //             },
-//             conditions: (ctx) => true // Always playing
-//         }
+//             conditions: (_) => {
+//                 if (!gameData.state.musicBossPlaying) return false;
+//
+//                 return true; // Always playing
+//             },
+//         },
 //     }
 // };
 
@@ -296,11 +300,6 @@ const CombatMusicState = {
  * Initialize the audio system by loading all sound banks
  */
 function initializeAudio() {
-    // Load sound banks
     AudioEngine.loadBank('Game', SoundBank);
-
-    // Register music states (when music is available)
     AudioEngine.registerMusicState(LayeredMainThemeMusicState);
-    // AudioEngine.registerMusicState(ComplexMainThemeMusicState);
-    // AudioEngine.registerMusicState(CombatMusicState);
 }
