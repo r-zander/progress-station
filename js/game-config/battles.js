@@ -187,7 +187,7 @@ const battles = {
         ],
     }),
     CometCrawlers20: new Battle({
-        title: 'Small swarm of',
+        title: 'Small Swarm of',
         targetLevel: 20,
         difficulty: 2.5,
         faction: factions.CometCrawlers,
