@@ -79,6 +79,10 @@ const SoundBank = {
             'audio/sfx/battle_finish.mp3',
         ],
         volume: 1.0,
+        randomization: {
+             volume: { min: -2, max: 2 },
+             pitch: { min: -10, max: 10 }
+        },
         playbackLimit: {
             time: 200,
         }
@@ -96,6 +100,10 @@ const SoundBank = {
             'audio/sfx/new_data_level.mp3',
         ],
         volume: 1.0,
+        randomization: {
+             volume: { min: -2, max: 2 },
+             pitch: { min: -10, max: 10 }
+        },
         playbackLimit: {
             time: 500,
         }
@@ -113,6 +121,10 @@ const SoundBank = {
             'audio/sfx/new_location.mp3',
         ],
         volume: 1.0,
+        randomization: {
+             volume: { min: -2, max: 2 },
+             pitch: { min: -5, max: 5 }
+        },
         playbackLimit: {
             time: 2000,
         }
