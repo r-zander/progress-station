@@ -89,6 +89,10 @@
     --stars-3-color: #C2B58D;
 }
 
+.text-yellow {
+    color: var(--ps-yellow);
+}
+
 /* TODO collides with bs text-danger - prefix our attributes? */
 .text-danger {
     /* !important to override Bootstrap style */

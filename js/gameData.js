@@ -321,10 +321,10 @@ class GameData {
         audio: {
             enabled: false,
             toastAnswered: false,
-            masterVolume: 0.7,
+            masterVolume: 0.5,
             enableBackgroundAudio: false,
-            musicVolume: 0.7,
-            soundVolume: 1.0,
+            musicVolume: 0.6,
+            soundVolume: 0.7,
         }
     };
 
@@ -660,9 +660,9 @@ function showVersionWarningModal(config) {
     const secondaryButton = modalElement.querySelector('.secondary-button');
 
     if (isString(config.secondaryButtonClass)) {
-        primaryButton.classList.add(config.secondaryButtonClass);
+        secondaryButton.classList.add(config.secondaryButtonClass);
     } else {
-        primaryButton.classList.add('.btn-warning');
+        secondaryButton.classList.add('.btn-warning');
     }
 
     secondaryButton.textContent = config.secondaryButtonText;
@@ -731,6 +731,30 @@ function initVersionWarning() {
                     primaryButtonText: 'Keep save',
                     primaryButtonCallback: () => {
                         gameData.ignoreCurrentVersionUpgrade(versionUpgrade.savedVersion, versionUpgrade.expectedVersion);
+                    }
+                });
+                break;
+            case 9:
+                showVersionWarningModal({
+                    title: 'Old Save Game found',
+                    bodyHtml: `
+                        <p>
+                            You have already played the <b class="text-yellow">Progress Station</b>
+                             <b class="version-label">Beta</b> in the past, thank you!
+                        </p>
+                        <p>
+                            The game progression has changed - unfortunately you will need to start over.<br />
+                            We hope you enjoy the new experience!
+                        </p>
+                    `,
+                    secondaryButtonClass: 'hidden',
+                    secondaryButtonText: 'Start new game',
+                    secondaryButtonCallback: () => {
+                        gameData.reset();
+                    },
+                    primaryButtonText: 'Start new game',
+                    primaryButtonCallback: () => {
+                        gameData.reset();
                     }
                 });
                 break;
