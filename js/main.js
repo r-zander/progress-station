@@ -1511,14 +1511,15 @@ function setProgress(progressFillElement, progress, increasing = true) {
  * @return {boolean} true if the entity is available, false if not
  */
 function updateRequirements(unfulfilledRequirements, context) {
-    // Block all following entities
+    // Rule 1: The module is unlocked, so we show it
+    if (unfulfilledRequirements === null) {
+        return true;
+    }
+
+    // Rule 2: Block all following entities
     // Only first requirement is shown
     if (context.hasUnfulfilledRequirements) {
         return false;
-    }
-
-    if (unfulfilledRequirements === null) {
-        return true;
     }
 
     // Logic here: Only if all the open requirements are visible,
