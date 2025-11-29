@@ -2015,6 +2015,8 @@ function updateTechnologiesUI() {
         const technology = technologies[key];
         const row = Dom.get().byId(`technology_${key}`);
 
+        row.classList.toggle('hidden', !technology.isVisible());
+
         const domGetter = Dom.get(row);
         const nameCell = domGetter.byClass('technology-name');
         const stateBadge = domGetter.byClass('state-badge');

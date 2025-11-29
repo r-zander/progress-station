@@ -865,6 +865,10 @@ class GalacticSecret extends Entity {
 
 class Technology extends Entity {
     /**
+     * @type {TechnologyRequirement|null}
+     */
+    technologyRequirement = null;
+    /**
      * 0.0 - 1.0
      * @type {number}
      */
@@ -877,6 +881,7 @@ class Technology extends Entity {
      *     unlocks: Entity,
      *     baseCost: number,
      *     requirements?: Requirement[],
+     *     prerequisites?: Requirement[]
      * }} baseData
      */
     constructor(baseData) {
@@ -884,13 +889,19 @@ class Technology extends Entity {
 
         this.unlocks = baseData.unlocks;
         this.baseCost = baseData.baseCost;
+        /**
+         * @type {Requirement[]}
+         */
+        // TODO refactor: this should be passed into the TechnologyRequirement?
         this.requirements = baseData.requirements || [];
         this.type = baseData.unlocks.type || baseData.unlocks.constructor.name;
+
 
         // Register a TechnologyRequirement on the entity being unlocked
         // (Only if the entity has a registerRequirement method - HTML elements don't)
         if (isFunction(this.unlocks.registerRequirement)) {
-            this.unlocks.registerRequirement(new TechnologyRequirement({technology: this}));
+            this.technologyRequirement = new TechnologyRequirement({technology: this}, baseData.prerequisites);
+            this.unlocks.registerRequirement(this.technologyRequirement);
         }
     }
 
@@ -944,6 +955,11 @@ class Technology extends Entity {
      */
     getSavedValues() {
         return this.savedValues;
+    }
+
+    isVisible() {
+        return (this.technologyRequirement === null || this.technologyRequirement.isVisible()) &&
+            this.requirements.every((requirement) => requirement.isVisible());
     }
 
     get isUnlocked() {
@@ -1588,9 +1604,23 @@ class TechnologyRequirement extends Requirement {
         return baseData.technology.isUnlocked;
     }
 
+    unlockRequirementsVisible() {
+        // TODO somewhat hacky, might want to rethink this
+        const unlock = this.baseData.technology.unlocks;
+        switch (unlock.type) {
+            case 'ModuleOperation':
+                return Requirement.hasRequirementsFulfilled(unlock.component.module);
+            case 'PointOfInterest':
+                return Requirement.hasRequirementsFulfilled(unlock.sector);
+        }
+
+        return true;
+    }
+
     isVisible() {
         // Show technology requirements when player has research unlocked
         return htmlElementRequirements.galacticSecretsTabButton.isCompleted()
+            && this.unlockRequirementsVisible()
             && super.isVisible();
     }
 
