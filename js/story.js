@@ -149,8 +149,8 @@ function populateLastRunStats() {
             speedCell.appendChild(speedValueElement);
             row.appendChild(speedCell);
 
-            const newOpSpeed = (1 + Math.max(module.getLevel(), module.maxLevel) / 100);
-            const prevOpSpeed = (1 + module.maxLevel / 100);
+            const newOpSpeed = (1 + Math.max(module.getLevel(), module.maxLevel) / 500);
+            const prevOpSpeed = (1 + module.maxLevel / 500);
             runningAnimations.push(animateStatValue(speedValueElement, prevOpSpeed, newOpSpeed, 6000, value => {
                 return `x ${value.toFixed(2)}`;
             }));
