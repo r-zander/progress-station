@@ -181,22 +181,28 @@ const LayeredMainThemeMusicState = {
         initial: {
             segment: {
                 src: 'audio/music/ps_bgm_initial_layer.mp3',
-                volume: 1.0,
+                volume: 0.5,
                 loop: true,
-                fadeInTime: 1000,
-                fadeOutTime: 1000
+                fadeInTime: 600,
+                fadeOutTime: 600
             },
-            conditions: (_) => true, // Always playing
+            conditions: (_) => {
+                if (!gameData.state.musicInitialLayerPlaying) return false;
+
+                return true; // Always playing
+            },
         },
         slow_progress: {
             segment: {
                 src: 'audio/music/ps_bgm_low_layer.mp3',
                 volume: 1.0,
                 loop: true,
-                fadeInTime: 1000,
-                fadeOutTime: 1000
+                fadeInTime: 6000,
+                fadeOutTime: 6000
             },
             conditions: (musicContext) => {
+                if (!gameData.state.musicProgressLayerPlaying) return false;
+
                 return musicContext.maxProgressSpeed <= 0.20;
             },
         },
@@ -205,10 +211,12 @@ const LayeredMainThemeMusicState = {
                 src: 'audio/music/ps_bgm_mid_layer.mp3',
                 volume: 1.0,
                 loop: true,
-                fadeInTime: 1000,
-                fadeOutTime: 1000
+                fadeInTime: 6000,
+                fadeOutTime: 6000
             },
             conditions: (musicContext) => {
+                if (!gameData.state.musicProgressLayerPlaying) return false;
+
                 // Slow progress?
                 if (musicContext.maxProgressSpeed <= 0.20) return false;
 
@@ -225,10 +233,12 @@ const LayeredMainThemeMusicState = {
                 src: 'audio/music/ps_bgm_high_layer.mp3',
                 volume: 1.0,
                 loop: true,
-                fadeInTime: 1000,
-                fadeOutTime: 1000
+                fadeInTime: 3000,
+                fadeOutTime: 3000
             },
             conditions: (musicContext) => {
+                if (!gameData.state.musicProgressLayerPlaying) return false;
+
                 if (musicContext.maxProgressSpeed > 5.00) return true;
                 if (musicContext.totalProgressSpeed > 40.00) return true;
 

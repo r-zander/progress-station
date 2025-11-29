@@ -18,6 +18,8 @@ const localStorageKey = 'ps_gameDataSave';
  * @property {boolean} isBossBattleProgressing
  * @property {boolean} canChangeActivation
  * @property {boolean} canEngageBattles
+ * @property {boolean} musicInitialLayerPlaying
+ * @property {boolean} musicProgressLayerPlaying
  * @property {GameState[]} [validNextStates]
  */
 
@@ -33,6 +35,8 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: false,
         canEngageBattles: false,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: false,
     },
     PLAYING: {
         gameLoopRunning: true,
@@ -42,6 +46,8 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
         canEngageBattles: true,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: true,
     },
     PAUSED: {
         gameLoopRunning: false,
@@ -51,6 +57,8 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
         canEngageBattles: false,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: false,
     },
     TUTORIAL_PAUSED: {
         gameLoopRunning: false,
@@ -60,6 +68,8 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
         canEngageBattles: false,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: false,
     },
     BOSS_FIGHT_INTRO: {
         gameLoopRunning: false,
@@ -69,6 +79,8 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: false,
         canEngageBattles: false,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: false,
     },
     BOSS_FIGHT: {
         gameLoopRunning: true,
@@ -78,6 +90,8 @@ const gameStates = {
         isBossBattleProgressing: true,
         canChangeActivation: true,
         canEngageBattles: true,
+        musicInitialLayerPlaying: false,
+        musicProgressLayerPlaying: false,
     },
     BOSS_FIGHT_PAUSED: {
         gameLoopRunning: false,
@@ -87,6 +101,8 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
         canEngageBattles: false,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: false,
     },
     DEAD: {
         gameLoopRunning: false,
@@ -96,6 +112,8 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: false,
         canEngageBattles: false,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: false,
     },
     BOSS_DEFEATED: {
         gameLoopRunning: false,
@@ -105,6 +123,8 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: false,
         canEngageBattles: false,
+        musicInitialLayerPlaying: false,
+        musicProgressLayerPlaying: false,
     },
 };
 gameStates.NEW.validNextStates = [gameStates.PLAYING];

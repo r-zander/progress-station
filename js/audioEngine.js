@@ -307,6 +307,9 @@ class AudioEngine {
     /** @type {Object.<string, string>} Current active state per state group */
     static #activeStates = {};
 
+    /** @type {Object.<string, {howl: Howl, soundId: number}>} Permanent Howl instances for each layer (never unloaded) */
+    static #layerHowls = {};
+
     /** @type {Object.<string, Object>} Active music layers with their Howl instances */
     static #activeLayers = {};
 
@@ -564,15 +567,31 @@ class AudioEngine {
             }
         }
 
-        // Stop all music layers
-        for (const layerKey in AudioEngine.#activeLayers) {
-            const layer = AudioEngine.#activeLayers[layerKey];
+        // Pause all music layers (don't destroy them)
+        for (const layerKey in AudioEngine.#layerHowls) {
+            const layer = AudioEngine.#layerHowls[layerKey];
             if (layer.howl) {
-                layer.howl.stop();
+                layer.howl.volume(0, layer.soundId);
+                layer.howl.pause(layer.soundId);
             }
         }
 
         AudioEngine.#activeLayers = {};
+    }
+
+    /**
+     * Get internal state for debugging (minimal exposure)
+     * WARNING: This exposes private state - only use for debugging!
+     * @returns {Object} Internal references for debugging
+     */
+    static getDebugState() {
+        return {
+            banks: AudioEngine.#banks,
+            musicStates: AudioEngine.#musicStates,
+            activeStates: AudioEngine.#activeStates,
+            layerHowls: AudioEngine.#layerHowls,
+            activeLayers: AudioEngine.#activeLayers,
+        };
     }
 
     /**
@@ -848,27 +867,48 @@ class AudioEngine {
     static #startLayer(stateName, layerName, layer) {
         const layerKey = AudioEngine.#getLayerKey(stateName, layerName);
         const segment = layer.segment;
+        const targetVolume = segment.volume * gameData.settings.audio.musicVolume;
 
-        // Create Howl for this layer
-        const howl = new Howl({
-            src: [segment.src],
-            volume: segment.volume * gameData.settings.audio.musicVolume,
-            loop: segment.loop,
-            preload: true,
-        });
+        let layerHowl = AudioEngine.#layerHowls[layerKey];
+        let soundId;
 
-        const soundId = howl.play();
+        // Check if Howl already exists (reuse instead of recreate)
+        if (layerHowl) {
+            soundId = layerHowl.soundId;
+
+            // Resume if paused
+            if (!layerHowl.howl.playing(soundId)) {
+                layerHowl.howl.play(soundId);
+            }
+        } else {
+            // Create Howl for this layer (first time only)
+            const howl = new Howl({
+                src: [segment.src],
+                volume: 0, // Start at 0, will fade in
+                loop: segment.loop,
+                preload: true,
+            });
+
+            soundId = howl.play();
+
+            // Store permanently in layerHowls
+            layerHowl = {
+                howl: howl,
+                soundId: soundId,
+            };
+            AudioEngine.#layerHowls[layerKey] = layerHowl;
+        }
 
         // Fade in if specified
         if (isNumber(segment.fadeInTime) && segment.fadeInTime > 0) {
-            howl.volume(0, soundId);
-            howl.fade(0, segment.volume * gameData.settings.audio.musicVolume, segment.fadeInTime, soundId);
+            layerHowl.howl.volume(0, soundId);
+            layerHowl.howl.fade(0, targetVolume, segment.fadeInTime, soundId);
+        } else {
+            layerHowl.howl.volume(targetVolume, soundId);
         }
 
-        AudioEngine.#activeLayers[layerKey] = {
-            howl: howl,
-            soundId: soundId,
-        };
+        // Track that this layer is logically active
+        AudioEngine.#activeLayers[layerKey] = layerHowl;
     }
 
     static #getLayerKey(stateName, layerName) {
@@ -891,27 +931,29 @@ class AudioEngine {
         }
 
         const segment = layer.segment;
+        const soundId = activeLayer.soundId;
 
-        // Fade out if specified
+        // Fade out if specified, then pause (NOT stop/unload)
         if (isNumber(segment.fadeOutTime) && segment.fadeOutTime > 0) {
             activeLayer.howl.fade(
                 segment.volume * gameData.settings.audio.musicVolume,
                 0,
                 segment.fadeOutTime,
-                activeLayer.soundId,
+                soundId,
             );
 
-            // Stop and unload after fade
-            setTimeout(() => {
-                activeLayer.howl.stop();
-                activeLayer.howl.unload();
-                delete AudioEngine.#activeLayers[layerKey];
-            }, segment.fadeOutTime);
+            // Pause after fade completes (using Howl's onfade callback)
+            activeLayer.howl.once('fade', () => {
+                activeLayer.howl.pause(soundId);
+            }, soundId);
         } else {
-            activeLayer.howl.stop();
-            activeLayer.howl.unload();
-            delete AudioEngine.#activeLayers[layerKey];
+            // Immediately set volume to 0 and pause
+            activeLayer.howl.volume(0, soundId);
+            activeLayer.howl.pause(soundId);
         }
+
+        // Remove from active tracking (but Howl stays in #layerHowls for reuse)
+        delete AudioEngine.#activeLayers[layerKey];
     }
 }
 

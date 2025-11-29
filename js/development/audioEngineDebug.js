@@ -123,6 +123,149 @@ const AudioEngineDebug = (() => {
     }
 
     /**
+     * Introspect Howl instances to extract detailed information
+     * @param {Howl} howl - Howl instance to introspect
+     * @returns {Array} Array of sound instance info
+     * @private
+     */
+    function extractHowlInstances(howl) {
+        const instances = [];
+        if (howl._sounds && howl._sounds.length > 0) {
+            howl._sounds.forEach(sound => {
+                if (sound._id !== undefined) {
+                    instances.push({
+                        id: sound._id,
+                        playing: howl.playing(sound._id),
+                        volume: howl.volume(sound._id),
+                        muted: howl.mute(sound._id),
+                        paused: sound._paused || false,
+                        ended: sound._ended || false,
+                    });
+                }
+            });
+        }
+        return instances;
+    }
+
+    /**
+     * Build debug information from AudioEngine's internal state
+     * @private
+     */
+    function buildDebugInfo() {
+        const debugState = AudioEngine.getDebugState();
+
+        // Build active layers summary
+        const activeLayers = [];
+        for (const layerKey in debugState.activeLayers) {
+            const layerKeyParts = layerKey.split('##');
+            const howl = debugState.activeLayers[layerKey].howl;
+            const soundId = debugState.activeLayers[layerKey].soundId;
+
+            activeLayers.push({
+                state: layerKeyParts[0],
+                layer: layerKeyParts[1],
+                isPlaying: howl?.playing(soundId) || false,
+                volume: howl?.volume(soundId),
+                muted: howl?.mute(soundId),
+                soundId: soundId,
+            });
+        }
+
+        // Introspect ALL music layer Howls (permanent storage)
+        const allMusicLayerHowls = [];
+        for (const layerKey in debugState.layerHowls) {
+            const layerKeyParts = layerKey.split('##');
+            const howl = debugState.layerHowls[layerKey].howl;
+            const soundId = debugState.layerHowls[layerKey].soundId;
+            const isActive = debugState.activeLayers[layerKey] !== undefined;
+
+            allMusicLayerHowls.push({
+                state: layerKeyParts[0],
+                layer: layerKeyParts[1],
+                primarySoundId: soundId,
+                instances: extractHowlInstances(howl),
+                howlState: howl.state(),
+                isActive: isActive,
+            });
+        }
+
+        // Introspect sound effect Howls from banks
+        const soundEffectHowls = [];
+        for (const bankName in debugState.banks) {
+            const bank = debugState.banks[bankName];
+            for (const eventName in bank.events) {
+                const eventData = bank.events[eventName];
+                eventData.howls.forEach((howl, index) => {
+                    soundEffectHowls.push({
+                        bank: bankName,
+                        event: eventName,
+                        index: index,
+                        instances: extractHowlInstances(howl),
+                        state: howl.state(),
+                    });
+                });
+            }
+        }
+
+        // Introspect ALL Howls directly from Howler.js
+        const allHowlerSounds = [];
+        if (Howler._howls && Howler._howls.length > 0) {
+            Howler._howls.forEach((howl, howlIndex) => {
+                const instances = extractHowlInstances(howl);
+                allHowlerSounds.push({
+                    howlIndex: howlIndex,
+                    src: howl._src || 'unknown',
+                    state: howl.state(),
+                    instances: instances,
+                    volume: howl.volume(),
+                    muted: howl.mute(),
+                });
+            });
+        }
+
+        // Calculate statistics
+        const musicLayerHowls = allMusicLayerHowls.filter(h => h.isActive);
+
+        let playingInstances = 0;
+        let stoppedInstances = 0;
+        let mutedInstances = 0;
+
+        soundEffectHowls.forEach(howl => {
+            howl.instances.forEach(inst => {
+                if (inst.playing) playingInstances++;
+                else stoppedInstances++;
+                if (inst.muted) mutedInstances++;
+            });
+        });
+
+        allMusicLayerHowls.forEach(howl => {
+            howl.instances.forEach(inst => {
+                if (inst.playing) playingInstances++;
+                else stoppedInstances++;
+                if (inst.muted) mutedInstances++;
+            });
+        });
+
+        return {
+            activeStates: {...debugState.activeStates},
+            activeLayers: activeLayers,
+            registeredStates: Object.keys(debugState.musicStates),
+            howlStats: {
+                totalMusicHowls: Object.keys(debugState.layerHowls).length,
+                activeMusicHowls: Object.keys(debugState.activeLayers).length,
+                totalSoundEffectHowls: soundEffectHowls.length,
+                playingInstances: playingInstances,
+                stoppedInstances: stoppedInstances,
+                mutedInstances: mutedInstances,
+            },
+            soundEffectHowls: soundEffectHowls,
+            musicLayerHowls: musicLayerHowls,
+            allMusicLayerHowls: allMusicLayerHowls,
+            allHowlerSounds: allHowlerSounds,
+        };
+    }
+
+    /**
      * Update the debug overlay with current statistics
      */
     function updateOverlay() {
@@ -131,12 +274,126 @@ const AudioEngineDebug = (() => {
         const debugDiv = document.getElementById('audioEngineDebug');
         if (!debugDiv) return;
 
+        // Build debug info by introspecting AudioEngine state
+        const musicDebug = buildDebugInfo();
+
+        // Format active states
+        const activeStatesText = Object.keys(musicDebug.activeStates).length > 0
+            ? Object.entries(musicDebug.activeStates)
+                .map(([group, state]) => `${group}: ${state}`)
+                .join('<br>')
+            : 'None';
+
+        // Format active layers
+        const activeLayersText = musicDebug.activeLayers.length > 0
+            ? musicDebug.activeLayers
+                .map(layer => `${layer.state}/${layer.layer} (${layer.isPlaying ? 'playing' : 'stopped'})`)
+                .join('<br>')
+            : 'None';
+
+        // Format Howl statistics
+        const howlStatsText = `
+            Music Howls: ${musicDebug.howlStats.totalMusicHowls} (${musicDebug.howlStats.activeMusicHowls} active)<br>
+            SFX Howls: ${musicDebug.howlStats.totalSoundEffectHowls}<br>
+            Playing: ${musicDebug.howlStats.playingInstances}<br>
+            Stopped: ${musicDebug.howlStats.stoppedInstances}<br>
+            Muted: ${musicDebug.howlStats.mutedInstances}
+        `;
+
+        // Format ALL music layer Howls (permanent storage)
+        const allMusicLayerDetailsText = musicDebug.allMusicLayerHowls && musicDebug.allMusicLayerHowls.length > 0
+            ? musicDebug.allMusicLayerHowls.map(howl => {
+                const activeIcon = howl.isActive ? '🟢' : '⚪';
+                const instancesText = howl.instances.map(inst => {
+                    const playIcon = inst.playing ? '▶' : '⏹';
+                    const muteIcon = inst.muted ? '🔇' : '';
+                    return `#${inst.id} ${playIcon}${muteIcon} v${inst.volume?.toFixed(2) || '?'}`;
+                }).join(', ');
+                return `${activeIcon} ${howl.state}/${howl.layer} [${howl.howlState}]<br>${instancesText || 'No instances'}`;
+            }).join('<br>')
+            : 'None';
+
+        // Format detailed music layer instances (active only - for comparison)
+        const musicLayerDetailsText = musicDebug.musicLayerHowls.length > 0
+            ? musicDebug.musicLayerHowls.map(howl => {
+                const instancesText = howl.instances.map(inst => {
+                    const playIcon = inst.playing ? '▶' : '⏹';
+                    const muteIcon = inst.muted ? '🔇' : '';
+                    return `#${inst.id} ${playIcon}${muteIcon} v${inst.volume?.toFixed(2) || '?'}`;
+                }).join(', ');
+                return `${howl.state}/${howl.layer} [${howl.howlState}]<br>${instancesText || 'No instances'}`;
+            }).join('<br>')
+            : 'None';
+
+        // Format sound effect instances (only show if there are active instances)
+        const activeSFXHowls = musicDebug.soundEffectHowls.filter(h => h.instances.length > 0);
+        const sfxDetailsText = activeSFXHowls.length > 0
+            ? activeSFXHowls.map(howl => {
+                const instancesText = howl.instances.map(inst => {
+                    const playIcon = inst.playing ? '▶' : '⏹';
+                    const muteIcon = inst.muted ? '🔇' : '';
+                    return `#${inst.id} ${playIcon}${muteIcon}`;
+                }).join(', ');
+                return `${howl.bank}/${howl.event}: ${instancesText}`;
+            }).join('<br>')
+            : 'None active';
+
+        // Format ALL Howler sounds (direct from Howler.js, bypassing AudioEngine)
+        const allHowlerText = musicDebug.allHowlerSounds.length > 0
+            ? musicDebug.allHowlerSounds.map((howl, idx) => {
+                const srcDisplay = Array.isArray(howl.src)
+                    ? howl.src[0].substring(howl.src[0].lastIndexOf('/') + 1)
+                    : (howl.src || 'unknown').substring((howl.src || 'unknown').lastIndexOf('/') + 1);
+                const instancesText = howl.instances.length > 0
+                    ? howl.instances.map(inst => {
+                        const playIcon = inst.playing ? '▶' : '⏹';
+                        const muteIcon = inst.muted ? '🔇' : '';
+                        const stateIcon = inst.state === 'paused' ? '⏸' : (inst.state === 'ended' ? '⏹' : '');
+                        return `#${inst.id} ${playIcon}${muteIcon}${stateIcon}`;
+                    }).join(', ')
+                    : 'No instances';
+                return `[${idx}] ${srcDisplay}<br>${instancesText}`;
+            }).join('<br>')
+            : 'None';
+
+        const totalHowlerInstances = musicDebug.allHowlerSounds.reduce((sum, h) => sum + h.instances.length, 0);
+        const playingHowlerInstances = musicDebug.allHowlerSounds.reduce((sum, h) =>
+            sum + h.instances.filter(i => i.playing).length, 0);
+
         // Remove hidden class and update content
         debugDiv.classList.remove('hidden');
         debugDiv.innerHTML = `
-            <div style="font-family: monospace; font-size: 12px; border: 2px solid white; padding: 3px;">
-                <strong>Music Context Statistics</strong>
+            <div>
+                <strong>Audio Engine Debug</strong>
                 <hr style="margin: 5px 0;">
+                <div style="margin-bottom: 8px;">
+                    <strong>Howl Statistics:</strong><br>
+                    ${howlStatsText}
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <strong>🔍 Howler.js Direct View:</strong><br>
+                    <span style="font-size: 10px;">Total Howls: ${musicDebug.allHowlerSounds.length} | Instances: ${totalHowlerInstances} | Playing: ${playingHowlerInstances}</span><br>
+                    ${allHowlerText}
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <strong>Music Layer Howls (Permanent):</strong><br>
+                    <span style="font-size: 10px;">(🟢=Active, ⚪=Inactive)</span><br>
+                    ${allMusicLayerDetailsText}
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <strong>Active SFX:</strong><br>
+                    ${sfxDetailsText}
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <strong>Music State:</strong><br>
+                    Active States:<br>
+                    ${activeStatesText}<br>
+                    <br>
+                    Active Layers:<br>
+                    ${activeLayersText}<br>
+                    <br>
+                    Registered: ${musicDebug.registeredStates.join(', ') || 'None'}
+                </div>
                 <div style="margin-bottom: 8px;">
                     <strong>Current Values:</strong><br>
                     Highest Attr: ${musicContext.highestAttribute}<br>
@@ -206,7 +463,16 @@ const AudioEngineDebug = (() => {
 
         document.body.insertAdjacentHTML(
             'beforeend',
-            '<div id="audioEngineDebug" class="position-fixed end-0 p-3 text-bg-dark hidden" style="top: 60px; z-index: 2000; max-width: 300px;"></div>'
+`<div id="audioEngineDebug" 
+            class="position-fixed end-0 p-1 text-bg-dark hidden" 
+            style="top: 60px;
+            z-index: 2000;
+            max-width: 300px;
+            font-family: monospace
+            font-size: 12px;
+            border: 2px solid white;
+            max-height: calc(100vh - 60px);
+            overflow-y: auto;"></div>`
         );
     }
 
