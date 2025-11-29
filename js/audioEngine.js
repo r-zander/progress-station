@@ -370,7 +370,7 @@ class AudioEngine {
         AudioEngine.setMusicContext(musicContext);
 
         // Set initial volume and mute state
-        Howler.mute(!gameData.settings.audio.enabled);
+        AudioEngine.updateHowlerMute();
         AudioEngine.setMasterVolume(gameData.settings.audio.masterVolume);
         AudioEngine.setMusicVolume(gameData.settings.audio.musicVolume);
         AudioEngine.setSoundVolume(gameData.settings.audio.soundVolume);
@@ -392,6 +392,10 @@ class AudioEngine {
             const toast = bootstrap.Toast.getOrCreateInstance(Dom.get().byId('enableAudioToast'));
             toast.show();
         }
+
+        document.addEventListener("visibilitychange", () => {
+            AudioEngine.updateHowlerMute();
+        });
     }
 
     /**
@@ -701,8 +705,8 @@ class AudioEngine {
             gameData.settings.audio.enabled = force;
             Dom.get().byId('audioEnabledSwitch').checked = force;
         }
-        Howler.mute(!gameData.settings.audio.enabled);
 
+        AudioEngine.updateHowlerMute();
         AudioEngine.#updateMusicLayers();
 
         gameData.save();
@@ -721,9 +725,18 @@ class AudioEngine {
             Dom.get().byId('audioBackgroundAudioEnabledSwitch').checked = force;
         }
 
-        // TODO enable / disable background audio
+        AudioEngine.updateHowlerMute();
 
         gameData.save();
+    }
+
+    static updateHowlerMute() {
+        if (document.hidden && !gameData.settings.audio.enableBackgroundAudio) {
+            Howler.mute(true);
+            return;
+        }
+
+        Howler.mute(!gameData.settings.audio.enabled);
     }
 
     // ============================================
