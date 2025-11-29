@@ -59,11 +59,27 @@ This is a pure client-side HTML/JS/CSS project with no build system:
 - Game uses FastDOM for performance-optimized DOM operations
 - No package.json - this is a vanilla JavaScript project
 
+### Development Code Pattern
+- **NEVER call development code from production code**: Code in `/js/development/` should NEVER be called from `main.js` or other production files
+- **Self-initialization**: Development modules should self-initialize by calling their init function at the bottom of their IIFE
+- **Production build separation**: The `/js/development/` folder is excluded from production builds, so any references to it from production code will break the game
+- **Example**: `AudioEngineDebug` self-initializes and restores state from localStorage without any call from `main.js`
+- Development modules like `AutoPlay` or `AudioEngineDebug` should store its enabled flags into localStorage with the key pattern `'ps_<systemName>_<toggleName>'`, e.g. `'ps_audioEngineDebug_overlayEnabled'`. And then restore its state on init --> Goal is to allow the game to reload at any time without overhead for the developer.
+
 ### Code Style
 - **No falsy/truthy checks**: Always use explicit type checks instead of relying on falsy/truthy values
   - Use `isFunction()`, `isNumber()`, `isString()`, etc. for type checking
   - Use explicit comparisons: `!== null`, `!== undefined`, `=== 0`, etc.
   - Example: Use `if (isFunction(callback))` instead of `if (callback)`
+
+- **Naming Conventions**:
+  - Classes: `PascalCase` (e.g., `AudioEngine`, `GameData`, `VFX`)
+  - Public methods (instance or static): `camelCase` (e.g., `loadBank()`, `setVolume()`, `init()`)
+  - Private methods (instance or static): `#camelCase` (e.g., `#startLayer()`, `#updateMusicLayers()`)
+  - Private fields (instance or static): `#camelCase` (e.g., `#banks`, `#musicContext`)
+  - Global functions: `camelCase` (e.g., `setTab()`, `updateUI()`)
+  - Constants: `SCREAMING_SNAKE_CASE` (e.g., `SPACE_BASE_HEAT`, `MAX_POPULATION`)
+  - Use ES2022 `#private` syntax for actual privacy, not `_underscore` convention
 
 ## Game Mechanics & Interaction
 
@@ -79,17 +95,11 @@ This is a pure client-side HTML/JS/CSS project with no build system:
 - **Modules**: Use module activation switches to enable/disable entire modules
 
 ### Attributes System
-- **Population**: Core resource, affected by Growth and Heat, calculated via `populationDelta()`
+- **Population**: Core resource, affected by Growth and Danger, calculated via `calculatePopulationDelta()`
 - **Growth**: Drives population increase, prioritized when population < 95% of theoretical max
-- **Military**: Defense stat, must exceed Danger to prevent Heat damage
-- **Danger**: Risk level from battles/locations, causes Heat if > Military
-- **Heat**: Population damage %, calculated as `max(danger - military, 0) + rawHeat`
+- **Military**: Increases damage against battles
+- **Danger**: Risk level from battles/locations, causes population loss
 - **Industry/Research**: Primary progression stats for unlocking content
-
-### Safety Constraints
-- Danger should never exceed Military to prevent population loss from Heat
-- Population approaches `growth / (0.01 * heat)` in steady state
-- Boss battles disable Growth and inflict direct Heat damage
 
 ### Modal System
 - Game shows Bootstrap modals for story events, boss encounters, and game over

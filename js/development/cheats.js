@@ -3,14 +3,6 @@
 // noinspection JSUnusedGlobalSymbols
 
 /**
- * @param {string} title
- * @return {string}
- */
-function prepareTitle(title) {
-    return title.replaceAll('\xa0', ' ');
-}
-
-/**
  * @param {EffectType} effectType
  * @return {string}
  */
@@ -67,25 +59,27 @@ function prepareRequirementsForTSV(requirements, locale) {
         result[0] = requirements[0].type;
         result[1] = requirements[0].scope;
         // noinspection IfStatementWithTooManyBranchesJS
-        if (requirements[0] instanceof AttributeRequirement) {
-            result[2] = requirements[0].requirements[0].attribute.name;
-            result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
-        } else if (requirements[0] instanceof OperationLevelRequirement) {
-            result[2] = requirements[0].requirements[0].operation.name;
-            result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
-        } else if (requirements[0] instanceof CyclesPassedRequirement) {
-            result[2] = null;
-            result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
-        } else if (requirements[0] instanceof GalacticSecretRequirement) {
-            result[2] = requirements[0].requirements[0].galacticSecret.name;
-            result[3] = null;
-        } else if (requirements[0] instanceof FactionLevelsDefeatedRequirement) {
-            result[2] = requirements[0].requirements[0].faction.name;
-            result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
-        } else {
+
+        // TODO adjust for new requirements structure
+        // if (requirements[0] instanceof AttributeRequirement) {
+        //     result[2] = requirements[0].requirements[0].attribute.name;
+        //     result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
+        // } else if (requirements[0] instanceof OperationLevelRequirement) {
+        //     result[2] = requirements[0].requirements[0].operation.name;
+        //     result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
+        // } else if (requirements[0] instanceof CyclesPassedRequirement) {
+        //     result[2] = null;
+        //     result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
+        // } else if (requirements[0] instanceof GalacticSecretRequirement) {
+        //     result[2] = requirements[0].requirements[0].galacticSecret.name;
+        //     result[3] = null;
+        // } else if (requirements[0] instanceof FactionLevelsDefeatedRequirement) {
+        //     result[2] = requirements[0].requirements[0].faction.name;
+        //     result[3] = formatNumber(requirements[0].requirements[0].requirement, locale);
+        // } else {
             result[2] = 'Unsupported Requirement type';
             result[3] = null;
-        }
+        // }
     }
     return result;
 }
@@ -194,13 +188,13 @@ const cheats = {
         exportStrings: () => {
             return JSON.stringify({
                 modules: Object.values(modules).reduce((transformedModules, module) => {
-                    transformedModules[prepareTitle(module.title)] = {
+                    transformedModules[deprepareTitle(module.title)] = {
                         description: module.description,
                         components: Object.values(module.components).reduce((transformedComponents, component) => {
-                            transformedComponents[prepareTitle(component.title)] = {
+                            transformedComponents[deprepareTitle(component.title)] = {
                                 description: component.description,
                                 operations: Object.values(component.operations).reduce((transformedOperations, operation) => {
-                                    transformedOperations[prepareTitle(operation.title)] = {
+                                    transformedOperations[deprepareTitle(operation.title)] = {
                                         description: operation.description,
                                     };
                                     return transformedOperations;
@@ -220,7 +214,7 @@ const cheats = {
                     return [
                         operation.component.name,
                         operation.name,
-                        prepareTitle(operation.title),
+                        deprepareTitle(operation.title),
                         operation.description,
                         formatNumber(operation.maxXp, locale),
                         operation.gridLoad,
@@ -236,7 +230,7 @@ const cheats = {
                     return [
                         component.module.name,
                         component.name,
-                        prepareTitle(component.title),
+                        deprepareTitle(component.title),
                         component.description,
                     ].join('\t');
                 }).join('\n');
@@ -261,7 +255,7 @@ const cheats = {
                     return [
                         parent,
                         module.name,
-                        prepareTitle(module.title),
+                        deprepareTitle(module.title),
                         module.description,
                         ...prepareRequirementsForTSV(module.requirements, locale),
                     ].join('\t');
@@ -274,7 +268,7 @@ const cheats = {
                 return Object.values(moduleCategories).map(/** @param {ModuleCategory} category */category => {
                     return [
                         category.name,
-                        prepareTitle(category.title),
+                        deprepareTitle(category.title),
                         category.description,
                         ...prepareRequirementsForTSV(category.requirements, locale),
                     ].join('\t');
@@ -287,7 +281,7 @@ const cheats = {
                 return Object.values(factions).map(/** @param {FactionDefinition} faction */faction => {
                     return [
                         faction.name,
-                        prepareTitle(faction.title),
+                        deprepareTitle(faction.title),
                         faction.description,
                         formatNumber(faction.maxXp, locale),
                     ].join('\t');
@@ -300,7 +294,7 @@ const cheats = {
                 return Object.values(battles).map(/** @param {Battle} battle */battle => {
                     return [
                         battle.name,
-                        prepareTitle(battle.title).replace(battle.faction.title, '').trim(),
+                        deprepareTitle(battle.title).replace(battle.faction.title, '').trim(),
                         battle.description,
                         battle.faction.name,
                         formatNumber(battle.targetLevel, locale),
@@ -329,7 +323,7 @@ const cheats = {
                     return [
                         parent,
                         pointOfInterest.name,
-                        prepareTitle(pointOfInterest.title),
+                        deprepareTitle(pointOfInterest.title),
                         pointOfInterest.description,
                         ...prepareEffectsForTSV(pointOfInterest.effects.slice(0, 2), locale),
                         ...prepareEffectsForTSV(pointOfInterest.effects.slice(2), locale),
@@ -345,7 +339,7 @@ const cheats = {
                 return Object.values(sectors).map(/** @param {Sector} sector */sector => {
                     return [
                         sector.name,
-                        prepareTitle(sector.title),
+                        deprepareTitle(sector.title),
                         sector.description,
                         ...prepareRequirementsForTSV(sector.requirements, locale),
                     ].join('\t');
@@ -413,6 +407,19 @@ const cheats = {
             Object.entries(attributes).forEach(([name, attribute]) => {
                 console.log(name, attribute.getValue());
             });
+        },
+    },
+    AudioEngine: {
+        enableDebug: () => {
+            AudioEngineDebug.enableOverlay();
+            AudioEngineDebug.enableStatistics();
+        },
+        disableDebug: () => {
+            AudioEngineDebug.disableStatistics();
+            AudioEngineDebug.disableOverlay();
+        },
+        getStatistics: () => {
+            return AudioEngineDebug.getStatistics();
         },
     },
 };

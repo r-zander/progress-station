@@ -12,6 +12,7 @@
     --ps-blue: #5D8EC8;
     --ps-light-blue: #8FAFD4;
     --ps-cyan: #54E9D6;
+    --ps-cyan-rgb: 84, 233, 214;
     /*--ps-green1: #48A07E;*/
     --ps-green3: #2ABF72;
     /*--ps-green2: #02CC72;*/
@@ -40,6 +41,7 @@
     --body-font-color: white;
     --panel-bg-color: #1F1F1F;
     --panel-bg-color-transparent20: #1F1F1FCB;
+    --panel-bg-color-transparent10: #1F1F1FE6;
     --panel-bg-color-transparent05: #1F1F1FF2;
 
 
@@ -59,18 +61,18 @@
     --requirement-font-color: #b0b0b0;
 
     /* Attributes */
-    --attr-danger-color: var(--ps-orange);
+    --attr-danger-color: var(--ps-red2);
     --attr-energy-color: var(--ps-yellow);
     --attr-essence-of-unknown-color: var(--ps-pink1);
     --attr-grid-load-color: var(--progress-bar-color);
     --attr-grid-strength-color: var(--progress-bg-color);
     --attr-growth-color: var(--ps-green3);
-    --attr-heat-color: var(--ps-red2);
     --attr-industry-color: var(--ps-cyan);
     --attr-military-color: #9897A9;
     --attr-population-color: var(--ps-blue);
     --attr-research-color: var(--ps-purple2);
 
+    --technology-color: var(--attr-research-color);
     --galactic-secret-color: var(--attr-essence-of-unknown-color);
     --battle-color: var(--ps-red);
 
@@ -85,6 +87,10 @@
     --stars-1-color: #D7C89C;
     --stars-2-color: #CCBE95;
     --stars-3-color: #C2B58D;
+}
+
+.text-yellow {
+    color: var(--ps-yellow);
 }
 
 /* TODO collides with bs text-danger - prefix our attributes? */
@@ -113,10 +119,6 @@
     color: var(--attr-growth-color);
 }
 
-.text-heat {
-    color: var(--attr-heat-color);
-}
-
 .text-industry {
     color: var(--attr-industry-color);
 }
@@ -131,4 +133,8 @@
 
 .text-research {
     color: var(--attr-research-color);
+}
+
+.text-data, .text-technology {
+    color: var(--technology-color)
 }

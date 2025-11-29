@@ -28,7 +28,7 @@
         PS
     </div>
     <h1 class="p-0 m-0 order-1">Progress Station</h1>
-    <span class="h1 p-0 m-0 order-2 version-label beta" title="Beta Version. Full release on 13th Nov 2025!">Beta</span>
+<!--    <span class="h1 p-0 m-0 order-2 version-label final" title="Released on 29th November 2025">1.5</span>-->
 </a>
 <main id="main" class="d-flex flex-column">
     <header id="stationOverview" class="mb-3 gap-1 d-flex flex-column">
@@ -38,7 +38,7 @@
             <a id="stationOverviewLogo" class="logo" href="#credits">
                 PS
             </a>
-            <span class="h2 ms-2 version-label beta" title="Beta Version. Full release on 13th Nov 2025">Beta</span>
+<!--            <span class="h2 ms-2 version-label final" title="Released on 29th November 2025">1.5</span>-->
             <h2 id="nameDisplay" class="shortcut my-0 px-3 pb-1 text-nowrap overflow-x-hidden flex-shrink-0">USS Progress</h2>
             <div class="ms-auto d-flex align-items-center flex-grow-1">
                 <!-- Boss progress bar -->
@@ -134,6 +134,10 @@
                     <data id="populationDisplay" value="1">?</data>
                     (x<data id="populationProgressSpeedDisplay" value="1">?</data>)
                 </div>
+                <div class="secondary-stat">
+                    Max:
+                    <data id="maxPopulationDisplay" value="1">?</data>
+                </div>
             </div>
             <div class="primary-stat" data-attribute="industry"
                  data-bs-placement="bottom" data-bs-html="true">
@@ -153,23 +157,17 @@
                 <span class="label" style=""></span>
                 <data id="growthDisplay" value="1">?</data>
             </div>
-            <div class="primary-stat" data-attribute="military"
-                 data-bs-placement="bottom" data-bs-html="true">
-                <img src="" class="icon" alt=""/>
-                <span class="label" style=""></span>
-                <data id="militaryDisplay" value="1">?</data>
-            </div>
             <div class="primary-stat" data-attribute="danger"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
                 <data id="dangerDisplay" value="1">?</data>
             </div>
-            <div class="primary-stat" data-attribute="heat"
+            <div class="primary-stat" data-attribute="military"
                  data-bs-placement="bottom" data-bs-html="true">
                 <img src="" class="icon" alt=""/>
                 <span class="label" style=""></span>
-                <data id="heatDisplay" value="1">?%</data>
+                <data id="militaryDisplay" value="1">?</data>
             </div>
         </div>
     </header>
@@ -224,13 +222,46 @@
                     </template>
                     <slot id="modulesQuickTaskDisplay"></slot>
                 </button>
+                <div id="galacticSecretsTabButtonRequirements" class="requirements-container m-2">
+                    <span class="help-text">Required: Defeated Astrogoblins wave 12 / 25</span>
+                </div>
+                <button id="galacticSecretsTabButton" class="tabButton panel p-3" onClick="setTab('galacticSecrets');">
+                    <!--suppress HtmlUnknownTag -->
+                    <h3>Technologies</h3>
+                    <!--suppress HtmlUnknownTag -->
+                    <div class="quickTaskDisplay mt-2" title="Analysis Core" data-bs-placement="bottom">
+                        <div class=" progress progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
+                             aria-valuemin="0" aria-valuemax="100">
+                            <div class="analysis-core-bar progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
+                            <div class="progress-text name d-flex px-2">
+                                <span class="component text-truncate">Analysis Core</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!--suppress HtmlUnknownTag -->
+                    <div class="primary-stat d-flex justify-content-center mt-2 d-none d-lg-block" data-attribute="data"
+                         data-bs-placement="right" data-bs-html="true">
+                        <img src="" class="icon me-1" alt=""/>
+                        <span class="label" style=""></span>
+                        <span class="me-1">: </span>
+                        <data id="dataDisplay" value="0">0</data>
+                    </div>
+                    <!--suppress HtmlUnknownTag -->
+                    <div class="primary-stat d-flex justify-content-center mt-2 d-none d-lg-block" data-attribute="essenceOfUnknown"
+                         data-bs-placement="right" data-bs-html="true">
+                        <img src="" class="icon me-1" alt=""/>
+                        <span class="label" style=""></span>
+                        <span class="me-1">: </span>
+                        <data id="essenceOfUnknownDisplay" value="0">?</data>
+                    </div>
+                </button>
                 <!-- TODO how to display requirements on mobile? -->
                 <div id="battleTabButtonRequirements" class="requirements-container m-2">
-                    <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
+                    <span class="help-text">Required: Defeated Astrogoblins wave 12 / 25</span>
                 </div>
                 <button id="battleTabButton" class="tabButton panel p-3" onClick="setTab('battles');">
                     <!--suppress HtmlUnknownTag -->
-                    <h3>Battle</h3>
+                    <h3>Battles</h3>
                     <template id="battleQuickTaskDisplayTemplate">
                         <div class="quickTaskDisplay mt-2 d-none d-lg-block">
                             <div class="progress battle progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
@@ -249,7 +280,7 @@
                     <slot id="battlesQuickTaskDisplay"></slot>
                 </button>
                 <div id="locationTabButtonRequirements" class="requirements-container m-2">
-                    <span class="help-text">Required: Defeated Astrogoblins level 12 / 25</span>
+                    <span class="help-text">Required: Defeated Astrogoblins wave 12 / 25</span>
                 </div>
                 <button id="locationTabButton" class="tabButton panel p-3" onClick="setTab('location');">
                     <!--suppress HtmlUnknownTag -->
@@ -262,18 +293,6 @@
                         <span class="pointOfInterest text-truncate">Point of Interest</span>
                     </div>
                 </button>
-                <button id="galacticSecretsTabButton" class="tabButton panel p-3" onClick="setTab('galacticSecrets');">
-                    <!--suppress HtmlUnknownTag -->
-                    <h3>Galactic Secrets</h3>
-                    <!--suppress HtmlUnknownTag -->
-                    <div class="primary-stat d-flex justify-content-center mt-2 d-none d-lg-block" data-attribute="essenceOfUnknown"
-                         data-bs-placement="bottom" data-bs-html="true">
-                        <img src="" class="icon me-1" alt=""/>
-                        <span class="label" style=""></span>
-                        <span class="me-1">: </span>
-                        <data id="essenceOfUnknownDisplay" value="0">?</data>
-                    </div>
-                </button>
 
                 <button id="settingsTabButton" class="tabButton panel mt-auto p-3" onClick="setTab('settings');">
                     <!--suppress HtmlUnknownTag -->
@@ -282,7 +301,7 @@
             </nav>
         </aside>
 
-        <hr id="connector" class="d-none d-lg-block" />
+        <hr id="connector" class="d-none d-lg-block hidden" />
 
         <div id="content" class="panel flex-fill position-relative mh-100 overflow-auto">
             <template id="level1Template">
@@ -307,7 +326,7 @@
                         <div class="name" title="Component Description" data-bs-placement="right">
                             Mining Bay
                         </div>
-                        <div title="The sum of all operation levels in this module. Determines the max level after encountering the boss."
+                        <div title="The sum of all operation levels in this module. Determines the module's mastery after encountering the boss."
                              data-bs-placement="top">
                             Level:
                             <data class="level" value="32">32</data>
@@ -319,7 +338,7 @@
                             </div>
                         </div>
                         <div class="maxLevel" data-bs-placement="top">
-                            Max Level:
+                            Mastery:
                             <data value="124">124</data>
                         </div>
                         <div class="gridLoad ms-auto">
@@ -398,11 +417,18 @@
                             <th class="xpLeft numeric">Enemy HP</th>
                             <th class="level numeric">Waves</th>
                             <th class="danger numeric">Danger</th>
-                            <th class="rewards">Reward</th>
+                            <th class="rewards">Reward/Wave</th>
                         </tr>
                         </thead>
                         <tbody class="level4">
                         <!-- repeat level 4 row -->
+                        <tr id="bossBattleDefenseModeHelp" class="hidden">
+                            <td colspan="6" style="color: var(--ps-cyan); margin-top: 4px">
+                                <img src="img/icons/shield.svg" class="icon-shield" alt="shield icon"
+                                     style="width: 1em; vertical-align: middle; margin-right: 0.3em;" />
+                                Boss shields active: Station damage capped, heat aura disabled.
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -419,8 +445,18 @@
                             <div class="progress-text name text-truncate px-2">Wimpy Astrogoblins</div>
                         </div>
                     </td>
-                    <td class="xpGain numeric">
+                    <td class="xpGain numeric for-regular-battle">
                         <data value="1600" data-suffix="k">1.6</data>
+                    </td>
+                    <td class="xpGainCell numeric effect for-boss-battle">
+                        <div class="xpCappedValue defense-value">
+                            <span>vs Shield:</span>
+                            <data value="0" data-suffix="k">1.6</data>
+                        </div>
+                        <div class="xpGain attack-value">
+                            <span class="capped-prefix">After: </span>
+                            <data value="0" data-suffix="k">1.6</data>
+                        </div>
                     </td>
                     <td class="xpLeft numeric">
                         <data value="4550" data-suffix="k">45.5</data>
@@ -428,8 +464,19 @@
                     <td class="level numeric">
                         <data value="53">53</data>
                     </td>
-                    <td class="danger numeric">
+                    <td class="danger numeric for-regular-battle">
                         <data value="200">200</data>
+                    </td>
+                    <td class="dangerCell numeric effect for-boss-battle">
+                        <div class="dangerCappedValue defense-value">
+                            <span>Shielded:</span>
+                            <data value="0">0</data>
+                        </div>
+                        <div class="danger attack-value">
+                            <span class="capped-prefix">After: </span>
+                            <data value="0">200</data>
+                        </div>
+                        <div class="other-effects"></div>
                     </td>
                     <td class="rewards">
                         +2.0 Research
@@ -530,18 +577,16 @@
             <div id="battles" class="tab p-1 p-lg-3 overflow-hidden">
                 <ul class="tab-help-text help-text m-0">
                     <li class="battles-pose-danger">
-                        Engaged battles pose a
+                        Engaged battles inflict
                         <span class="primary-stat" data-attribute="danger" data-attribute-tooltip="false">
                             <img src="" class="icon" alt="" />
-                            <span class="label"></span>
-                        </span>
-                        that will reduce your population if your
-                        <span class="primary-stat" data-attribute="military" data-attribute-tooltip="false">
-                            <img src="" class="icon" alt=""/>
-                            <span class="label"></span>
-                        </span>
-                        is not high enough.
+                            <span class="label"></span></span>, draining population by that amount each cycle.
                     </li>
+                    <li class="battles-pose-danger">
+                        <span class="primary-stat" data-attribute="population" data-attribute-tooltip="false">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span></span> loss during a battle won't reduce your damage,
+                        but gains still boost it.</li>
                     <li class="battles-pose-danger">Disengage battles by clicking them again.</li>
                     <li class="multiple-battles">Engage as many battles as you like.</li>
                 </ul>
@@ -588,7 +633,7 @@
                                 <td class="description"></td>
                             </tr>
                         </template>
-                        <template id="balanceEntryTemplate">
+                        <template id="balanceEntryTemplate" class="keep">
                             <li class="balanceEntry">
                                 <span class="operator"></span>
                                 <data value="0" class="entryValue">?</data>
@@ -602,34 +647,139 @@
             </div>
 
             <div id="galacticSecrets" class="tab p-1 p-lg-3">
+                <div id="analysisCore" class="panel px-1 px-lg-3 py-1 d-flex flex-column">
+                    <div class="d-flex flex-row">
+                        <div class="d-flex flex-column">
+                            <p class="d-flex align-items-center px-1 px-lg-2" style="background-color: var(--ps-passive); height: 30px;">
+                                <!-- TODO replace energy icon -->
+                                <img src="img/icons/energy.svg" class="icon" alt="Energy Icon" style="background: black;">
+                                <span class="flex-fill ms-1">Analysis Core</span>
+                            </p>
+                        </div>
+
+                        <div class="flex-fill">
+                            <div class="progress progressBar" role="progressbar" aria-label="Data Generation"
+                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                <div class="analysis-core-bar progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
+                                <div class="progress-text xp px-2">
+                                    <data value="0" data-unit="XP">+0</data><span>/cycle</span>
+                                </div>
+                                <div class="progress-text xpLeft px-2 end-0">
+                                    <data value="0" data-unit="XP">+0</data>
+                                    <span>left</span>
+                                </div>
+                            </div>
+
+                            <div class="ticks d-flex justify-content-between align-items-start">
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                                <div class="tick"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-row justify-content-between">
+                        <div>
+                            Data available: <data id="currentDataDisplay" value="0">0</data>
+                        </div>
+                        <div>
+                            Generated Data: <data class="level" value="0">0</data>
+                        </div>
+                    </div>
+                </div>
+
                 <ul class="tab-help-text help-text m-0">
-                    <li>Unravel a Galactic Secret by long pressing its progress bar.</li>
-                    <li style="transform-origin: left">Each Secret costs
-                        <data id="galacticSecretCostDisplay" value="1" class="text-body">1</data>
-                        <span class="primary-stat" data-attribute="essenceOfUnknown" data-attribute-tooltip="false">
-                            <img src="" class="icon" alt="" />
-                            <span class="label"></span>
-                        </span>
-                        currently.
-                    </li>
-                    <li>After unraveling a Secret, the cost per Secret will increase <data value="3" class="text-body">x3</data>.</li>
+                    <li>Buy a technology by long pressing its progress bar.</li>
                 </ul>
+
+                <!-- Technologies Table -->
+                <h4 class="mt-4 mb-2">Technologies</h4>
                 <div class="table-container ps-0 ps-lg-3">
                     <table class="table mb-0">
                         <thead class="level3">
                         <tr class="header-row">
-                            <th class="name">
-                                Galactic Secret
-                            </th>
-                            <th class="parent">Belongs to</th>
+                            <th class="technology-name">Technology</th>
+                            <th class="state hidden">State</th>
+                            <th class="type hidden">Type</th>
+                            <th class="belongs-to">Belongs to</th>
                             <th class="effect">Effect</th>
-                            <th class="gridLoad numeric">Grid Load</th>
+                            <th class="cost">Cost</th>
                         </tr>
                         </thead>
-                        <tbody class="level4">
-                        <!-- repeat level4GalacticSecretTemplate -->
+                        <tbody id="technologiesTableBody" class="level4">
+                        <!-- Technologies will be added here dynamically -->
                         </tbody>
                     </table>
+                </div>
+
+                <div id="galacticSecretsSection">
+                    <ul class="tab-help-text help-text m-0">
+                        <li>Unravel a Galactic Secret by long pressing its progress bar.</li>
+                        <li style="transform-origin: left">Each Secret costs
+                            <data id="galacticSecretCostDisplay" value="1" class="text-body">1</data>
+                            <span class="primary-stat" data-attribute="essenceOfUnknown" data-attribute-tooltip="false">
+                                <img src="" class="icon" alt="" />
+                                <span class="label"></span>
+                            </span>
+                            currently.
+                        </li>
+                        <li>After unraveling a Secret, the cost per Secret will increase <data value="3" class="text-body">x3</data>.</li>
+                    </ul>
+                    <div class="table-container ps-0 ps-lg-3">
+                        <table class="table mb-0">
+                            <thead class="level3">
+                            <tr class="header-row">
+                                <th class="name">
+                                    Galactic Secret
+                                </th>
+                                <th class="parent">Belongs to</th>
+                                <th class="effect">Effect</th>
+                                <th class="gridLoad numeric">Grid Load</th>
+                            </tr>
+                            </thead>
+                            <tbody id="galacticSecretsTableBody" class="level4">
+                            <!-- repeat level4GalacticSecretTemplate -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -673,26 +823,42 @@
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
                                    role="switch" id="audioEnabledSwitch"
-                                   onclick="toggleAudioEnabled();">
+                                   onclick="AudioEngine.toggleEnabled();">
                             <label class="form-check-label" for="audioEnabledSwitch">
                                 Enable
                             </label>
                         </div>
-                        <!--<div class="form-check form-switch">
+                        <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
                                    role="switch" id="audioBackgroundAudioEnabledSwitch"
-                                   onclick="toggleAudioBackgroundAudioEnabled();">
+                                   onclick="AudioEngine.toggleBackgroundAudio();">
                             <label class="form-check-label" for="audioBackgroundAudioEnabledSwitch">
-                                Play audio in background
+                                Enable background playback
                             </label>
-                        </div>-->
+                        </div>
                     </div>
-                    <div class="col-sm-2"><label for="range4" class="form-label">Master Volume</label></div>
+                    <div class="col-sm-2"><label for="masterVolumeRange" class="form-label">Master Volume</label></div>
                     <div class="col-sm-10">
                         <div class="d-flex">
-                            <input type="range" class="form-range" id="range4" style="max-width: 20em"
+                            <input type="range" class="form-range" id="masterVolumeRange" style="max-width: 20em"
                                    min="0.0" max="1.0" step="0.01" />
-                            <output for="range4" id="rangeValue" aria-hidden="true">6</output>
+                            <output for="masterVolumeRange" id="masterVolumeOutput" aria-hidden="true">6</output>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"><label for="musicVolumeRange" class="form-label">Music Volume</label></div>
+                    <div class="col-sm-10">
+                        <div class="d-flex">
+                            <input type="range" class="form-range" id="musicVolumeRange" style="max-width: 20em"
+                                   min="0.0" max="1.0" step="0.01" />
+                            <output for="musicVolumeRange" id="musicVolumeOutput" aria-hidden="true">6</output>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"><label for="soundVolumeRange" class="form-label">Sound Volume</label></div>
+                    <div class="col-sm-10">
+                        <div class="d-flex">
+                            <input type="range" class="form-range" id="soundVolumeRange" style="max-width: 20em"
+                                   min="0.0" max="1.0" step="0.01" />
+                            <output for="soundVolumeRange" id="soundVolumeOutput" aria-hidden="true">6</output>
                         </div>
                     </div>
                 </div>
@@ -929,7 +1095,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title fs-4 fw-light">Welcome to Progress Station</h2>
+                <h2 class="modal-title fs-4 fw-light">Welcome to <b class="text-yellow">Progress Station</b></h2>
             </div>
             <div class="modal-body">
                 <p>You awake on a dimly lit, emergency-powered bridge of what appears
@@ -999,7 +1165,7 @@
                 </p>
                 <p>
                     The vacuum of space around your station suppresses all noise, but you can feel the hatred of
-                    the alien beast and see it's determination to destroy everything you have built up.
+                    the alien beast and see its determination to destroy everything you have built up.
                 </p>
                 <ul class="help-text m-0">
                     <li>Your damage output is multiplied by your
@@ -1013,18 +1179,12 @@
                             <span class="label"></span>
                         </span>.
                     </li>
-                    <li>The boss inflicts
-                        <span class="primary-stat" data-attribute="heat" data-bs-html="true">
-                            <img src="" class="icon" alt="" />
-                            <span class="label"></span>
-                        </span>
-                        (not just
-                        <span class="primary-stat" data-attribute="danger" data-bs-html="true">
-                            <img src="" class="icon" alt="" />
-                            <span class="label"></span>
-                        </span>!)
-                        and thus directly damaging your
+                    <li>The boss inflicts <b>10%</b> of your
                         <span class="primary-stat" data-attribute="population" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span> size as
+                        <span class="primary-stat" data-attribute="danger" data-bs-html="true">
                             <img src="" class="icon" alt="" />
                             <span class="label"></span>
                         </span>.
@@ -1043,16 +1203,32 @@
                         reaches <data value="0">0</data>,
                         you <b>lose the battle</b>.
                     </li>
-                    <li>The boss has <data class="bossTargetLevel" value="10">10</data> levels of defense.</li>
-                    <li>The more levels of the boss that you overcome, the more
+                    <li>The boss has <data class="bossTargetLevel" value="10">10</data> waves of defense.</li>
+                    <li>The more waves of the boss that you overcome, the more
                         <span class="primary-stat" data-attribute="essenceOfUnknown" data-bs-html="true">
                             <img src="" class="icon" alt="" />
                             <span class="label"></span>
                         </span>
                         you will collect.
                     </li>
-                    <li>Overcoming the last level of the boss will <b>win you the game</b>.</li>
+                    <li>Overcoming the last wave of the boss will <b>win you the game</b>.</li>
                 </ul>
+                <section id="bossDefenseModeExplanation"
+                         class="mt-3 p-2 border rounded bg-dark glow-shield">
+                    <h5 class="fs-5 fw-light mb-2">Boss Shield Active</h5>
+                    <p class="mb-1">
+                        The boss recognized your <b>overwhelming military power</b> and is protecting itself with a shield!
+                        While the shield is active:
+                    </p>
+                    <ul class="help-text m-0">
+                        <li>Your station's <b>damage</b> is capped to a <b>percentage</b> of the <b>current wave's HP</b></li>
+                        <li>It cannot use its aura of destruction - <span class="primary-stat" data-attribute="danger" data-bs-html="true">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span>
+                        </span> is disabled.</li>
+                    </ul>
+                </section>
+
             </div>
             <div class="modal-footer d-flex">
                 <button type="button" class="btn btn-secondary"
@@ -1102,14 +1278,14 @@
                 <ul class="help-text m-0">
                     <li>In the next play-through, you will progress much faster.</li>
                     <li>Each operation in a module progresses <data value="X" data-unit="%">X</data> faster,
-                        where <data value="X">X</data> is the module's max level.</li>
-                    <li>Max level of modules = sum of that module's operations max level.</li>
+                        where <data value="X">X</data> is the module's mastery.</li>
+                    <li>Module's mastery = sum of that module's operations maximum reached level.</li>
                 </ul>
             </div>
             <div class="modal-footer d-flex">
                 <button type="button" class="btn btn-secondary win-only" onclick="continueAfterWin();">Keep playing</button>
                 <button type="button" class="btn btn-primary ms-auto win-only" onclick="resetAfterWin();">Start new game</button>
-                <button type="button" class="btn btn-primary ms-auto loss-only" onclick="restartAfterDead();">Fade to black</button>
+                <button type="button" class="btn btn-primary ms-auto loss-only" onclick="showStatsAfterRun();">Damage Report!</button>
             </div>
         </div>
     </div>
@@ -1182,8 +1358,110 @@
         </div>
     </div>
 </div>
-<div id="breakpointCssClassesDebug" class="position-fixed start-0 p-3 text-bg-dark hidden" style="bottom: 60px; z-index: 2000;">
 
+<div id="lastRunStatsModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header justify-content-center">
+                <h2 class="my-0 px-3 pb-1 flex-shrink-0">
+                    Damage Report
+                </h2>
+            </div>
+            <div class="modal-body">
+                <!-- MODULES SECTION -->
+                <section class="modules-section mb-4">
+                    <h3 class="fs-5 fw-light">Modules</h3>
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th scope="col">&nbsp;</th>
+                                <th scope="col">New Mastery</th>
+                                <th scope="col">
+                                    <span data-bs-toggle="tooltip" data-bs-placement="top"
+                                          title="Higher module mastery increases operation speed (1 + mastery / 500)">
+                                        Operation XP Multiplier
+                                    </span>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody id="lastRunModulesTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- STATS SECTION -->
+                <section>
+                    <h3 class="fs-5 fw-light mb-3">Stats</h3>
+                    <div class="container-fluid">
+                        <div class="row g-5">
+                            <div class="col-md-4">
+                                <div class="stat-row"><span>Battle waves defeated</span><data id="statWavesDefeated" value="0">0</data></div>
+                                <div class="stat-row"><span>Battles finished</span><data id="statBattlesFinished" value="0">0</data></div>
+                                <div class="stat-row"><span>Boss waves defeated</span><data id="statBossLevels" value="0">0</data></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/population.svg" class="icon" alt="Population Icon"/>
+                                        <span id="populationStatLabel">Population</span>
+                                    </div>
+                                    <data id="statMaxPopulation" class="stat-value" value="0">0</data>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/industry.svg" class="icon" alt="Industry Icon"/>
+                                        <span id="industryStatLabel">Industry</span>
+                                    </div>
+                                    <data id="statMaxIndustry" class="stat-value" value="0">0</data>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/growth.svg" class="icon" alt="Population Icon"/>
+                                        <span id="growthStatLabel">Growth</span>
+                                    </div>
+                                    <data id="statMaxGrowth" class="stat-value" value="0">0</data>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/military.svg" class="icon" alt="Military Icon"/>
+                                        <span id="militaryStatLabel">Military</span>
+                                    </div>
+                                    <data id="statMaxMilitary" class="stat-value" value="0">0</data>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Max</span>
+                                        <img src="img/icons/danger.svg" class="icon" alt="Danger Icon"/>
+                                        <span id="dangerStatLabel">Danger</span>
+                                    </div>
+                                    <data id="statMaxDanger" class="stat-value" value="0">0</data>
+                                </div>
+                                <div class="stat-row">
+                                    <div class="stat-label">
+                                        <span>Total</span>
+                                        <img src="img/icons/grid.svg" class="icon" alt="Grid Strength Icon"/>
+                                        <span id="gridStrengthStatLabel">Grid Strength</span>
+                                    </div>
+                                    <data id="statGridStrength" class="stat-value" value="0">0</data>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="modal-footer d-flex">
+                <button type="button" class="btn btn-primary ms-auto" onclick="closeLastRunStats();">Continue</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript" src="vendor/hacktimer-1.1.3/HackTimer.min.js"></script>
@@ -1203,7 +1481,6 @@
 <script type="text/javascript" src="js/gameEvents.js"></script>
 <script type="text/javascript" src="js/nameGenerator.dictionary.lighthearted.js"></script>
 <script type="text/javascript" src="js/nameGenerator.js"></script>
-<script type="text/javascript" src="js/audio.js"></script>
 <script type="text/javascript" src="js/classes.js"></script>
 <script type="text/javascript" src="js/battle.js"></script>
 <script type="text/javascript" src="js/game-config/general.js"></script>
@@ -1213,7 +1490,11 @@
 <script type="text/javascript" src="js/game-config/battles.js"></script>
 <script type="text/javascript" src="js/game-config/locations.js"></script>
 <script type="text/javascript" src="js/game-config/galactic-secrets.js"></script>
+<script type="text/javascript" src="js/game-config/shared-requirements.js"></script>
+<script type="text/javascript" src="js/game-config/technologies.js"></script>
 <script type="text/javascript" src="js/game-config/requirements.js"></script>
+<script type="text/javascript" src="js/game-config/audio.js"></script>
+<script type="text/javascript" src="js/audioEngine.js"></script>
 <script type="text/javascript" src="js/story.js"></script>
 <script type="text/javascript" src="js/gameData.js"></script>
 <script type="text/javascript" src="js/settings.js"></script>

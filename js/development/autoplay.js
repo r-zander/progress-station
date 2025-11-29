@@ -749,7 +749,7 @@ class AutoplaySystem {
 
             // Calculate theoretical maximum population based on current Growth
             // Using the formula from the game: population approaches growth/heat in steady state
-            const currentHeat = Math.max(0.5, attributes.heat.getValue()); // Convert percentage to decimal
+            const currentHeat = Math.max(0.5, attributes.danger.getValue()); // Convert percentage to decimal
             const theoreticalMax = growth / (0.01 * currentHeat); // From the population delta formula
 
             const populationRatio = currentPopulation / theoreticalMax;

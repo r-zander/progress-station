@@ -3,6 +3,12 @@
 const localStorageKey = 'ps_gameDataSave';
 
 /**
+ * @typedef {Object} RunStatistic
+ * @property {number} current
+ * @property {number} max
+ */
+
+/**
  * @typedef {Object} GameState
  * @property {string} [name] name of the game state in the gameStates dictionary
  * @property {boolean} gameLoopRunning
@@ -11,6 +17,10 @@ const localStorageKey = 'ps_gameDataSave';
  * @property {boolean} areTasksProgressing
  * @property {boolean} isBossBattleProgressing
  * @property {boolean} canChangeActivation
+ * @property {boolean} canEngageBattles
+ * @property {boolean} musicInitialLayerPlaying
+ * @property {boolean} musicProgressLayerPlaying
+ * @property {boolean} musicBossPlaying
  * @property {GameState[]} [validNextStates]
  */
 
@@ -25,6 +35,10 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
     PLAYING: {
         gameLoopRunning: true,
@@ -33,6 +47,10 @@ const gameStates = {
         areTasksProgressing: true,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: true,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: true,
+        musicBossPlaying: false,
     },
     PAUSED: {
         gameLoopRunning: false,
@@ -41,6 +59,10 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: false,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
     TUTORIAL_PAUSED: {
         gameLoopRunning: false,
@@ -49,6 +71,10 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: false,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
     BOSS_FIGHT_INTRO: {
         gameLoopRunning: false,
@@ -57,6 +83,10 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
     BOSS_FIGHT: {
         gameLoopRunning: true,
@@ -65,6 +95,10 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: true,
         canChangeActivation: true,
+        canEngageBattles: true,
+        musicInitialLayerPlaying: false,
+        musicProgressLayerPlaying: false,
+        musicBossPlaying: true,
     },
     BOSS_FIGHT_PAUSED: {
         gameLoopRunning: false,
@@ -73,6 +107,10 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: true,
+        canEngageBattles: false,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
     DEAD: {
         gameLoopRunning: false,
@@ -81,6 +119,10 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
+        musicInitialLayerPlaying: true,
+        musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
     BOSS_DEFEATED: {
         gameLoopRunning: false,
@@ -89,6 +131,10 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: false,
         canChangeActivation: false,
+        canEngageBattles: false,
+        musicInitialLayerPlaying: false,
+        musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
 };
 gameStates.NEW.validNextStates = [gameStates.PLAYING];
@@ -106,6 +152,20 @@ gameStates.BOSS_DEFEATED.validNextStates = [gameStates.PLAYING];
  */
 const gameDataMigrations = {};
 
+/**
+ * @type {Object<RunStatistic>}}
+ */
+const DEFAULT_RUN_STATS = {
+    battlesFinished: {current: 0, max: 0},
+    wavesDefeated: {current: 0, max: 0},
+    maxPopulation: {current: 1, max: 1},
+    maxIndustry: {current: 0, max: 0},
+    maxGrowth: {current: 0, max: 0},
+    maxMilitary: {current: 0, max: 0},
+    maxDanger: {current: 0, max: 0},
+    gridStrength: {current: 0, max: 0},
+};
+
 class GameData {
 
     /**
@@ -114,7 +174,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 8;
+    version = 9;
 
     /**
      * @type {string}
@@ -145,21 +205,6 @@ class GameData {
      * @var {number}
      */
     population;
-
-    /**
-     * @var {number}
-     */
-    lastPopulationDelta;
-
-    /**
-     * @var {number}
-     */
-    heat;
-
-    /**
-     * @var {number}
-     */
-    heatVelocity;
 
     /**
      * @var {number}
@@ -197,14 +242,41 @@ class GameData {
     essenceOfUnknown = 0;
 
     /**
+     * @var {number}
+     */
+    data = 0;
+
+    /**
+     * @typedef {Object} EntryEntity
+     * @property {string} type
+     * @property {string} name
+     * @property {number} [level]
+     */
+
+    /**
+     * @typedef {Object} EssenceHistoryEntry
+     * @property {number} amount - Positive for gain, negative for spend
+     * @property {EntryEntity} entity
+     * @property {number} cycle
+     * @property {number} timestamp epoch milliseconds in UTC aka Date.now() when the entry was created
+     */
+
+    /**
+     * @type {EssenceHistoryEntry[]}
+     */
+    essenceOfUnknownHistory = [];
+
+    /**
      * Values from {@link Entity}s that are saved.
      *
      * @var {{
      *     gridStrength: TaskSavedValues,
+     *     analysisCore: TaskSavedValues,
      *     modules: Object<ModuleSavedValues>,
      *     moduleOperations: Object<TaskSavedValues>,
-     *     battles: Object<TaskSavedValues>,
+     *     battles: Object<BattleSavedValues>,
      *     galacticSecrets: Object<GalacticSecretSavedValues>,
+     *     technologies: Object<TechnologySavedValues>,
      *     requirements: Object<RequirementSavedValues>
      * }}
      */
@@ -221,6 +293,14 @@ class GameData {
      * }}
      */
     activeEntities = {};
+
+    /**
+     * Starts as a copy of DEFAULT_RUN_STATS.
+     *
+     * @type {Object<RunStatistic>}
+     * @type
+     */
+    stats = structuredClone(DEFAULT_RUN_STATS);
 
     /**
      * @var {{
@@ -241,9 +321,10 @@ class GameData {
         audio: {
             enabled: false,
             toastAnswered: false,
-            masterVolume: 0.7,
+            masterVolume: 0.5,
             enableBackgroundAudio: false,
-            // musicVolume: 1.0,
+            musicVolume: 0.6,
+            soundVolume: 0.7,
         }
     };
 
@@ -259,9 +340,6 @@ class GameData {
 
     initValues() {
         this.population = 1;
-        this.lastPopulationDelta = 0;
-        this.heat = 0;
-        this.heatVelocity = 0;
         this.cycles = 0;
         this.bossBattleAvailable = false;
     }
@@ -270,6 +348,7 @@ class GameData {
         this.savedValues = {};
 
         this.savedValues.gridStrength = GridStrength.newSavedValues();
+        this.savedValues.analysisCore = AnalysisCore.newSavedValues();
 
         this.savedValues.modules = {};
         for (const key in modules) {
@@ -291,6 +370,11 @@ class GameData {
             this.savedValues.galacticSecrets[key] = GalacticSecret.newSavedValues();
         }
 
+        this.savedValues.technologies = {};
+        for (const key in technologies) {
+            this.savedValues.technologies[key] = Technology.newSavedValues();
+        }
+
         this.savedValues.requirements = {};
         for (const key in requirementRegistry) {
             this.savedValues.requirements[key] = Requirement.newSavedValues();
@@ -305,6 +389,9 @@ class GameData {
         for (const module of defaultModules) {
             this.activeEntities.modules.add(module.name);
         }
+        for (const key in this.stats) {
+            this.stats[key].current = DEFAULT_RUN_STATS[key].current;
+        }
     }
 
     /**
@@ -315,7 +402,6 @@ class GameData {
         let saveGameFound = localStorageItem !== '' && localStorageItem !== null;
         if (saveGameFound) {
             const gameDataSave = JSON.parse(localStorageItem);
-
             this.#checkSaveGameVersion(gameDataSave);
 
             // noinspection JSUnresolvedReference
@@ -327,6 +413,7 @@ class GameData {
         }
 
         gridStrength.loadValues(this.savedValues.gridStrength);
+        analysisCore.loadValues(this.savedValues.analysisCore);
 
         for (const key in moduleOperations) {
             moduleOperations[key].loadValues(this.savedValues.moduleOperations[key]);
@@ -343,6 +430,10 @@ class GameData {
             galacticSecrets[key].loadValues(this.savedValues.galacticSecrets[key]);
         }
 
+        for (const key in technologies) {
+            technologies[key].loadValues(this.savedValues.technologies[key]);
+        }
+
         for (const key in requirementRegistry) {
             requirementRegistry[key].loadValues(this.savedValues.requirements[key]);
         }
@@ -351,6 +442,13 @@ class GameData {
             previousState: gameStates.NEW.name,
             newState: this.stateName,
         });
+
+        for (const key in this.stats) {
+            if (this.stats.hasOwnProperty(key)) continue;
+
+            // Copy default stats
+            this.stats[key] = structuredClone(DEFAULT_RUN_STATS[key]);
+        }
 
         return saveGameFound;
     }
@@ -431,7 +529,7 @@ class GameData {
         const rawValue = importExportBox.value.trim();
 
         try {
-            const decoded = window.atob(rawValue);
+            const decoded = decodeURIComponent(escape(window.atob(rawValue)));
             const parsed = JSON.parse(decoded);
 
             if (!_.isObjectLike(parsed) || Object.keys(parsed).length === 0) {
@@ -450,7 +548,7 @@ class GameData {
 
     export() {
         const importExportBox = document.getElementById('importExportBox');
-        importExportBox.value = window.btoa(gameData.serializeAsJson());
+        importExportBox.value = window.btoa(unescape(encodeURIComponent(gameData.serializeAsJson())));
     }
 
     /**
@@ -562,9 +660,9 @@ function showVersionWarningModal(config) {
     const secondaryButton = modalElement.querySelector('.secondary-button');
 
     if (isString(config.secondaryButtonClass)) {
-        primaryButton.classList.add(config.secondaryButtonClass);
+        secondaryButton.classList.add(config.secondaryButtonClass);
     } else {
-        primaryButton.classList.add('.btn-warning');
+        secondaryButton.classList.add('.btn-warning');
     }
 
     secondaryButton.textContent = config.secondaryButtonText;
@@ -633,6 +731,30 @@ function initVersionWarning() {
                     primaryButtonText: 'Keep save',
                     primaryButtonCallback: () => {
                         gameData.ignoreCurrentVersionUpgrade(versionUpgrade.savedVersion, versionUpgrade.expectedVersion);
+                    }
+                });
+                break;
+            case 9:
+                showVersionWarningModal({
+                    title: 'Old Save Game found',
+                    bodyHtml: `
+                        <p>
+                            You have already played the <b class="text-yellow">Progress Station</b>
+                             <b class="version-label">Beta</b> in the past, thank you!
+                        </p>
+                        <p>
+                            The game progression has changed - unfortunately you will need to start over.<br />
+                            We hope you enjoy the new experience!
+                        </p>
+                    `,
+                    secondaryButtonClass: 'hidden',
+                    secondaryButtonText: 'Start new game',
+                    secondaryButtonCallback: () => {
+                        gameData.reset();
+                    },
+                    primaryButtonText: 'Start new game',
+                    primaryButtonCallback: () => {
+                        gameData.reset();
                     }
                 });
                 break;

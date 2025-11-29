@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Name Generator :: Progress Station</title>
+
+    <style>
+        li {
+            break-inside: avoid;
+        }
+
+        li:nth-child(2n) {
+            background-color: rgba(0, 0, 0, 0.1);
+            background-color: #C12F5F10;
+            background-color: #ECA54520;
+        }
+    </style>
+</head>
+<body style="">
+<fieldset>
+    <legend>Name Generator Test</legend>
+    <label for="nameInput">Base Name:</label>
+    <input type="text" id="nameInput" size="30">
+    <button id="rerollBtn">Re-roll</button>
+    <div style="margin-top: 10px;">
+        <div><strong>Next Name:</strong> <span id="nextName"></span> <button id="rerollNextBtn">Re-roll</button></div>
+        <div><strong>Future Name:</strong> <span id="futureName"></span></div>
+    </div>
+</fieldset>
+
+<hr>
+
+<b><i>Generated Name <small>(generated X times)</small>:</i></b>
+<ul id="list" style="margin-top: 0; columns: 2">
+</ul>
+
+<script type="text/javascript" src="../vendor/lodash-4.17.15/lodash.min.js"></script>
+<script type="text/javascript" src="../vendor/romans-3.1.0/romans.js"></script>
+<script type="text/javascript" src="../js/utils.js"></script>
+<script type="text/javascript" src="../js/nameGenerator.dictionary.lighthearted.js"></script>
+<script type="text/javascript" src="../js/nameGenerator.js"></script>
+<script type="text/javascript">
+    // Interactive name input
+    const nameInput = document.getElementById('nameInput');
+    const rerollBtn = document.getElementById('rerollBtn');
+    const rerollNextBtn = document.getElementById('rerollNextBtn');
+    const nextNameSpan = document.getElementById('nextName');
+    const futureNameSpan = document.getElementById('futureName');
+
+    function updateSuffixNames() {
+        const baseName = nameInput.value;
+        if (baseName.length === 0) {
+            nextNameSpan.textContent = '';
+            futureNameSpan.textContent = '';
+            return;
+        }
+        const nextName = new SuffixGenerator(baseName).getNewName();
+        const futureName = new SuffixGenerator(nextName).getNewName();
+        nextNameSpan.textContent = nextName;
+        futureNameSpan.textContent = futureName;
+    }
+
+    function generateAndSetName() {
+        nameInput.value = stationNameGenerator.generate();
+        updateSuffixNames();
+    }
+
+    function rerollNextName() {
+        const baseName = nameInput.value;
+        if (baseName.length === 0) {
+            return;
+        }
+        const nextName = new SuffixGenerator(baseName).getNewName();
+        const futureName = new SuffixGenerator(nextName).getNewName();
+        nextNameSpan.textContent = nextName;
+        futureNameSpan.textContent = futureName;
+    }
+
+    rerollBtn.addEventListener('click', generateAndSetName);
+    rerollNextBtn.addEventListener('click', rerollNextName);
+    nameInput.addEventListener('input', updateSuffixNames);
+
+    generateAndSetName();
+
+
+    // List generation
+    const listElement = document.getElementById('list');
+    const names = {};
+    for (let i = 0; i < 1000; i++) {
+        const name = stationNameGenerator.generate();
+
+        if (names.hasOwnProperty(name)) {
+            names[name]++;
+        } else {
+            names[name] = 1;
+        }
+    }
+    let longestName = '';
+    Object.entries(names).forEach(([name, count]) => {
+        if (name.length > longestName.length) {
+            longestName = name;
+        }
+        // listElement.insertAdjacentHTML('beforeend', `<li>${name} <small>(${count})</small></li>`);
+
+        const newSuffix = new SuffixGenerator(name).getNewName();
+        const futureSuffix = new SuffixGenerator(newSuffix).getNewName();
+        // const separator = ' ⇝ ';
+        const separator = '<br />';
+        listElement.insertAdjacentHTML('beforeend', `<li>${name}${separator}${newSuffix}${separator}${futureSuffix}</li>`);
+    });
+
+    document.body.insertAdjacentHTML('afterbegin',
+        `<p>Longest Name: ${longestName} (${longestName.length} characters)</p>`);
+</script>
+</body>
+</html>

@@ -102,12 +102,24 @@
     background-color: var(--panel-bg-color);
 }
 
-.level1 .level2-header {
-    top: 39px;
+.level1 {
+    .level2-header {
+        top: 39px;
+    }
+
+    .level2 .level3 {
+        top: 77px;
+    }
 }
 
-.level1 .level2 .level3 {
-    top: 77px;
+.level1.single-category-mode {
+    .level2-header {
+        top: 0;
+    }
+
+    .level2 .level3 {
+        top: 37px;
+    }
 }
 
 :is(#modules, #location, #battles, #galacticSecrets) {

@@ -10,6 +10,7 @@
  * @property {string} [inlineHtml] - inline display of the attribute, only text
  * @property {string} [inlineHtmlWithIcon] - inline display of the attribute, with icon
  * @property {function(): number} getValue - retrieves the current value for this attribute
+ * @property {boolean} relevantForMusicContext - should this attribute value be considered for the MusicContext.highestAttribute ?
  */
 
 /**
@@ -128,6 +129,7 @@ class Task extends Entity {
      * @param {{
      *     title: string,
      *     description?: string,
+     *     xpGain?: number,
      *     maxXp: number,
      *     effects: EffectDefinition[],
      * }} baseData
@@ -135,6 +137,7 @@ class Task extends Entity {
     constructor(baseData) {
         super(baseData.title, baseData.description);
 
+        this.xpGain = isNumber(baseData.xpGain) ? baseData.xpGain : BASE_XP_GAIN;
         this.maxXp = baseData.maxXp;
         this.effects = baseData.effects;
         this.xpMultipliers = [];
@@ -223,6 +226,8 @@ class Task extends Entity {
      * value change per cycle. Inversion of number of cycles to increase value by 1.
      */
     getDelta() {
+        if (this.getXpGain() <= 0) return 0;
+
         return this.getXpGain() / this.getMaxXp();
     }
 
@@ -238,7 +243,7 @@ class Task extends Entity {
     }
 
     getXpGain() {
-        return applyMultipliers(10, this.xpMultipliers);
+        return applyMultipliers(this.xpGain, this.xpMultipliers);
     }
 
     /**
@@ -342,6 +347,33 @@ class GridStrength extends Task {
     getMaxXp() {
         return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.6, this.level));
     }
+
+    onLevelUp(previousLevel, newLevel) {
+        super.onLevelUp(previousLevel, newLevel);
+        AudioEngine.postEvent(AudioEvents.GRID_UPGRADE, this);
+    }
+}
+
+class AnalysisCore extends Task {
+    constructor(baseData) {
+        super(baseData);
+    }
+
+    getXpGain() {
+        const researchValue = attributes.research.getValue();
+        const populationModifier = getPopulationProgressSpeedMultiplier();
+        return researchValue * populationModifier;
+    }
+
+    getMaxXp() {
+        return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.127, this.level));
+    }
+
+    onLevelUp(previousLevel, newLevel) {
+        super.onLevelUp(previousLevel, newLevel);
+        gameData.data += 1;
+        AudioEngine.postEvent(AudioEvents.PLUS_DATA, this);
+    }
 }
 
 class ModuleCategory extends Entity {
@@ -358,6 +390,9 @@ class ModuleCategory extends Entity {
         super(baseData.title, baseData.description);
 
         this.modules = baseData.modules;
+        for (const module of this.modules) {
+            module.registerCategory(this);
+        }
     }
 }
 
@@ -367,6 +402,9 @@ class ModuleCategory extends Entity {
  */
 
 class Module extends Entity {
+
+    /** @var {ModuleCategory} */
+    moduleCategory = null;
 
     /**
      *
@@ -384,6 +422,14 @@ class Module extends Entity {
         for (const component of this.components) {
             component.registerModule(this);
         }
+    }
+
+    /**
+     * @param {ModuleCategory} moduleCategory
+     */
+    registerCategory(moduleCategory) {
+        console.assert(this.moduleCategory === null, 'Module Category already registered.');
+        this.moduleCategory = moduleCategory;
     }
 
     /**
@@ -426,8 +472,10 @@ class Module extends Entity {
     setActive(active) {
         if (active) {
             gameData.activeEntities.modules.add(this.name);
+            AudioEngine.postEvent(AudioEvents.MODULE_ON, this);
         } else {
             gameData.activeEntities.modules.delete(this.name);
+            AudioEngine.postEvent(AudioEvents.MODULE_OFF, this);
         }
     }
 
@@ -553,6 +601,7 @@ class ModuleOperation extends Task {
      * @param {{
      *     title: string,
      *     description?: string,
+     *     xpGain?: number,
      *     maxXp: number,
      *     gridLoad: number,
      *     effects: EffectDefinition[]
@@ -622,7 +671,7 @@ class ModuleOperation extends Task {
     }
 
     getMaxLevelMultiplier() {
-        return 1 + this.maxLevel / 100;
+        return 1 + this.maxLevel / 500;
     }
 
     /**
@@ -810,6 +859,252 @@ class GalacticSecret extends Entity {
 }
 
 /**
+ * @typedef {Object} TechnologySavedValues
+ * @property {boolean} unlocked
+ */
+
+class Technology extends Entity {
+    /**
+     * @type {TechnologyRequirement|null}
+     */
+    technologyRequirement = null;
+    /**
+     * 0.0 - 1.0
+     * @type {number}
+     */
+    unlockProgress = 0;
+    inProgress = false;
+    lastUpdate = performance.now();
+
+    /**
+     * @param {{
+     *     unlocks: Entity,
+     *     baseCost: number,
+     *     requirements?: Requirement[],
+     *     prerequisites?: Requirement[]
+     * }} baseData
+     */
+    constructor(baseData) {
+        super(Technology.#createTitle(baseData.unlocks), Technology.#createDescription(baseData.unlocks));
+
+        this.unlocks = baseData.unlocks;
+        this.baseCost = baseData.baseCost;
+        /**
+         * @type {Requirement[]}
+         */
+        // TODO refactor: this should be passed into the TechnologyRequirement?
+        this.requirements = baseData.requirements || [];
+        this.type = baseData.unlocks.type || baseData.unlocks.constructor.name;
+
+
+        // Register a TechnologyRequirement on the entity being unlocked
+        // (Only if the entity has a registerRequirement method - HTML elements don't)
+        if (isFunction(this.unlocks.registerRequirement)) {
+            this.technologyRequirement = new TechnologyRequirement({technology: this}, baseData.prerequisites);
+            this.unlocks.registerRequirement(this.technologyRequirement);
+        }
+    }
+
+    /**
+     * @param {Entity} unlock
+     */
+    static #createTitle(unlock) {
+        return unlock.title;
+    }
+
+    /**
+     * @param {Entity} unlock
+     */
+    static #createDescription(unlock) {
+        return unlock.description || '';
+    }
+
+    // TODO makes sense? seems weird with the static generators above
+    get name(){
+        return this.unlocks.name;
+    }
+
+    /**
+     * @return {number}
+     */
+    getCost() {
+        return this.baseCost;
+    }
+
+    /**
+     * @param {TechnologySavedValues} savedValues
+     */
+    loadValues(savedValues) {
+        validateParameter(savedValues, {
+            unlocked: JsTypes.Boolean,
+        }, this);
+        this.savedValues = savedValues;
+    }
+
+    /**
+     * @return {TechnologySavedValues}
+     */
+    static newSavedValues() {
+        return {
+            unlocked: false,
+        };
+    }
+
+    /**
+     * @return {TechnologySavedValues}
+     */
+    getSavedValues() {
+        return this.savedValues;
+    }
+
+    isVisible() {
+        return (this.technologyRequirement === null || this.technologyRequirement.isVisible()) &&
+            this.requirements.every((requirement) => requirement.isVisible());
+    }
+
+    get isUnlocked() {
+        return this.savedValues.unlocked;
+    }
+
+    set isUnlocked(unlocked) {
+        if (unlocked === true) {
+            AudioEngine.postEvent(AudioEvents.TECHNOLOGY_UNLOCKED, this);
+        }
+        this.savedValues.unlocked = unlocked;
+    }
+
+    /**
+     * @return {boolean}
+     */
+    canAfford() {
+        return gameData.data >= this.getCost();
+    }
+
+    /**
+     * @return {boolean}
+     */
+    requirementsMet() {
+        return this.requirements.every(req => req.isCompleted());
+    }
+
+    /**
+     * @return {boolean}
+     */
+    canPurchase() {
+        return this.canAfford() && this.requirementsMet() && !this.isUnlocked;
+    }
+
+    update() {
+        const now = performance.now();
+        const timeDelta = now - this.lastUpdate;
+        this.lastUpdate = now;
+        if (this.inProgress) {
+            if (this.unlockProgress < 1) {
+                this.unlockProgress += timeDelta / technologiesUnlockDuration;
+            }
+        } else {
+            if (this.unlockProgress > 0) {
+                this.unlockProgress -= timeDelta / technologiesUnlockDuration;
+                if (this.unlockProgress < 0) {
+                    this.unlockProgress = 0;
+                }
+            }
+        }
+    }
+
+    // /**
+    //  * Purchase this technology
+    //  * @return {boolean} true if purchase was successful
+    //  */
+    // purchase() {
+    //     if (!this.canPurchase()) {
+    //         return false;
+    //     }
+    //
+    //     gameData.data -= this.getCost();
+    //     this.isUnlocked = true;
+    //
+    //     return true;
+    // }
+
+    getFormattedType(){
+        switch (this.type) {
+            case 'HtmlElement':
+                return 'Control';
+            default:
+                return _.startCase(this.type);
+        }
+    }
+
+    /**
+     * Get the parent entity name (e.g., module category for modules, module for operations, sector for POIs)
+     * @return {string}
+     */
+    getParent() {
+        const unlocks = this.unlocks;
+
+        if (unlocks.hasOwnProperty('moduleCategory')) {
+            // This is a Module
+            return '';
+        } else if (unlocks.hasOwnProperty('component')) {
+            // This is a ModuleOperation
+            return unlocks.component.title;
+        } else if (unlocks.hasOwnProperty('sector')) {
+            // This is a PointOfInterest
+            return '';
+        } else if (unlocks.type === 'Sector') {
+            // This is a Sector
+            return '';
+        } else {
+            // HTML element or other
+            return '';
+        }
+    }
+
+    /**
+     * Get the parent entity name (e.g., module category for modules, module for operations, sector for POIs)
+     * @return {string}
+     */
+    getBelongsTo() {
+        const unlocks = this.unlocks;
+
+        if (unlocks.hasOwnProperty('moduleCategory')) {
+            // This is a Module
+            return 'Modules';
+        } else if (unlocks.hasOwnProperty('component')) {
+            // This is a ModuleOperation
+            return unlocks.component.module.title;
+        } else if (unlocks.hasOwnProperty('sector')) {
+            // This is a PointOfInterest
+            return unlocks.sector.title;
+        } else if (unlocks.type === 'Sector') {
+            // This is a Sector
+            return 'Locations';
+        } else {
+            // HTML element or other
+            return 'Station Features';
+        }
+    }
+
+    /**
+     * Get the state of this technology
+     * @return {string} "Unlocked" | "Affordable" | "Missing requirement" | "Locked"
+     */
+    getState() {
+        if (this.isUnlocked) {
+            return 'Unlocked';
+        }
+        if (!this.requirementsMet()) {
+            return 'Missing requirement';
+        }
+        if (this.canAfford()) {
+            return 'Affordable';
+        }
+        return 'Too expensive';
+    }
+}
+
+/**
  * @typedef {Object} RequirementLike
  * @property {function(): string} toHtml
  * @property {function(): boolean} isVisible
@@ -825,9 +1120,9 @@ class GalacticSecret extends Entity {
  */
 class Requirement {
     /**
-     * This list is only used during initialization. Afterward its 
+     * This list is only used during initialization. Afterward its
      * discarded, and you have to use the global `requirementRegistry`.
-     * 
+     *
      * @type {Requirement[]}
      */
     static allRequirements = [];
@@ -1285,6 +1580,67 @@ class GalacticSecretRequirement extends Requirement {
      */
     toHtmlInternal(baseData) {
         return 'an unraveled Galactic Secret';
+    }
+}
+
+class TechnologyRequirement extends Requirement {
+    /**
+     * @param {{technology: Technology}} baseData
+     * @param {Requirement[]} [prerequisites]
+     */
+    constructor(baseData, prerequisites) {
+        super('TechnologyRequirement', 'playthrough', baseData, prerequisites);
+    }
+
+    generateName() {
+        return `Technology_${this.baseData.technology.name}`;
+    }
+
+    /**
+     * @param {{technology: Technology}} baseData
+     * @return {boolean}
+     */
+    getCondition(baseData) {
+        return baseData.technology.isUnlocked;
+    }
+
+    unlockRequirementsVisible() {
+        // TODO somewhat hacky, might want to rethink this
+        const unlock = this.baseData.technology.unlocks;
+        switch (unlock.type) {
+            case 'ModuleOperation':
+                return Requirement.hasRequirementsFulfilled(unlock.component.module);
+            case 'PointOfInterest':
+                return Requirement.hasRequirementsFulfilled(unlock.sector);
+        }
+
+        return true;
+    }
+
+    isVisible() {
+        // Show technology requirements when player has research unlocked
+        return htmlElementRequirements.galacticSecretsTabButton.isCompleted()
+            && this.unlockRequirementsVisible()
+            && super.isVisible();
+    }
+
+    toHtml() {
+        if (this.baseData.technology.requirementsMet()) {
+            return super.toHtml();
+        }
+
+        return this.baseData.technology.requirements
+            .map(requirement => requirement.toHtml())
+            .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
+            .join(', ');
+    }
+
+    /**
+     * @param {{technology: Technology}} baseData
+     * @return {string}
+     */
+    toHtmlInternal(baseData) {
+        return `'<span class="name">${baseData.technology.title}</span>' Technology`;
     }
 }
 

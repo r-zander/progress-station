@@ -1,9 +1,19 @@
 {
   "updates": [
     {
+      "version": "1.5.0",
+      "title": "Full release",
+      "content": "Full release version of the game with new soundtrack, features and balancing."
+    },
+    {
       "version": "1.2.0-beta",
       "title": "Beta release - Patch 1",
       "content": "Addressing player feedback and improving the overall gameplay experience. For details, check the itch.io devlog."
+    },
+    {
+      "version": "1.1.01-beta",
+      "title": "Beta release",
+      "content": "Beta version of the game with new balancing, soundtrack and an early mobile version."
     },
     {
       "version": "1.1.1-beta",

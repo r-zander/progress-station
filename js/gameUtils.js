@@ -7,7 +7,15 @@
  */
 function prepareTitle(title) {
     // Replace regular spaces with non-breaking spaces, ensuring that one title stays on the same line.
-    return title.replaceAll(' ', '\u00A0' /* non-breaking space */);
+    return title.replaceAll(/(?<=\w) (?=\w)/g, Symbols.NON_BREAKING_SPACE);
+}
+
+/**
+ * @param {string} title
+ * @return {string}
+ */
+function deprepareTitle(title) {
+    return title.replaceAll(Symbols.NON_BREAKING_SPACE, ' ');
 }
 
 function withCheats(func) {
@@ -100,11 +108,11 @@ function formatValue(dataElement, value, config = {}) {
 
 /**
  *
- * @param {number} amount
  * @param {HTMLDataElement} dataElement
+ * @param {number} amount
  * @param {{prefixes?: string[], unit?: string, forceSign?: boolean}} formatConfig
  */
-function formatEnergyValue(amount, dataElement, formatConfig = {}) {
+function formatEnergyValue(dataElement, amount, formatConfig = {}) {
     formatValue(dataElement, amount, Object.assign({
         unit: units.energy,
         prefixes: metricPrefixes,

@@ -44,8 +44,48 @@ function warnWithStacktrace(msg) {
     console.trace();
 }
 
+/**
+ * @param value
+ * @param min
+ * @param max
+ *
+ * @returns {number} that was limited to min and max
+ */
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value))
+}
+
 function randomInt(max) {
     return Math.floor(Math.random() * max);
+}
+
+/**
+ * @param {number} min
+ * @param {number} max
+ *
+ * @returns {number} Random number between min and max
+ */
+function randomBetween(min, max) {
+    return min + Math.random() * (max - min);
+}
+
+/**
+ * Select index using weighted random selection
+ * @param {number[]} weights - Array of weights
+ * @returns {number} Selected index
+ */
+function weightedRandom(weights) {
+    const total = weights.reduce((sum, w) => sum + w, 0);
+    let random = Math.random() * total;
+
+    for (let i = 0; i < weights.length; i++) {
+        random -= weights[i];
+        if (random <= 0) {
+            return i;
+        }
+    }
+
+    return weights.length - 1;
 }
 
 function gaussianRandom(min = 0, max = 1, skew = 1) {
@@ -134,6 +174,26 @@ function getBaseLog(x, y) {
  * @type {function(number, number, number=): boolean}
  */
 const nearlyEquals = approximatelyEquals;
+
+const Symbols = {
+    NON_BREAKING_SPACE: '\u00A0',
+
+    /**
+     * Zero-width space. Allows strings to have linebreaks, even between words or non-breaking spaces.
+     */
+    SOFT_BREAK: '\u200B',
+
+    /**
+     * Thinner than a thin space.
+     * @see {@link https://en.wikipedia.org/wiki/Whitespace_character#Hair_spaces_around_dashes}
+     */
+    HAIR_SPACE: '\u200A',
+
+    /**
+     * Shows: ⮞
+     */
+    RIGHT_ARROW: '\u2B9E',
+};
 
 const JsTypes = {
     Undefined: 'undefined',
@@ -639,9 +699,14 @@ const BreakpointCssClasses = (() => {
         debugEnabled = enabled;
 
         if (enabled) {
+            document.body.insertAdjacentHTML(
+                'beforeend',
+                '<div id="breakpointCssClassesDebug" class="position-fixed start-0 p-3 text-bg-dark hidden" style="bottom: 60px; z-index: 2000;"></div>'
+            );
+
             updateDebugDisplay();
         } else {
-            hideDebugDisplay();
+            document.getElementById('breakpointCssClassesDebug').remove();
         }
     }
 
@@ -753,3 +818,150 @@ const BreakpointCssClasses = (() => {
         get debugEnabled() { return debugEnabled; }
     };
 })();
+
+/**
+ * @template T - type of the value being observed.
+ */
+class Observable {
+
+    /** @type {T} */
+    #value;
+    /** @type {GameEvent} */
+    #changeEvent;
+    /** @type {function(T, T): boolean} */
+    #isEquals;
+
+    /**
+     * @param {T} initialValue
+     */
+    constructor(initialValue) {
+        this.#value = initialValue;
+        this.#changeEvent = new GameEvent({
+            newValue: typeof initialValue,
+            oldValue: typeof initialValue,
+        });
+        this.#isEquals = (currentValue, newValue) => currentValue === newValue;
+    }
+
+    /**
+     * @param {function(T, T): boolean} isEquals
+     * @return {Observable} this for chaining
+     */
+    setIsEqualsFunction(isEquals) {
+        this.#isEquals = isEquals;
+        return this;
+    }
+
+    /**
+     * @return {T}
+     */
+    get value(){
+        return this.#value;
+    }
+
+    /**
+     * @param {T} value
+     */
+    set value(value) {
+        if (this.#isEquals(this.value, value)) return;
+
+        const oldValue = this.#value;
+        this.#value = value;
+
+        this.#changeEvent.trigger({
+            newValue: value,
+            oldValue: oldValue,
+        });
+    }
+
+    /**
+     * @param {function(newValue: T, oldValue: T): boolean} callback
+     * @param {any} [context] will be provided as `this` for the callback
+     *
+     * @return {Observable} this for chaining
+     */
+    subscribe(callback, context = undefined) {
+        this.#changeEvent.subscribe(callback, context);
+        return this;
+    }
+
+    unsubscribe(callback) {
+        this.#changeEvent.unsubscribe(callback);
+    }
+}
+
+/**
+ * @template T - type of the value being observed.
+ */
+class ObservableProperty {
+
+    /** @type {function(): T} */
+    #valueGetter;
+    /** @type {function(T): void} */
+    #valueSetter;
+    /** @type {GameEvent} */
+    #changeEvent;
+    /** @type {function(T, T): boolean} */
+    #isEquals;
+
+    /**
+     * @param {function(): T} getter
+     * @param {function(T): void} setter
+     * @param {JsTypes} valueType
+     */
+    constructor(getter, setter, valueType) {
+        this.#valueGetter = getter;
+        this.#valueSetter = setter;
+        this.#changeEvent = new GameEvent({
+            newValue: valueType,
+            oldValue: valueType,
+        });
+        this.#isEquals = (currentValue, newValue) => currentValue === newValue;
+    }
+
+    /**
+     * @param {function(T, T): boolean} isEquals
+     * @return {ObservableProperty} this for chaining
+     */
+    setIsEqualsFunction(isEquals) {
+        this.#isEquals = isEquals;
+        return this;
+    }
+
+    /**
+     * @return {T}
+     */
+    get value(){
+        return this.#valueGetter();
+    }
+
+    /**
+     * @param {T} value
+     */
+    set value(value) {
+        if (this.#isEquals(this.value, value)) return;
+
+        const oldValue = this.value;
+        this.#valueSetter(value);
+
+        this.#changeEvent.trigger({
+            newValue: value,
+            oldValue: oldValue,
+        });
+    }
+
+    /**
+     * @param {function(newValue: T, oldValue: T): boolean} callback
+     * @param {any} [context] will be provided as `this` for the callback
+     *
+     * @return {ObservableProperty} this for chaining
+     */
+    subscribe(callback, context = undefined) {
+        this.#changeEvent.subscribe(callback, context);
+        return this;
+    }
+
+    unsubscribe(callback) {
+        this.#changeEvent.unsubscribe(callback);
+    }
+}

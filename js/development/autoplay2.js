@@ -708,7 +708,7 @@ class ConfigurationOptimizer {
         // Growth weight based on population
         const currentPop = attributes.population.getValue();
         const currentGrowth = attributes.growth.getValue();
-        const currentHeat = attributes.heat.getValue();
+        const currentHeat = attributes.danger.getValue();
         const theoreticalMaxPop = currentGrowth / (0.01 * Math.max(currentHeat, 1));
         const popRatio = currentPop / theoreticalMaxPop;
 
@@ -760,7 +760,7 @@ class ConfigurationOptimizer {
         let xpGain = 10;
 
         // Apply multipliers (simplified version of actual game logic)
-        xpGain *= (1 + operation.maxLevel / 100); // Max level multiplier
+        xpGain *= (1 + operation.maxLevel / 500); // Max level multiplier
         xpGain *= attrs.industry; // Industry multiplier
         xpGain *= this.getPopulationMultiplier(attrs.population); // Population multiplier
 

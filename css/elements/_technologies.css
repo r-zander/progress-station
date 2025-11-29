@@ -1,0 +1,75 @@
+#analysisCore {
+    .ticks {
+        margin-top: -25px;
+        height: calc(25px + 1rem);
+    }
+
+    .tick {
+        width: 1px;
+        height: calc(100% - 0.5rem);
+        background-color: currentColor;
+
+        &:nth-child(5n+1),
+        .large {
+            height: 100%;
+        }
+    }
+
+    .icon {
+        height: 18px;
+        filter: brightness(0);
+    }
+}
+
+.analysis-core-bar.current {
+    --progress-bar-color: var(--technology-color);
+}
+
+/* Technologies Table Styling */
+.technology-row {
+    transition: background-color 0.2s ease;
+
+    .state-badge {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+
+/*    td {
+        vertical-align: middle;
+        padding: 8px;
+    }*/
+
+    .technology.progress > .progress-bar.unlocked {
+        --progress-bar-color: var(--technology-color);
+    }
+
+    .technology.progress.unlocked {
+        > .progress-bar.unlocked {
+            width: 100%;
+        }
+    }
+
+    .cost {
+        &.too-expensive {
+            color: var(--warning-color);
+
+            > data,
+            > data::after {
+                font-weight: bold;
+            }
+        }
+
+        &.affordable {
+            color: var(--ps-green3);
+
+            > data,
+            > data::after {
+                font-weight: bold;
+            }
+        }
+
+        &.unlocked {
+            color: var(--ps-passive);
+        }
+    }
+}

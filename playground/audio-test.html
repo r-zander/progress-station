@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Howler.js Audio Test :: Progress Station</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .panel {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .controls-panel {
+            flex: 0 0 300px;
+        }
+        .sounds-panel {
+            flex: 1;
+            min-width: 400px;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .control-group input {
+            width: 100%;
+            padding: 5px;
+        }
+        .control-group input[type="range"] {
+            cursor: pointer;
+        }
+        .control-group .value-display {
+            display: inline-block;
+            margin-left: 10px;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .sounds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .sounds-grid button {
+            padding: 12px 8px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        .sounds-grid button:hover {
+            background-color: #0056b3;
+        }
+        .sounds-grid button:active {
+            background-color: #004085;
+        }
+        .control-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+        .control-group label.checkbox-label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+        }
+        .playing-sounds-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+        }
+        .playing-sounds-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 5px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .playing-sounds-list button {
+            padding: 4px 12px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .playing-sounds-list button:hover {
+            background-color: #c82333;
+        }
+        .playing-sounds-list .sound-name {
+            flex: 1;
+            margin-right: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .filename {
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+        }
+        h2 {
+            margin-top: 0;
+            color: #444;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+        .info {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #004085;
+        }
+    </style>
+</head>
+<body>
+    <h1>Howler.js Audio Test</h1>
+
+    <div class="info">
+        Configure settings in the control panels, then click any sound button to play with those settings.
+    </div>
+
+    <div class="container">
+        <!-- Control Panels -->
+        <div class="controls-panel">
+            <div class="panel">
+                <h2>Global Settings</h2>
+                <div class="control-group">
+                    <label>Master Volume: <span class="value-display" id="masterVolumeDisplay">1.0</span></label>
+                    <input type="range" id="masterVolume" min="0" max="1" step="0.1" value="1">
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top: 20px;">
+                <h2>Next Sound Settings</h2>
+                <div class="control-group">
+                    <label>Volume Min: <span class="value-display" id="volumeMinDisplay">1.0</span></label>
+                    <input type="range" id="volumeMin" min="0" max="1" step="0.1" value="1">
+                </div>
+                <div class="control-group">
+                    <label>Volume Max: <span class="value-display" id="volumeMaxDisplay">1.0</span></label>
+                    <input type="range" id="volumeMax" min="0" max="1" step="0.1" value="1">
+                </div>
+                <div class="control-group">
+                    <label>Rate/Pitch Min: <span class="value-display" id="rateMinDisplay">1.0</span></label>
+                    <input type="range" id="rateMin" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                <div class="control-group">
+                    <label>Rate/Pitch Max: <span class="value-display" id="rateMaxDisplay">1.0</span></label>
+                    <input type="range" id="rateMax" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                <div class="control-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="nextLoop">
+                        Loop
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="nextHtml5">
+                        Use HTML5 Audio
+                    </label>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top: 20px;">
+                <h2>Currently Playing</h2>
+                <ul class="playing-sounds-list" id="playingSoundsList">
+                    <li style="color: #999; font-style: italic;">No sounds playing</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Sounds Grid -->
+        <div class="sounds-panel">
+            <div class="panel">
+                <h2>Sound Files</h2>
+                <div class="sounds-grid" id="soundsGrid">
+                    <!-- Buttons will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../vendor/howler.js-2.2.4/howler.core.min.js"></script>
+    <script src="../js/audio.js"></script>
+    <script>
+        // Audio files configuration
+        const audioFiles = [
+            '435507__benjaminnelan__rooster-crow-2.mp3',
+            '398430__naturestemper__wolf-howl.mp3',
+            '365134__gibarroule__cow-scream.mp3',
+            '348241__newagesoup__punch-boxing-04.mp3',
+            '662504__100139062__bird-gets-hit.mp3',
+            '389708__suspensiondigital__large-angry-cats.mp3',
+            '760566__noisyredfox__pickaxe2.mp3',
+            '319229__worthahep88__single-rock-hit-dirt-2.mp3',
+            '637791__kyles__rock-hit-bushes-brush-land-in-leaves.mp3',
+            '536736__egomassive__chop.mp3',
+            '390770__d00121058__fx_014_sword_contact_stone_2.mp3',
+            '245645__unfa__cartoon-pop-clean.mp3',
+            '411184__d3rfux__gruzi.mp3',
+            '399585__wolffvisuals__workbench-tailoring.mp3',
+            '413179__micahlg__male_hurt14.mp3',
+            '413175__micahlg__male_hurt10.mp3',
+            '413181__micahlg__male_hurt5.mp3',
+            '413185__micahlg__male_hurt8.mp3',
+            '413186__micahlg__male_hurt9.mp3',
+            '416838__tonsil5__grunt2-death-pain.mp3',
+            '447911__breviceps__growling-stomach-stomach-rumbles.mp3',
+            '443629__checholio__28-clavando-estaca.mp3',
+            '541996__rob_marion__gasp_swing_heavy_1.mp3',
+            '541994__rob_marion__gasp_swing_heavy_2.mp3',
+            '542000__rob_marion__gasp_swing_light_1.mp3',
+            '542001__rob_marion__gasp_swing_light_2.mp3',
+            '542002__rob_marion__gasp_swing_light_3.mp3',
+            '548367__borgory__chewing-crunch.mp3',
+            '542019__rob_marion__gasp_swing_light_4.mp3',
+            '685253__antonsoederberg__freeze-sound-effect-fx.mp3',
+            '750798__simonjeffery13__footsteps-on-road2.mp3',
+            '750798__simonjeffery13__footsteps-on-road.mp3',
+            '750798__simonjeffery13__footsteps-on-road3.mp3',
+            'derpy-berryhunter.mp3'
+        ];
+
+        // Get UI elements
+        const masterVolumeInput = document.getElementById('masterVolume');
+        const masterVolumeDisplay = document.getElementById('masterVolumeDisplay');
+        const volumeMinInput = document.getElementById('volumeMin');
+        const volumeMinDisplay = document.getElementById('volumeMinDisplay');
+        const volumeMaxInput = document.getElementById('volumeMax');
+        const volumeMaxDisplay = document.getElementById('volumeMaxDisplay');
+        const rateMinInput = document.getElementById('rateMin');
+        const rateMinDisplay = document.getElementById('rateMinDisplay');
+        const rateMaxInput = document.getElementById('rateMax');
+        const rateMaxDisplay = document.getElementById('rateMaxDisplay');
+        const nextLoopInput = document.getElementById('nextLoop');
+        const nextHtml5Input = document.getElementById('nextHtml5');
+        const soundsGrid = document.getElementById('soundsGrid');
+        const playingSoundsList = document.getElementById('playingSoundsList');
+
+        // Track playing sounds
+        const playingSounds = [];
+        let soundIdCounter = 0;
+
+        // Update master volume display and Howler global volume
+        masterVolumeInput.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            masterVolumeDisplay.textContent = value.toFixed(1);
+            setAudioVolume(value);
+        });
+
+        // Update volume min display
+        volumeMinInput.addEventListener('input', function() {
+            volumeMinDisplay.textContent = parseFloat(this.value).toFixed(1);
+        });
+
+        // Update volume max display
+        volumeMaxInput.addEventListener('input', function() {
+            volumeMaxDisplay.textContent = parseFloat(this.value).toFixed(1);
+        });
+
+        // Update rate min display
+        rateMinInput.addEventListener('input', function() {
+            rateMinDisplay.textContent = parseFloat(this.value).toFixed(1);
+        });
+
+        // Update rate max display
+        rateMaxInput.addEventListener('input', function() {
+            rateMaxDisplay.textContent = parseFloat(this.value).toFixed(1);
+        });
+
+        // Random number between min and max (inclusive)
+        function randomBetween(min, max) {
+            return min + Math.random() * (max - min);
+        }
+
+        // Function to create a friendly display name from filename
+        function getDisplayName(filename) {
+            // Remove file extension
+            let name = filename.replace('.mp3', '');
+            // Remove number prefix if present (e.g., "435507__")
+            name = name.replace(/^\d+__/, '');
+            // Replace underscores and hyphens with spaces
+            name = name.replace(/[_-]/g, ' ');
+            // Capitalize first letter of each word
+            name = name.split(' ').map(word =>
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+            return name;
+        }
+
+        // Update playing sounds list UI
+        function updatePlayingSoundsList() {
+            if (playingSounds.length === 0) {
+                playingSoundsList.innerHTML = '<li style="color: #999; font-style: italic;">No sounds playing</li>';
+            } else {
+                playingSoundsList.innerHTML = '';
+                playingSounds.forEach(soundEntry => {
+                    const li = document.createElement('li');
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'sound-name';
+                    nameSpan.textContent = getDisplayName(soundEntry.filename);
+
+                    const stopButton = document.createElement('button');
+                    stopButton.textContent = 'Stop';
+                    stopButton.addEventListener('click', function() {
+                        soundEntry.sound.stop();
+                        removePlayingSound(soundEntry.id);
+                    });
+
+                    li.appendChild(nameSpan);
+                    li.appendChild(stopButton);
+                    playingSoundsList.appendChild(li);
+                });
+            }
+        }
+
+        // Remove a sound from tracking
+        function removePlayingSound(id) {
+            const index = playingSounds.findIndex(s => s.id === id);
+            if (index !== -1) {
+                playingSounds.splice(index, 1);
+                updatePlayingSoundsList();
+            }
+        }
+
+        // Generate sound buttons in grid
+        audioFiles.forEach(filename => {
+            const button = document.createElement('button');
+            button.textContent = getDisplayName(filename);
+            button.addEventListener('click', function() {
+                playSound(filename);
+            });
+            soundsGrid.appendChild(button);
+        });
+
+        // Play sound function - creates a new Howl and plays it
+        function playSound(filename) {
+            // Get min/max values
+            const volumeMin = parseFloat(volumeMinInput.value);
+            const volumeMax = parseFloat(volumeMaxInput.value);
+            const rateMin = parseFloat(rateMinInput.value);
+            const rateMax = parseFloat(rateMaxInput.value);
+
+            // Generate random values between min and max
+            const volume = randomBetween(Math.min(volumeMin, volumeMax), Math.max(volumeMin, volumeMax));
+            const rate = randomBetween(Math.min(rateMin, rateMax), Math.max(rateMin, rateMax));
+
+            const loop = nextLoopInput.checked;
+            const html5 = nextHtml5Input.checked;
+
+            // Create new Howl instance with configured parameters
+            const sound = new Howl({
+                src: [`audio/sounds/${filename}`],
+                volume: volume,
+                rate: rate,
+                loop: loop,
+                html5: html5
+            });
+
+            // Track this sound
+            const soundId = soundIdCounter++;
+            const soundEntry = {
+                id: soundId,
+                filename: filename,
+                sound: sound
+            };
+            playingSounds.push(soundEntry);
+
+            // Remove from tracking when sound ends (only for non-looping sounds)
+            if (!loop) {
+                sound.on('end', function() {
+                    removePlayingSound(soundId);
+                });
+            }
+
+            // Play the sound
+            sound.play();
+
+            // Update UI
+            updatePlayingSoundsList();
+
+            console.log(`Playing: ${filename} | Volume: ${volume.toFixed(2)} (${volumeMin}-${volumeMax}) | Rate: ${rate.toFixed(2)} (${rateMin}-${rateMax}) | Loop: ${loop} | HTML5: ${html5}`);
+        }
+
+        // Initialize Howler global volume
+        Howler.volume(parseFloat(masterVolumeInput.value));
+
+        console.log('Howler.js Audio Test initialized');
+        console.log(`Loaded ${audioFiles.length} audio files`);
+    </script>
+</body>
+</html>

@@ -18,7 +18,8 @@ let gameLoop = null;
  *   effectType: EffectType,
  *   getEffect: function(EffectType): number,
  *   getEffects: function(): EffectDefinition[],
- *   isActive: function(): boolean
+ *   isActive: function(): boolean,
+ *   updateDescription?: function(),
  * }[]
  * }
  */
@@ -114,7 +115,7 @@ function setTab(selectedTab) {
                 iterations: 1,
             },
         );
-      
+
     } else {
         content.classList.add('horizontal');
         content.classList.remove('vertical');
@@ -132,7 +133,7 @@ function setTab(selectedTab) {
             },
         );
     }
-    
+
     gameData.selectedTab = selectedTab;
     gameData.save();
 
@@ -160,11 +161,15 @@ function setPointOfInterest(name) {
         name: name,
         newActivityState: true,
     });
+    AudioEngine.postEvent(AudioEvents.CHANGE_LOCATION, pointsOfInterest[name]);
 
     updateUiIfNecessary();
 }
 
 function updateConnector() {
+    // TODO currently broken
+    return;
+
     const activeTabButton = Dom.get().bySelector('.tabButton.active');
     const connectorElement = Dom.get().byId('connector');
     const contentElement = Dom.get().byId('content');
@@ -261,6 +266,7 @@ function switchModuleActivation(module) {
 
     const gridLoadAfterActivation = attributes.gridLoad.getValue() + module.getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
+        AudioEngine.postEvent(AudioEvents.INSUFFICIENT_POWER_GRID, module);
         VFX.highlightText(Dom.get().bySelector(`#${module.domId} .gridLoad`), 'flash-text-denied', 'flash-text-denied');
         Dom.get().byId('switch_' + module.domId).checked = false;
         return;
@@ -275,6 +281,11 @@ function switchModuleActivation(module) {
  * @param {ModuleOperation} operation
  */
 function tryActivateOperation(component, operation) {
+    if (!gameData.state.canChangeActivation) {
+        VFX.shakePlayButton();
+        return;
+    }
+
     if (operation.isActive('self')) {
         // Already active, nothing to do
         return;
@@ -284,6 +295,7 @@ function tryActivateOperation(component, operation) {
         + operation.getGridLoad()
         - component.getActiveOperation().getGridLoad();
     if (gridLoadAfterActivation > attributes.gridStrength.getValue()) {
+        AudioEngine.postEvent(AudioEvents.INSUFFICIENT_POWER_GRID, operation);
         VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad > data`), 'flash-text-denied-long', 'flash-text-denied-long');
         VFX.highlightText(Dom.get().bySelector(`#${operation.domId} .gridLoad > .floating-warning `), 'show', 'flash-floating-warning');
         return;
@@ -299,6 +311,11 @@ function tryActivateOperation(component, operation) {
  */
 function tryEngageBattle(battle) {
     if (!gameData.state.canChangeActivation) {
+        VFX.shakePlayButton();
+        return;
+    }
+
+    if (!battle.isActive() && !gameData.state.canEngageBattles) {
         VFX.shakePlayButton();
         return;
     }
@@ -400,9 +417,10 @@ function createModuleLevel3Elements(categoryName, module, requirementsSlot) {
  * @param {string} categoryName
  * @param {ModuleCategory} category
  * @param {HTMLSlotElement} requirementsSlot
+ * @param {boolean} singleCategoryMode
  * @return {HTMLElement[]}
  */
-function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
+function createModuleLevel2Elements(categoryName, category, requirementsSlot, singleCategoryMode) {
     const level2Elements = [];
 
     for (const module of category.modules) {
@@ -410,6 +428,10 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
         level2Element.id = module.domId;
 
         const level2DomGetter = Dom.get(level2Element);
+        if (singleCategoryMode) {
+            level2Element.classList.remove('ps-lg-3', 'mt-2');
+        }
+
         const nameCell = level2DomGetter.byClass('name');
         nameCell.textContent = module.title;
         if (isDefined(module.description)) {
@@ -429,12 +451,12 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
                 return;
             }
             switchElement.checked = !switchElement.checked;
-            switchModuleActivation.call(this, module, { target: switchElement });
+            switchModuleActivation(module);
         });
 
         initTooltip(level2DomGetter.byClass('maxLevel'), {
             title: () => {
-                return `<b>x${(1 + module.maxLevel / 100).toFixed(2)} XP</b> for all operations in this module.`;
+                return `<b>x${(1 + module.maxLevel / 500).toFixed(2)} XP</b> for all operations in this module.`;
             },
             html: true,
         });
@@ -453,9 +475,16 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
     return level2Elements;
 }
 
+/**
+ *
+ * @param {Object<ModuleCategory>} categoryDefinition
+ * @param {string} domId
+ */
 function createModulesUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
     const level1Elements = [];
+
+    const singleCategoryMode = (Object.values(categoryDefinition).length === 1);
 
     for (const key in categoryDefinition) {
         const level1Element = Dom.new.fromTemplate('level1Template');
@@ -466,16 +495,22 @@ function createModulesUI(categoryDefinition, domId) {
         level1Element.classList.add(category.name);
 
         const level1DomGetter = Dom.get(level1Element);
-        const categoryCell = level1DomGetter.byClass('category');
-        categoryCell.textContent = category.title;
-        if (isDefined(category.description)) {
-            categoryCell.title = category.description;
+
+        if (singleCategoryMode) {
+            level1Element.classList.add('single-category-mode');
+            level1DomGetter.byClass('level1-header').classList.add('hidden');
         } else {
-            categoryCell.removeAttribute('title');
+            const categoryCell = level1DomGetter.byClass('category');
+            categoryCell.textContent = category.title;
+            if (isDefined(category.description)) {
+                categoryCell.title = category.description;
+            } else {
+                categoryCell.removeAttribute('title');
+            }
         }
 
         const level2Slot = level1DomGetter.byId('level2');
-        level2Slot.replaceWith(...createModuleLevel2Elements(category.name, category, level1DomGetter.byId('level2Requirements')));
+        level2Slot.replaceWith(...createModuleLevel2Elements(category.name, category, level1DomGetter.byId('level2Requirements'), singleCategoryMode));
 
         level1Elements.push(level1Element);
     }
@@ -604,14 +639,23 @@ function createLevel4BattleElements(battles) {
         level4Element.id = battle.domId;
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
-        domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
         domGetter.byClass('progressBar').addEventListener('click', tryEngageBattle.bind(this, battle));
-        domGetter.byClass('progressFill').classList.toggle('bossBattle', battle instanceof BossBattle);
+
         if (battle instanceof BossBattle) {
-            const dangerElement = domGetter.byClass('danger');
-            dangerElement.classList.add('effect');
-            dangerElement.innerHTML = battle.getEffectDescription();
+            for (let element of domGetter.allBySelector('.for-regular-battle')) {
+                element.remove();
+            }
+
+            domGetter.byClass('progressFill').classList.add('bossBattle');
+            formatValue(domGetter.bySelector('.dangerCell > .dangerCappedValue > data'), bossDefenseMode.danger);
+            domGetter.bySelector('.dangerCell > .other-effects').innerHTML = battle.getEffectDescription();
+            domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
         } else {
+            for (const element of domGetter.allBySelector('.for-boss-battle')) {
+                element.remove();
+            }
+            domGetter.byClass('progressFill').classList.remove('bossBattle');
+            domGetter.byClass('rewards').innerHTML = battle.getRewardsPerLevelDescription();
             formatValue(domGetter.bySelector('.danger > data'), battle.getEffect(EffectType.Danger));
         }
 
@@ -663,6 +707,9 @@ function createLevel4FinishedBattleElements(battles) {
         domGetter.byClass('xpLeft').classList.add('hidden');
         domGetter.byClass('danger').classList.add('hidden');
         domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
+        for (const element of domGetter.allBySelector('.for-boss-battle')) {
+            element.remove();
+        }
 
         // unshift --> battles in reverse order
         level4Elements.unshift(level4Element);
@@ -680,10 +727,11 @@ function createFinishedBattlesUI() {
     const domGetter = Dom.get(level3Element);
     domGetter.byClass('header-row').classList.replace('text-bg-light', 'text-bg-dark');
     domGetter.byClass('name').textContent = 'Completed';
-    domGetter.byClass('level').textContent = 'Defeated levels';
+    domGetter.byClass('level').textContent = 'Defeated waves';
     domGetter.byClass('xpGain').classList.add('hidden');
     domGetter.byClass('xpLeft').classList.add('hidden');
     domGetter.byClass('danger').classList.add('hidden');
+    domGetter.byClass('rewards').textContent = 'Total Reward';
 
     /** @type {HTMLElement} */
     const level4Slot = domGetter.byClass('level4');
@@ -695,6 +743,8 @@ function createFinishedBattlesUI() {
 function createBattlesUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
     slot.replaceWith(createUnfinishedBattlesUI(), createFinishedBattlesUI());
+
+    Dom.get().byId('bossBattleDefenseModeHelp').classList.add('hidden');
 }
 
 function createGalacticSecretsUI() {
@@ -750,8 +800,110 @@ function createGalacticSecretsUI() {
         }
     });
 
-    const level4Slot = Dom.get().bySelector('#galacticSecrets tbody.level4');
+    const level4Slot = Dom.get().bySelector('#galacticSecretsTableBody');
     level4Slot.append(...level4Elements);
+}
+
+function createTechnologiesUI() {
+    const tbody = Dom.get().byId('technologiesTableBody');
+
+    for (const key in technologies) {
+        const technology = technologies[key];
+        const row = document.createElement('tr');
+        row.id = `technology_${key}`;
+        row.classList.add('technology-row');
+
+        // Technology Name
+        const parent = technology.getParent();
+        const nameCell = document.createElement('td');
+        nameCell.innerHTML =
+            `<div class="technology progress progressBar descriptionTooltip clickable" role="progressbar" aria-label="Technology"
+                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="${technology.title}"
+                 data-bs-placement="right">
+                <div class="moduleOperation progressFill progress-bar progress-bar-striped" style="width: 0%"></div>
+                <div class="progress-text d-flex px-2">
+                    <span class="unlocked-icon me-1">🗹</span>`
+            + (parent === '' ? '' :
+                   `<span class="parent text-truncate">${parent}</span>
+                    <span class="me-1">:</span>`
+            )
+            +      `<span class="name text-truncate">${technology.title}</span>
+                </div>
+            </div>
+            <div class="requirements-container">
+                <div class="requirements help-text"></div>
+            </div>`;
+        nameCell.classList.add('technology-name');
+        row.appendChild(nameCell);
+
+        row.querySelector('.progressBar').addEventListener('pointerdown', (event) => {
+            if (technology.isUnlocked) return;
+
+            const technologyCost = technology.getCost();
+            if (technologyCost > attributes.data.getValue()) {
+                // TODO
+                // visuallyDenyGalacticSecretUnlock(galacticSecret);
+                return;
+            }
+
+            const tooltip = bootstrap.Tooltip.getInstance(event.currentTarget);
+            if (tooltip !== null) {
+                tooltip.hide();
+                tooltip.disable();
+            }
+            technology.inProgress = true;
+        });
+
+        // State
+        const stateCell = document.createElement('td');
+        stateCell.classList.add('state', 'hidden');
+        const stateBadge = document.createElement('span');
+        stateBadge.classList.add('badge', 'state-badge');
+        stateCell.appendChild(stateBadge);
+        row.appendChild(stateCell);
+
+        // Type
+        const typeCell = document.createElement('td');
+        typeCell.textContent = technology.getFormattedType();
+        typeCell.classList.add('type', 'hidden');
+        row.appendChild(typeCell);
+
+        // Belongs to
+        const belongsToCell = document.createElement('td');
+        belongsToCell.textContent = technology.getBelongsTo();
+        belongsToCell.classList.add('belongs-to');
+        row.appendChild(belongsToCell);
+
+        // Effect
+        const effectCell = document.createElement('td');
+        effectCell.classList.add('effect');
+        if (isFunction(technology.unlocks['getEffectDescription'])) {
+            effectCell.innerHTML = technology.unlocks.getEffectDescription(1);
+        } else {
+            effectCell.textContent = '-';
+        }
+        row.appendChild(effectCell);
+
+        // Cost
+        const costCell = document.createElement('td');
+        costCell.classList.add('cost');
+        // TODO attribute icon
+        costCell.innerHTML = `<data class="value" value="${technology.getCost()}" = data-unit="Data">${technology.getCost()}</data>`;
+        row.appendChild(costCell);
+
+        tbody.appendChild(row);
+    }
+
+    window.addEventListener('pointerup', () => {
+        for (const key in technologies) {
+            const technology = technologies[key];
+            technology.inProgress = false;
+            const tooltip = bootstrap.Tooltip.getInstance(Dom.get().bySelector('#' + technology.domId + ' .progressBar'));
+            if (tooltip !== null) {
+                tooltip.enable();
+            }
+        }
+    });
 }
 
 function createModulesQuickDisplay() {
@@ -830,21 +982,14 @@ function createAttributeRow(attribute) {
  * @param {string} name
  * @param {function():boolean} isActiveFn
  */
-function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, effectType, name, isActiveFn) {
+function createAttributeBalanceEntryStaticDescription(balanceElement, getEffectFn, getEffectsFn, effectType, name, isActiveFn) {
     const affectsEffectType = getEffectsFn()
         .find((effect) => effect.effectType === effectType) !== undefined;
     if (!affectsEffectType) return;
 
     const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
     const domGetter = Dom.get(balanceEntryElement);
-    const descriptionElement = domGetter.byClass('name');
-    const updateDescription = () => {
-        const description = typeof name === 'function' ? name() : name;
-        descriptionElement.textContent = '(' + description + ')';
-    };
-
-    updateDescription();
-
+    domGetter.byClass('name').textContent = '(' + name + ')';
     domGetter.byClass('operator').textContent = effectType.operator;
     attributeBalanceEntries.push({
         element: balanceEntryElement,
@@ -852,7 +997,39 @@ function createAttributeBalanceEntry(balanceElement, getEffectFn, getEffectsFn, 
         getEffect: getEffectFn,
         getEffects: getEffectsFn,
         isActive: isActiveFn,
-        updateDescription,
+    });
+    balanceElement.append(balanceEntryElement);
+}
+
+/**
+ *
+ * @param {HTMLElement} balanceElement
+ * @param {function(EffectType): number} getEffectFn
+ * @param {function(): EffectDefinition[]} getEffectsFn
+ * @param {EffectType} effectType
+ * @param {function(): string} descriptionFn
+ * @param {function():boolean} isActiveFn
+ */
+function createAttributeBalanceEntryDynamicDescription(balanceElement, getEffectFn, getEffectsFn, effectType, descriptionFn, isActiveFn) {
+    const affectsEffectType = getEffectsFn()
+        .find((effect) => effect.effectType === effectType) !== undefined;
+    if (!affectsEffectType) return;
+
+    const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
+    const domGetter = Dom.get(balanceEntryElement);
+    const descriptionElement = domGetter.byClass('name');
+    domGetter.byClass('operator').textContent = effectType.operator;
+    const updateDescriptionFn = () => {
+        descriptionElement.textContent = '(' + descriptionFn() + ')';
+    };
+    updateDescriptionFn();
+    attributeBalanceEntries.push({
+        element: balanceEntryElement,
+        effectType: effectType,
+        getEffect: getEffectFn,
+        getEffects: getEffectsFn,
+        isActive: isActiveFn,
+        updateDescription: updateDescriptionFn,
     });
     balanceElement.append(balanceEntryElement);
 }
@@ -884,7 +1061,7 @@ function createAttributeBalance(rowElement, effectTypes) {
             const module = modules[moduleName];
             for (const component of module.components) {
                 for (const operation of component.operations) {
-                    createAttributeBalanceEntry(
+                    createAttributeBalanceEntryStaticDescription(
                         balanceElement,
                         operation.getEffect.bind(operation),
                         operation.getEffects.bind(operation),
@@ -896,39 +1073,37 @@ function createAttributeBalance(rowElement, effectTypes) {
             }
         }
         if (effectType === EffectType.MilitaryFactor) {
-            // let battlesWonLength = () => (Object.keys(battles).filter(key => battles[key].isDone() && battles[key].getReward(effectType)).length); not an option because getReward(effectType) returns 1 even if its +Military because it backs up to effectType.defaultValue of xMilitary which is 1
             let battlesWonLength = () => {
                 let count = 0;
                 for (const key in battles) {
                     const b = battles[key];
-                    if (b.isDone() && b.getReward(effectType)) {
-                        for(const reward in b.rewards) {
-                            const rewardEffectType = b.rewards[reward].effectType;
-                            if(rewardEffectType === effectType) {
-                                count++;
-                                break;
-                            }
+                    if (!b.isDone()) continue;
+                    for(const reward in b.rewards) {
+                        const rewardEffectType = b.rewards[reward].effectType;
+                        if(rewardEffectType === effectType) {
+                            count++;
+                            break;
                         }
                     }
                 }
                 return count;
             };
-            let battleValueFromRewards = () => (Math.pow(1.05, battlesWonLength()));
-            let atLeastOneBattleWonToMakeItActive = () => (battleValueFromRewards() > 1 ? true : false);
-            let descriptionText = () => ('x1.05 for ' + battlesWonLength() + ' battles defeated');
-            createAttributeBalanceEntry(
+            let battleValueFromRewardsFn = () => (Math.pow(standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue, battlesWonLength()));
+            let atLeastOneBattleWonToMakeItActiveFn = () => (battleValueFromRewardsFn() > 1 ? true : false);
+            let descriptionTextFn = () => ('x' + (standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue) + ' for ' + battlesWonLength() + ' battles defeated');
+            createAttributeBalanceEntryDynamicDescription(
                 balanceElement,
-                battleValueFromRewards,
-                () => [{effectType: effectType, baseValue: battleValueFromRewards}],
+                battleValueFromRewardsFn,
+                () => [{effectType: effectType, baseValue: battleValueFromRewardsFn}],
                 effectType,
-                descriptionText,
-                atLeastOneBattleWonToMakeItActive,
+                descriptionTextFn,
+                atLeastOneBattleWonToMakeItActiveFn,
             );
         } else {
             for (const key in battles) {
                 /** @type {Battle} */
                 const battle = battles[key];
-                createAttributeBalanceEntry(
+                createAttributeBalanceEntryStaticDescription(
                     balanceElement,
                     battle.getReward.bind(battle),
                     () => battle.rewards,
@@ -936,7 +1111,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                     'Defeated ' + battle.title,
                     battle.isDone.bind(battle),
                 );
-                createAttributeBalanceEntry(
+                createAttributeBalanceEntryStaticDescription(
                     balanceElement,
                     battle.getEffect.bind(battle),
                     battle.getEffects.bind(battle),
@@ -948,7 +1123,7 @@ function createAttributeBalance(rowElement, effectTypes) {
         }
         for (const key in pointsOfInterest) {
             const pointOfInterest = pointsOfInterest[key];
-            createAttributeBalanceEntry(
+            createAttributeBalanceEntryStaticDescription(
                 balanceElement,
                 pointOfInterest.getEffect.bind(pointOfInterest),
                 pointOfInterest.getEffects.bind(pointOfInterest),
@@ -957,6 +1132,61 @@ function createAttributeBalance(rowElement, effectTypes) {
                 pointOfInterest.isActive.bind(pointOfInterest),
             );
         }
+    }
+}
+
+function createEssenceOfUnknownHistoryEntryDescription(entry) {
+    const isGain = entry.amount > 0;
+    /** @type {string} */
+    let descriptionText;
+
+    if (isGain) {
+        switch (entry.entity.type) {
+            case 'BossBattle':
+                descriptionText = `from ${entry.entity.level} defeated Boss waves`;
+                break;
+            default:
+                console.error('Essence of Unknown history: Unsupported entry.entity.type for gained essence', entry.entity.type);
+                break;
+        }
+    } else {
+        switch (entry.entity.type) {
+            case 'GalacticSecret':
+                descriptionText = `for ${entry.entity.name}`;
+                break;
+            default:
+                console.error('Essence of Unknown history: Unsupported entry.entity.type for spent essence', entry.entity.type);
+                break;
+        }
+    }
+    descriptionText += ` (${formatNumber(entry.cycle)} IC)`;
+    return descriptionText;
+}
+
+/**
+ * @param {HTMLElement} balanceElement
+ * @param {EssenceHistoryEntry} entry
+ */
+function createEssenceOfUnknownBalanceEntry(balanceElement, entry) {
+    const balanceEntryElement = Dom.new.fromTemplate('balanceEntryTemplate');
+    const domGetter = Dom.get(balanceEntryElement);
+
+    domGetter.byClass('name').textContent = createEssenceOfUnknownHistoryEntryDescription(entry);
+    domGetter.byClass('operator').textContent = (entry.amount > 0) ? '+' : '-';
+    formatValue(domGetter.byClass('entryValue'),  Math.abs(entry.amount));
+
+    balanceElement.append(balanceEntryElement);
+}
+
+/**
+ * @param {HTMLElement} rowElement
+ */
+function createEssenceOfUnknownBalance(rowElement) {
+    const balanceElement = Dom.get(rowElement).byClass('balance');
+    balanceElement.classList.remove('hidden');
+
+    for (const entry of gameData.essenceOfUnknownHistory) {
+        createEssenceOfUnknownBalanceEntry(balanceElement, entry);
     }
 }
 
@@ -1032,10 +1262,10 @@ function createAttributesUI() {
     const rows = [];
 
     // Danger
-    const dangerRow = createAttributeRow(attributes.danger);
-    Dom.get(dangerRow).byClass('balance').classList.remove('hidden');
-    createAttributeBalance(dangerRow, [EffectType.Danger, EffectType.DangerFactor]);
-    rows.push(dangerRow);
+    const dangerCell = createAttributeRow(attributes.danger);
+    Dom.get(dangerCell).byClass('balance').classList.remove('hidden');
+    createAttributeBalance(dangerCell, [EffectType.Danger, EffectType.DangerFactor]);
+    rows.push(dangerCell);
 
     // Grid Load
     const gridLoadRow = createAttributeRow(attributes.gridLoad);
@@ -1056,21 +1286,6 @@ function createAttributesUI() {
     createAttributeBalance(growthRow, [EffectType.Growth, EffectType.GrowthFactor]);
     rows.push(growthRow);
 
-    // Heat
-    const heatRow = createAttributeRow(attributes.heat);
-    Dom.get(heatRow).byClass('description').innerHTML +=
-        `<br />Acceleration is applied to reach the target ${attributes.heat.inlineHtml}.` +
-        (SPACE_BASE_HEAT > 0.0
-            ? `The total can never be less than <data value="${SPACE_BASE_HEAT.toFixed(0.1)}">${formatNumber(SPACE_BASE_HEAT)}</data> - space is dangerous!`
-            : '');
-    const heatFormulaElement = Dom.get(heatRow).byClass('formula');
-    heatFormulaElement.classList.remove('hidden');
-    heatFormulaElement.innerHTML = `<ul class="balance m-0 list-unstyled">
-    <li class="balanceEntry">${attributes.danger.inlineHtml} - ${attributes.military.inlineHtml}</li>
-    <li><span class="operator">+</span> raw ${attributes.heat.inlineHtml} from Boss</li>
-</ul>`;
-    rows.push(heatRow);
-
     // Industry
     const industryRow = createAttributeRow(attributes.industry);
     Dom.get(industryRow).byClass('balance').classList.remove('hidden');
@@ -1085,15 +1300,13 @@ function createAttributesUI() {
 
     // Population
     const populationRow = createAttributeRow(attributes.population);
-    Dom.get(populationRow).byClass('description').innerHTML +=
-        `<br />Innertia is applied to ${attributes.growth.inlineHtml}.`;
     const populationFormulaElement = Dom.get(populationRow).byClass('formula');
     populationFormulaElement.classList.remove('hidden');
     populationFormulaElement.innerHTML =
-        '(0.1 * ' +  attributes.growth.inlineHtml +
-        ') - (0.01 * ' +
-        attributes.population.inlineHtml + ' * ' +
-        attributes.heat.inlineHtml + ')<br />&wedgeq; <data value="0" class="delta">?</data> per cycle';
+        attributes.growth.inlineHtml + '<br />' +
+        'x10 <small class="help-text">if below max Population and no Battle is engaged</small><br />' +
+        ' - ' + attributes.danger.inlineHtml + '<br />' +
+        '&wedgeq; <data value="0" class="delta">?</data> per cycle';
     rows.push(populationRow);
 
     // Research
@@ -1101,6 +1314,11 @@ function createAttributesUI() {
     Dom.get(researchRow).byClass('balance').classList.remove('hidden');
     createAttributeBalance(researchRow, [EffectType.Research, EffectType.ResearchFactor]);
     rows.push(researchRow);
+
+    // EssenceOfUnknown
+    const essenceOfUnknownRow = createAttributeRow(attributes.essenceOfUnknown);
+    createEssenceOfUnknownBalance(essenceOfUnknownRow);
+    rows.push(essenceOfUnknownRow);
 
     slot.append(...rows);
 }
@@ -1160,6 +1378,19 @@ function updateModulesQuickDisplay() {
             }
         }
     }
+}
+
+function updateTechnologiesQuickDisplay() {
+    let quickDisplayElement = Dom.get().bySelector('#galacticSecretsTabButton > .quickTaskDisplay');
+    const componentDomGetter = Dom.get(quickDisplayElement);
+
+
+    const progressFillElement = componentDomGetter.byClass('progressFill');
+    progressFillElement.classList.toggle('current', attributes.research.getValue() > 0);
+    setProgress(progressFillElement, analysisCore.xp / analysisCore.getMaxXp());
+
+    const data = attributes.data.getValue();
+    formatValue(Dom.get().byId('dataDisplay'), data, {forceInteger: true, keepNumber: true});
 }
 
 /**
@@ -1280,14 +1511,15 @@ function setProgress(progressFillElement, progress, increasing = true) {
  * @return {boolean} true if the entity is available, false if not
  */
 function updateRequirements(unfulfilledRequirements, context) {
-    // Block all following entities
+    // Rule 1: The module is unlocked, so we show it
+    if (unfulfilledRequirements === null) {
+        return true;
+    }
+
+    // Rule 2: Block all following entities
     // Only first requirement is shown
     if (context.hasUnfulfilledRequirements) {
         return false;
-    }
-
-    if (unfulfilledRequirements === null) {
-        return true;
     }
 
     // Logic here: Only if all the open requirements are visible,
@@ -1592,7 +1824,13 @@ function updateBattleRows() {
 
         const unfulfilledRequirement = getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattles, maxBattles);
 
-        if (!(battle instanceof BossBattle)) {
+        const domGetter = Dom.get(row);
+        if (battle instanceof BossBattle) {
+            formatValue(
+                domGetter.bySelector('.dangerCell > .danger > data'),
+                battle.getRawEffect(EffectType.Danger)
+            );
+        } else {
             if (!updateRequirements(
                 unfulfilledRequirement === null ? null : [unfulfilledRequirement],
                 requirementsContext)
@@ -1607,7 +1845,6 @@ function updateBattleRows() {
             row.classList.remove('hidden');
         }
 
-        const domGetter = Dom.get(row);
         formatValue(domGetter.bySelector('.level > data'), battle.getDisplayedLevel(), {keepNumber: true});
         formatValue(domGetter.bySelector('.xpGain > data'), battle.getXpGain());
         formatValue(domGetter.bySelector('.xpLeft > data'), battle.getXpLeft());
@@ -1628,7 +1865,30 @@ function updateBattleRows() {
 
     if (isBossBattleAvailable() && !bossBattle.isDone()) {
         bossRow.classList.remove('hidden');
-        if (visibleBattles < bossBattle.distance) {
+
+        if (bossBattle.isActive()) {
+            const bossDomGetter = Dom.get(bossRow);
+            const bossInDefenseMode = bossBattle.isInDefenseMode();
+            const bossBattleDefenseModeHelp = Dom.get().byId('bossBattleDefenseModeHelp');
+
+            bossDomGetter.byClass('progress').classList.toggle('glow-shield', bossInDefenseMode);
+            bossDomGetter.byClass('xpGainCell').classList.toggle('defense-mode', bossInDefenseMode);
+            bossDomGetter.byClass('dangerCell').classList.toggle('defense-mode', bossInDefenseMode);
+            bossBattleDefenseModeHelp.classList.toggle('hidden', !bossInDefenseMode);
+            if (bossInDefenseMode) {
+                formatValue(bossDomGetter.bySelector('.xpCappedValue > data'), bossBattle.getDefenseModeXpGain());
+
+                if (bossRow.nextElementSibling !== bossBattleDefenseModeHelp) {
+                    bossRow.after(bossBattleDefenseModeHelp);
+                }
+            }
+            // Boss should be in first position.
+            if (bossRow.previousElementSibling !== null) { // Do not update the DOM if not necessary
+                Dom.get()
+                    .bySelector('#unfinishedBattles tbody.level4')
+                    .prepend(bossRow);
+            }
+        } else if (visibleBattles < bossBattle.distance) {
             // There are fewer battles visible than the boss distance --> move boss in last position.
             // Is the bossRow already the last element?
             if (bossRow.nextElementSibling !== requirementsContext.requirementsElement) { // Do not update the DOM if not necessary
@@ -1734,14 +1994,119 @@ function updateGalacticSecretRows() {
     }
 }
 
+function updateAnalysisCoreUI() {
+    const analysisCoreElement = Dom.get().byId('analysisCore');
+    if (analysisCoreElement === null) return;
+
+    const domGetter = Dom.get(analysisCoreElement);
+
+    formatValue(Dom.get().byId('currentDataDisplay'), gameData.data);
+    formatValue(domGetter.bySelector('.level'), analysisCore.level);
+
+    setBigProgress(
+        analysisCore,
+        domGetter.byClass('xp'),
+        domGetter.byClass('xpLeft'),
+        domGetter.byClass('progressFill'),
+        attributes.research.getValue() > 0,
+        formatValue);
+}
+
+const technologiesRequirementHtmlCache = {};
+
+function updateTechnologiesUI() {
+    for (const key in technologies) {
+        const technology = technologies[key];
+        const row = Dom.get().byId(`technology_${key}`);
+
+        row.classList.toggle('hidden', !technology.isVisible());
+
+        const domGetter = Dom.get(row);
+        const nameCell = domGetter.byClass('technology-name');
+        const stateBadge = domGetter.byClass('state-badge');
+
+        // Update state
+        const state = technology.getState();
+        stateBadge.textContent = state;
+        stateBadge.classList.remove('bg-success', 'bg-warning', 'bg-danger', 'bg-secondary');
+
+        const progressElement = domGetter.byClass('progress');
+        const progressBarElement = domGetter.byClass('progressBar');
+        const progressFillElement = domGetter.byClass('progressFill');
+        const requirementsElement = domGetter.byClass('requirements');
+        const costCell = domGetter.byClass('cost');
+
+        switch (state) {
+            case 'Unlocked':
+                progressElement.classList.remove('hidden');
+                requirementsElement.classList.add('hidden');
+                progressFillElement.classList.add('unlocked');
+                progressBarElement.classList.add('unlocked');
+                progressBarElement.classList.remove('clickable');
+                costCell.classList.remove('affordable', 'too-expensive');
+                costCell.classList.add('unlocked');
+
+                progressFillElement.style.removeProperty('width');
+
+                stateBadge.classList.add('bg-secondary');
+                break;
+            case 'Affordable':
+                progressElement.classList.remove('hidden');
+                requirementsElement.classList.add('hidden');
+                progressFillElement.classList.toggle('unlocked', technology.inProgress);
+                progressBarElement.classList.remove('unlocked');
+                progressBarElement.classList.add('clickable');
+                setProgress(progressFillElement, technology.unlockProgress);
+                costCell.classList.add('affordable');
+                costCell.classList.remove('too-expensive', 'unlocked');
+
+                stateBadge.classList.add('bg-success');
+                break;
+            case 'Too expensive':
+                progressElement.classList.remove('hidden');
+                requirementsElement.classList.add('hidden');
+                progressFillElement.classList.remove('unlocked');
+                progressBarElement.classList.remove('unlocked');
+                progressBarElement.classList.remove('clickable');
+                costCell.classList.remove('affordable', 'unlocked');
+                costCell.classList.add('too-expensive');
+
+                stateBadge.classList.add('bg-warning');
+                break;
+            case 'Missing requirement':
+                progressElement.classList.add('hidden');
+                requirementsElement.classList.remove('hidden');
+                progressFillElement.classList.remove('unlocked');
+                progressBarElement.classList.remove('unlocked');
+                progressBarElement.classList.remove('clickable');
+                const html = technology.getUnfulfilledRequirements()
+                    .map(requirement => requirement.toHtml())
+                    .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
+                    .join(', ');
+                if (html !== technologiesRequirementHtmlCache[key]) {
+                    requirementsElement.innerHTML = html;
+                    technologiesRequirementHtmlCache[key] = html;
+                }
+                costCell.classList.remove('affordable', 'too-expensive', 'unlocked');
+
+                stateBadge.classList.add('bg-danger');
+                break;
+        }
+
+        formatValue(domGetter.bySelector('.cost > data'), technology.getCost(), {forceInteger: true, unit: 'Data'});
+    }
+}
+
 function updateAttributeRows() {
     for (const balanceEntry of attributeBalanceEntries) {
         if (balanceEntry.isActive()) {
             formatValue(
                 Dom.get(balanceEntry.element).byClass('entryValue'),
                 balanceEntry.getEffect(balanceEntry.effectType),
-                balanceEntry.updateDescription?.(),
             );
+            if (isFunction(balanceEntry.updateDescription)) {
+                balanceEntry.updateDescription();
+            }
             balanceEntry.element.classList.remove('hidden');
         } else {
             balanceEntry.element.classList.add('hidden');
@@ -1751,6 +2116,33 @@ function updateAttributeRows() {
     for (const balanceEntry of gridLoadBalanceEntries) {
         balanceEntry.element.classList.toggle('hidden', !balanceEntry.isActive());
     }
+}
+
+/**
+ *
+ * @param {Task} task
+ * @param {HTMLElement} energyGeneratedElement
+ * @param {HTMLElement} energyLeftElement
+ * @param {HTMLElement} progressFillElement
+ * @param {boolean} progressActive
+ * @param {function(HTMLElement, number, {}?): string} formatFn
+ */
+function setBigProgress(task, energyGeneratedElement, energyLeftElement, progressFillElement, progressActive, formatFn) {
+    const xpGain = task.getXpGain();
+    const xpLeft = task.getXpLeft();
+    const progress = task.xp / task.getMaxXp();
+
+    formatFn(Dom.get(energyGeneratedElement).bySelector('data'), xpGain, {forceSign: true});
+    formatFn(Dom.get(energyLeftElement).bySelector('data'), xpLeft);
+
+    progressFillElement.classList.toggle('current', progressActive);
+    const energyProgress = setProgress(progressFillElement, progress);
+
+    // Using right alignment to respect the energyLeft element
+    const relativeEnergy = 100 * (1 - energyProgress);
+    const leftLimit = energyGeneratedElement.offsetWidth + (gameData.settings.sciFiMode ? 30 : 0);
+    const rightLimit = energyLeftElement.offsetWidth;
+    energyGeneratedElement.style.right = `clamp(${rightLimit}px, ${relativeEnergy}%, calc(100% - ${leftLimit}px))`;
 }
 
 function updateEnergyGridBar() {
@@ -1797,20 +2189,13 @@ function updateEnergyGridBar() {
         gridStrengthBox.classList.toggle('in-use', index < currentGridLoad);
     });
 
-    const energyGeneratedElement = domGetter.byClass('energyGenerated');
-    formatEnergyValue(gridStrength.getXpGain(), Dom.get(energyGeneratedElement).bySelector('data'), {forceSign: true});
-    const energyLeftElement = domGetter.byClass('energyLeft');
-    formatEnergyValue(gridStrength.getXpLeft(), Dom.get(energyLeftElement).bySelector('data'));
-
-    const progressFillElement = domGetter.byClass('progressFill');
-    progressFillElement.classList.toggle('current', attributes.energy.getValue() > 0);
-    const energyProgress = setProgress(progressFillElement, gridStrength.xp / gridStrength.getMaxXp());
-
-    // Using right alignment to respect the energyLeft element
-    const relativeEnergy = 100 * (1 - energyProgress);
-    const leftLimit = energyGeneratedElement.offsetWidth + (gameData.settings.sciFiMode ? 30 : 0);
-    const rightLimit = energyLeftElement.offsetWidth;
-    energyGeneratedElement.style.right = `clamp(${rightLimit}px, ${relativeEnergy}%, calc(100% - ${leftLimit}px))`;
+    setBigProgress(
+        gridStrength,
+        domGetter.byClass('energyGenerated'),
+        domGetter.byClass('energyLeft'),
+        domGetter.byClass('progressFill'),
+        attributes.energy.getValue() > 0,
+        formatEnergyValue);
 }
 
 function updateBossProgress() {
@@ -1887,10 +2272,13 @@ function updateBossBarColor(progress, bossBar) {
 }
 
 function updateHeatIndication() {
-    const heat = attributes.heat.getValue();
-    const gotHeat = heat > 0.0 && !nearlyEquals(heat, 0.0, 0.01);
-    Dom.get().byId('heatIndicator').classList.toggle('hidden', !gotHeat);
-    Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="heat"]').classList.toggle('shake-and-pulse', gotHeat);
+    const populationDelta = calculatePopulationDelta();
+    const isPopShrinking = populationDelta < 0.0 && !nearlyEquals(populationDelta, 0.0, 0.01);
+    const indicatorHidden = Dom.get().byId('heatIndicator').classList.toggle('hidden', !isPopShrinking);
+    if (!indicatorHidden) {
+        AudioEngine.postEvent(AudioEvents.HEAT_WARNING);
+    }
+    Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="danger"]').classList.toggle('shake-and-pulse', isPopShrinking);
 }
 
 function updateStationOverview() {
@@ -1946,10 +2334,6 @@ function updateStationOverview() {
     formatValue(Dom.get().byId('growthDisplay'), growth);
     formatValue(Dom.get().bySelector('#attributeRows > .growth > .value > data'), growth);
 
-    const heat = attributes.heat.getValue();
-    formatValue(Dom.get().byId('heatDisplay'), heat);
-    formatValue(Dom.get().bySelector('#attributeRows > .heat > .value > data'), heat);
-
     const industry = attributes.industry.getValue();
     formatValue(Dom.get().byId('industryDisplay'), industry);
     formatValue(Dom.get().bySelector('#attributeRows > .industry > .value > data'), industry);
@@ -1962,7 +2346,13 @@ function updateStationOverview() {
     formatValue(Dom.get().byId('populationDisplay'), population, {forceInteger: true});
     formatValue(Dom.get().byId('populationProgressSpeedDisplay'), getPopulationProgressSpeedMultiplier(), {});
     formatValue(Dom.get().bySelector('#attributeRows > .population > .value > data'), population, {forceInteger: true});
-    formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), populationDelta(), {forceSign: true});
+    formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), calculatePopulationDelta(), {forceSign: true});
+    const maxPopulationDisplayElement = Dom.get().byId('maxPopulationDisplay');
+    formatValue(maxPopulationDisplayElement, gameData.stats.maxPopulation.current, {forceInteger: true});
+    const regenerationActive = isPopulationRegenerationActive(population);
+    const maxPopulationDisplayParent = maxPopulationDisplayElement.closest('.secondary-stat');
+    maxPopulationDisplayParent.classList.toggle('help-text', !regenerationActive);
+    maxPopulationDisplayParent.classList.toggle('regeneration-active', regenerationActive);
 
     const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);
@@ -1970,6 +2360,7 @@ function updateStationOverview() {
 
     const essenceOfUnknown = attributes.essenceOfUnknown.getValue();
     formatValue(Dom.get().byId('essenceOfUnknownDisplay'), essenceOfUnknown, {forceInteger: true, keepNumber: true});
+    formatValue(Dom.get().bySelector('#attributeRows > .essenceOfUnknown > .value > data'), essenceOfUnknown);
 
     const galacticSecretCost = calculateGalacticSecretCost();
     formatValue(Dom.get().byId('galacticSecretCostDisplay'), galacticSecretCost, {forceInteger: true, keepNumber: true});
@@ -2033,6 +2424,34 @@ function visuallyDenyGalacticSecretUnlock(galacticSecret) {
     VFX.highlightText(Dom.get().byId('essenceOfUnknownDisplay'), 'flash-text-denied', 'flash-text-denied');
 }
 
+function progressTechnologies() {
+    for (const key in technologies) {
+        const technology = technologies[key];
+        technology.update();
+        if (technology.unlockProgress < 1) {
+            continue;
+        }
+
+        const technologyCost = technology.getCost();
+        if (technologyCost > attributes.data.getValue()) {
+            // TODO
+            // visuallyDenyGalacticSecretUnlock(technology);
+        } else {
+            // Unlock & pay the required essence of unknown
+            technology.isUnlocked = true;
+            technology.inProgress = false;
+            addDataLost(technologyCost, technology.type, technology.title);
+            GameEvents.TaskLevelChanged.trigger({
+                type: technology.type,
+                name: technology.name,
+                previousLevel: 0,
+                nextLevel: 1,
+            });
+        }
+        technology.unlockProgress = 0;
+    }
+}
+
 function progressGalacticSecrets() {
     for (const key in galacticSecrets) {
         const galacticSecret = galacticSecrets[key];
@@ -2048,7 +2467,7 @@ function progressGalacticSecrets() {
             // Unlock & pay the required essence of unknown
             galacticSecret.isUnlocked = true;
             galacticSecret.inProgress = false;
-            gameData.essenceOfUnknown -= galacticSecretCost;
+            addEssenceLost(galacticSecretCost, galacticSecret.type, galacticSecret.title);
             GameEvents.TaskLevelChanged.trigger({
                 type: galacticSecret.type,
                 name: galacticSecret.name,
@@ -2059,6 +2478,85 @@ function progressGalacticSecrets() {
         galacticSecret.unlockProgress = 0;
     }
 }
+
+/**
+ * @param {number} amount - lost
+ * @param {string} entityType
+ * @param {string} entityName
+ * @param {number} [entityLevel]
+ */
+function addDataLost(amount, entityType, entityName, entityLevel) {
+    console.assert(amount > 0);
+
+    gameData.data -= amount;
+    // TODO
+    // logDataTransaction(-amount, entityType, entityName, entityLevel);
+    gameData.save();
+}
+
+/**
+ * @param {number} amount - gained
+ * @param {string} entityType
+ * @param {string} entityName
+ * @param {number} [entityLevel]
+ */
+function addEssenceGain(amount, entityType, entityName, entityLevel) {
+    console.assert(amount > 0);
+
+    gameData.essenceOfUnknown += amount;
+    logEssenceTransaction(amount, entityType, entityName, entityLevel);
+    gameData.save();
+}
+
+/**
+ * @param {number} amount - lost
+ * @param {string} entityType
+ * @param {string} entityName
+ * @param {number} [entityLevel]
+ */
+function addEssenceLost(amount, entityType, entityName, entityLevel) {
+    console.assert(amount > 0);
+
+    gameData.essenceOfUnknown -= amount;
+    logEssenceTransaction(-amount, entityType, entityName, entityLevel);
+    gameData.save();
+}
+
+/**
+ * @param {number} amount - Positive for gain, negative for spend
+ * @param {string} entityType
+ * @param {string} entityName
+ * @param {number} [entityLevel]
+ */
+function logEssenceTransaction(amount, entityType, entityName, entityLevel) {
+    const cycle = Math.floor(startCycle + gameData.totalCycles);
+    const timestamp = Date.now();
+
+    /** @type {EssenceHistoryEntry} */
+    const entry = {
+        amount: amount,
+        entity: {
+            type: entityType,
+            name: entityName,
+            level: entityLevel,
+        },
+        cycle: cycle,
+        timestamp: timestamp
+    };
+
+    if (!gameData.essenceOfUnknownHistory) {
+        gameData.essenceOfUnknownHistory = [];
+    }
+    gameData.essenceOfUnknownHistory.push(entry);
+
+    const slot = document.getElementById('attributeRows');
+    const rowElement = slot ? slot.querySelector('.essenceOfUnknown') : null;
+    if (rowElement !== null) {
+        const balanceElement = Dom.get(rowElement).byClass('balance');
+        createEssenceOfUnknownBalanceEntry(balanceElement, entry);
+    }
+}
+
 
 /**
  * Activate the first/saved operation of any component that doesn't
@@ -2130,15 +2628,19 @@ function updateUI() {
     updateBattleRows();
     updateSectorRows();
     updateGalacticSecretRows();
+    updateAnalysisCoreUI();
+    updateTechnologiesUI();
 
     updateModulesQuickDisplay();
+    updateTechnologiesQuickDisplay();
     updateBattlesQuickDisplay();
     updateLocationQuickDisplay();
+
     updateAttributeRows();
 
     updateHtmlElementRequirements();
 
-    updateHeatIndication();
+    // updateHeatIndication();
     updateStationOverview();
     updateBodyClasses();
 }
@@ -2153,11 +2655,13 @@ function updateUI() {
 function update(deltaTime, totalTime, isLastUpdateInTick, gameLoop) {
     increaseCycle();
     updateBossDistance();
+    progressTechnologies();
     progressGalacticSecrets();
     activateComponentOperations();
     doTasks();
-    updateHeat();
     updatePopulation();
+    updateStats();
+    musicContext.update();
 
     if (isLastUpdateInTick // Only update the UI once in an accumulated update
         || !gameData.state.gameLoopRunning // we are about to stop the game loop, so now is the time to update the UI
@@ -2296,6 +2800,7 @@ function initRequirements() {
 function initConfigNames() {
     assignNames(gameStates);
     gridStrength.name = 'gridStrength';
+    analysisCore.name = 'analysisCore';
     assignNames(attributes);
     assignNames(moduleCategories);
     assignNames(modules);
@@ -2350,6 +2855,7 @@ function init() {
     createSectorsUI(sectors, 'sectorTable');
     createBattlesUI(battles, 'battlesTable');
     createGalacticSecretsUI(galacticSecrets, 'galacticSecrets');
+    createTechnologiesUI();
     createModulesQuickDisplay();
     createBattlesQuickDisplay();
 
@@ -2360,7 +2866,7 @@ function init() {
     initTabBehavior();
     initTooltips();
     initStationName();
-    initAudio();
+    AudioEngine.init();
     initSettings();
     initBossBattleProgressBar();
 
