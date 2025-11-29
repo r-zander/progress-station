@@ -939,8 +939,7 @@ class AudioEngine {
 
         // Fade in if specified
         if (isNumber(segment.fadeInTime) && segment.fadeInTime > 0) {
-            layerHowl.howl.volume(0, soundId);
-            layerHowl.howl.fade(0, targetVolume, segment.fadeInTime, soundId);
+            layerHowl.howl.fade(layerHowl.howl.volume(soundId), targetVolume, segment.fadeInTime, soundId);
         } else {
             layerHowl.howl.volume(targetVolume, soundId);
         }
@@ -974,7 +973,7 @@ class AudioEngine {
         // Fade out if specified, then pause (NOT stop/unload)
         if (isNumber(segment.fadeOutTime) && segment.fadeOutTime > 0) {
             activeLayer.howl.fade(
-                segment.volume * gameData.settings.audio.musicVolume,
+                activeLayer.howl.volume(soundId),
                 0,
                 segment.fadeOutTime,
                 soundId,
