@@ -20,6 +20,7 @@ const localStorageKey = 'ps_gameDataSave';
  * @property {boolean} canEngageBattles
  * @property {boolean} musicInitialLayerPlaying
  * @property {boolean} musicProgressLayerPlaying
+ * @property {boolean} musicBossPlaying
  * @property {GameState[]} [validNextStates]
  */
 
@@ -37,6 +38,7 @@ const gameStates = {
         canEngageBattles: false,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
     PLAYING: {
         gameLoopRunning: true,
@@ -48,6 +50,7 @@ const gameStates = {
         canEngageBattles: true,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: true,
+        musicBossPlaying: false,
     },
     PAUSED: {
         gameLoopRunning: false,
@@ -59,6 +62,7 @@ const gameStates = {
         canEngageBattles: false,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
     TUTORIAL_PAUSED: {
         gameLoopRunning: false,
@@ -70,6 +74,7 @@ const gameStates = {
         canEngageBattles: false,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
     BOSS_FIGHT_INTRO: {
         gameLoopRunning: false,
@@ -81,6 +86,7 @@ const gameStates = {
         canEngageBattles: false,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
     BOSS_FIGHT: {
         gameLoopRunning: true,
@@ -92,6 +98,7 @@ const gameStates = {
         canEngageBattles: true,
         musicInitialLayerPlaying: false,
         musicProgressLayerPlaying: false,
+        musicBossPlaying: true,
     },
     BOSS_FIGHT_PAUSED: {
         gameLoopRunning: false,
@@ -103,6 +110,7 @@ const gameStates = {
         canEngageBattles: false,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
     DEAD: {
         gameLoopRunning: false,
@@ -114,6 +122,7 @@ const gameStates = {
         canEngageBattles: false,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
     BOSS_DEFEATED: {
         gameLoopRunning: false,
@@ -125,6 +134,7 @@ const gameStates = {
         canEngageBattles: false,
         musicInitialLayerPlaying: false,
         musicProgressLayerPlaying: false,
+        musicBossPlaying: false,
     },
 };
 gameStates.NEW.validNextStates = [gameStates.PLAYING];

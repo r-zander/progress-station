@@ -17,7 +17,7 @@ moduleOperations.FourDPrinter = new ModuleOperation({
 
 moduleOperations.PocketLaboratory = new ModuleOperation({
     title: 'Pocket Laboratory', maxXp: 70, gridLoad: 1, xpGain: 10,
-    description: 'A lab that fits in your pocket, for when you need to science the heck out of something on the go.',
+    description: 'Studying is for dweebs, but shiny new tech is cool.',
     effects: [{effectType: EffectType.Research, baseValue: 0.50}],
 });
 moduleOperations.MicroCyborgAutomat = new ModuleOperation({
@@ -52,97 +52,98 @@ moduleOperations.Radiance = new ModuleOperation({
 
 moduleOperations.BigSpinny = new ModuleOperation({
     title: 'The Big Spinny', maxXp: 200, gridLoad: 1,
-    description: 'Primitive yet effective, this drill spins into action with relentless determination, making short work of the most stubborn space rocks.',
+    description: 'Simple yet effective. Once it starts spinning space rocks and enemies alike fear for their well-being.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
 });
 moduleOperations.AsteroidChomper = new ModuleOperation({
     title: 'Asteroid Chomper', maxXp: 4_000, gridLoad: 2,
-    description: 'A significant upgrade in mining tech, this beast chews through smaller planetoids with ease, turning mountains into molehills and rocks into progress.',
+    description: 'A significant upgrade in mining tech, this beast chews through smaller asteroids with ease, turning rocks into progress and enemies into tomato mist.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.02}],
 });
 /** Galactic Secret */
 moduleOperations.TenDrills = new ModuleOperation({
     title: 'TenDrills', maxXp: 40_000, gridLoad: 4,
-    description: 'Alien tentacles, able to consume celestial bodies, turning them into perfectly refined resources.',
+    description: 'Mechanical or organic? Are those 10 drills or actually tentacles?!',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.06}, {effectType: EffectType.IndustryFactor, baseValue: 0.05}],
 });
 
 // Growth
-moduleOperations.Module4GrowthOperationT1 = new ModuleOperation({
-    title: 'T1 Growth', maxXp: 400, gridLoad: 1,
-    description: '',
+moduleOperations.AlgaePod = new ModuleOperation({
+    title: 'Algae Pod', maxXp: 400, gridLoad: 1,
+    description: 'Feed your crew with lab grown algae, keeping them alive but not necessarily happy.',
     effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.01}],
 });
-moduleOperations.Module4GrowthOperationT2 = new ModuleOperation({
-    title: 'T2 Growth', maxXp: 4_000, gridLoad: 2,
-    description: '',
+moduleOperations.Greenhouse = new ModuleOperation({
+    title: 'Greenhouse', maxXp: 4_000, gridLoad: 2,
+    description: 'Simulating good old Terra, a place for plants and crops to thrive.',
     effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.02}],
 });
-moduleOperations.Module4GrowthOperationT3 = new ModuleOperation({
-    title: 'T3 Growth', maxXp: 40_000, gridLoad: 4,
-    description: '',
+/** Galactic Secret */
+moduleOperations.BossFertilizer = new ModuleOperation({
+    title: 'Boss Fertilizer', maxXp: 40_000, gridLoad: 4,
+    description: 'Let\'s face it, it\'s alien poop.',
     effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.04}],
 });
 // Research
-moduleOperations.Module4ResearchOperationT1 = new ModuleOperation({
-    title: 'T1 Research', maxXp: 800, gridLoad: 1,
-    description: '',
+moduleOperations.FermentationTank = new ModuleOperation({
+    title: 'Fermentation Tank', maxXp: 800, gridLoad: 1,
+    description: 'Observing fermentation leads to grand discoveries. And much more importantly: fizzy drinks.',
     effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.01}],
 });
-moduleOperations.Module4ResearchOperationT2 = new ModuleOperation({
-    title: 'T2 Research', maxXp: 8_000, gridLoad: 2,
-    description: '',
+moduleOperations.ArtificialEcosystem = new ModuleOperation({
+    title: 'Artificial Ecosystem', maxXp: 8_000, gridLoad: 2,
+    description: 'Don\'t wait for evolution, make it happen!.',
     effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.03}],
 });
-moduleOperations.Module4ResearchOperationT3 = new ModuleOperation({
-    title: 'T3 Research', maxXp: 80_000, gridLoad: 4,
-    description: '',
+/** Galactic Secret */
+moduleOperations.PlasmidSequencer = new ModuleOperation({
+    title: 'Plasmid Sequencer', maxXp: 80_000, gridLoad: 4,
+    description: 'Bend life to your will and discover what lies behind the curtain.',
     effects: [{effectType: EffectType.ResearchFactor, baseValue: 0.08}],
 });
 
 // Furnace
 moduleOperations.Garbage = new ModuleOperation({
     title: 'Garbage', maxXp: 500, gridLoad: 1,
-    description: 'Lets get rid of all that trash lying around the station. It\'s neither efficient nor sustainable, but it smells even worse.',
+    description: 'Just garbage, crawling with vent rats and station roaches. It\'s neither efficient nor sustainable, but it smells even worse.',
     effects: [{effectType: EffectType.Energy, baseValue: 1}],
 });
 moduleOperations.Diesel = new ModuleOperation({
     title: 'Diesel', maxXp: 2_000, gridLoad: 2,
-    description: 'From the depths of fossilized relics to the pulse of synthesized organics, it\'s the timeless heart that beats in the mechanical chest of progress.',
+    description: 'An ancient fuel, so you can feel like an honest space trucker.',
     effects: [{effectType: EffectType.Energy, baseValue: 3}],
 });
 moduleOperations.SmellyJelly = new ModuleOperation({
     title: 'Smelly Jelly', maxXp: 20_000, gridLoad: 4,
-    description: 'Super-concentrated jet fuel, thanks to Neptunium\'s kick. Beware: its potent aroma is adored by some, stomach-churning for most.',
+    description: 'People often argue about the scent of this highly concentrated jet fuel. Its potent aroma is adored by some, stomach-churning for most.',
     effects: [{effectType: EffectType.Energy, baseValue: 9}],
 });
 /** Galactic Secret */
 moduleOperations.Quasarite = new ModuleOperation({
     title: 'Quasarite', maxXp: 80_000, gridLoad: 8,
-    description: 'Harnessed from the remnants of distant quasar explosions it pulses with mind-boggling energy. ' +
-        'Its otherworldly properties enhance resource production but require careful containment to avoid unpredictable reactions.',
+    description: 'Remnants of a distant quasar explosion. Otherworldly amounts of energy, please handle with care.',
     effects: [{effectType: EffectType.Energy, baseValue: 20}, {effectType: EffectType.IndustryFactor, baseValue: 0.05}, ],
 });
 
 moduleOperations.Plastics = new ModuleOperation({
     title: 'Plastics', maxXp: 1_000, gridLoad: 2,
-    description: 'It can be like, molded into anything. Stretchy, sturdy - this stuff does it all!',
+    description: 'Plastics can be anything and are everywhere, even inside your body.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.01}],
 });
 moduleOperations.Steel = new ModuleOperation({
     title: 'Steel', maxXp: 4_000, gridLoad: 4,
-    description: 'Super tough stuff, dude! Like, armor for your space castle or sword for cosmic dragon slaying.',
+    description: 'Whether you need to outfit your troops with armor or want to build new living quarters, you can rely on steel.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.02}],
 });
 moduleOperations.Bouncium = new ModuleOperation({
     title: 'Bouncium', maxXp: 20_000, gridLoad: 6,
-    description: 'The rubbery metal that laughs at gravity. Perfect for when you need your gear to bounce back, literally.',
+    description: 'Want a metal that possesses the properties of highly flexible rubber? Bouncium is where it\'s at.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.04}],
 });
 /** Galactic Secret */
 moduleOperations.MicroalloyGlass = new ModuleOperation({
     title: 'Microalloy Glass', maxXp: 80_000, gridLoad: 10,
-    description: 'Fifteen times harder than steel and so clear that objects made out of pure microalloy glass can be considered invisible.',
+    description: 'One thousand times as hard as steel, but so clear that you could call it invisible.',
     effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.08}, {effectType: EffectType.Research, baseValue: 0.50}],
 });
 
@@ -159,28 +160,29 @@ moduleOperations.NanoHardener = new ModuleOperation({
 });
 moduleOperations.PulseShield = new ModuleOperation({
     title: 'Pulse Shield', maxXp: 32_000, gridLoad: 3,
-    description: 'A shimmering barrier that not only guards against oncoming threats but sends projectiles back from whence they came.',
+    description: 'A shimmering barrier that guards against incoming threats and sends projectiles back from where they came.',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.08}],
 });
+/** Galactic Secret */
 moduleOperations.BulletSponge = new ModuleOperation({
     title: 'Bullet Sponge', maxXp: 80_000, gridLoad: 4,
-    description:'This enchantment laughs in the face of danger, soaking up damage like a thirsty traveler in a desert.',
+    description:'Alien tissue named appropriately for it\'s ability to absorb even the toughest hits',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.16}],
 });
 
 moduleOperations.RapidRumbleTower = new ModuleOperation({
     title: 'Rapid Rumble Tower', maxXp: 4_000, gridLoad: 3,
-    description: 'A relentless hail of bullets from these mini-guns ensures fiends think twice before nearing your station.',
+    description: 'These turrets will quickly fill the vacuum of space with lead and your enemies with holes.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
 });
 moduleOperations.LaserTurrets = new ModuleOperation({
     title: 'Laser Turrets', maxXp: 20_000, gridLoad: 6,
-    description: 'With precision and burning intensity, these beams do to enemies what a hot knife does to butter.',
+    description: 'Highly precise and devastatingly destructive. Even space ants fear the final form of the magnifying glass.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
 });
-moduleOperations.AntiMissileSwarm = new ModuleOperation({
-    title: 'Anti-Missile Swarm', maxXp: 80_000, gridLoad: 10,
-    description: 'A cloud of alien defenders that swarm incoming missiles, dismantling them with the ferocity of piranhas.',
+moduleOperations.AntiMaterialSwarm = new ModuleOperation({
+    title: 'Anti-Material Swarm', maxXp: 80_000, gridLoad: 10,
+    description: 'A cloud of alien defenders swarming around the station, tearing through incoming missiles and ripping hulls to shreds.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.10}],
 });
 
@@ -192,40 +194,30 @@ moduleOperations.Survivors = new ModuleOperation({
 });
 moduleOperations.Recruitment = new ModuleOperation({
     title: 'Recruitment', maxXp: 16_000, gridLoad: 2,
-    description: 'Broadcasting an open call across the stars. Join for adventure, stay for the camaraderie (and the occasional space burrito night).',
+    description: 'Broadcast a message across the stars and recruit willing and capable crewmates.',
     effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.03}],
 });
-moduleOperations.SmoochSanctuary = new ModuleOperation({
-    title: 'Smooch Sanctuary', maxXp: 64_000, gridLoad: 4,
-    description: 'Where relationships bloom amid the stars. Encourages crew bonding and, well, let’s just say the stork visits more often.',
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.08}],
-});
 moduleOperations.MechanoMaker = new ModuleOperation({
-    title: 'Mechano Maker', maxXp: 128_000, gridLoad: 8,
-    description: 'Why wait for nature when you have technology? Assemble new crew members who are part metal, part moxie.',
+    title: 'Mechano Maker', maxXp: 64_000, gridLoad: 8,
+    description: 'Why wait for nature, when you can assemble new, mechanical crewmates all by yourself.',
     effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.20}],
 });
 /** Galactic Secret */
 moduleOperations.ReplicationChambers = new ModuleOperation({
-    title: 'Replication Chambers', maxXp: 320_000, gridLoad: 12,
-    description: 'Input DNA and watch as new life forms materialize, ready to contribute to your cosmic odyssey. Handle with care; creating life is a profound responsibility!',
+    title: 'Replication Chambers', maxXp: 500_000, gridLoad: 12,
+    description: 'Cloning crewmates is pretty easy. You found the secret to having them survive for more than an hour.',
     effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.30}, {effectType: EffectType.Industry, baseValue: 0.50}],
 });
 
-moduleOperations.EveryoneMatters = new ModuleOperation({
-    title: 'Everyone Matters', maxXp: 8_000, gridLoad: 2,
-    description: 'A teaching that every crew member, no matter their role, is invaluable. Together, even the smallest can achieve greatness.',
+moduleOperations.UnitedbyPurpose = new ModuleOperation({
+    title: 'United by Purpose', maxXp: 8_000, gridLoad: 2,
+    description: 'Organics and Mechanics can agree: When the stations dies, everyone dies.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
 });
 moduleOperations.UnitedForVictory = new ModuleOperation({
-    title: 'United For Victory', maxXp: 16_000, gridLoad: 4,
-    description: 'Strength in unity, victory in collaboration. This doctrine binds the crew as one, turning collective will into unstoppable force.',
+    title: 'United For Victory', maxXp: 32_000, gridLoad: 4,
+    description: 'Strength in unity, victory through collaboration. This doctrine binds the crew as one, turning collective will into unstoppable force.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
-});
-moduleOperations.GuileIsStrength = new ModuleOperation({
-    title: 'Guile is Strength', maxXp: 32_000, gridLoad: 6,
-    description: 'Embraces cunning over brute force, teaching that the sharpest weapon is the mind. Stealth and strategy pave the way to triumph.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.10}],
 });
 /** Galactic Secret */
 moduleOperations.GloryToTheGreatHeroes = new ModuleOperation({
@@ -239,71 +231,70 @@ moduleOperations.GloryToTheGreatHeroes = new ModuleOperation({
  * @type {Object<ModuleComponent>}
  */
 const moduleComponents = {
-    RescueCapsule: new ModuleComponent({
-        title: 'Rescue Capsule',
-        description: 'A small pod, big enough to house a single person. Ideal to escape from the station as a last resort.',
+    JumpStarter: new ModuleComponent({
+        title: 'Jump Starter',
+        description: 'It zaps stuff back to life!',
         operations: [moduleOperations.StandbyGenerator, moduleOperations.FourDPrinter],
     }),
-    TinyToolbox: new ModuleComponent({
-        title: 'Tiny Toolbox',
-        description: 'This compact kit contains everything a captain needs to get the station up and running.',
+    CaptainsFocus: new ModuleComponent({
+        title: 'Captain\'s Focus',
+        description: 'We are in far far future, but you still only have two hands.',
         operations: [moduleOperations.PocketLaboratory, moduleOperations.MicroCyborgAutomat, moduleOperations.KungFuManual],
     }),
 
     MinedResource: new ModuleComponent({
         title: 'Mined Resource',
-        description: 'The foundation of station expansion. From common rocks to exotic minerals, each resource fuels progress and prosperity.',
+        description: 'The foundation for station expansion. From common rocks to exotic minerals, each resource fuels progress and prosperity.',
         operations: [moduleOperations.SpaceRocks, moduleOperations.HeavyGlitz, moduleOperations.Radiance]
     }),
     Drill: new ModuleComponent({
         title: 'Drill',
-        description: 'The might of the Mining Bay, turning lifeless asteroids into vaults of valuable materials. Each drill is a key to unlocking the galaxy\'s riches.',
+        description: 'It\'s big. It spins. It can be used against enemies in a pinch.',
         operations: [moduleOperations.BigSpinny, moduleOperations.AsteroidChomper, moduleOperations.TenDrills]
     }),
 
-    Module4GrowthComponent: new ModuleComponent({
-        title: 'Gain Growth',
-        description: '',
-        operations: [moduleOperations.Module4GrowthOperationT1, moduleOperations.Module4GrowthOperationT2, moduleOperations.Module4GrowthOperationT3]
+    Agriculture: new ModuleComponent({
+        title: 'Agriculture',
+        description: 'Farming is honest work. Even more so in space.',
+        operations: [moduleOperations.AlgaePod, moduleOperations.Greenhouse, moduleOperations.BossFertilizer]
     }),
-    Module4ResearchComponent: new ModuleComponent({
-        title: 'Gain Research',
-        description: '',
-        operations: [moduleOperations.Module4ResearchOperationT1, moduleOperations.Module4ResearchOperationT2, moduleOperations.Module4ResearchOperationT3]
+    TheLab: new ModuleComponent({
+        title: 'The Lab',
+        description: 'Entry forbidden for people under 120 IQ. Sorry Sir, no exceptions.',
+        operations: [moduleOperations.FermentationTank, moduleOperations.ArtificialEcosystem, moduleOperations.PlasmidSequencer]
     }),
 
     Fuel: new ModuleComponent({
         title: 'Fuel',
-        description: 'The heart\'s fire of the station, what will you use to power the furnace?',
+        description: 'The lifeblood of the station allows all systems to run, machinery to hum and keeps the lights on.',
         operations: [moduleOperations.Garbage, moduleOperations.Diesel, moduleOperations.SmellyJelly, moduleOperations.Quasarite],
     }),
     Products: new ModuleComponent({
         title: 'Products',
-        description: 'Transmuting raw materials into vital resources. Whether it\'s for construction or commerce, the furnace forges the foundation of expansion.',
+        description: 'Transmuting raw resources into vital materials. Whether it\'s for construction or commerce, the furnace forges the foundation of expansion.',
         operations: [moduleOperations.Plastics, moduleOperations.Steel, moduleOperations.Bouncium, moduleOperations.MicroalloyGlass],
     }),
 
     Protection: new ModuleComponent({
         title: 'Protection',
-        description: 'A shield against the void\'s dangers. Become a fortress among the stars!',
+        description: 'The defense against all the dangers out there. Become a fortress among the stars!',
         operations: [moduleOperations.GlitzPlating, moduleOperations.NanoHardener, moduleOperations.PulseShield, moduleOperations.BulletSponge],
     }),
     Turrets: new ModuleComponent({
         title: 'Turrets',
-        description: 'The station\'s fangs and claws. Arm your station with an array of turrets, ready to repel invaders and protect your domain.',
-        operations: [moduleOperations.RapidRumbleTower, moduleOperations.LaserTurrets, moduleOperations.AntiMissileSwarm],
+        description: 'Turrets deliver superior firepower, allowing you to go on the offensive to destroy all foes and repel aggressive invaders.',
+        operations: [moduleOperations.RapidRumbleTower, moduleOperations.LaserTurrets, moduleOperations.AntiMaterialSwarm],
     }),
 
     CrewExpansion: new ModuleComponent({
         title: 'Crew Expansion',
-        description: 'Growth is the lifeblood of progress. Expand, evolve, and empower your crew.',
-        operations: [moduleOperations.Survivors, moduleOperations.Recruitment, moduleOperations.SmoochSanctuary,
-            moduleOperations.MechanoMaker, moduleOperations.ReplicationChambers],
+        description: 'If you\'re not growing, you are dying.\n',
+        operations: [moduleOperations.Survivors, moduleOperations.Recruitment, moduleOperations.MechanoMaker, moduleOperations.ReplicationChambers],
     }),
     Doctrine: new ModuleComponent({
         title: 'Doctrine',
-        description: 'The core of your station\'s ethos, shaping the spirit and strategy of your crew.',
-        operations: [moduleOperations.EveryoneMatters, moduleOperations.UnitedForVictory, moduleOperations.GuileIsStrength, moduleOperations.GloryToTheGreatHeroes],
+        description: 'Educate your crew, form their ethos and shape their spirit to prepare them for the battlefield.',
+        operations: [moduleOperations.UnitedbyPurpose, moduleOperations.UnitedForVictory, moduleOperations.GloryToTheGreatHeroes],
     }),
 };
 
@@ -311,15 +302,15 @@ const moduleComponents = {
  * @type {Object<Module>}
  */
 const modules = {
-    ISASM: new Module({
-        title: 'I.S.A.S.M',
-        description: 'Indestructible Space Adventurer Survival Module',
-        components: [moduleComponents.RescueCapsule],
+    RescueCapsule: new Module({
+        title: 'Rescue Capsule',
+        description: 'A tiny escape pod, just big enough to house a single person, allowing you to flee the station as a last resort.',
+        components: [moduleComponents.JumpStarter],
     }),
-    CaptainsQuarter: new Module({
-        title: 'Captain\'s Quarter', // Bridge?
-        description: 'The command center of your station. Where decisions are made, destinies shaped, and the occasional cosmic burrito ordered.',
-        components: [moduleComponents.TinyToolbox],
+    CommandCenter: new Module({
+        title: 'Command Center', // Bridge?
+        description: 'A place where impactful decisions are made, destinies shaped and large amounts of vaporized caffeine consumed.',
+        components: [moduleComponents.CaptainsFocus],
     }),
     MiningBay: new Module({
         title: 'Mining Bay',
@@ -327,18 +318,18 @@ const modules = {
         components: [moduleComponents.MinedResource, moduleComponents.Drill],
     }),
     Module4: new Module({
-        title: 'Module 4',
-        description: '',
-        components: [moduleComponents.Module4GrowthComponent, moduleComponents.Module4ResearchComponent],
+        title: 'Biotech Dome',
+        description: 'A controlled ecosystem where life is cultivated and knowledge grows.',
+        components: [moduleComponents.Agriculture, moduleComponents.TheLab],
     }),
     Furnace: new Module({
         title: 'Furnace Module',
-        description: 'The beating heart of industry, transforming raw into refined, ordinary into extraordinary. The forge of future tech.',
+        description: 'The beating heart of industry, transforming raw into refined and ordinary into extraordinary. The forge of future tech.',
         components: [moduleComponents.Fuel, moduleComponents.Products],
     }),
     Defensive: new Module({
         title: 'Defensive Module',
-        description: 'The station\'s shield and sword. Whether repelling invaders or standing guard, peace is made by those prepared for war.',
+        description: 'The station\'s sword and shield. Whether repelling invaders or standing guard, peace is made by those prepared for war.',
         components: [moduleComponents.Protection, moduleComponents.Turrets],
     }),
     Quarters: new Module({
@@ -349,7 +340,7 @@ const modules = {
 };
 
 const defaultModules = [
-    modules.ISASM
+    modules.RescueCapsule
 ];
 
 /**
@@ -359,8 +350,8 @@ const moduleCategories = {
     StationCore: new ModuleCategory({
         title: 'Station Core',
         modules: [
-            modules.ISASM,
-            modules.CaptainsQuarter,
+            modules.RescueCapsule,
+            modules.CommandCenter,
             modules.MiningBay,
             modules.Module4,
             modules.Furnace,

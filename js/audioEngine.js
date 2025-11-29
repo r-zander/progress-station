@@ -346,6 +346,12 @@ class AudioEngine {
     /** @type {Object.<string, Object>} Active music layers with their Howl instances */
     static #activeLayers = {};
 
+    /** @type {Object.<string, 'unloaded'|'loading'|'loaded'>} Loading state per music state */
+    static #musicStateLoadingStatus = {};
+
+    /** @type {Object.<string, Promise<void>>} Active loading promises per music state */
+    static #musicStateLoadingPromises = {};
+
     // ============================================
     // PUBLIC API
     // ============================================
@@ -548,10 +554,24 @@ class AudioEngine {
             AudioEngine.#stopMusicState(previousMusicState);
         }
 
-        // Start layers from new state
+        // Start layers from new state (with preloading)
         if (AudioEngine.#musicStates[state]) {
             const musicState = AudioEngine.#musicStates[state];
-            AudioEngine.#startMusicState(musicState);
+
+            AudioEngine.#preloadMusicState(musicState)
+                .then(() => {
+                    // Verify we're still in this state (user might have switched)
+                    if (AudioEngine.#activeStates[stateGroup] === state) {
+                        AudioEngine.#startMusicStateSynchronized(musicState);
+                    }
+                })
+                .catch((error) => {
+                    console.error(`AudioEngine: Failed to preload/start music state ${state}:`, error);
+                    // Attempt to start anyway with whatever loaded
+                    if (AudioEngine.#activeStates[stateGroup] === state) {
+                        AudioEngine.#startMusicStateSynchronized(musicState);
+                    }
+                });
         }
     }
 
@@ -872,6 +892,10 @@ class AudioEngine {
     /**
      * Start a music state (all layers that meet conditions)
      *
+     * NOTE: This is the old implementation without preloading/synchronization
+     * Only used internally now. External callers should use setState() which
+     * calls #preloadMusicState() and #startMusicStateSynchronized()
+     *
      * @param {MusicState} musicState
      */
     static #startMusicState(musicState) {
@@ -896,7 +920,7 @@ class AudioEngine {
     }
 
     /**
-     * Start a music layer
+     * Start a music layer (or fade it in if already playing)
      *
      * @param {string} stateName
      * @param {string} layerName
@@ -908,28 +932,21 @@ class AudioEngine {
         const targetVolume = segment.volume * gameData.settings.audio.musicVolume;
 
         let layerHowl = AudioEngine.#layerHowls[layerKey];
-        let soundId;
 
-        // Check if Howl already exists (reuse instead of recreate)
-        if (layerHowl) {
-            soundId = layerHowl.soundId;
+        // CHANGED: Howl should already exist if state was preloaded
+        if (!layerHowl || !layerHowl.howl) {
+            console.warn(`AudioEngine: Layer ${layerKey} not preloaded, creating on-demand (not synchronized!)`);
 
-            // Resume if paused
-            if (!layerHowl.howl.playing(soundId)) {
-                layerHowl.howl.play(soundId);
-            }
-        } else {
-            // Create Howl for this layer (first time only)
+            // Fallback: create Howl on-demand (old behavior)
             const howl = new Howl({
                 src: [segment.src],
-                volume: 0, // Start at 0, will fade in
+                volume: 0,
                 loop: segment.loop,
                 preload: true,
             });
 
-            soundId = howl.play();
+            const soundId = howl.play();
 
-            // Store permanently in layerHowls
             layerHowl = {
                 howl: howl,
                 soundId: soundId,
@@ -937,10 +954,17 @@ class AudioEngine {
             AudioEngine.#layerHowls[layerKey] = layerHowl;
         }
 
+        // Ensure playback is active
+        if (layerHowl.soundId === null || !layerHowl.howl.playing(layerHowl.soundId)) {
+            const newSoundId = layerHowl.howl.play();
+            layerHowl.soundId = newSoundId;
+        }
+
+        const soundId = layerHowl.soundId;
+
         // Fade in if specified
         if (isNumber(segment.fadeInTime) && segment.fadeInTime > 0) {
-            layerHowl.howl.volume(0, soundId);
-            layerHowl.howl.fade(0, targetVolume, segment.fadeInTime, soundId);
+            layerHowl.howl.fade(layerHowl.howl.volume(soundId), targetVolume, segment.fadeInTime, soundId);
         } else {
             layerHowl.howl.volume(targetVolume, soundId);
         }
@@ -971,27 +995,143 @@ class AudioEngine {
         const segment = layer.segment;
         const soundId = activeLayer.soundId;
 
-        // Fade out if specified, then pause (NOT stop/unload)
+        // Fade out if specified
         if (isNumber(segment.fadeOutTime) && segment.fadeOutTime > 0) {
             activeLayer.howl.fade(
-                segment.volume * gameData.settings.audio.musicVolume,
+                activeLayer.howl.volume(soundId),
                 0,
                 segment.fadeOutTime,
                 soundId,
             );
-
-            // Pause after fade completes (using Howl's onfade callback)
-            activeLayer.howl.once('fade', () => {
-                activeLayer.howl.pause(soundId);
-            }, soundId);
         } else {
-            // Immediately set volume to 0 and pause
+            // Immediately set volume to 0
             activeLayer.howl.volume(0, soundId);
-            activeLayer.howl.pause(soundId);
         }
 
         // Remove from active tracking (but Howl stays in #layerHowls for reuse)
         delete AudioEngine.#activeLayers[layerKey];
+    }
+
+    /**
+     * Preload all layers for a music state
+     * Creates Howl instances and waits for all to finish loading
+     *
+     * @param {MusicState} musicState - The music state to preload
+     * @returns {Promise<void>} Resolves when all layers are loaded
+     */
+    static #preloadMusicState(musicState) {
+        const stateName = musicState.name;
+
+        // Check if already loaded or loading
+        const status = AudioEngine.#musicStateLoadingStatus[stateName];
+        if (status === 'loaded') {
+            return Promise.resolve(); // Already loaded
+        }
+        if (status === 'loading') {
+            return AudioEngine.#musicStateLoadingPromises[stateName]; // Return existing promise
+        }
+
+        // Mark as loading
+        AudioEngine.#musicStateLoadingStatus[stateName] = 'loading';
+
+        // Create array of promises for each layer
+        const loadPromises = [];
+
+        for (const layerName in musicState.layers) {
+            const layer = musicState.layers[layerName];
+            const layerKey = AudioEngine.#getLayerKey(stateName, layerName);
+
+            // Skip if this layer's Howl already exists
+            if (AudioEngine.#layerHowls[layerKey]) {
+                continue;
+            }
+
+            // Create promise for this layer's loading
+            const layerPromise = new Promise((resolve, reject) => {
+                const segment = layer.segment;
+
+                const howl = new Howl({
+                    src: [segment.src],
+                    volume: 0, // Start at 0, will be adjusted when layer activates
+                    loop: segment.loop,
+                    preload: true,
+                });
+
+                // Listen for load completion
+                howl.once('load', () => {
+                    resolve();
+                });
+
+                // Listen for load errors
+                howl.once('loaderror', (soundId, error) => {
+                    console.error(`Failed to load layer ${layerKey}:`, error);
+                    reject(new Error(`Layer ${layerKey} failed to load: ${error}`));
+                });
+
+                // Store the Howl immediately (before loading completes)
+                // This prevents duplicate creation if preload called multiple times
+                AudioEngine.#layerHowls[layerKey] = {
+                    howl: howl,
+                    soundId: null, // Will be set when playback starts
+                };
+            });
+
+            loadPromises.push(layerPromise);
+        }
+
+        // Wait for all layers to load
+        const allLoadedPromise = Promise.all(loadPromises)
+            .then(() => {
+                AudioEngine.#musicStateLoadingStatus[stateName] = 'loaded';
+                console.log(`AudioEngine: All layers loaded for music state: ${stateName}`);
+            })
+            .catch((error) => {
+                // Even if some layers failed, mark as loaded so we can try to play what we have
+                AudioEngine.#musicStateLoadingStatus[stateName] = 'loaded';
+                console.error(`AudioEngine: Error loading music state ${stateName}:`, error);
+                // Don't re-throw - allow partial playback
+            });
+
+        AudioEngine.#musicStateLoadingPromises[stateName] = allLoadedPromise;
+        return allLoadedPromise;
+    }
+
+    /**
+     * Start all layers of a music state synchronously
+     * All layers begin playback at the exact same moment (at 0 volume)
+     * Then conditions are evaluated to fade in appropriate layers
+     *
+     * @param {MusicState} musicState - The music state to start
+     */
+    static #startMusicStateSynchronized(musicState) {
+        const stateName = musicState.name;
+
+        // Step 1: Start playback for ALL layers at 0 volume simultaneously
+        for (const layerName in musicState.layers) {
+            const layerKey = AudioEngine.#getLayerKey(stateName, layerName);
+            const layerHowl = AudioEngine.#layerHowls[layerKey];
+
+            if (!layerHowl || !layerHowl.howl) {
+                console.warn(`AudioEngine: Layer ${layerKey} not loaded, skipping`);
+                continue;
+            }
+
+            // Start playback if not already playing
+            if (layerHowl.soundId === null || !layerHowl.howl.playing(layerHowl.soundId)) {
+                layerHowl.howl.volume(0); // Ensure 0 volume
+                const soundId = layerHowl.howl.play();
+                layerHowl.soundId = soundId; // Store the sound ID
+            }
+        }
+
+        // Step 2: Evaluate conditions and fade in active layers
+        // This will use the existing #startLayer logic which handles fading
+        for (const layerName in musicState.layers) {
+            const layer = musicState.layers[layerName];
+            if (layer.conditions(AudioEngine.#musicContext)) {
+                AudioEngine.#startLayer(stateName, layerName, layer);
+            }
+        }
     }
 }
 

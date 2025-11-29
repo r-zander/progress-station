@@ -12,6 +12,12 @@ const galacticSecrets = {
     TenDrills: new GalacticSecret({
         unlocks: moduleOperations.TenDrills,
     }),
+    BossFertilizer: new GalacticSecret({
+        unlocks: moduleOperations.BossFertilizer,
+    }),
+    PlasmidSequencer: new GalacticSecret({
+        unlocks: moduleOperations.PlasmidSequencer,
+    }),
     Quasarite: new GalacticSecret({
         unlocks: moduleOperations.Quasarite,
     }),
@@ -21,8 +27,8 @@ const galacticSecrets = {
     BulletSponge: new GalacticSecret({
         unlocks: moduleOperations.BulletSponge,
     }),
-    AntiMissileSwarm: new GalacticSecret({
-        unlocks: moduleOperations.AntiMissileSwarm,
+    AntiMaterialSwarm: new GalacticSecret({
+        unlocks: moduleOperations.AntiMaterialSwarm,
     }),
     ReplicationChambers: new GalacticSecret({
         unlocks: moduleOperations.ReplicationChambers,
