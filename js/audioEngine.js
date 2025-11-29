@@ -766,6 +766,11 @@ class AudioEngine {
      * @returns {number} Mapped volume value from 0.0 to 1.0
      */
     static #mapVolumeThreeZone(rawValue) {
+        // Very, very quite --> just mute
+        if (rawValue <= 0.001) {
+            return 0;
+        }
+
         rawValue = clamp(rawValue, 0.0, 1.0);
 
         const ZONE1_END = 0.2;
