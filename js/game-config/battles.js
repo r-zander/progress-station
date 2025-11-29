@@ -1448,7 +1448,7 @@ const bossDefenseMode = {
      *
      * @type {number}
      */
-    minWaveDurationInSeconds: 3 * baseGameSpeed,
+    minWaveDurationInSeconds: 5 * baseGameSpeed,
     /**
      * How much Danger does the boss produce while in defense mode?
      *
