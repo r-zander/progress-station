@@ -167,6 +167,9 @@ function setPointOfInterest(name) {
 }
 
 function updateConnector() {
+    // TODO currently broken
+    return;
+
     const activeTabButton = Dom.get().bySelector('.tabButton.active');
     const connectorElement = Dom.get().byId('connector');
     const contentElement = Dom.get().byId('content');
