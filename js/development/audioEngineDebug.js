@@ -12,11 +12,13 @@ const AudioEngineDebug = (() => {
         allTime: {
             lowestProgressSpeed: {
                 avg: Infinity,
+                median: Infinity,
                 max: Infinity,
                 total: Infinity,
             },
             highestProgressSpeed: {
                 avg: 0,
+                median: 0,
                 max: 0,
                 total: 0,
             },
@@ -24,6 +26,8 @@ const AudioEngineDebug = (() => {
         lastMinuteAvg: {
             avgProgressSpeeds: [], // Capped to targetTicksPerSecond * 60 entries
             avgProgressSpeed: 0, // average of avgProgressSpeeds
+            medianProgressSpeeds: [], // Capped to targetTicksPerSecond * 60 entries
+            medianProgressSpeed: 0, // average of medianProgressSpeeds
             maxProgressSpeeds: [], // Capped to targetTicksPerSecond * 60 entries
             maxProgressSpeed: 0, // average of maxProgressSpeeds
             totalProgressSpeeds: [], // Capped to targetTicksPerSecond * 60 entries
@@ -41,6 +45,7 @@ const AudioEngineDebug = (() => {
         if (!gameData.state.areTasksProgressing) return;
 
         const avg = musicContext.avgProgressSpeed;
+        const median = musicContext.medianProgressSpeed;
         const max = musicContext.maxProgressSpeed;
         const total = musicContext.totalProgressSpeed;
 
@@ -50,6 +55,13 @@ const AudioEngineDebug = (() => {
         }
         if (avg > statistics.allTime.highestProgressSpeed.avg) {
             statistics.allTime.highestProgressSpeed.avg = avg;
+        }
+
+        if (median < statistics.allTime.lowestProgressSpeed.median) {
+            statistics.allTime.lowestProgressSpeed.median = median;
+        }
+        if (median > statistics.allTime.highestProgressSpeed.median) {
+            statistics.allTime.highestProgressSpeed.median = median;
         }
 
         if (max < statistics.allTime.lowestProgressSpeed.max) {
@@ -71,12 +83,16 @@ const AudioEngineDebug = (() => {
 
         // Add current values to rolling buffers
         statistics.lastMinuteAvg.avgProgressSpeeds.push(musicContext.avgProgressSpeed);
+        statistics.lastMinuteAvg.medianProgressSpeeds.push(musicContext.medianProgressSpeed);
         statistics.lastMinuteAvg.maxProgressSpeeds.push(musicContext.maxProgressSpeed);
         statistics.lastMinuteAvg.totalProgressSpeeds.push(musicContext.totalProgressSpeed);
 
         // Trim buffers to max size (remove oldest entries)
         if (statistics.lastMinuteAvg.avgProgressSpeeds.length > maxEntries) {
             statistics.lastMinuteAvg.avgProgressSpeeds.shift();
+        }
+        if (statistics.lastMinuteAvg.medianProgressSpeeds.length > maxEntries) {
+            statistics.lastMinuteAvg.medianProgressSpeeds.shift();
         }
         if (statistics.lastMinuteAvg.maxProgressSpeeds.length > maxEntries) {
             statistics.lastMinuteAvg.maxProgressSpeeds.shift();
@@ -88,6 +104,9 @@ const AudioEngineDebug = (() => {
         // Calculate averages
         statistics.lastMinuteAvg.avgProgressSpeed = calculateAverage(
             statistics.lastMinuteAvg.avgProgressSpeeds
+        );
+        statistics.lastMinuteAvg.medianProgressSpeed = calculateAverage(
+            statistics.lastMinuteAvg.medianProgressSpeeds
         );
         statistics.lastMinuteAvg.maxProgressSpeed = calculateAverage(
             statistics.lastMinuteAvg.maxProgressSpeeds
@@ -398,6 +417,7 @@ const AudioEngineDebug = (() => {
                     <strong>Current Values:</strong><br>
                     Highest Attr: ${musicContext.highestAttribute}<br>
                     Avg Speed: ${formatValue(musicContext.avgProgressSpeed)}<br>
+                    Median Speed: ${formatValue(musicContext.medianProgressSpeed)}<br>
                     Max Speed: ${formatValue(musicContext.maxProgressSpeed)}<br>
                     Total Speed: ${formatValue(musicContext.totalProgressSpeed)}<br>
                     Danger Level: ${formatValue(musicContext.dangerLevel)}<br>
@@ -407,18 +427,21 @@ const AudioEngineDebug = (() => {
                 <div style="margin-bottom: 8px;">
                     <strong>All-Time Lowest:</strong><br>
                     Avg: ${formatValue(statistics.allTime.lowestProgressSpeed.avg)}<br>
+                    Median: ${formatValue(statistics.allTime.lowestProgressSpeed.median)}<br>
                     Max: ${formatValue(statistics.allTime.lowestProgressSpeed.max)}<br>
                     Total: ${formatValue(statistics.allTime.lowestProgressSpeed.total)}
                 </div>
                 <div style="margin-bottom: 8px;">
                     <strong>All-Time Highest:</strong><br>
                     Avg: ${formatValue(statistics.allTime.highestProgressSpeed.avg)}<br>
+                    Median: ${formatValue(statistics.allTime.highestProgressSpeed.median)}<br>
                     Max: ${formatValue(statistics.allTime.highestProgressSpeed.max)}<br>
                     Total: ${formatValue(statistics.allTime.highestProgressSpeed.total)}
                 </div>
                 <div>
                     <strong>Last Minute Avg:</strong><br>
                     Avg Speed: ${formatValue(statistics.lastMinuteAvg.avgProgressSpeed)}<br>
+                    Median Speed: ${formatValue(statistics.lastMinuteAvg.medianProgressSpeed)}<br>
                     Max Speed: ${formatValue(statistics.lastMinuteAvg.maxProgressSpeed)}<br>
                     Total Speed: ${formatValue(statistics.lastMinuteAvg.totalProgressSpeed)}<br>
                     Samples: ${statistics.lastMinuteAvg.totalProgressSpeeds.length}
@@ -433,13 +456,17 @@ const AudioEngineDebug = (() => {
      */
     function resetStatistics() {
         statistics.allTime.lowestProgressSpeed.avg = Infinity;
+        statistics.allTime.lowestProgressSpeed.median = Infinity;
         statistics.allTime.lowestProgressSpeed.max = Infinity;
         statistics.allTime.lowestProgressSpeed.total = Infinity;
         statistics.allTime.highestProgressSpeed.avg = 0;
+        statistics.allTime.highestProgressSpeed.median = 0;
         statistics.allTime.highestProgressSpeed.max = 0;
         statistics.allTime.highestProgressSpeed.total = 0;
         statistics.lastMinuteAvg.avgProgressSpeeds = [];
         statistics.lastMinuteAvg.avgProgressSpeed = 0;
+        statistics.lastMinuteAvg.medianProgressSpeeds = [];
+        statistics.lastMinuteAvg.medianProgressSpeed = 0;
         statistics.lastMinuteAvg.maxProgressSpeeds = [];
         statistics.lastMinuteAvg.maxProgressSpeed = 0;
         statistics.lastMinuteAvg.totalProgressSpeeds = [];

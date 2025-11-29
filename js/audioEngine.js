@@ -75,6 +75,7 @@
  * @typedef {Object} MusicContext
  * @property {string} highestAttribute - Name of the attribute with the highest value currently
  * @property {number} avgProgressSpeed - in level / cycle
+ * @property {number} medianProgressSpeed - in level / cycle
  * @property {number} maxProgressSpeed - in level / cycle
  * @property {number} totalProgressSpeed - in level / cycle
  * @property {number} dangerLevel - 0 --> no danger. 1.0 --> danger == military. >1.0 --> heat
@@ -96,6 +97,7 @@ class ProgressStationMusicContext {
     #highestAttribute = attributes.industry.name;
     #avgProgressSpeed = 0;
     #maxProgressSpeed = 0;
+    #medianProgressSpeed = 0;
     #totalProgressSpeed = 0;
     #dangerLevel = 0;
     #numberOfEngagedBattles = 0;
@@ -126,11 +128,23 @@ class ProgressStationMusicContext {
     }
 
     set avgProgressSpeed(value) {
-        if (nearlyEquals(this.#avgProgressSpeed, value, 0.01)) return;
+        if (nearlyEquals(this.#avgProgressSpeed, value, 0.001)) return;
 
         this.#avgProgressSpeed = value;
         this.#isDirty = true;
         this.#changedFields.push('avgProgressSpeed');
+    }
+
+    get medianProgressSpeed() {
+        return this.#medianProgressSpeed;
+    }
+
+    set medianProgressSpeed(value) {
+        if (nearlyEquals(this.#medianProgressSpeed, value, 0.001)) return;
+
+        this.#medianProgressSpeed = value;
+        this.#isDirty = true;
+        this.#changedFields.push('medianProgressSpeed');
     }
 
     get maxProgressSpeed() {
@@ -138,7 +152,7 @@ class ProgressStationMusicContext {
     }
 
     set maxProgressSpeed(value) {
-        if (nearlyEquals(this.#maxProgressSpeed, value, 0.01)) return;
+        if (nearlyEquals(this.#maxProgressSpeed, value, 0.001)) return;
 
         this.#maxProgressSpeed = value;
         this.#isDirty = true;
@@ -150,7 +164,7 @@ class ProgressStationMusicContext {
     }
 
     set totalProgressSpeed(value) {
-        if (nearlyEquals(this.#totalProgressSpeed, value, 0.01)) return;
+        if (nearlyEquals(this.#totalProgressSpeed, value, 0.001)) return;
 
         this.#totalProgressSpeed = value;
         this.#isDirty = true;
@@ -162,7 +176,7 @@ class ProgressStationMusicContext {
     }
 
     set dangerLevel(value) {
-        if (nearlyEquals(this.#dangerLevel, value, 0.01)) return;
+        if (nearlyEquals(this.#dangerLevel, value, 0.001)) return;
 
         this.#dangerLevel = value;
         this.#isDirty = true;
@@ -227,8 +241,15 @@ class ProgressStationMusicContext {
             }
         }
 
-        progressSpeeds.push(gridStrength.getDelta());
-        progressSpeeds.push(analysisCore.getDelta());
+
+        const gridStrengthDelta = gridStrength.getDelta();
+        if (gridStrengthDelta > 0) {
+            progressSpeeds.push(gridStrengthDelta);
+        }
+        const analysisCoreDelta = analysisCore.getDelta();
+        if (analysisCoreDelta) {
+            progressSpeeds.push(analysisCoreDelta);
+        }
 
         for (const battleName of gameData.activeEntities.battles) {
             const battle = battles[battleName];
@@ -242,10 +263,22 @@ class ProgressStationMusicContext {
             this.totalProgressSpeed = progressSpeeds.reduce((sum, speed) => sum + speed, 0);
             this.maxProgressSpeed = Math.max(...progressSpeeds);
             this.avgProgressSpeed = this.totalProgressSpeed / progressSpeeds.length;
+
+            // Calculate median
+            const sortedSpeeds = [...progressSpeeds].sort((a, b) => a - b);
+            const midpoint = Math.floor(sortedSpeeds.length / 2);
+            if (sortedSpeeds.length % 2 === 0) {
+                // Even number of elements: average the two middle values
+                this.medianProgressSpeed = (sortedSpeeds[midpoint - 1] + sortedSpeeds[midpoint]) / 2;
+            } else {
+                // Odd number of elements: take the middle value
+                this.medianProgressSpeed = sortedSpeeds[midpoint];
+            }
         } else {
             this.totalProgressSpeed = 0;
             this.maxProgressSpeed = 0;
             this.avgProgressSpeed = 0;
+            this.medianProgressSpeed = 0;
         }
 
         this.dangerLevel = attributes.danger.getValue() / attributes.military.getValue();
