@@ -414,9 +414,10 @@ function createModuleLevel3Elements(categoryName, module, requirementsSlot) {
  * @param {string} categoryName
  * @param {ModuleCategory} category
  * @param {HTMLSlotElement} requirementsSlot
+ * @param {boolean} singleCategoryMode
  * @return {HTMLElement[]}
  */
-function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
+function createModuleLevel2Elements(categoryName, category, requirementsSlot, singleCategoryMode) {
     const level2Elements = [];
 
     for (const module of category.modules) {
@@ -424,6 +425,10 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
         level2Element.id = module.domId;
 
         const level2DomGetter = Dom.get(level2Element);
+        if (singleCategoryMode) {
+            level2Element.classList.remove('ps-lg-3', 'mt-2');
+        }
+
         const nameCell = level2DomGetter.byClass('name');
         nameCell.textContent = module.title;
         if (isDefined(module.description)) {
@@ -467,9 +472,16 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot) {
     return level2Elements;
 }
 
+/**
+ *
+ * @param {Object<ModuleCategory>} categoryDefinition
+ * @param {string} domId
+ */
 function createModulesUI(categoryDefinition, domId) {
     const slot = Dom.get().byId(domId);
     const level1Elements = [];
+
+    const singleCategoryMode = (Object.values(categoryDefinition).length === 1);
 
     for (const key in categoryDefinition) {
         const level1Element = Dom.new.fromTemplate('level1Template');
@@ -480,16 +492,22 @@ function createModulesUI(categoryDefinition, domId) {
         level1Element.classList.add(category.name);
 
         const level1DomGetter = Dom.get(level1Element);
-        const categoryCell = level1DomGetter.byClass('category');
-        categoryCell.textContent = category.title;
-        if (isDefined(category.description)) {
-            categoryCell.title = category.description;
+
+        if (singleCategoryMode) {
+            level1Element.classList.add('single-category-mode');
+            level1DomGetter.byClass('level1-header').classList.add('hidden');
         } else {
-            categoryCell.removeAttribute('title');
+            const categoryCell = level1DomGetter.byClass('category');
+            categoryCell.textContent = category.title;
+            if (isDefined(category.description)) {
+                categoryCell.title = category.description;
+            } else {
+                categoryCell.removeAttribute('title');
+            }
         }
 
         const level2Slot = level1DomGetter.byId('level2');
-        level2Slot.replaceWith(...createModuleLevel2Elements(category.name, category, level1DomGetter.byId('level2Requirements')));
+        level2Slot.replaceWith(...createModuleLevel2Elements(category.name, category, level1DomGetter.byId('level2Requirements'), singleCategoryMode));
 
         level1Elements.push(level1Element);
     }
