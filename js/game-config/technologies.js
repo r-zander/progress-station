@@ -16,7 +16,7 @@ const technologies = {};
 // I.S.A.S.M does not require a Technology
 // FourDPrinter does not require a Technology
 
-// Captain's Quarter does not require a Technology
+// Command Center does not require a Technology
 // PocketLaboratory does not require a Technology
 
 technologies.MicroCyborgAutomat = new Technology({
@@ -112,39 +112,39 @@ technologies.Module4 = new Technology({
 });
 
 // Module 4 - Growth
-technologies.Module4GrowthOperationT2 = new Technology({
-    unlocks: moduleOperations.Module4GrowthOperationT2,
+technologies.Greenhouse = new Technology({
+    unlocks: moduleOperations.Greenhouse,
     baseCost: 3,
     requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.Module4GrowthOperationT1,
+        operation: moduleOperations.AlgaePod,
         requirement: 100,
     })],
 });
 
-technologies.Module4GrowthOperationT3 = new Technology({
-    unlocks: moduleOperations.Module4GrowthOperationT3,
+technologies.BossFertilizer = new Technology({
+    unlocks: moduleOperations.BossFertilizer,
     baseCost: 3,
     requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.Module4GrowthOperationT2,
+        operation: moduleOperations.Greenhouse,
         requirement: 500,
     })],
 });
 
 // Module 4 - Research
-technologies.Module4ResearchOperationT2 = new Technology({
-    unlocks: moduleOperations.Module4ResearchOperationT2,
+technologies.ArtificialEcosystem = new Technology({
+    unlocks: moduleOperations.ArtificialEcosystem,
     baseCost: 3,
     requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.Module4ResearchOperationT1,
+        operation: moduleOperations.FermentationTank,
         requirement: 100,
     })],
 });
 
-technologies.Module4ResearchOperationT3 = new Technology({
-    unlocks: moduleOperations.Module4ResearchOperationT3,
+technologies.PlasmidSequencer = new Technology({
+    unlocks: moduleOperations.PlasmidSequencer,
     baseCost: 3,
     requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.Module4ResearchOperationT2,
+        operation: moduleOperations.ArtificialEcosystem,
         requirement: 500,
     })],
 });
@@ -300,8 +300,8 @@ technologies.LaserTurrets = new Technology({
     })],
 });
 
-technologies.AntiMissileSwarm = new Technology({
-    unlocks: moduleOperations.AntiMissileSwarm,
+technologies.AntiMaterialSwarm = new Technology({
+    unlocks: moduleOperations.AntiMaterialSwarm,
     baseCost: 3,
     requirements: [new OperationLevelRequirement('playthrough', {
         operation: moduleOperations.LaserTurrets,
@@ -360,20 +360,11 @@ technologies.Recruitment = new Technology({
     })],
 });
 
-technologies.SmoochSanctuary = new Technology({
-    unlocks: moduleOperations.SmoochSanctuary,
-    baseCost: 3,
-    requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.Recruitment,
-        requirement: 200,
-    })],
-});
-
 technologies.MechanoMaker = new Technology({
     unlocks: moduleOperations.MechanoMaker,
     baseCost: 3,
     requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.SmoochSanctuary,
+        operation: moduleOperations.Recruitment,
         requirement: 500,
     })],
 });
@@ -392,17 +383,8 @@ technologies.UnitedForVictory = new Technology({
     unlocks: moduleOperations.UnitedForVictory,
     baseCost: 3,
     requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.EveryoneMatters,
+        operation: moduleOperations.UnitedbyPurpose,
         requirement: 100,
-    })],
-});
-
-technologies.GuileIsStrength = new Technology({
-    unlocks: moduleOperations.GuileIsStrength,
-    baseCost: 3,
-    requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.UnitedForVictory,
-        requirement: 200,
     })],
 });
 
@@ -410,7 +392,7 @@ technologies.GloryToTheGreatHeroes = new Technology({
     unlocks: moduleOperations.GloryToTheGreatHeroes,
     baseCost: 3,
     requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.GuileIsStrength,
+        operation: moduleOperations.UnitedForVictory,
         requirement: 500,
     })],
 });

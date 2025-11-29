@@ -1415,8 +1415,8 @@ const battles = {
         faction: factions.Boss,
         effects: [
             new DynamicEffectDefinition(EffectType.Danger, () => {
-                // 5% of current population used as damage against population
-                return Math.max(100.0, attributes.population.getValue() * 0.05);
+                // 10% of current population used as damage against population
+                return Math.max(1000.0, attributes.population.getValue() * 0.10);
             }),
             {effectType: EffectType.GrowthFactor, baseValue: -1.00}
         ],

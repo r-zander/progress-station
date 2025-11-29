@@ -9,13 +9,13 @@
  */
 const moduleOperationRequirements = {
     // I.S.A.S.M
-    // Rescue Capsule
+    // Jump Starter
     FourDPrinter: moduleOperations.FourDPrinter.registerRequirement(
         sharedRequirements.attributeGridStrength1,
     ),
 
-    // CAPTAIN'S QUARTER
-    // TinyToolbox
+    // Command Center
+    // Captain'sFocus
     PocketLaboratory: moduleOperations.PocketLaboratory.registerRequirement(
         sharedRequirements.FourDPrinterLvl10,
     ),
@@ -27,7 +27,7 @@ const moduleOperationRequirements = {
  * Technology objects automatically register TechnologyRequirements on modules when created
  */
 const modulesRequirements = {
-    CaptainsQuarter: modules.CaptainsQuarter.registerRequirement(
+    CommandCenter: modules.CommandCenter.registerRequirement(
         sharedRequirements.FourDPrinterLvl10,
     ),
 };
