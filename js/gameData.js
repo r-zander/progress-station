@@ -740,7 +740,7 @@ function initVersionWarning() {
                     bodyHtml: `
                         <p>
                             You have already played the <b class="text-yellow">Progress Station</b>
-                             <b class="version-label">Beta</b> in the past, thank you!
+                             Beta in the past, thank you!
                         </p>
                         <p>
                             The game progression has changed - unfortunately you will need to start over.<br />
