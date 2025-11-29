@@ -200,7 +200,7 @@ const LayeredMainThemeMusicState = {
             conditions: (musicContext) => {
                 if (!gameData.state.musicProgressLayerPlaying) return false;
 
-                return musicContext.maxProgressSpeed <= 0.20;
+                return musicContext.avgProgressSpeed <= 0.30;
             },
         },
         medium_progress: {
@@ -215,11 +215,10 @@ const LayeredMainThemeMusicState = {
                 if (!gameData.state.musicProgressLayerPlaying) return false;
 
                 // Slow progress?
-                if (musicContext.maxProgressSpeed <= 0.20) return false;
+                if (musicContext.avgProgressSpeed <= 0.30) return false;
 
                 // Fast progress?
-                if (musicContext.maxProgressSpeed > 5.00) return false;
-                if (musicContext.totalProgressSpeed > 40.00) return false;
+                if (musicContext.avgProgressSpeed > 0.80) return false;
 
                 // Then it's medium!
                 return true;
@@ -236,8 +235,7 @@ const LayeredMainThemeMusicState = {
             conditions: (musicContext) => {
                 if (!gameData.state.musicProgressLayerPlaying) return false;
 
-                if (musicContext.maxProgressSpeed > 5.00) return true;
-                if (musicContext.totalProgressSpeed > 40.00) return true;
+                if (musicContext.avgProgressSpeed > 0.80) return true;
 
                 // Not fast enough...
                 return false;
