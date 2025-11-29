@@ -40,8 +40,6 @@ const SoundBank = {
     [AudioEvents.MODULE_ON]: {
         src: [
             'audio/sfx/power-up.mp3',
-            'audio/sfx/power-up-v2.mp3',
-            'audio/sfx/power-up-v3.mp3',
         ],
         containerType: 'sequence',
         volume: 1.0,
@@ -53,8 +51,7 @@ const SoundBank = {
 
     [AudioEvents.MODULE_OFF]: {
         src: [
-            'audio/sfx/power-down-v1.mp3',
-            'audio/sfx/power-down-v2.mp3',
+            'audio/sfx/power-down.mp3',
         ],
         volume: 1.0,
         // randomization: {
@@ -65,7 +62,7 @@ const SoundBank = {
 
     [AudioEvents.BATTLE_START]: {
         src: [
-            'audio/sfx/battle-start-v1.mp3',
+            'audio/sfx/battle-start.mp3',
         ],
         volume: 1.0,
         // randomization: {
