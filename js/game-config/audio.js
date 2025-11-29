@@ -79,6 +79,9 @@ const SoundBank = {
             'audio/sfx/battle_finish.mp3',
         ],
         volume: 1.0,
+        playbackLimit: {
+            time: 200,
+        }
     },
 
     [AudioEvents.GRID_UPGRADE]: {
@@ -93,6 +96,9 @@ const SoundBank = {
             'audio/sfx/new_data_level.mp3',
         ],
         volume: 1.0,
+        playbackLimit: {
+            time: 500,
+        }
     },
 
     [AudioEvents.TECHNOLOGY_UNLOCKED]: {
@@ -107,6 +113,9 @@ const SoundBank = {
             'audio/sfx/new_location.mp3',
         ],
         volume: 1.0,
+        playbackLimit: {
+            time: 2000,
+        }
     },
 
     [AudioEvents.BOSS_APPEARANCE]: {
@@ -146,6 +155,9 @@ const SoundBank = {
             'audio/sfx/insufficient_power_grid.mp3',
         ],
         volume: 1.0,
+        playbackLimit: {
+            time: 500,
+        }
     },
 
     [AudioEvents.ON_PAUSE]: {
