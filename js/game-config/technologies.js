@@ -41,7 +41,7 @@ technologies.battleTabButton = new Technology({
         title: 'Battle Tab',
         name: 'battleTabButton',
     },
-    baseCost: 1,
+    baseCost: 3,
     requirements: [sharedRequirements.CoreBladeLvl10],
 });
 
@@ -51,7 +51,7 @@ technologies.locationTabButton = new Technology({
         title: 'Location Tab',
         name: 'locationTabButton',
     },
-    baseCost: 1,
+    baseCost: 3,
     requirements: [sharedRequirements.NovaFliesLvl20],
 });
 
@@ -74,14 +74,6 @@ technologies.HeavyGlitz = new Technology({
     })],
 });
 
-technologies.Radiance = new Technology({
-    unlocks: moduleOperations.Radiance,
-    baseCost: 3,
-    requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.HeavyGlitz,
-        requirement: 500,
-    })],
-});
 
 // Mining Bay - Drill
 technologies.AsteroidChomper = new Technology({
@@ -90,15 +82,6 @@ technologies.AsteroidChomper = new Technology({
     requirements: [new OperationLevelRequirement('playthrough', {
         operation: moduleOperations.BigSpinny,
         requirement: 100,
-    })],
-});
-
-technologies.TenDrills = new Technology({
-    unlocks: moduleOperations.TenDrills,
-    baseCost: 3,
-    requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.AsteroidChomper,
-        requirement: 500,
     })],
 });
 
@@ -121,15 +104,6 @@ technologies.Greenhouse = new Technology({
     })],
 });
 
-technologies.BossFertilizer = new Technology({
-    unlocks: moduleOperations.BossFertilizer,
-    baseCost: 3,
-    requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.Greenhouse,
-        requirement: 500,
-    })],
-});
-
 // Module 4 - Research
 technologies.ArtificialEcosystem = new Technology({
     unlocks: moduleOperations.ArtificialEcosystem,
@@ -137,15 +111,6 @@ technologies.ArtificialEcosystem = new Technology({
     requirements: [new OperationLevelRequirement('playthrough', {
         operation: moduleOperations.FermentationTank,
         requirement: 100,
-    })],
-});
-
-technologies.PlasmidSequencer = new Technology({
-    unlocks: moduleOperations.PlasmidSequencer,
-    baseCost: 3,
-    requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.ArtificialEcosystem,
-        requirement: 500,
     })],
 });
 
@@ -191,15 +156,6 @@ technologies.SmellyJelly = new Technology({
     })],
 });
 
-technologies.Quasarite = new Technology({
-    unlocks: moduleOperations.Quasarite,
-    baseCost: 3,
-    requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.SmellyJelly,
-        requirement: 500,
-    })],
-});
-
 // Furnace - Products
 technologies.Steel = new Technology({
     unlocks: moduleOperations.Steel,
@@ -216,15 +172,6 @@ technologies.Bouncium = new Technology({
     requirements: [new OperationLevelRequirement('playthrough', {
         operation: moduleOperations.Steel,
         requirement: 200,
-    })],
-});
-
-technologies.MicroalloyGlass = new Technology({
-    unlocks: moduleOperations.MicroalloyGlass,
-    baseCost: 3,
-    requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.Bouncium,
-        requirement: 500,
     })],
 });
 
@@ -281,15 +228,6 @@ technologies.PulseShield = new Technology({
     })],
 });
 
-technologies.BulletSponge = new Technology({
-    unlocks: moduleOperations.BulletSponge,
-    baseCost: 3,
-    requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.PulseShield,
-        requirement: 500,
-    })],
-});
-
 // Defensive Module - Turrets
 technologies.LaserTurrets = new Technology({
     unlocks: moduleOperations.LaserTurrets,
@@ -297,15 +235,6 @@ technologies.LaserTurrets = new Technology({
     requirements: [new OperationLevelRequirement('playthrough', {
         operation: moduleOperations.RapidRumbleTower,
         requirement: 100,
-    })],
-});
-
-technologies.AntiMaterialSwarm = new Technology({
-    unlocks: moduleOperations.AntiMaterialSwarm,
-    baseCost: 3,
-    requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.LaserTurrets,
-        requirement: 500,
     })],
 });
 
@@ -369,15 +298,6 @@ technologies.MechanoMaker = new Technology({
     })],
 });
 
-technologies.ReplicationChambers = new Technology({
-    unlocks: moduleOperations.ReplicationChambers,
-    baseCost: 3,
-    requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.MechanoMaker,
-        requirement: 1000,
-    })],
-});
-
 // Quarters Module - Doctrine
 technologies.UnitedForVictory = new Technology({
     unlocks: moduleOperations.UnitedForVictory,
@@ -385,15 +305,6 @@ technologies.UnitedForVictory = new Technology({
     requirements: [new OperationLevelRequirement('playthrough', {
         operation: moduleOperations.UnitedbyPurpose,
         requirement: 100,
-    })],
-});
-
-technologies.GloryToTheGreatHeroes = new Technology({
-    unlocks: moduleOperations.GloryToTheGreatHeroes,
-    baseCost: 3,
-    requirements: [new OperationLevelRequirement('playthrough', {
-        operation: moduleOperations.UnitedForVictory,
-        requirement: 500,
     })],
 });
 
