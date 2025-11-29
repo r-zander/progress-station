@@ -671,7 +671,7 @@ class ModuleOperation extends Task {
     }
 
     getMaxLevelMultiplier() {
-        return 1 + this.maxLevel / 100;
+        return 1 + this.maxLevel / 500;
     }
 
     /**
