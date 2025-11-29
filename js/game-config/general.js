@@ -11,8 +11,14 @@ const emptyStationName = 'Unknown Station';
 // Not const to allow easy game speed increase
 let baseGameSpeed = 3.0;
 
-const magnitudes = ['', 'k', 'M', 'B', 'T', 'q', 'Q', 'Sx', 'Sp', 'Oc'];
-const metricPrefixes = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R'];
+const magnitudes = [
+    '', 'k', 'M', 'B', 'T', 'q', 'Q', 'Sx', 'Sp', 'Oc',
+    'No', 'Dc', 'UDc', 'DDc', 'TDc', 'qDc', 'QDc', 'SDc', 'SpDc', 'ODc'
+];
+const metricPrefixes = [
+    '', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R', 'Q',
+    'X', 'W', 'V', 'U'
+];
 const units = {
     energy: 'W',
     storedEnergy: 'Wh'
