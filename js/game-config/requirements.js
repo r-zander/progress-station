@@ -19,6 +19,66 @@ const moduleOperationRequirements = {
     PocketLaboratory: moduleOperations.PocketLaboratory.registerRequirement(
         sharedRequirements.FourDPrinterLvl10,
     ),
+    Radiance: moduleOperations.Radiance.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.HeavyGlitz,
+            requirement: 500,
+        }),
+    ),
+    TenDrills: moduleOperations.TenDrills.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.AsteroidChomper,
+            requirement: 500,
+        }),
+    ),
+    BossFertilizer: moduleOperations.BossFertilizer.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.Greenhouse,
+            requirement: 500,
+        }),
+    ),
+    PlasmidSequencer: moduleOperations.PlasmidSequencer.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.ArtificialEcosystem,
+            requirement: 500,
+        }),
+    ),
+    Quasarite: moduleOperations.Quasarite.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.SmellyJelly,
+            requirement: 500,
+        }),
+    ),
+    MicroalloyGlass: moduleOperations.MicroalloyGlass.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.Bouncium,
+            requirement: 500,
+        }),
+    ),
+    BulletSponge: moduleOperations.BulletSponge.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.PulseShield,
+            requirement: 500,
+        }),
+    ),
+    AntiMaterialSwarm: moduleOperations.AntiMaterialSwarm.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.LaserTurrets,
+            requirement: 500,
+        }),
+    ),
+    ReplicationChambers: moduleOperations.ReplicationChambers.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.MechanoMaker,
+            requirement: 1000,
+        }),
+    ),
+    GloryToTheGreatHeroes: moduleOperations.GloryToTheGreatHeroes.registerRequirement(
+        new OperationLevelRequirement('playthrough', {
+            operation: moduleOperations.UnitedForVictory,
+            requirement: 500,
+        }),
+    ),
 };
 
 /**
