@@ -41,7 +41,7 @@ technologies.battleTabButton = new Technology({
         title: 'Battle Tab',
         name: 'battleTabButton',
     },
-    baseCost: 1,
+    baseCost: 3,
     requirements: [sharedRequirements.CoreBladeLvl10],
 });
 
@@ -51,7 +51,7 @@ technologies.locationTabButton = new Technology({
         title: 'Location Tab',
         name: 'locationTabButton',
     },
-    baseCost: 1,
+    baseCost: 3,
     requirements: [sharedRequirements.NovaFliesLvl20],
 });
 
