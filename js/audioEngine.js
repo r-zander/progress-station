@@ -470,6 +470,8 @@ class AudioEngine {
             AudioEngine.#lastPlayTimes[event] = now;
         }
 
+        // console.log('[Audio Engine] Play event:', event);
+
         const howls = eventData.howls;
         const srcArray = Array.isArray(entry.src) ? entry.src : [entry.src];
 

@@ -274,6 +274,7 @@ function showLastRunStats() {
     populateLastRunStats();
     const modal = new bootstrap.Modal(document.getElementById('lastRunStatsModal'));
     modal.show();
+    AudioEngine.postEvent(AudioEvents.END_SCREEN, modal);
 }
 
 function closeLastRunStats() {

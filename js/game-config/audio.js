@@ -19,6 +19,7 @@ const AudioEvents = {
     BOSS_APPEARANCE: 'BOSS_APPEARANCE',
     GAME_OVER_DEFEAT: 'GAME_OVER_DEFEAT',
     GAME_OVER_WIN: 'GAME_OVER_WIN',
+    END_SCREEN: 'END_SCREEN',
     HEAT_WARNING: 'HEAT_WARNING',
     INSUFFICIENT_POWER_GRID: 'INSUFFICIENT_POWER_GRID',
     ON_PAUSE: 'ON_PAUSE',
@@ -150,6 +151,13 @@ const SoundBank = {
         volume: 1.0,
     },
 
+    [AudioEvents.END_SCREEN]: {
+        src: [
+            'audio/sfx/end_screen.mp3',
+        ],
+        volume: 1.0,
+    },
+
     [AudioEvents.HEAT_WARNING]: {
         src: [
             'audio/sfx/heat_warning.mp3',
@@ -201,7 +209,7 @@ const LayeredMainThemeMusicState = {
         initial: {
             segment: {
                 src: 'audio/music/ps_bgm_initial_layer.mp3',
-                volume: 0.5,
+                volume: 0.3,
                 loop: true,
                 fadeInTime: 600,
                 fadeOutTime: 600

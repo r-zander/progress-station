@@ -951,7 +951,9 @@ class Technology extends Entity {
     }
 
     set isUnlocked(unlocked) {
-        AudioEngine.postEvent(AudioEvents.TECHNOLOGY_UNLOCKED, this);
+        if (unlocked === true) {
+            AudioEngine.postEvent(AudioEvents.TECHNOLOGY_UNLOCKED, this);
+        }
         this.savedValues.unlocked = unlocked;
     }
 
