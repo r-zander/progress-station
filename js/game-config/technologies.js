@@ -102,8 +102,8 @@ technologies.TenDrills = new Technology({
     })],
 });
 
-technologies.Module4 = new Technology({
-    unlocks: modules.Module4,
+technologies.BiotechDome = new Technology({
+    unlocks: modules.BiotechDome,
     baseCost: 5,
     requirements: [
         sharedRequirements.GridStrengtLvl2,

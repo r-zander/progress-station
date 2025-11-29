@@ -317,7 +317,7 @@ const modules = {
         description: 'For some, space is vast and empty. For others, its the greatest treasure trove there is.',
         components: [moduleComponents.MinedResource, moduleComponents.Drill],
     }),
-    Module4: new Module({
+    BiotechDome: new Module({
         title: 'Biotech Dome',
         description: 'A controlled ecosystem where life is cultivated and knowledge grows.',
         components: [moduleComponents.Agriculture, moduleComponents.TheLab],
@@ -353,7 +353,7 @@ const moduleCategories = {
             modules.RescueCapsule,
             modules.CommandCenter,
             modules.MiningBay,
-            modules.Module4,
+            modules.BiotechDome,
             modules.Furnace,
             modules.Defensive,
             modules.Quarters
