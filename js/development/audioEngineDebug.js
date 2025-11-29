@@ -471,7 +471,7 @@ const AudioEngineDebug = (() => {
             font-family: monospace
             font-size: 12px;
             border: 2px solid white;
-            max-height: calc(100vh - 60px);
+            max-height: calc(100vh - 60px - 151px);
             overflow-y: auto;"></div>`
         );
     }
