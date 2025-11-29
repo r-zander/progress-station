@@ -170,4 +170,10 @@
         display: inline-block;
         transform: translateY(-1px);
     }
+
+    .stat-value {
+        margin-left: 0;
+        text-align: left;
+        justify-self: start;
+    }
 }

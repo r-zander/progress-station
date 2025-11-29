@@ -124,9 +124,9 @@ function populateLastRunStats() {
             const levelCell = document.createElement('td');
             levelCell.classList.add('stat-cell');
 
-            const levelSpan = document.createElement('span');
-            levelSpan.className = 'stat-value';
-            levelCell.appendChild(levelSpan);
+            const levelValueElement = document.createElement('data');
+            levelValueElement.className = 'stat-value';
+            levelCell.appendChild(levelValueElement);
 
             if (isNewRecord) {
                 const arrow = document.createElement('img');
@@ -138,18 +138,20 @@ function populateLastRunStats() {
             }
 
             row.appendChild(levelCell);
-            runningAnimations.push(animateStatValue(levelSpan, prevMaxLevel, newLevel, 6000));
+            runningAnimations.push(animateStatValue(levelValueElement, prevMaxLevel, newLevel, 6000, value => {
+                return formatNumber(Math.round(value));
+            }));
 
             // New Operation Speed Bonus
             const speedCell = document.createElement('td');
-            const speedSpan = document.createElement('span');
-            speedSpan.className = 'stat-value';
-            speedCell.appendChild(speedSpan);
+            const speedValueElement = document.createElement('data');
+            speedValueElement.className = 'stat-value';
+            speedCell.appendChild(speedValueElement);
             row.appendChild(speedCell);
 
             const newOpSpeed = (1 + Math.max(module.getLevel(), module.maxLevel) / 100);
             const prevOpSpeed = (1 + module.maxLevel / 100);
-            runningAnimations.push(animateStatValue(speedSpan, prevOpSpeed, newOpSpeed, 6000, value => {
+            runningAnimations.push(animateStatValue(speedValueElement, prevOpSpeed, newOpSpeed, 6000, value => {
                 return `x ${value.toFixed(2)}`;
             }));
 
@@ -157,9 +159,9 @@ function populateLastRunStats() {
         }
     }
 
-    setStatValue('statBossLevels', bossBattle.level, bossBattle.maxLevel);
-    setStatValue('statBattlesFinished', getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max);
-    setStatValue('statWavesDefeated', getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max);
+    setStatValue('statBossLevels', bossBattle.level, bossBattle.maxLevel, false);
+    setStatValue('statBattlesFinished', getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max, false);
+    setStatValue('statWavesDefeated', getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max, false);
     setAttributeStatValue('statMaxPopulation', attributes.population, gameData.stats.maxPopulation.current, gameData.stats.maxPopulation.max);
     setAttributeStatValue('statMaxIndustry', attributes.industry, gameData.stats.maxIndustry.current, gameData.stats.maxIndustry.max);
     setAttributeStatValue('statMaxGrowth', attributes.growth, gameData.stats.maxGrowth.current, gameData.stats.maxGrowth.max);
@@ -189,7 +191,11 @@ function animateStatValue(element, start, end, duration = 1500, formatFn) {
 
         const progress = Math.min((now - startTime) / duration, 1);
         const value = end * progress;
-        element.textContent = formatFn ? formatFn(value) : Math.round(value).toLocaleString();
+        if (formatFn) {
+            element.textContent = formatFn(value)
+        } else {
+            formatValue(element, value);
+        }
 
         if (end > start && value > start && Math.round(value) > 0) {
             if (!newRecordHighlightSet) {
@@ -233,8 +239,9 @@ const runningAnimations = [];
  * @param {string} id
  * @param {number} currentValue
  * @param {number} recordValue
+ * @param {boolean} useValueFormatting
  */
-function setStatValue(id, currentValue, recordValue) {
+function setStatValue(id, currentValue, recordValue, useValueFormatting) {
     const element = document.getElementById(id);
     console.assert(element !== null, 'Missing #' + id);
 
@@ -246,7 +253,10 @@ function setStatValue(id, currentValue, recordValue) {
     if (isUndefined(recordValue)) {
         recordValue = currentValue;
     }
-    runningAnimations.push(animateStatValue(element, recordValue, currentValue, 6000));
+    const formatFunc = useValueFormatting ? undefined : value => {
+        return formatNumber(Math.round(value));
+    }
+    runningAnimations.push(animateStatValue(element, recordValue, currentValue, 6000, formatFunc));
 }
 
 function setAttributeStatValue(id, attribute, currentValue, recordValue) {
