@@ -811,6 +811,7 @@ function createTechnologiesUI() {
         row.classList.add('technology-row');
 
         // Technology Name
+        const parent = technology.getParent();
         const nameCell = document.createElement('td');
         nameCell.innerHTML =
             `<div class="technology progress progressBar descriptionTooltip clickable" role="progressbar" aria-label="Technology"
@@ -818,7 +819,12 @@ function createTechnologiesUI() {
                  data-bs-placement="right">
                 <div class="moduleOperation progressFill progress-bar progress-bar-striped" style="width: 0%"></div>
                 <div class="progress-text d-flex px-2">
-                    <span class="name text-truncate">${technology.title}</span>
+                    <span class="unlocked-icon me-1">🗹</span>`
+            + (parent === '' ? '' :
+                   `<span class="parent text-truncate">${parent}</span>
+                    <span class="me-1">:</span>`
+            )
+            +      `<span class="name text-truncate">${technology.title}</span>
                 </div>
             </div>
             <div class="requirements-container">
@@ -847,7 +853,7 @@ function createTechnologiesUI() {
 
         // State
         const stateCell = document.createElement('td');
-        stateCell.classList.add('state');
+        stateCell.classList.add('state', 'hidden');
         const stateBadge = document.createElement('span');
         stateBadge.classList.add('badge', 'state-badge');
         stateCell.appendChild(stateBadge);
@@ -855,8 +861,8 @@ function createTechnologiesUI() {
 
         // Type
         const typeCell = document.createElement('td');
-        typeCell.textContent = technology.getFormattedType()
-        typeCell.classList.add('type');
+        typeCell.textContent = technology.getFormattedType();
+        typeCell.classList.add('type', 'hidden');
         row.appendChild(typeCell);
 
         // Belongs to
@@ -877,9 +883,9 @@ function createTechnologiesUI() {
 
         // Cost
         const costCell = document.createElement('td');
+        costCell.classList.add('cost');
         // TODO attribute icon
         costCell.innerHTML = `<data class="value" value="${technology.getCost()}" = data-unit="Data">${technology.getCost()}</data>`;
-        costCell.classList.add('cost');
         row.appendChild(costCell);
 
         tbody.appendChild(row);
@@ -2022,6 +2028,7 @@ function updateTechnologiesUI() {
         const progressBarElement = domGetter.byClass('progressBar');
         const progressFillElement = domGetter.byClass('progressFill');
         const requirementsElement = domGetter.byClass('requirements');
+        const costCell = domGetter.byClass('cost');
 
         switch (state) {
             case 'Unlocked':
@@ -2030,6 +2037,8 @@ function updateTechnologiesUI() {
                 progressFillElement.classList.add('unlocked');
                 progressBarElement.classList.add('unlocked');
                 progressBarElement.classList.remove('clickable');
+                costCell.classList.remove('affordable', 'too-expensive');
+                costCell.classList.add('unlocked');
 
                 progressFillElement.style.removeProperty('width');
 
@@ -2042,6 +2051,8 @@ function updateTechnologiesUI() {
                 progressBarElement.classList.remove('unlocked');
                 progressBarElement.classList.add('clickable');
                 setProgress(progressFillElement, technology.unlockProgress);
+                costCell.classList.add('affordable');
+                costCell.classList.remove('too-expensive', 'unlocked');
 
                 stateBadge.classList.add('bg-success');
                 break;
@@ -2051,6 +2062,8 @@ function updateTechnologiesUI() {
                 progressFillElement.classList.remove('unlocked');
                 progressBarElement.classList.remove('unlocked');
                 progressBarElement.classList.remove('clickable');
+                costCell.classList.remove('affordable', 'unlocked');
+                costCell.classList.add('too-expensive');
 
                 stateBadge.classList.add('bg-warning');
                 break;
@@ -2068,6 +2081,8 @@ function updateTechnologiesUI() {
                     requirementsElement.innerHTML = html;
                     technologiesRequirementHtmlCache[key] = html;
                 }
+                costCell.classList.remove('affordable', 'too-expensive', 'unlocked');
+
                 stateBadge.classList.add('bg-danger');
                 break;
         }

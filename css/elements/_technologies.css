@@ -48,4 +48,28 @@
             width: 100%;
         }
     }
+
+    .cost {
+        &.too-expensive {
+            color: var(--warning-color);
+
+            > data,
+            > data::after {
+                font-weight: bold;
+            }
+        }
+
+        &.affordable {
+            color: var(--ps-green3);
+
+            > data,
+            > data::after {
+                font-weight: bold;
+            }
+        }
+
+        &.unlocked {
+            color: var(--ps-passive);
+        }
+    }
 }

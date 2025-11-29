@@ -1022,15 +1022,40 @@ class Technology extends Entity {
      * Get the parent entity name (e.g., module category for modules, module for operations, sector for POIs)
      * @return {string}
      */
+    getParent() {
+        const unlocks = this.unlocks;
+
+        if (unlocks.hasOwnProperty('moduleCategory')) {
+            // This is a Module
+            return '';
+        } else if (unlocks.hasOwnProperty('component')) {
+            // This is a ModuleOperation
+            return unlocks.component.title;
+        } else if (unlocks.hasOwnProperty('sector')) {
+            // This is a PointOfInterest
+            return '';
+        } else if (unlocks.type === 'Sector') {
+            // This is a Sector
+            return '';
+        } else {
+            // HTML element or other
+            return '';
+        }
+    }
+
+    /**
+     * Get the parent entity name (e.g., module category for modules, module for operations, sector for POIs)
+     * @return {string}
+     */
     getBelongsTo() {
         const unlocks = this.unlocks;
 
         if (unlocks.hasOwnProperty('moduleCategory')) {
             // This is a Module
-            return unlocks.moduleCategory.title;
+            return 'Modules';
         } else if (unlocks.hasOwnProperty('component')) {
             // This is a ModuleOperation
-            return unlocks.component.title;
+            return unlocks.component.module.title;
         } else if (unlocks.hasOwnProperty('sector')) {
             // This is a PointOfInterest
             return unlocks.sector.title;
@@ -1039,7 +1064,7 @@ class Technology extends Entity {
             return 'Locations';
         } else {
             // HTML element or other
-            return 'Station Feature';
+            return 'Station Features';
         }
     }
 
