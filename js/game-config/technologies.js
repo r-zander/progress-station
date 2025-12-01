@@ -219,12 +219,20 @@ technologies.Defensive = new Technology({
 });
 
 // Defensive Module - Protection
-technologies.PulseShield = new Technology({
-    unlocks: moduleOperations.PulseShield,
+technologies.NanoHardener = new Technology({
+    unlocks: moduleOperations.NanoHardener,
     baseCost: 3,
     requirements: [new OperationLevelRequirement('playthrough', {
         operation: moduleOperations.GlitzPlating,
         requirement: 100,
+    })],
+});
+technologies.PulseShield = new Technology({
+    unlocks: moduleOperations.PulseShield,
+    baseCost: 3,
+    requirements: [new OperationLevelRequirement('playthrough', {
+        operation: moduleOperations.NanoHardener,
+        requirement: 200,
     })],
 });
 
@@ -294,7 +302,7 @@ technologies.MechanoMaker = new Technology({
     baseCost: 3,
     requirements: [new OperationLevelRequirement('playthrough', {
         operation: moduleOperations.Recruitment,
-        requirement: 500,
+        requirement: 200,
     })],
 });
 

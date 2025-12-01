@@ -70,7 +70,7 @@ const moduleOperationRequirements = {
     ReplicationChambers: moduleOperations.ReplicationChambers.registerRequirement(
         new OperationLevelRequirement('playthrough', {
             operation: moduleOperations.MechanoMaker,
-            requirement: 1000,
+            requirement: 500,
         }),
     ),
     GloryToTheGreatHeroes: moduleOperations.GloryToTheGreatHeroes.registerRequirement(
