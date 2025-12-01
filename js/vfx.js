@@ -471,7 +471,16 @@ if (isBoolean(gameData.settings.vfx.followProgressBars)) {
     VFX.followProgressBars(gameData.settings.vfx.followProgressBars);
 }
 
-GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
+GameEvents.TaskLevelChanged.subscribe(
+    /**
+     * @param {{
+     *      type: string,
+     *      name: string,
+     *      previousLevel: number,
+     *      nextLevel: number
+     *  }} taskInfo
+     */
+    (taskInfo) => {
     // Only show animations if the level went up
     if (taskInfo.previousLevel >= taskInfo.nextLevel) return;
 
@@ -484,21 +493,35 @@ GameEvents.TaskLevelChanged.subscribe((taskInfo) => {
     const direction = taskInfo.type === 'Battle' ? 'left' : 'right';
     let taskProgressBar = undefined;
     let quickTaskProgressBar = undefined;
-    if (taskInfo.type === 'Battle' || taskInfo.type === 'BossBattle') {
-        if (gameData.selectedTab === 'battles') {
-            taskProgressBar = getBattleElement(taskInfo.name).querySelector('.progressBar');
-        }
-        quickTaskProgressBar = document.querySelector(`.quickTaskDisplay.${taskInfo.name} > .progressBar`);
-    } else if (taskInfo.type === 'GridStrength') {
-        taskProgressBar = document.getElementById('energyDisplay');
-    } else if (taskInfo.type === 'GalacticSecret') {
-        taskProgressBar = document.querySelector('#' + galacticSecrets[taskInfo.name].domId + ' .progressBar');
-    } else {
-        if (gameData.selectedTab === 'modules') {
-            const taskElement = getModuleOperationElement(taskInfo.name);
-            taskProgressBar = taskElement.querySelector('.progressBar');
-        }
-        quickTaskProgressBar = document.querySelector(`.quickTaskDisplay.${taskInfo.name} .progressBar`);
+
+    switch (taskInfo.type) {
+        case 'Battle':
+        case 'BossBattle':
+            if (gameData.selectedTab === 'battles') {
+                taskProgressBar = getBattleElement(taskInfo.name).querySelector('.progressBar');
+            }
+            quickTaskProgressBar = document.querySelector(`.quickTaskDisplay.${taskInfo.name} > .progressBar`);
+            break;
+        case 'GridStrength':
+            taskProgressBar = document.getElementById('energyDisplay');
+            break;
+        case 'GalacticSecret':
+            taskProgressBar = document.querySelector('#' + galacticSecrets[taskInfo.name].domId + ' .progressBar');
+            break;
+        case 'AnalysisCore':
+            taskProgressBar = document.querySelector('#analysisCore .progressBar');
+            quickTaskProgressBar = document.querySelector('#galacticSecretsTabButton > .quickTaskDisplay .progressBar');
+            break;
+        case 'ModuleOperation':
+            if (gameData.selectedTab === 'modules') {
+                const taskElement = getModuleOperationElement(taskInfo.name);
+                taskProgressBar = taskElement.querySelector('.progressBar');
+            }
+            quickTaskProgressBar = document.querySelector(`.quickTaskDisplay.${taskInfo.name} .progressBar`);
+            break;
+        default:
+            console.error('No VFX container defined for taskInfo.type: ' + taskInfo.type);
+            break;
     }
     if (taskProgressBar !== undefined) {
         if (splashOnLevelUp) {
