@@ -117,6 +117,14 @@
         justify-content: space-between;
         padding: 0.25rem 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+        &.stat-essence-of-unknown {
+            border-radius: 18px;
+            animation: 2s fuse infinite linear;
+            /* Little trick to add a bit of space for the animated box-shadow without losing the layout */
+            margin-inline: -1rem;
+            padding-inline: 1rem;
+        }
     }
 
     th {
@@ -175,5 +183,35 @@
         margin-left: 0;
         text-align: left;
         justify-self: start;
+    }
+}
+
+@keyframes fuse {
+    0% {
+        box-shadow: 2px 0 2px 1px var(--attr-essence-of-unknown-color);
+    }
+    12.5% {
+        box-shadow: 2px 2px 2px 1px var(--attr-essence-of-unknown-color);
+    }
+    25% {
+        box-shadow: 0px 2px 2px 1px var(--attr-essence-of-unknown-color);
+    }
+    37.5% {
+        box-shadow: -2px 2px 2px 1px var(--attr-essence-of-unknown-color);
+    }
+    50% {
+        box-shadow: -2px 0px 2px 1px var(--attr-essence-of-unknown-color);
+    }
+    62.5% {
+        box-shadow: -2px -2px 2px 1px var(--attr-essence-of-unknown-color);
+    }
+    75% {
+        box-shadow: 0px -2px 2px 1px var(--attr-essence-of-unknown-color);
+    }
+    87.5% {
+        box-shadow: 2px -2px 2px 1px var(--attr-essence-of-unknown-color);
+    }
+    100% {
+        box-shadow: 2px 0px 2px 1px var(--attr-essence-of-unknown-color);
     }
 }
