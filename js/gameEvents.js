@@ -77,8 +77,14 @@ class GameEvent {
 
         let indexToDelete = [];
         this._listeners.forEach((listener, index) => {
-            if (listener(payload)) {
-                indexToDelete.push(index);
+            // Wrap individual listeners into try-catch to prevent
+            // escalating errors from a single bad subscriber.
+            try {
+                if (listener(payload)) {
+                    indexToDelete.push(index);
+                }
+            } catch (error) {
+                console.error('Error while executing ' + this.constructor.name + ' listener #' + index, error);
             }
         });
 

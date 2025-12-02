@@ -275,6 +275,14 @@ function resetBattle(name) {
     battle.xp = 0;
 }
 
+function calculateEssenceOfUnknownGain(bossLevelDefeated) {
+    let grantedEssenceOfUnknown = 0;
+    for (let level = 0; level < bossLevelDefeated; level++) {
+        grantedEssenceOfUnknown += Math.pow(2, level);
+    }
+    return grantedEssenceOfUnknown;
+}
+
 function startNewPlaythrough() {
     updateMaxStats();
 
@@ -283,10 +291,7 @@ function startNewPlaythrough() {
     gameData.bossEncounterCount += 1;
 
     // grant Essence Of Unknown
-    let grantedEssenceOfUnknown = 0;
-    for (let level = 0; level < bossBattle.level; level++) {
-        grantedEssenceOfUnknown += Math.pow(2, level);
-    }
+    const grantedEssenceOfUnknown = calculateEssenceOfUnknownGain(bossBattle.level);
     if (grantedEssenceOfUnknown > 0) {
         addEssenceGain(grantedEssenceOfUnknown, bossBattle.type, bossBattle.name, bossBattle.level);
     }

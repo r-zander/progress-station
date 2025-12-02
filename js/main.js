@@ -1253,6 +1253,13 @@ function createAttributesDisplay() {
         if (labelElement !== null) {
             labelElement.classList.add(attribute.textClass);
             labelElement.textContent = attribute.title;
+        } else {
+            const labelElements = domGetter.allBySelector('span');
+            // Single span? lets assume its our label
+            if (labelElements.length === 1) {
+                labelElements[0].classList.add(attribute.textClass);
+                labelElements[0].textContent = attribute.title;
+            }
         }
     }
 }

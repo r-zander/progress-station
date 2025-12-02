@@ -162,6 +162,7 @@ function populateLastRunStats() {
     setStatValue('statBossLevels', bossBattle.level, bossBattle.maxLevel, false);
     setStatValue('statBattlesFinished', getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max, false);
     setStatValue('statWavesDefeated', getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max, false);
+    setStatValue('statEssenceOfUnknown', calculateEssenceOfUnknownGain(bossBattle.level), 0, false);
     setAttributeStatValue('statMaxPopulation', attributes.population, gameData.stats.maxPopulation.current, gameData.stats.maxPopulation.max);
     setAttributeStatValue('statMaxIndustry', attributes.industry, gameData.stats.maxIndustry.current, gameData.stats.maxIndustry.max);
     setAttributeStatValue('statMaxGrowth', attributes.growth, gameData.stats.maxGrowth.current, gameData.stats.maxGrowth.max);
