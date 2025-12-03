@@ -180,7 +180,7 @@ const htmlElementRequirements = {
     battleTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('battleTabButton')],
-            requirements: [new TechnologyRequirement({technology: technologies.battleTabButton})],
+            requirements: [sharedRequirements.battleTabButton],
             elementsToShowRequirements: [Dom.get().byId('battleTabButtonRequirements')],
         }),
     dangerDisplay: new HtmlElementWithRequirement(
@@ -210,7 +210,7 @@ const htmlElementRequirements = {
             elementsWithRequirements: [
                 ...Dom.get().allByClass('multiple-battles'),
             ],
-            requirements: [battleRequirements[0]],
+            requirements: [sharedRequirements.BattleCoordinationI],
         }),
     // TODO figure out essence of unknown integration with Technology
     essenceOfUnknownLabel: new HtmlElementWithRequirement(

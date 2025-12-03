@@ -1460,30 +1460,57 @@ const bossDefenseMode = {
 /** @type {BossBattle} */
 const bossBattle = battles.Boss10;
 
-const battleRequirements = [
-    new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 1.5}),
-    new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 10}),
-    new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 20}),
-    new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 50}),
-    new AttributeRequirement('playthrough', {attribute: attributes.research, requirement: 100}),
-];
-
 const battlesShowDangerWarning = false;
 
 /**
- * @param {number} research Current research value
- * @return {{limit: number, requirement: AttributeRequirement|string}}
+ * Calculate maximum available battle slots based on unlocked Battle Coordination technologies.
+ * @return {number} Number of battle slots (1-6)
  */
-function maximumAvailableBattles(research) {
-    // Special case 1: Research is maxed, but there would be more battles to display
-    if (research >= 100) return {limit: 6, requirement: 'Win any open battle'};
-    if (research >= 50) return {limit: 5, requirement: battleRequirements[4]};
-    if (research >= 20) return {limit: 4, requirement: battleRequirements[3]};
-    if (research >= 10) return {limit: 3, requirement: battleRequirements[2]};
-    if (research >= 1.5) return {limit: 2, requirement: battleRequirements[1]};
-    if (research >= 0.01) return {limit: 1, requirement: battleRequirements[0]};
-    // Special case 2: Research is not yet discovered
-    return {limit: 1, requirement: 'Win open battle'};
+function getMaximumBattleSlotsFromTechnologies() {
+    // 1 battle is always available by default
+    let slots = 1;
+
+    // Check each Battle Coordination technology
+    if (technologies.BattleCoordinationI && technologies.BattleCoordinationI.isUnlocked) slots = 2;
+    if (technologies.BattleCoordinationII && technologies.BattleCoordinationII.isUnlocked) slots = 3;
+    if (technologies.BattleCoordinationIII && technologies.BattleCoordinationIII.isUnlocked) slots = 4;
+    if (technologies.BattleCoordinationIV && technologies.BattleCoordinationIV.isUnlocked) slots = 5;
+    if (technologies.BattleCoordinationV && technologies.BattleCoordinationV.isUnlocked) slots = 6;
+
+    return slots;
+}
+
+/**
+ * Determine which Battle Coordination technology is needed for the next battle slot.
+ * @return {Technology|null} The next Battle Coordination technology to unlock, or null if maxed
+ */
+function getNextBattleCoordinationTechnology() {
+    if (!technologies.BattleCoordinationI.isUnlocked) return technologies.BattleCoordinationI;
+    if (!technologies.BattleCoordinationII.isUnlocked) return technologies.BattleCoordinationII;
+    if (!technologies.BattleCoordinationIII.isUnlocked) return technologies.BattleCoordinationIII;
+    if (!technologies.BattleCoordinationIV.isUnlocked) return technologies.BattleCoordinationIV;
+    if (!technologies.BattleCoordinationV.isUnlocked) return technologies.BattleCoordinationV;
+    return null; // All unlocked
+}
+
+/**
+ * Get maximum available battle slots and the requirement for the next slot.
+ * @return {{limit: number, requirement: TechnologyRequirement|string}}
+ */
+function maximumAvailableBattles() {
+    const limit = getMaximumBattleSlotsFromTechnologies();
+    const nextTech = getNextBattleCoordinationTechnology();
+
+    // If all technologies unlocked, show string message
+    if (nextTech === null) {
+        return {limit: 6, requirement: 'Win any open battle'};
+    }
+
+    // Otherwise, return the technology requirement
+    return {
+        limit: limit,
+        requirement: nextTech.technologyRequirement
+    };
 }
 
 /** @type {number} */

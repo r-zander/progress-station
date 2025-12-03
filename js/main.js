@@ -1799,7 +1799,7 @@ let battleRequirementsHtmlCache = '';
 
 function updateBattleRows() {
     // Determine visibility
-    const maxBattles = maximumAvailableBattles(attributes.research.getValue());
+    const maxBattles = maximumAvailableBattles();
     let visibleBattles = 0;
     const visibleFactions = {};
     const bossRow = Dom.get().byId(bossBattle.domId);
@@ -2804,6 +2804,13 @@ function initRequirements() {
     Requirement.allRequirements = null;
 }
 
+function initTechnologies() {
+    for (const key in technologies) {
+        const technology = technologies[key];
+        technology.init(requirementRegistry);
+    }
+}
+
 function initConfigNames() {
     assignNames(gameStates);
     gridStrength.name = 'gridStrength';
@@ -2844,6 +2851,7 @@ function initBossBattleProgressBar() {
 function init() {
     initConfigNames();
     initRequirements();
+    initTechnologies();
     createAttributesHTML();
     createAttributeDescriptions();
 

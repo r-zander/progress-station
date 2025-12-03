@@ -905,6 +905,14 @@ class Technology extends Entity {
         }
     }
 
+    init() {
+        if (this.technologyRequirement !== null) return;
+
+        // The requirement was created and registered otherwise - we should be able to look it up
+        // noinspection JSValidateTypes
+        this.technologyRequirement = Requirement.lookup(TechnologyRequirement.generateName(this.name));
+    }
+
     /**
      * @param {Entity} unlock
      */
@@ -1175,6 +1183,19 @@ class Requirement {
         // New requirement - register it
         this.#name = generatedName;
         requirementRegistry[generatedName] = this;
+    }
+
+    /**
+     * @param {string} name
+     * @return {Requirement}
+     * @throws {Error} if not found
+     */
+    static lookup(name){
+        if (requirementRegistry.hasOwnProperty(name)) {
+            return requirementRegistry[name];
+        }
+
+        throw new Error(`Failed to find requirement "${name}"`);
     }
 
     /**
@@ -1592,8 +1613,12 @@ class TechnologyRequirement extends Requirement {
         super('TechnologyRequirement', 'playthrough', baseData, prerequisites);
     }
 
+    static generateName(technologyName) {
+        return `Technology_${technologyName}`;
+    }
+
     generateName() {
-        return `Technology_${this.baseData.technology.name}`;
+        return TechnologyRequirement.generateName(this.baseData.technology.name);
     }
 
     /**

@@ -44,6 +44,59 @@ technologies.battleTabButton = new Technology({
     baseCost: 3,
     requirements: [sharedRequirements.CoreBladeLvl10],
 });
+sharedRequirements.battleTabButton = new TechnologyRequirement({technology: technologies.battleTabButton});
+
+technologies.BattleCoordinationI = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination I',
+        name: 'BattleCoordinationI',
+    },
+    baseCost: 5,
+    requirements: [sharedRequirements.battleTabButton],
+});
+sharedRequirements.BattleCoordinationI = new TechnologyRequirement({technology: technologies.BattleCoordinationI});
+
+technologies.BattleCoordinationII = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination II',
+        name: 'BattleCoordinationII',
+    },
+    baseCost: 10,
+    requirements: [sharedRequirements.BattleCoordinationI],
+});
+
+technologies.BattleCoordinationIII = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination III',
+        name: 'BattleCoordinationIII',
+    },
+    baseCost: 15,
+    requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationII})],
+});
+
+technologies.BattleCoordinationIV = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination IV',
+        name: 'BattleCoordinationIV',
+    },
+    baseCost: 20,
+    requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationIII})],
+});
+
+technologies.BattleCoordinationV = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination V',
+        name: 'BattleCoordinationV',
+    },
+    baseCost: 25,
+    requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationIV})],
+});
+sharedRequirements.BattleCoordinationV = new TechnologyRequirement({technology: technologies.BattleCoordinationV});
 
 technologies.locationTabButton = new Technology({
     unlocks: {

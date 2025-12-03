@@ -15,7 +15,6 @@ sharedRequirements.attributeResearchUnlocked = new AttributeRequirement('playthr
     attribute: attributes.research,
     requirement: 0.01,
 });
-sharedRequirements.attributeResearch10 = battleRequirements[1];
 
 sharedRequirements.FourDPrinterLvl10 = new OperationLevelRequirement('playthrough', {
     operation: moduleOperations.FourDPrinter,
