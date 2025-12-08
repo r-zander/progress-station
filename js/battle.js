@@ -545,6 +545,11 @@ class FactionLevelsDefeatedRequirement extends Requirement {
         return this.#getDefeatedLevels(baseData.faction) >= baseData.requirement;
     }
 
+    isVisible() {
+        return technologies.battleTabButton.isUnlocked
+            && super.isVisible();
+    }
+
     /**
      * @param {FactionDefinition} faction
      * @return {number}

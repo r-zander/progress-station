@@ -40,6 +40,7 @@ technologies.battleTabButton = new Technology({
         type: 'HtmlElement',
         title: 'Battle Tab',
         name: 'battleTabButton',
+        getEffectDescription: () => 'Fight battles to gain passive rewards.'
     },
     baseCost: 3,
     requirements: [sharedRequirements.CoreBladeLvl10],
@@ -51,17 +52,36 @@ technologies.BattleCoordinationI = new Technology({
         type: 'BattleSlot',
         title: 'Battle Coordination I',
         name: 'BattleCoordinationI',
+        getEffectDescription: () => 'Engage up to 2 battles at once.'
     },
     baseCost: 5,
-    requirements: [sharedRequirements.battleTabButton],
+    // FIXME for BattleSlots and HtmlElement, the pre-requisites need to be passed down manually (see next assignment)
+    // prerequisites: [new FactionLevelsDefeatedRequirement('playthrough', {
+    //     faction: factions.NovaFlies,
+    //     requirement: 10 + 20 + 30 + 50,
+    // })],
+    requirements: [
+        sharedRequirements.battleTabButton,
+        new FactionLevelsDefeatedRequirement('playthrough', {
+            faction: factions.NovaFlies,
+            requirement: 10 + 20 + 30 + 50 + 75,
+        }),
+    ],
 });
-sharedRequirements.BattleCoordinationI = new TechnologyRequirement({technology: technologies.BattleCoordinationI});
+sharedRequirements.BattleCoordinationI = new TechnologyRequirement(
+    {technology: technologies.BattleCoordinationI},
+    [new FactionLevelsDefeatedRequirement('playthrough', {
+        faction: factions.NovaFlies,
+        requirement: 10 + 20 + 30 + 50,
+    })],
+);
 
 technologies.BattleCoordinationII = new Technology({
     unlocks: {
         type: 'BattleSlot',
         title: 'Battle Coordination II',
         name: 'BattleCoordinationII',
+        getEffectDescription: () => 'Engage up to 3 battles at once.'
     },
     baseCost: 10,
     requirements: [sharedRequirements.BattleCoordinationI],
@@ -72,6 +92,7 @@ technologies.BattleCoordinationIII = new Technology({
         type: 'BattleSlot',
         title: 'Battle Coordination III',
         name: 'BattleCoordinationIII',
+        getEffectDescription: () => 'Engage up to 4 battles at once.'
     },
     baseCost: 15,
     requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationII})],
@@ -82,6 +103,7 @@ technologies.BattleCoordinationIV = new Technology({
         type: 'BattleSlot',
         title: 'Battle Coordination IV',
         name: 'BattleCoordinationIV',
+        getEffectDescription: () => 'Engage up to 5 battles at once.'
     },
     baseCost: 20,
     requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationIII})],
@@ -92,6 +114,7 @@ technologies.BattleCoordinationV = new Technology({
         type: 'BattleSlot',
         title: 'Battle Coordination V',
         name: 'BattleCoordinationV',
+        getEffectDescription: () => 'Engage up to 6 battles at once.'
     },
     baseCost: 25,
     requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationIV})],
@@ -103,6 +126,7 @@ technologies.locationTabButton = new Technology({
         type: 'HtmlElement',
         title: 'Location Tab',
         name: 'locationTabButton',
+        getEffectDescription: () => 'Visit places of interest to modify the stations effect specialization.'
     },
     baseCost: 3,
     requirements: [sharedRequirements.NovaFliesLvl20],
@@ -235,7 +259,7 @@ technologies.BetaSector = new Technology({
         new FactionLevelsDefeatedRequirement('playthrough', {
             faction: factions.Astrogoblins,
             requirement: 250,
-        }, [sharedRequirements.AstrogoblinsLvl75]),
+        }),
     ],
 });
 

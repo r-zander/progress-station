@@ -1745,7 +1745,7 @@ function updateModulesUI() {
  * @param visibleFactions
  * @param battle
  * @param visibleBattles
- * @param maxBattles
+ * @param {{limit: number, requirement: TechnologyRequirement|string}} maxBattles
  * @return {RequirementLike|null}
  */
 function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattles, maxBattles) {
@@ -1776,20 +1776,37 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
     // Let's get dirty for some nice UX
     // If due to low research, only 1 battle can be shown, this battle explicitly mentioned
     if (maxBattles.limit === 1) {
-        return {
-            toHtml: () => {
-                // Find the open battle by looking up the one value in the visible factions
-                return `${Object.values(visibleFactions)[0].title} defeated or ` +
-                    maxBattles.requirement.toHtml();
-            },
-            isVisible: () => true,
-        };
+        let showRequirementHtml = false;
+        if (maxBattles.requirement.type === 'TechnologyRequirement') {
+            showRequirementHtml = maxBattles.requirement.baseData.technology.requirementsMet();
+        } else {
+            showRequirementHtml = maxBattles.requirement.isVisible();
+        }
+
+        if (showRequirementHtml) {
+            return {
+                toHtml: () => {
+                    // Find the open battle by looking up the one value in the visible factions
+                    return `${Object.values(visibleFactions)[0].title} defeated or buy ` +
+                        maxBattles.requirement.toHtml();
+                },
+                isVisible: () => true,
+            };
+        } else {
+            return {
+                toHtml: () => {
+                    // Find the open battle by looking up the one value in the visible factions
+                    return `${Object.values(visibleFactions)[0].title} defeated`;
+                },
+                isVisible: () => true,
+            };
+        }
     }
 
     // There is more than 1 battle open but there could be more battles visible
     return {
         toHtml: () => {
-            return 'Win any open battle or ' + maxBattles.requirement.toHtml();
+            return 'Win any open battle or buy ' + maxBattles.requirement.toHtml();
         },
         isVisible: () => true,
     };

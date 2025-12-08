@@ -699,6 +699,13 @@ class Sector extends Entity {
             pointOfInterest.registerSector(this);
         }
     }
+
+    /**
+     * Displayed in the technologies tab
+     */
+    getEffectDescription() {
+        return this.description || '-';
+    }
 }
 
 
@@ -1545,6 +1552,11 @@ class PointOfInterestVisitedRequirement extends Requirement {
         return `PointOfInterestVisited_${this.scope}_${this.baseData.pointOfInterest.name}`;
     }
 
+    isVisible() {
+        return technologies.locationTabButton.isUnlocked
+            && super.isVisible();
+    }
+
     /**
      * @param {{pointOfInterest: PointOfInterest}} baseData
      * @return {boolean}
@@ -1637,6 +1649,13 @@ class TechnologyRequirement extends Requirement {
                 return Requirement.hasRequirementsFulfilled(unlock.component.module);
             case 'PointOfInterest':
                 return Requirement.hasRequirementsFulfilled(unlock.sector);
+            case 'BattleSlot':
+                // Only show battle slots if their technology requirements are already
+                // fulfilled to simulate a tiered technology
+                // TODO this might be a general rule in the future, or at least some re-usable flag
+                return this.baseData.technology.requirements
+                    .filter((requirement) => requirement.type === 'TechnologyRequirement')
+                    .every((requirement) => requirement.isCompleted());
         }
 
         return true;
@@ -1646,6 +1665,7 @@ class TechnologyRequirement extends Requirement {
         // Show technology requirements when player has research unlocked
         return htmlElementRequirements.galacticSecretsTabButton.isCompleted()
             && this.unlockRequirementsVisible()
+            && this.baseData.technology.requirements.every(requirement => requirement.isVisible())
             && super.isVisible();
     }
 
