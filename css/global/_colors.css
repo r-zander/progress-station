@@ -107,6 +107,11 @@
     color: var(--attr-essence-of-unknown-color);
 }
 
+.text-bg-essence-of-unknown {
+    color: var(--ps-light);
+    background-color: var(--attr-essence-of-unknown-color);
+}
+
 .text-grid-load {
     color: var(--attr-grid-load-color);
 }
