@@ -25,6 +25,7 @@ technologies.MicroCyborgAutomat = new Technology({
     // No requirements - player just need to collect enough Data
     requirements: [],
 });
+sharedRequirements.MicroCyborgAutomat = technologies.MicroCyborgAutomat.technologyRequirement;
 
 technologies.KungFuManual = new Technology({
     unlocks: moduleOperations.KungFuManual,
@@ -46,6 +47,17 @@ technologies.battleTabButton = new Technology({
     requirements: [sharedRequirements.CoreBladeLvl10],
 });
 sharedRequirements.battleTabButton = new TechnologyRequirement({technology: technologies.battleTabButton});
+
+technologies.locationTabButton = new Technology({
+    unlocks: {
+        type: 'HtmlElement',
+        title: 'Location Tab',
+        name: 'locationTabButton',
+        getEffectDescription: () => 'Visit places of interest to modify the stations effect specialization.'
+    },
+    baseCost: 3,
+    requirements: [sharedRequirements.NovaFliesLvl20],
+});
 
 technologies.BattleCoordinationI = new Technology({
     unlocks: {
@@ -120,17 +132,6 @@ technologies.BattleCoordinationV = new Technology({
     requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationIV})],
 });
 sharedRequirements.BattleCoordinationV = new TechnologyRequirement({technology: technologies.BattleCoordinationV});
-
-technologies.locationTabButton = new Technology({
-    unlocks: {
-        type: 'HtmlElement',
-        title: 'Location Tab',
-        name: 'locationTabButton',
-        getEffectDescription: () => 'Visit places of interest to modify the stations effect specialization.'
-    },
-    baseCost: 3,
-    requirements: [sharedRequirements.NovaFliesLvl20],
-});
 
 technologies.MiningBay = new Technology({
     unlocks: modules.MiningBay,

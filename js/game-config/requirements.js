@@ -157,6 +157,13 @@ const htmlElementRequirements = {
             requirements: [sharedRequirements.PocketLaboratoryLvl1],
             elementsToShowRequirements: [Dom.get().byId('galacticSecretsTabButtonRequirements')],
         }),
+    unlockedTechnologies: new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [
+                Dom.lazy().byId('unlockedTechnologies'),
+            ],
+            requirements: [sharedRequirements.MicroCyborgAutomat],
+        }),
     growthDisplay: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [
@@ -212,7 +219,6 @@ const htmlElementRequirements = {
             ],
             requirements: [sharedRequirements.BattleCoordinationI],
         }),
-    // TODO figure out essence of unknown integration with Technology
     essenceOfUnknownLabel: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().bySelector('#galacticSecretsTabButton > .primary-stat[data-attribute="essenceOfUnknown"]')],

@@ -884,6 +884,12 @@ class Technology extends Entity {
     lastUpdate = performance.now();
 
     /**
+     * @readonly
+     * @var {string}
+     */
+    unlockedDomId;
+
+    /**
      * @param {{
      *     unlocks: Entity,
      *     baseCost: number,
@@ -901,8 +907,6 @@ class Technology extends Entity {
          */
         // TODO refactor: this should be passed into the TechnologyRequirement?
         this.requirements = baseData.requirements || [];
-        this.type = baseData.unlocks.type || baseData.unlocks.constructor.name;
-
 
         // Register a TechnologyRequirement on the entity being unlocked
         // (Only if the entity has a registerRequirement method - HTML elements don't)
@@ -934,9 +938,15 @@ class Technology extends Entity {
         return unlock.description || '';
     }
 
-    // TODO makes sense? seems weird with the static generators above
+    // Necessary as we are overriding the setter as well
     get name(){
-        return this.unlocks.name;
+        return super.name;
+    }
+
+    set name(name){
+        super.name = name;
+
+        this.unlockedDomId = 'row_unlocked_' + this.type + '_' + name;
     }
 
     /**
@@ -1027,53 +1037,19 @@ class Technology extends Entity {
         }
     }
 
-    // /**
-    //  * Purchase this technology
-    //  * @return {boolean} true if purchase was successful
-    //  */
-    // purchase() {
-    //     if (!this.canPurchase()) {
-    //         return false;
-    //     }
-    //
-    //     gameData.data -= this.getCost();
-    //     this.isUnlocked = true;
-    //
-    //     return true;
-    // }
-
-    getFormattedType(){
-        switch (this.type) {
-            case 'HtmlElement':
-                return 'Control';
-            default:
-                return _.startCase(this.type);
-        }
-    }
-
     /**
-     * Get the parent entity name (e.g., module category for modules, module for operations, sector for POIs)
-     * @return {string}
+     * Get the parent entity name if it should be displayed along-side the unlock name itself
+     * @return {string|null}
      */
-    getParent() {
+    getDisplayedParent() {
         const unlocks = this.unlocks;
 
-        if (unlocks.hasOwnProperty('moduleCategory')) {
-            // This is a Module
-            return '';
-        } else if (unlocks.hasOwnProperty('component')) {
+        if (unlocks.hasOwnProperty('component')) {
             // This is a ModuleOperation
             return unlocks.component.title;
-        } else if (unlocks.hasOwnProperty('sector')) {
-            // This is a PointOfInterest
-            return '';
-        } else if (unlocks.type === 'Sector') {
-            // This is a Sector
-            return '';
-        } else {
-            // HTML element or other
-            return '';
         }
+
+        return null;
     }
 
     /**
@@ -1099,23 +1075,6 @@ class Technology extends Entity {
             // HTML element or other
             return 'Station Features';
         }
-    }
-
-    /**
-     * Get the state of this technology
-     * @return {string} "Unlocked" | "Affordable" | "Missing requirement" | "Locked"
-     */
-    getState() {
-        if (this.isUnlocked) {
-            return 'Unlocked';
-        }
-        if (!this.requirementsMet()) {
-            return 'Missing requirement';
-        }
-        if (this.canAfford()) {
-            return 'Affordable';
-        }
-        return 'Too expensive';
     }
 }
 

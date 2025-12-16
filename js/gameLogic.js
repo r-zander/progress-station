@@ -249,7 +249,7 @@ function doTasks() {
                 battle.stop();
                 // TODO VFX should not be called, but triggered via Event
                 if (isBoolean(gameData.settings.vfx.flashOnLevelUp) && gameData.settings.vfx.flashOnLevelUp) {
-                    VFX.flash(Dom.get().bySelector('#row_done_' + battle.name + ' .progressBar'));
+                    VFX.flash(Dom.get().bySelector(battle.doneDomId + ' .progressBar'));
                 }
             }
 

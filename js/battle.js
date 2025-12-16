@@ -112,6 +112,12 @@ function showDangerModal(onConfirm, onCancel) {
 
 class Battle extends LayeredTask {
     /**
+     * @readonly
+     * @var {string}
+     */
+    doneDomId;
+
+    /**
      *
      * @param {{
      *     title: string,
@@ -146,6 +152,17 @@ class Battle extends LayeredTask {
             attributes.military.getValue,
             this.getFlooredPopulationProgressSpeedMultiplier.bind(this),
         ];
+    }
+
+    // Necessary as we are overriding the setter as well
+    get name(){
+        return super.name;
+    }
+
+    set name(name){
+        super.name = name;
+
+        this.doneDomId = 'row_done_' + this.type + '_' + name;
     }
 
     /**

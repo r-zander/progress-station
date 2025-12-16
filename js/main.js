@@ -612,7 +612,6 @@ function createSectorsUI(categoryDefinition, domId) {
 }
 
 /**
- *
  * @param {DomGetter} domGetter
  * @param {Battle} battle
  */
@@ -628,7 +627,6 @@ function initializeBattleElement(domGetter, battle) {
 }
 
 /**
- *
  * @param {Battle[]} battles
  * @return {HTMLElement[]}
  */
@@ -666,11 +664,13 @@ function createLevel4BattleElements(battles) {
     return level4Elements;
 }
 
+/**
+ * @return {HTMLElement}
+ */
 function createUnfinishedBattlesUI() {
     const level3Element = Dom.new.fromTemplate('level3BattleTemplate');
 
     level3Element.id = 'unfinishedBattles';
-    level3Element.classList.remove('ps-3');
 
     const domGetter = Dom.get(level3Element);
     domGetter.byClass('name').textContent = 'Open';
@@ -691,7 +691,7 @@ function createLevel4FinishedBattleElements(battles) {
     const level4Elements = [];
     for (const battle of battles) {
         const level4Element = Dom.new.fromTemplate('level4BattleTemplate');
-        level4Element.id = 'row_done_' + battle.name;
+        level4Element.id = battle.doneDomId;
         level4Element.classList.add('hidden');
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
@@ -722,7 +722,6 @@ function createFinishedBattlesUI() {
     const level3Element = Dom.new.fromTemplate('level3BattleTemplate');
 
     level3Element.id = 'finishedBattles';
-    level3Element.classList.remove('ps-3');
 
     const domGetter = Dom.get(level3Element);
     domGetter.byClass('header-row').classList.replace('text-bg-light', 'text-bg-dark');
@@ -789,6 +788,7 @@ function createGalacticSecretsUI() {
         level4Elements.push(level4Element);
     }
 
+    // TODO optimize
     window.addEventListener('pointerup', () => {
         for (const key in galacticSecrets) {
             const galacticSecret = galacticSecrets[key];
@@ -804,96 +804,119 @@ function createGalacticSecretsUI() {
     level4Slot.append(...level4Elements);
 }
 
-function createTechnologiesUI() {
-    const tbody = Dom.get().byId('technologiesTableBody');
+/**
+ *
+ * @return {HTMLElement[]}
+ */
+function createLevel4TechnologyElements(displayLocked) {
+    const level4Elements = [];
 
     for (const key in technologies) {
         const technology = technologies[key];
-        const row = document.createElement('tr');
-        row.id = `technology_${key}`;
+        const row = Dom.new.fromTemplate('level4TechnologyTemplate');
+        if (displayLocked) {
+            row.id = technology.domId;
+        } else {
+            row.id = technology.unlockedDomId;
+            row.classList.add('hidden');
+        }
         row.classList.add('technology-row');
 
+        const domGetter = Dom.get(row);
+
         // Technology Name
-        const parent = technology.getParent();
-        const nameCell = document.createElement('td');
-        nameCell.innerHTML =
-            `<div class="technology progress progressBar descriptionTooltip clickable" role="progressbar" aria-label="Technology"
-                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="${technology.title}"
-                 data-bs-placement="right">
-                <div class="moduleOperation progressFill progress-bar progress-bar-striped" style="width: 0%"></div>
-                <div class="progress-text d-flex px-2">
-                    <span class="unlocked-icon me-1">🗹</span>`
-            + (parent === '' ? '' :
-                   `<span class="parent text-truncate">${parent}</span>
-                    <span class="me-1">:</span>`
-            )
-            +      `<span class="name text-truncate">${technology.title}</span>
-                </div>
-            </div>
-            <div class="requirements-container">
-                <div class="requirements help-text"></div>
-            </div>`;
-        nameCell.classList.add('technology-name');
-        row.appendChild(nameCell);
+        domGetter.bySelector('.technology-name > .technology').title = technology.title;
+        const parent = technology.getDisplayedParent();
+        if (parent === null) {
+            domGetter.bySelector('.technology-name .parent').remove();
+            domGetter.bySelector('.technology-name .separator').remove();
+        } else {
+            domGetter.bySelector('.technology-name .parent').textContent = parent;
+        }
+        domGetter.bySelector('.technology-name .name').textContent = technology.title;
 
-        row.querySelector('.progressBar').addEventListener('pointerdown', (event) => {
-            if (technology.isUnlocked) return;
+        if (displayLocked) {
+            domGetter.byClass('progressBar').addEventListener('pointerdown', (event) => {
+                if (technology.isUnlocked) return;
 
-            const technologyCost = technology.getCost();
-            if (technologyCost > attributes.data.getValue()) {
-                // TODO
-                // visuallyDenyGalacticSecretUnlock(galacticSecret);
-                return;
-            }
+                const technologyCost = technology.getCost();
+                if (technologyCost > attributes.data.getValue()) {
+                    // TODO
+                    // visuallyDenyGalacticSecretUnlock(galacticSecret);
+                    return;
+                }
 
-            const tooltip = bootstrap.Tooltip.getInstance(event.currentTarget);
-            if (tooltip !== null) {
-                tooltip.hide();
-                tooltip.disable();
-            }
-            technology.inProgress = true;
-        });
+                const tooltip = bootstrap.Tooltip.getInstance(event.currentTarget);
+                if (tooltip !== null) {
+                    tooltip.hide();
+                    tooltip.disable();
+                }
+                technology.inProgress = true;
+            });
+        } else {
+            const progressElement = domGetter.byClass('progress');
+            const progressBarElement = domGetter.byClass('progressBar');
+            const progressFillElement = domGetter.byClass('progressFill');
+            const requirementsElement = domGetter.byClass('requirements');
+            const costCell = domGetter.byClass('cost');
 
-        // State
-        const stateCell = document.createElement('td');
-        stateCell.classList.add('state', 'hidden');
-        const stateBadge = document.createElement('span');
-        stateBadge.classList.add('badge', 'state-badge');
-        stateCell.appendChild(stateBadge);
-        row.appendChild(stateCell);
+            progressElement.classList.remove('hidden');
+            requirementsElement.remove();
+            progressFillElement.classList.add('unlocked');
+            progressBarElement.classList.add('unlocked');
+            progressBarElement.classList.remove('clickable');
+            costCell.classList.remove('affordable', 'too-expensive');
+            costCell.classList.add('unlocked');
 
-        // Type
-        const typeCell = document.createElement('td');
-        typeCell.textContent = technology.getFormattedType();
-        typeCell.classList.add('type', 'hidden');
-        row.appendChild(typeCell);
+            progressFillElement.style.removeProperty('width');
+        }
 
-        // Belongs to
-        const belongsToCell = document.createElement('td');
-        belongsToCell.textContent = technology.getBelongsTo();
-        belongsToCell.classList.add('belongs-to');
-        row.appendChild(belongsToCell);
+        domGetter.byClass('belongs-to').textContent = technology.getBelongsTo();
 
         // Effect
-        const effectCell = document.createElement('td');
-        effectCell.classList.add('effect');
         if (isFunction(technology.unlocks['getEffectDescription'])) {
-            effectCell.innerHTML = technology.unlocks.getEffectDescription(1);
+            domGetter.byClass('effect').innerHTML = technology.unlocks.getEffectDescription(1);
         } else {
-            effectCell.textContent = '-';
+            domGetter.byClass('effect').textContent = '-';
         }
-        row.appendChild(effectCell);
 
-        // Cost
-        const costCell = document.createElement('td');
-        costCell.classList.add('cost');
-        // TODO attribute icon
-        costCell.innerHTML = `<data class="value" value="${technology.getCost()}" = data-unit="Data">${technology.getCost()}</data>`;
-        row.appendChild(costCell);
+        formatValue(
+            domGetter.bySelector('.cost > .value'),
+            technology.getCost(),
+            {
+                forceInteger: true,
+                keepNumber: true,
+                unit: 'Data',
+            });
 
-        tbody.appendChild(row);
+        if (displayLocked) {
+            level4Elements.push(row);
+        } else {
+            // unshift --> unlocked technologies in reverse order
+            level4Elements.unshift(row);
+        }
     }
 
+
+    return level4Elements;
+}
+
+/**
+ * @return {HTMLElement}
+ */
+function createLockedTechnologiesUI() {
+    const level3Element = Dom.new.fromTemplate('level3TechnologiesTemplate');
+
+    level3Element.id = 'lockedTechnologies';
+
+    const domGetter = Dom.get(level3Element);
+    domGetter.byClass('technology-name').textContent = 'Technologies';
+
+    /** @type {HTMLElement} */
+    const level4Slot = domGetter.byClass('level4');
+    level4Slot.append(...createLevel4TechnologyElements(true));
+
+    // TODO optimize
     window.addEventListener('pointerup', () => {
         for (const key in technologies) {
             const technology = technologies[key];
@@ -904,6 +927,31 @@ function createTechnologiesUI() {
             }
         }
     });
+
+    return level3Element;
+}
+
+/**
+ * @return {HTMLElement}
+ */
+function createUnlockedTechnologiesUI() {
+    const level3Element = Dom.new.fromTemplate('level3TechnologiesTemplate');
+
+    const domGetter = Dom.get(level3Element);
+    domGetter.byClass('header-row').classList.replace('text-bg-light', 'text-bg-dark');
+    domGetter.byClass('technology-name').textContent = 'Unlocked Technologies';
+    domGetter.byClass('cost').textContent = 'Paid cost';
+
+    /** @type {HTMLElement} */
+    const level4Slot = domGetter.byClass('level4');
+    level4Slot.append(...createLevel4TechnologyElements(false));
+
+    return level3Element;
+}
+
+function createTechnologiesUI() {
+    Dom.get().byId('lockedTechnologiesSlot').replaceWith(createLockedTechnologiesUI());
+    Dom.get().byId('unlockedTechnologiesSlot').replaceWith(createUnlockedTechnologiesUI());
 }
 
 function createModulesQuickDisplay() {
@@ -1787,7 +1835,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
             return {
                 toHtml: () => {
                     // Find the open battle by looking up the one value in the visible factions
-                    return `${Object.values(visibleFactions)[0].title} defeated or buy ` +
+                    return `${Object.values(visibleFactions)[0].title} defeated or unlock ` +
                         maxBattles.requirement.toHtml();
                 },
                 isVisible: () => true,
@@ -1806,7 +1854,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
     // There is more than 1 battle open but there could be more battles visible
     return {
         toHtml: () => {
-            return 'Win any open battle or buy ' + maxBattles.requirement.toHtml();
+            return 'Win any open battle or unlock ' + maxBattles.requirement.toHtml();
         },
         isVisible: () => true,
     };
@@ -1840,11 +1888,11 @@ function updateBattleRows() {
 
         if (battle.isDone()) {
             row.classList.add('hidden');
-            Dom.get().byId('row_done_' + battle.name).classList.remove('hidden');
+            Dom.get().byId(battle.doneDomId).classList.remove('hidden');
             continue;
         }
 
-        Dom.get().byId('row_done_' + battle.name).classList.add('hidden');
+        Dom.get().byId(battle.doneDomId).classList.add('hidden');
 
         const unfulfilledRequirement = getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattles, maxBattles);
 
@@ -2041,18 +2089,22 @@ const technologiesRequirementHtmlCache = {};
 function updateTechnologiesUI() {
     for (const key in technologies) {
         const technology = technologies[key];
-        const row = Dom.get().byId(`technology_${key}`);
+        const row = Dom.get().byId(technology.domId);
 
-        row.classList.toggle('hidden', !technology.isVisible());
+        if (technology.isUnlocked) {
+            row.classList.add('hidden');
+            Dom.get().byId(technology.unlockedDomId).classList.remove('hidden');
+            continue;
+        }
+
+        if (!technology.isVisible()) {
+            row.classList.add('hidden');
+            continue;
+        }
+
+        row.classList.remove('hidden');
 
         const domGetter = Dom.get(row);
-        const nameCell = domGetter.byClass('technology-name');
-        const stateBadge = domGetter.byClass('state-badge');
-
-        // Update state
-        const state = technology.getState();
-        stateBadge.textContent = state;
-        stateBadge.classList.remove('bg-success', 'bg-warning', 'bg-danger', 'bg-secondary');
 
         const progressElement = domGetter.byClass('progress');
         const progressBarElement = domGetter.byClass('progressBar');
@@ -2060,61 +2112,40 @@ function updateTechnologiesUI() {
         const requirementsElement = domGetter.byClass('requirements');
         const costCell = domGetter.byClass('cost');
 
-        switch (state) {
-            case 'Unlocked':
-                progressElement.classList.remove('hidden');
-                requirementsElement.classList.add('hidden');
-                progressFillElement.classList.add('unlocked');
-                progressBarElement.classList.add('unlocked');
-                progressBarElement.classList.remove('clickable');
-                costCell.classList.remove('affordable', 'too-expensive');
-                costCell.classList.add('unlocked');
-
-                progressFillElement.style.removeProperty('width');
-
-                stateBadge.classList.add('bg-secondary');
-                break;
-            case 'Affordable':
-                progressElement.classList.remove('hidden');
-                requirementsElement.classList.add('hidden');
-                progressFillElement.classList.toggle('unlocked', technology.inProgress);
-                progressBarElement.classList.remove('unlocked');
-                progressBarElement.classList.add('clickable');
-                setProgress(progressFillElement, technology.unlockProgress);
-                costCell.classList.add('affordable');
-                costCell.classList.remove('too-expensive', 'unlocked');
-
-                stateBadge.classList.add('bg-success');
-                break;
-            case 'Too expensive':
-                progressElement.classList.remove('hidden');
-                requirementsElement.classList.add('hidden');
-                progressFillElement.classList.remove('unlocked');
-                progressBarElement.classList.remove('unlocked');
-                progressBarElement.classList.remove('clickable');
-                costCell.classList.remove('affordable', 'unlocked');
-                costCell.classList.add('too-expensive');
-
-                stateBadge.classList.add('bg-warning');
-                break;
-            case 'Missing requirement':
-                progressElement.classList.add('hidden');
-                requirementsElement.classList.remove('hidden');
-                progressFillElement.classList.remove('unlocked');
-                progressBarElement.classList.remove('unlocked');
-                progressBarElement.classList.remove('clickable');
-                const html = technology.getUnfulfilledRequirements()
-                    .map(requirement => requirement.toHtml())
-                    .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
-                    .join(', ');
-                if (html !== technologiesRequirementHtmlCache[key]) {
-                    requirementsElement.innerHTML = html;
-                    technologiesRequirementHtmlCache[key] = html;
-                }
-                costCell.classList.remove('affordable', 'too-expensive', 'unlocked');
-
-                stateBadge.classList.add('bg-danger');
-                break;
+        if (!technology.requirementsMet()) {
+            // Missing requirements
+            progressElement.classList.add('hidden');
+            requirementsElement.classList.remove('hidden');
+            progressFillElement.classList.remove('unlocked');
+            progressBarElement.classList.remove('unlocked');
+            progressBarElement.classList.remove('clickable');
+            const html = technology.getUnfulfilledRequirements()
+                .map(requirement => requirement.toHtml())
+                .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
+                .join(', ');
+            if (html !== technologiesRequirementHtmlCache[key]) {
+                requirementsElement.innerHTML = html;
+                technologiesRequirementHtmlCache[key] = html;
+            }
+            costCell.classList.remove('affordable', 'too-expensive', 'unlocked');
+        } else if (technology.canAfford()) {
+            progressElement.classList.remove('hidden');
+            requirementsElement.classList.add('hidden');
+            progressFillElement.classList.toggle('unlocked', technology.inProgress);
+            progressBarElement.classList.remove('unlocked');
+            progressBarElement.classList.add('clickable');
+            setProgress(progressFillElement, technology.unlockProgress);
+            costCell.classList.add('affordable');
+            costCell.classList.remove('too-expensive', 'unlocked');
+        } else {
+            // Too expensive
+            progressElement.classList.remove('hidden');
+            requirementsElement.classList.add('hidden');
+            progressFillElement.classList.remove('unlocked');
+            progressBarElement.classList.remove('unlocked');
+            progressBarElement.classList.remove('clickable');
+            costCell.classList.remove('affordable', 'unlocked');
+            costCell.classList.add('too-expensive');
         }
 
         formatValue(domGetter.bySelector('.cost > data'), technology.getCost(), {forceInteger: true, unit: 'Data'});
@@ -2841,6 +2872,7 @@ function initConfigNames() {
     assignNames(battles);
     assignNames(pointsOfInterest);
     assignNames(sectors);
+    assignNames(technologies);
     assignNames(galacticSecrets);
 }
 

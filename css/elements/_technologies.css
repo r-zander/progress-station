@@ -44,6 +44,14 @@
     }
 
     .technology.progress.unlocked {
+        > .progress-bar-striped {
+            animation: none !important;
+        }
+
+        .unlocked-icon {
+            display: block;
+        }
+
         > .progress-bar.unlocked {
             width: 100%;
         }
