@@ -881,13 +881,13 @@ function createLevel4TechnologyElements(displayLocked) {
         }
 
         formatValue(
-            domGetter.bySelector('.cost > .value'),
+            domGetter.bySelector('.cost .value'),
             technology.getCost(),
             {
                 forceInteger: true,
                 keepNumber: true,
-                unit: 'Data',
             });
+        domGetter.bySelector('.cost .data-attribute').replaceWith(Dom.new.fromHtml(attributes.data.inlineHtmlWithIcon));
 
         if (displayLocked) {
             level4Elements.push(row);
@@ -2128,6 +2128,7 @@ function updateTechnologiesUI() {
                 technologiesRequirementHtmlCache[key] = html;
             }
             costCell.classList.remove('affordable', 'too-expensive', 'unlocked');
+            costCell.classList.add('missing-requirement');
         } else if (technology.canAfford()) {
             progressElement.classList.remove('hidden');
             requirementsElement.classList.add('hidden');
@@ -2136,7 +2137,7 @@ function updateTechnologiesUI() {
             progressBarElement.classList.add('clickable');
             setProgress(progressFillElement, technology.unlockProgress);
             costCell.classList.add('affordable');
-            costCell.classList.remove('too-expensive', 'unlocked');
+            costCell.classList.remove('too-expensive', 'unlocked', 'missing-requirement');
         } else {
             // Too expensive
             progressElement.classList.remove('hidden');
@@ -2144,11 +2145,9 @@ function updateTechnologiesUI() {
             progressFillElement.classList.remove('unlocked');
             progressBarElement.classList.remove('unlocked');
             progressBarElement.classList.remove('clickable');
-            costCell.classList.remove('affordable', 'unlocked');
+            costCell.classList.remove('affordable', 'unlocked', 'missing-requirement');
             costCell.classList.add('too-expensive');
         }
-
-        formatValue(domGetter.bySelector('.cost > data'), technology.getCost(), {forceInteger: true, unit: 'Data'});
     }
 }
 

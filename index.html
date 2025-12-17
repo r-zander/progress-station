@@ -247,7 +247,7 @@
                         <data id="dataDisplay" value="0">0</data>
                     </div>
                     <!--suppress HtmlUnknownTag -->
-                    <div class="primary-stat d-flex justify-content-center mt-2 d-none d-lg-block" data-attribute="essenceOfUnknown"
+                    <div class="primary-stat d-flex justify-content-center mt-1 d-none d-lg-block" data-attribute="essenceOfUnknown"
                          data-bs-placement="right" data-bs-html="true">
                         <img src="" class="icon me-1" alt=""/>
                         <span class="label" style=""></span>
@@ -364,8 +364,8 @@
                             </th>
                             <th class="level numeric">Level</th>
                             <th class="effect">Effect</th>
-                            <th class="xpGain numeric">Xp/Cycle</th>
-                            <th class="xpLeft numeric">Xp left</th>
+                            <th class="xpGain numeric">XP/Cycle</th>
+                            <th class="xpLeft numeric">XP left</th>
                             <th class="gridLoad numeric">Grid Load</th>
                         </tr>
                         </thead>
@@ -528,7 +528,7 @@
                             <th class="technology-name">Technology</th>
                             <th class="belongs-to">Belongs to</th>
                             <th class="effect">Effect</th>
-                            <th class="cost">Cost</th>
+                            <th class="cost numeric">Cost</th>
                         </tr>
                         </thead>
                         <tbody class="level4">
@@ -558,9 +558,11 @@
                     </td>
                     <td class="belongs-to"></td>
                     <td class="effect"></td>
-                    <td class="cost">
-                        <!-- TODO attribute icon -->
-                        <data class="value" value="0" data-unit="Data">technology.cost</data>
+                    <td class="cost numeric">
+                        <div class="">
+                            <data class="value" value="0">technology.cost</data>
+                            <slot class="data-attribute"></slot>
+                        </div>
                     </td>
                 </tr>
             </template>
@@ -698,9 +700,7 @@
                     <div class="d-flex flex-row">
                         <div class="d-flex flex-column">
                             <p class="d-flex align-items-center px-1 px-lg-2" style="background-color: var(--ps-passive); height: 30px;">
-                                <!-- TODO replace energy icon -->
-                                <img src="img/icons/energy.svg" class="icon" alt="Energy Icon" style="background: black;">
-                                <span class="flex-fill ms-1">Analysis Core</span>
+                                <span class="flex-fill">Analysis Core</span>
                             </p>
                         </div>
 
@@ -709,11 +709,12 @@
                                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                                 <div class="analysis-core-bar progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
                                 <div class="progress-text xp px-2">
-                                    <data value="0" data-unit="XP">+0</data><span>/cycle</span>
+                                    <data value="0">+0</data>
+                                    <span>XP/cycle</span>
                                 </div>
                                 <div class="progress-text xpLeft px-2 end-0">
-                                    <data value="0" data-unit="XP">+0</data>
-                                    <span>left</span>
+                                    <data value="0">+0</data>
+                                    <span>XP left</span>
                                 </div>
                             </div>
 
@@ -765,10 +766,18 @@
 
                     <div class="d-flex flex-row justify-content-between">
                         <div>
-                            Data available: <data id="currentDataDisplay" value="0">0</data>
+                            <span class="primary-stat" data-attribute="data" data-attribute-tooltip="false">
+                                <img src="" class="icon" alt="" />
+                                <span class="label"></span>
+                            </span> available: <data id="currentDataDisplay" value="0">0</data>
                         </div>
-                        <div>
-                            Generated Data: <data class="level" value="0">0</data>
+                        <div title="Each generated <b class=&quot;attribute text-data&quot;>Data</b> increases the amount of <b>XP required</b> to get the next <b class=&quot;attribute text-data&quot;>Data</b>."
+                             data-bs-html="true">
+                            Generated
+                            <span class="primary-stat" data-attribute="data" data-attribute-tooltip="false">
+                                <img src="" class="icon" alt="" />
+                                <span class="label"></span>
+                            </span>: <data class="level" value="0">0</data>
                         </div>
                     </div>
                 </div>

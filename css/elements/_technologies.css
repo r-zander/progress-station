@@ -14,11 +14,6 @@
             height: 100%;
         }
     }
-
-    .icon {
-        height: 18px;
-        filter: brightness(0);
-    }
 }
 
 .analysis-core-bar.current {
@@ -27,18 +22,6 @@
 
 /* Technologies Table Styling */
 .technology-row {
-    transition: background-color 0.2s ease;
-
-    .state-badge {
-        font-size: 12px;
-        padding: 4px 8px;
-    }
-
-/*    td {
-        vertical-align: middle;
-        padding: 8px;
-    }*/
-
     .technology.progress > .progress-bar.unlocked {
         --progress-bar-color: var(--technology-color);
     }
@@ -58,17 +41,16 @@
     }
 
     .cost {
-        &.too-expensive {
-            color: var(--warning-color);
+        &.missing-requirement {
+            color: var(--ps-passive);
 
-            > data,
-            > data::after {
-                font-weight: bold;
+            .inline-attribute {
+                filter: grayscale(1) brightness(1.4);
             }
         }
 
-        &.affordable {
-            color: var(--ps-green3);
+        &.too-expensive {
+            color: var(--warning-color);
 
             > data,
             > data::after {

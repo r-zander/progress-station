@@ -21,7 +21,8 @@ const metricPrefixes = [
 ];
 const units = {
     energy: 'W',
-    storedEnergy: 'Wh'
+    storedEnergy: 'Wh',
+    experience: 'XP'
 };
 
 /**
