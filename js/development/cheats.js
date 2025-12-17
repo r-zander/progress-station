@@ -351,10 +351,12 @@ const cheats = {
         set: (age) => {
             gameData.cycles = age;
             gameData.totalCycles = age;
+            cheats.UI.refresh();
         },
         add: (age) => {
             gameData.cycles += age;
             gameData.totalCycles += age;
+            cheats.UI.refresh();
         },
         setToBossTime: (forceBossAppearance = false) => {
             if (forceBossAppearance) {
@@ -362,10 +364,34 @@ const cheats = {
             } else {
                 cheats.Age.set(getBossAppearanceCycle() - 1);
             }
+            cheats.UI.refresh();
         },
     },
     Battles: {},
-    Requirements: {},
+    Requirements: {
+        unlockAll: () => {
+            cheats.AudioEngine.disableSounds();
+
+            let count = 0;
+            Object.values(requirementRegistry).forEach(requirement => {
+                if (requirement.completed) return;
+
+                requirement.completed = true;
+                count++;
+            });
+            Object.values(technologies).forEach(/** @type {Technology} */ technology => {
+                technology.isUnlocked = true;
+            });
+            Object.values(galacticSecrets).forEach(galacticSecret => {
+                galacticSecret.isUnlocked = true;
+            });
+
+            cheats.AudioEngine.disableSounds();
+            cheats.UI.refresh();
+
+            console.log(`Unlocked ${count} requirements (technologies, galactic secrets, and all other requirements)`);
+        },
+    },
     NameGenerator: {
         generate: (amount = 1) => {
             for (let i = 0; i < amount; i++) {
@@ -388,6 +414,7 @@ const cheats = {
                 {effectType: EffectType.Growth, baseValue: value},
                 {effectType: EffectType.Military, baseValue: value},
             ];
+            cheats.UI.refresh();
         },
         increaseAllBy200: () => {
             cheats.Attributes.increaseAllBy(200);
@@ -401,6 +428,7 @@ const cheats = {
         essenceOfUnknown: {
             add: (amount) => {
                 gameData.essenceOfUnknown += amount;
+                cheats.UI.refresh();
             },
         },
         show: () => {
@@ -421,7 +449,19 @@ const cheats = {
         getStatistics: () => {
             return AudioEngineDebug.getStatistics();
         },
+        disableSounds: () => {
+            AudioEngine.setSoundVolume(0);
+        },
+        restoreSounds: () => {
+            AudioEngine.setSoundVolume(gameData.settings.audio.soundVolume);
+        }
     },
+
+    UI: {
+        refresh: () => {
+            updateUI();
+        }
+    }
 };
 
 // Debugging output
