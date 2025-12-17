@@ -130,7 +130,7 @@ function populateLastRunStats() {
 
             if (isNewRecord) {
                 const arrow = document.createElement('img');
-                arrow.src = 'img/icons/arrow-up.svg';
+                arrow.src = 'img/icons/upgrade.svg';
                 arrow.alt = 'New record';
                 arrow.className = 'stat-arrow';
                 arrow.classList.add('hidden');
