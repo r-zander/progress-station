@@ -2499,6 +2499,12 @@ function progressTechnologies() {
                 previousLevel: 0,
                 nextLevel: 1,
             });
+            AudioEngine.postEvent(AudioEvents.TECHNOLOGY_UNLOCKED, technology);
+            const unlockedTechnologyRow = Dom.get().byId(technology.unlockedDomId);
+            // Move as first row. Yes, this won't be restored on reloading the page -
+            // but it helps to understand early the Open + Unlocked table
+            // Bug: https://trello.com/c/3GtiWSMF/422-unlocked-technologies-order-wont-restore-on-reloading-the-game
+            unlockedTechnologyRow.parentElement.prepend(unlockedTechnologyRow);
         }
         technology.unlockProgress = 0;
     }
