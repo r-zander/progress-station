@@ -159,13 +159,13 @@ moduleOperations.NanoHardener = new ModuleOperation({
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.03}],
 });
 moduleOperations.PulseShield = new ModuleOperation({
-    title: 'Pulse Shield', maxXp: 32_000, gridLoad: 3,
+    title: 'Pulse Shield', maxXp: 32_000, gridLoad: 4,
     description: 'A shimmering barrier that guards against incoming threats and sends projectiles back from where they came.',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.08}],
 });
 /** Galactic Secret */
 moduleOperations.BulletSponge = new ModuleOperation({
-    title: 'Bullet Sponge', maxXp: 80_000, gridLoad: 4,
+    title: 'Bullet Sponge', maxXp: 80_000, gridLoad: 10,
     description:'Alien tissue named appropriately for it\'s ability to absorb even the toughest hits',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.16}],
 });
