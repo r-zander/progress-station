@@ -1,0 +1,79 @@
+/* Loadout Icons Container */
+#loadoutIconsContainer {
+    gap: 0;
+}
+
+.loadout-row {
+    gap: 0;
+}
+
+/* Loadout Icon Button */
+.loadout-icon {
+    position: relative;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
+    padding: 2px;
+    margin: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.35;
+}
+
+/* Collapse adjacent borders */
+.loadout-icon + .loadout-icon {
+    margin-left: -1px;
+}
+
+.loadout-row + .loadout-row .loadout-icon {
+    margin-top: -1px;
+}
+
+/* Disable sci-fi button corner decorations */
+.loadout-icon::before,
+.loadout-icon::after {
+    display: none !important;
+}
+
+.loadout-icon:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    opacity: 0.6;
+}
+
+.loadout-icon.active {
+    background: rgba(var(--ps-cyan-rgb), 0.1);
+    border-color: rgba(var(--ps-cyan-rgb), 0.4);
+    opacity: 1;
+}
+
+.loadout-icon .icon {
+    position: relative;
+    display: block;
+    filter: brightness(0.8);
+    z-index: 1;
+}
+
+.loadout-icon:hover .icon,
+.loadout-icon.active .icon {
+    filter: brightness(1);
+}
+
+/* Alternate icons (color-rotated) */
+.loadout-icon-alt .icon {
+    filter: brightness(0.8) hue-rotate(180deg);
+}
+
+.loadout-icon-alt:hover .icon,
+.loadout-icon-alt.active .icon {
+    filter: brightness(1) hue-rotate(180deg);
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+    .loadout-icon .icon {
+        width: 16px !important;
+        height: 16px !important;
+    }
+}
+

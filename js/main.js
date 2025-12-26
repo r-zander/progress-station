@@ -2925,6 +2925,7 @@ function init() {
     createAttributesDisplay();
     createAttributesUI();
     createEnergyGridDisplay();
+    initLoadouts();
 
     initTabBehavior();
     initTooltips();
