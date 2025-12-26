@@ -1603,15 +1603,18 @@ class TechnologyRequirement extends Requirement {
         switch (unlock.type) {
             case 'ModuleOperation':
                 return Requirement.hasRequirementsFulfilled(unlock.component.module);
+            case 'Sector':
+                return technologies.locationTabButton.isUnlocked;
             case 'PointOfInterest':
-                return Requirement.hasRequirementsFulfilled(unlock.sector);
+                return technologies.locationTabButton.isUnlocked &&
+                    Requirement.hasRequirementsFulfilled(unlock.sector);
             case 'BattleSlot':
                 // Only show battle slots if their technology requirements are already
                 // fulfilled to simulate a tiered technology
                 // TODO this might be a general rule in the future, or at least some re-usable flag
                 return this.baseData.technology.requirements
                     .filter((requirement) => requirement.type === 'TechnologyRequirement')
-                    .every((requirement) => requirement.isCompleted());
+                    .every((requirement) => requirement.baseData.technology.requirementsMet());
         }
 
         return true;
@@ -1641,7 +1644,7 @@ class TechnologyRequirement extends Requirement {
      * @return {string}
      */
     toHtmlInternal(baseData) {
-        return `'<span class="name">${baseData.technology.title}</span>' Technology`;
+        return `unlock '<span class="name">${baseData.technology.title}</span>' Technology`;
     }
 }
 

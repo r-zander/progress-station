@@ -1158,7 +1158,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                     battle.getReward.bind(battle),
                     () => battle.rewards,
                     effectType,
-                    'Defeated ' + battle.title,
+                    'defeat ' + battle.title,
                     battle.isDone.bind(battle),
                 );
                 createAttributeBalanceEntryStaticDescription(
@@ -1798,7 +1798,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
     if (visibleFactions.hasOwnProperty(battle.faction.name)) {
         return {
             toHtml: () => {
-                return `${visibleFactions[battle.faction.name].title} defeated`;
+                return `defeat ${visibleFactions[battle.faction.name].title}`;
             },
             isVisible: () => true,
         };
@@ -1833,7 +1833,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
             return {
                 toHtml: () => {
                     // Find the open battle by looking up the one value in the visible factions
-                    return `${Object.values(visibleFactions)[0].title} defeated or unlock ` +
+                    return `defeat ${Object.values(visibleFactions)[0].title} or ` +
                         maxBattles.requirement.toHtml();
                 },
                 isVisible: () => true,
@@ -1842,7 +1842,7 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
             return {
                 toHtml: () => {
                     // Find the open battle by looking up the one value in the visible factions
-                    return `${Object.values(visibleFactions)[0].title} defeated`;
+                    return `defeat ${Object.values(visibleFactions)[0].title}`;
                 },
                 isVisible: () => true,
             };
