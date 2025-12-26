@@ -322,6 +322,7 @@ class DomGetter {
      * @returns {NodeListOf<HTMLElement>}
      */
     allBySelector(selector) {
+        // noinspection JSValidateTypes
         return this.#parent.querySelectorAll(selector);
     }
 }

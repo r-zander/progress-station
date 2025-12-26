@@ -47,7 +47,7 @@ class LayeredTask extends Task {
     }
 
     /**
-     * @return {number}
+     * @return {number|string}
      */
     getDisplayedLevel() {
         return this.targetLevel - this.level;
@@ -261,10 +261,11 @@ class Battle extends LayeredTask {
     }
 
     start() {
-        if (this.isDone()) {
-            // Can't activate completed battles
-            return;
-        }
+        // Can't activate completed battles
+        if (this.isDone()) return;
+
+        // Already active
+        if (this.isActive()) return;
 
         this.progressSpeedMultiplierFloor = getPopulationProgressSpeedMultiplier();
 
@@ -280,6 +281,8 @@ class Battle extends LayeredTask {
     }
 
     stop() {
+        if (!this.isActive()) return;
+
         this.progressSpeedMultiplierFloor = 0;
 
         gameData.activeEntities.battles.delete(this.name);
@@ -493,6 +496,15 @@ class BossBattle extends Battle {
         }
 
         return this.rewardsDescription;
+    }
+
+    getDisplayedLevel() {
+        // Boss is cheating a bit ;) it has 10 waves and a secret, last wave
+        const displayedLevel = super.getDisplayedLevel() - 1;
+        if (displayedLevel === 0){
+            return 'Final';
+        }
+        return displayedLevel;
     }
 
     isInDefenseMode() {

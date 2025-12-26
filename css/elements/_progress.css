@@ -151,42 +151,88 @@
     line-height: 30px;
 }
 
-[data-layer="0"] {
-    background-color: var(--ps-yellow);
+/* Define defaults */
+.progressFill[data-layer] {
+    --use-contrast: 1;
+    --contrast-border-width: 2px;
+    --contrast-color: var(--ps-light);
 }
 
-[data-layer="1"] {
-    background-color: var(--ps-purple2);
+.progress,
+.progressFill {
+    &[data-layer="0"] {
+        --use-contrast: 1;
+        --contrast-color: var(--ps-dark);
+        background-color: var(--background-fade-1-color);
+    }
+
+    &[data-layer="1"] {
+        --use-contrast: 1;
+        --contrast-color: var(--ps-dark);
+        background-color: var(--ps-green3);
+    }
+
+    &[data-layer="2"] {
+        --use-contrast: 0;
+        background-color: var(--ps-cyan);
+    }
+
+    &[data-layer="3"] {
+        --use-contrast: 0;
+        background-color: var(--ps-dark-blue);
+    }
+
+    &[data-layer="4"] {
+        --use-contrast: 0;
+        background-color: var(--ps-light-blue);
+    }
+
+    &[data-layer="5"] {
+        --use-contrast: 0;
+        background-color: var(--ps-purple1);
+    }
+
+    &[data-layer="6"] {
+        --use-contrast: 1;
+        --contrast-color: var(--ps-light);
+        background-color: var(--ps-pink2);
+    }
+
+    &[data-layer="7"] {
+        --use-contrast: 1;
+        --contrast-color: var(--ps-light);
+        background-color: var(--ps-red);
+    }
+
+    &[data-layer="8"] {
+        --use-contrast: 1;
+        --contrast-color: var(--ps-light);
+        background-color: var(--ps-orange);
+    }
+
+    &[data-layer="9"] {
+        --use-contrast: 0;
+        background-color: var(--ps-yellow);
+    }
+
+    &[data-layer="10"] {
+        --use-contrast: 0;
+        background-color: var(--ps-light);
+    }
+
+    &[data-layer="11"] {
+        --use-contrast: 1;
+        --contrast-color: var(--ps-light);
+        background-color: var(--ps-dark);
+    }
 }
 
-[data-layer="2"] {
-    background-color: var(--ps-orange);
-}
-
-[data-layer="3"] {
-    background-color: var(--ps-dark-blue);
-}
-
-[data-layer="4"] {
-    background-color: var(--ps-red);
-}
-
-[data-layer="5"] {
-    background-color: var(--ps-green3);
-}
-
-[data-layer="6"] {
-    background-color: var(--ps-pink1);
-}
-
-[data-layer="7"] {
-    background-color: var(--ps-cyan);
-}
-
-[data-layer="8"] {
-    background-color: var(--ps-light);
-}
-
-[data-layer="9"] {
-    background-color: var(--ps-dark);
+.progressFill.current {
+    &[data-layer] {
+        /* Contrast color needs to separate THIS layer from the NEXT layer */
+        border: calc(var(--use-contrast) * var(--contrast-border-width)) solid var(--contrast-color);
+        border-left: none;
+        height: calc(100% + 2 * var(--use-contrast) * var(--contrast-border-width));
+        margin-top: calc(-1 * var(--use-contrast) * var(--contrast-border-width));
+    }
 }

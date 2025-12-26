@@ -177,7 +177,7 @@ function increaseCycle() {
 function summonBoss(){
     gameData.bossBattleAvailable = true;
     gameData.bossAppearedCycle = gameData.cycles;
-    gameData.transitionState(gameStates.TUTORIAL_PAUSED);
+    gameData.transitionState(gameStates.BOSS_APPEARING);
     GameEvents.BossAppearance.trigger(undefined);
     bossBarAcceleratedProgress = 0;
 
@@ -195,6 +195,18 @@ function updateBossDistance() {
     // Translate the elapsed time into distance according to config
     bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
 }
+
+// Handle boss fight starting
+GameEvents.GameStateChanged.subscribe((payload) => {
+    if (payload.newState !== gameStates.BOSS_FIGHT.name) return;
+
+    // Disengage all regular battles - they won't progress, they just create additional danger, and they will get hidden anyway.
+    // Hiding battles happens via GameState.areBattlesVisible
+    deactivateAllBattles();
+    bossBattle.start();
+    // QoL - show the battles tab. The player can navigate away, but this is where the action is now happening
+    setTab('battles');
+});
 
 // noinspection JSUnusedGlobalSymbols -- used in HTML
 function togglePause() {

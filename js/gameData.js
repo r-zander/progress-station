@@ -18,6 +18,7 @@ const localStorageKey = 'ps_gameDataSave';
  * @property {boolean} isBossBattleProgressing
  * @property {boolean} canChangeActivation
  * @property {boolean} canEngageBattles
+ * @property {boolean} areBattlesVisible
  * @property {boolean} musicInitialLayerPlaying
  * @property {boolean} musicProgressLayerPlaying
  * @property {boolean} musicBossPlaying
@@ -36,6 +37,7 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: false,
         canEngageBattles: false,
+        areBattlesVisible: true,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
@@ -48,6 +50,7 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
         canEngageBattles: true,
+        areBattlesVisible: true,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: true,
         musicBossPlaying: false,
@@ -60,11 +63,12 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
         canEngageBattles: false,
+        areBattlesVisible: true,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
     },
-    TUTORIAL_PAUSED: {
+    BOSS_APPEARING: {
         gameLoopRunning: false,
         isTimeProgressing: false,
         areAttributesUpdated: false,
@@ -72,6 +76,7 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
         canEngageBattles: false,
+        areBattlesVisible: true,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
@@ -84,6 +89,7 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: false,
         canEngageBattles: false,
+        areBattlesVisible: true,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
@@ -95,7 +101,8 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: true,
         canChangeActivation: true,
-        canEngageBattles: true,
+        canEngageBattles: false,
+        areBattlesVisible: false,
         musicInitialLayerPlaying: false,
         musicProgressLayerPlaying: false,
         musicBossPlaying: true,
@@ -108,6 +115,7 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
         canEngageBattles: false,
+        areBattlesVisible: false,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
@@ -120,6 +128,7 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: false,
         canEngageBattles: false,
+        areBattlesVisible: false,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
@@ -132,15 +141,16 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: false,
         canEngageBattles: false,
+        areBattlesVisible: false,
         musicInitialLayerPlaying: false,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
     },
 };
 gameStates.NEW.validNextStates = [gameStates.PLAYING];
-gameStates.PLAYING.validNextStates = [gameStates.PAUSED, gameStates.TUTORIAL_PAUSED, gameStates.BOSS_FIGHT_INTRO];
+gameStates.PLAYING.validNextStates = [gameStates.PAUSED, gameStates.BOSS_APPEARING, gameStates.BOSS_FIGHT_INTRO];
 gameStates.PAUSED.validNextStates = [gameStates.PLAYING];
-gameStates.TUTORIAL_PAUSED.validNextStates = [gameStates.PLAYING];
+gameStates.BOSS_APPEARING.validNextStates = [gameStates.PLAYING];
 gameStates.BOSS_FIGHT_INTRO.validNextStates = [gameStates.PLAYING, gameStates.BOSS_FIGHT];
 gameStates.BOSS_FIGHT.validNextStates = [gameStates.DEAD, gameStates.BOSS_FIGHT_PAUSED, gameStates.BOSS_DEFEATED];
 gameStates.BOSS_FIGHT_PAUSED.validNextStates = [gameStates.BOSS_FIGHT];

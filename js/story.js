@@ -39,7 +39,7 @@ function initBossAppearance() {
     GameEvents.GameStateChanged.subscribe( (payload) => {
         // TODO gameStates.TUTORIAL_PAUSED is a bad idea, as its generic but we need to show the correct "tutorial"
         //  currently there is only one - but this doesn't scale
-        if (payload.newState !== gameStates.TUTORIAL_PAUSED.name) return;
+        if (payload.newState !== gameStates.BOSS_APPEARING.name) return;
         if (payload.previousState !== gameStates.NEW.name) return;
 
         modal.show();
@@ -92,9 +92,7 @@ function initBossFightIntro() {
 
     window.startBossBattle = function () {
         modal.hide();
-        setTab('battles');
         gameData.transitionState(gameStates.BOSS_FIGHT);
-        bossBattle.start();
     };
 }
 

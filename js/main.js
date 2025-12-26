@@ -640,6 +640,7 @@ function createLevel4BattleElements(battles) {
         domGetter.byClass('progressBar').addEventListener('click', tryEngageBattle.bind(this, battle));
 
         if (battle instanceof BossBattle) {
+            level4Element.classList.add('bossBattle');
             for (let element of domGetter.allBySelector('.for-regular-battle')) {
                 element.remove();
             }
@@ -649,6 +650,7 @@ function createLevel4BattleElements(battles) {
             domGetter.bySelector('.dangerCell > .other-effects').innerHTML = battle.getEffectDescription();
             domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
         } else {
+            level4Element.classList.add('regularBattle');
             for (const element of domGetter.allBySelector('.for-boss-battle')) {
                 element.remove();
             }
@@ -677,7 +679,7 @@ function createUnfinishedBattlesUI() {
 
     /** @type {HTMLElement} */
     const level4Slot = domGetter.byClass('level4');
-    level4Slot.append(...createLevel4BattleElements(Object.values(battles)));
+    level4Slot.prepend(...createLevel4BattleElements(Object.values(battles)));
 
     return level3Element;
 }
@@ -696,7 +698,7 @@ function createLevel4FinishedBattleElements(battles) {
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
         domGetter.byClass('progressBar').classList.remove('clickable');
-        domGetter.bySelector('.progressBar').dataset.layer = String(numberOfLayers);
+        domGetter.bySelector('.progressBar').dataset.layer = String(numberOfSupportedTaskLayers);
         domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
         formatValue(
             domGetter.bySelector('.level > data'),
@@ -1456,7 +1458,7 @@ function updateTechnologiesQuickDisplay() {
 function setBattleProgress(progressBar, battle) {
     const domGetter = Dom.get(progressBar);
     if (battle.isDone()) {
-        progressBar.dataset.layer = String(numberOfLayers);
+        progressBar.dataset.layer = String(numberOfSupportedTaskLayers);
         domGetter.byClass('progressFill').style.width = '0%';
         return;
     }
@@ -1468,14 +1470,10 @@ function setBattleProgress(progressBar, battle) {
         return;
     }
 
-    const layerLevel = battle.level % numberOfLayers;
-    progressBarFill.dataset.layer = String(layerLevel);
-    if (battle.getDisplayedLevel() === 1) {
-        progressBar.dataset.layer = String(numberOfLayers);
-    } else {
-        const nextLayerLevel = (battle.level + 1) % numberOfLayers;
-        progressBar.dataset.layer = String(nextLayerLevel);
-    }
+    const layer = battle.level % numberOfSupportedTaskLayers;
+    const nextLayer = layer + 1; // No need to handle overflows, as [numberOfSupportedTaskLayers + 1] colors are supported
+    progressBarFill.dataset.layer = String(layer);
+    progressBar.dataset.layer = String(nextLayer);
 }
 
 function updateBattlesQuickDisplay() {
@@ -1886,6 +1884,11 @@ function updateBattleRows() {
         const battle = battles[key];
         const row = Dom.get().byId(battle.domId);
 
+        if (!gameData.state.areBattlesVisible && !(battle instanceof BossBattle)) {
+            row.classList.add('hidden');
+            continue;
+        }
+
         if (battle.isDone()) {
             row.classList.add('hidden');
             Dom.get().byId(battle.doneDomId).classList.remove('hidden');
@@ -1900,7 +1903,7 @@ function updateBattleRows() {
         if (battle instanceof BossBattle) {
             formatValue(
                 domGetter.bySelector('.dangerCell > .danger > data'),
-                battle.getRawEffect(EffectType.Danger)
+                battle.getRawEffect(EffectType.Danger),
             );
         } else {
             if (!updateRequirements(
@@ -1911,13 +1914,18 @@ function updateBattleRows() {
                 continue;
             }
 
-            visibleBattles++;
             visibleFactions[battle.faction.name] = battle;
 
             row.classList.remove('hidden');
         }
+        visibleBattles++;
 
-        formatValue(domGetter.bySelector('.level > data'), battle.getDisplayedLevel(), {keepNumber: true});
+        const displayedLevel = battle.getDisplayedLevel();
+        if (isString(displayedLevel)){
+            domGetter.bySelector('.level > data').textContent = displayedLevel;
+        } else {
+            formatValue(domGetter.bySelector('.level > data'), displayedLevel, {keepNumber: true});
+        }
         formatValue(domGetter.bySelector('.xpGain > data'), battle.getXpGain());
         formatValue(domGetter.bySelector('.xpLeft > data'), battle.getXpLeft());
 
@@ -1925,23 +1933,15 @@ function updateBattleRows() {
 
         const isActive = battle.isActive();
         domGetter.byClass('progressFill').classList.toggle('current', isActive);
-
-        if (isBossBattleAvailable() &&
-            visibleBattles === bossBattle.distance
-        ) {
-            if (row.nextElementSibling !== bossRow) { // Do not update the DOM if not necessary
-                row.after(bossRow);
-            }
-        }
     }
 
     if (isBossBattleAvailable() && !bossBattle.isDone()) {
         bossRow.classList.remove('hidden');
 
+        const bossBattleDefenseModeHelp = Dom.get().byId('bossBattleDefenseModeHelp');
         if (bossBattle.isActive()) {
             const bossDomGetter = Dom.get(bossRow);
             const bossInDefenseMode = bossBattle.isInDefenseMode();
-            const bossBattleDefenseModeHelp = Dom.get().byId('bossBattleDefenseModeHelp');
 
             bossDomGetter.byClass('progress').classList.toggle('glow-shield', bossInDefenseMode);
             bossDomGetter.byClass('xpGainCell').classList.toggle('defense-mode', bossInDefenseMode);
@@ -1949,31 +1949,29 @@ function updateBattleRows() {
             bossBattleDefenseModeHelp.classList.toggle('hidden', !bossInDefenseMode);
             if (bossInDefenseMode) {
                 formatValue(bossDomGetter.bySelector('.xpCappedValue > data'), bossBattle.getDefenseModeXpGain());
+            }
+        }
 
-                if (bossRow.nextElementSibling !== bossBattleDefenseModeHelp) {
-                    bossRow.after(bossBattleDefenseModeHelp);
-                }
+        // Find visible battles to find the nth element
+        const visibleBattleRows = Dom.get(bossRow.parentElement).allBySelector('tr.regularBattle:not(.hidden)');
+        if (visibleBattleRows.length === 0) {
+            // if no elements exist --> keep bossRow where it is
+
+        } else if (bossBattle.distance >= visibleBattleRows.length) {
+            // if it doesn't exist --> move bossRow after last element
+            if (visibleBattleRows[visibleBattleRows.length - 1].nextSibling !== bossRow) {
+                visibleBattleRows[visibleBattleRows.length - 1].after(bossRow);
             }
-            // Boss should be in first position.
-            if (bossRow.previousElementSibling !== null) { // Do not update the DOM if not necessary
-                Dom.get()
-                    .bySelector('#unfinishedBattles tbody.level4')
-                    .prepend(bossRow);
+        } else {
+            // if it exists --> move bossRow before it
+            if (visibleBattleRows[bossBattle.distance].previousSibling !== bossRow) {
+                visibleBattleRows[bossBattle.distance].before(bossRow);
             }
-        } else if (visibleBattles < bossBattle.distance) {
-            // There are fewer battles visible than the boss distance --> move boss in last position.
-            // Is the bossRow already the last element?
-            if (bossRow.nextElementSibling !== requirementsContext.requirementsElement) { // Do not update the DOM if not necessary
-                requirementsContext.requirementsElement.before(bossRow);
-            }
-        } else if (bossBattle.distance === 0) {
-            // Boss should be in first position.
-            // Is the bossRow already the first element?
-            if (bossRow.previousElementSibling !== null) { // Do not update the DOM if not necessary
-                Dom.get()
-                    .bySelector('#unfinishedBattles tbody.level4')
-                    .prepend(bossRow);
-            }
+        }
+
+        // Ensure the help text row is always directly after the boss row
+        if (bossRow.nextElementSibling !== bossBattleDefenseModeHelp) {
+            bossRow.after(bossBattleDefenseModeHelp);
         }
     } else {
         bossRow.classList.add('hidden');

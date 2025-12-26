@@ -5,6 +5,9 @@
  */
 const BATTLE_BASE_XP_GAIN = BASE_XP_GAIN;
 
+/** @type {number} */
+const numberOfSupportedTaskLayers = 11;
+
 /**
  * @type {Object<FactionDefinition>}
  */
@@ -1410,7 +1413,7 @@ const battles = {
                 'Devourer',
                 `Jester ${Symbols.SOFT_BREAK}of Annihilation`
             ]),
-        targetLevel: 10,
+        targetLevel: numberOfSupportedTaskLayers,
         difficulty: 1,
         faction: factions.Boss,
         effects: [
@@ -1512,6 +1515,3 @@ function maximumAvailableBattles() {
         requirement: nextTech.technologyRequirement
     };
 }
-
-/** @type {number} */
-const numberOfLayers = 10;

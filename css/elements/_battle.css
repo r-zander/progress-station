@@ -68,14 +68,10 @@
 }
 
 .glow-shield {
-    border-radius: 56px 15px 10px 10px / 32px 15px 10px 10px;
     box-shadow: 0 0 12px 4px var(--ps-cyan),
                 0 0 24px 12px rgba(0,255,255,0.14);
     animation: shield-glow-pulse 3s infinite alternate;
     transition: box-shadow 0.3s;
-    position: relative;
-    z-index: 1;
-    overflow: visible !important;
 }
 
 @keyframes shield-glow-pulse {
