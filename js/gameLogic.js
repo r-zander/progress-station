@@ -169,7 +169,10 @@ function increaseCycle() {
     gameData.cycles += increase;
     gameData.totalCycles += increase;
 
-    if (!isBossBattleAvailable() && gameData.cycles >= getBossAppearanceCycle()) {
+    if (!isBossBattleAvailable() &&
+        gameData.cycles >= getBossAppearanceCycle() &&
+        !bossWasDefeated()
+    ) {
         summonBoss();
     }
 }
@@ -300,6 +303,7 @@ function startNewPlaythrough() {
 
     setPreviousStationName(gameData.stationName);
     setStationName(new SuffixGenerator(gameData.stationName).getNewName());
+    gameData.bossBattleAvailable = false;
     gameData.bossEncounterCount += 1;
 
     // grant Essence Of Unknown
@@ -309,6 +313,35 @@ function startNewPlaythrough() {
     }
 
     playthroughReset('UPDATE_MAX_LEVEL');
+}
+
+function continueCurrentPlaythrough() {
+    setPreviousStationName(gameData.stationName);
+    // Unsummon boss
+    gameData.bossBattleAvailable = false;
+    gameData.bossEncounterCount += 1;
+    const grantedEssenceOfUnknown = calculateEssenceOfUnknownGain(bossBattle.level);
+    if (grantedEssenceOfUnknown > 0) {
+        addEssenceGain(grantedEssenceOfUnknown, bossBattle.type, bossBattle.name, bossBattle.level);
+    }
+
+    // TODO theoretically: UPDATE_MAX_LEVEL for everything
+
+    gameData.bossesDefeated.push({
+        name: bossBattle.name,
+        cycle: Math.floor(startCycle + gameData.totalCycles),
+        timestamp: Date.now(),
+    });
+
+    gameData.transitionState(gameStates.PLAYING);
+
+    // Force some updates, as this method could happen in between game loop updates
+    musicContext.update();
+    updateUiIfNecessary();
+}
+
+function bossWasDefeated() {
+    return gameData.bossesDefeated.length > 0;
 }
 
 /**

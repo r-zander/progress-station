@@ -333,7 +333,7 @@ function initGameOver() {
 
     window.continueAfterWin = () => {
         modal.hide();
-        gameData.transitionState(gameStates.PLAYING);
+        continueCurrentPlaythrough();
     };
 
     window.resetAfterWin = () => {

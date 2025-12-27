@@ -176,6 +176,28 @@ const DEFAULT_RUN_STATS = {
     gridStrength: {current: 0, max: 0},
 };
 
+/**
+ * @typedef {Object} EntryEntity
+ * @property {string} type
+ * @property {string} name
+ * @property {number} [level]
+ */
+
+/**
+ * @typedef {Object} EssenceHistoryEntry
+ * @property {number} amount - Positive for gain, negative for spend
+ * @property {EntryEntity} entity
+ * @property {number} cycle
+ * @property {number} timestamp epoch milliseconds in UTC aka Date.now() when the entry was created
+ */
+
+/**
+ * @typedef {Object} DefeatedBossEntry
+ * @property {string} name
+ * @property {number} cycle
+ * @property {number} timestamp epoch milliseconds in UTC aka Date.now() when the entry was created
+ */
+
 class GameData {
 
     /**
@@ -237,6 +259,11 @@ class GameData {
     bossEncounterCount = 0;
 
     /**
+     * @var {DefeatedBossEntry[]}
+     */
+    bossesDefeated = [];
+
+    /**
      * @var {number}
      */
     bossAppearedCycle = 0;
@@ -255,21 +282,6 @@ class GameData {
      * @var {number}
      */
     data = 0;
-
-    /**
-     * @typedef {Object} EntryEntity
-     * @property {string} type
-     * @property {string} name
-     * @property {number} [level]
-     */
-
-    /**
-     * @typedef {Object} EssenceHistoryEntry
-     * @property {number} amount - Positive for gain, negative for spend
-     * @property {EntryEntity} entity
-     * @property {number} cycle
-     * @property {number} timestamp epoch milliseconds in UTC aka Date.now() when the entry was created
-     */
 
     /**
      * @type {EssenceHistoryEntry[]}
