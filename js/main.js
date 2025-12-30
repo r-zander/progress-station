@@ -1935,10 +1935,10 @@ function updateBattleRows() {
         domGetter.byClass('progressFill').classList.toggle('current', isActive);
     }
 
+    const bossBattleDefenseModeHelp = Dom.get().byId('bossBattleDefenseModeHelp');
     if (isBossBattleAvailable() && !bossBattle.isDone()) {
         bossRow.classList.remove('hidden');
 
-        const bossBattleDefenseModeHelp = Dom.get().byId('bossBattleDefenseModeHelp');
         if (bossBattle.isActive()) {
             const bossDomGetter = Dom.get(bossRow);
             const bossInDefenseMode = bossBattle.isInDefenseMode();
@@ -1946,7 +1946,6 @@ function updateBattleRows() {
             bossDomGetter.byClass('progress').classList.toggle('glow-shield', bossInDefenseMode);
             bossDomGetter.byClass('xpGainCell').classList.toggle('defense-mode', bossInDefenseMode);
             bossDomGetter.byClass('dangerCell').classList.toggle('defense-mode', bossInDefenseMode);
-            bossBattleDefenseModeHelp.classList.toggle('hidden', !bossInDefenseMode);
             if (bossInDefenseMode) {
                 formatValue(bossDomGetter.bySelector('.xpCappedValue > data'), bossBattle.getDefenseModeXpGain());
             }
@@ -1976,6 +1975,9 @@ function updateBattleRows() {
     } else {
         bossRow.classList.add('hidden');
     }
+
+    const showBossBattleDefenseModeHelp = isBossBattleAvailable() && !bossBattle.isDone() && bossBattle.isActive() && bossBattle.isInDefenseMode();
+    Dom.get().byId('bossBattleDefenseModeHelp').classList.toggle('hidden', !showBossBattleDefenseModeHelp);
 
     requirementsContext.requirementsElement.classList.toggle('hidden', !requirementsContext.hasUnfulfilledRequirements);
 }
@@ -2253,10 +2255,35 @@ function updateEnergyGridBar() {
 function updateBossProgress() {
     const container = document.getElementById('bossProgress');
     const bossBar = document.getElementById('bossProgressBar');
+    const bossProgressBar = container.querySelector('.bossProgressBar');
+    const progressContainer = container.querySelector('.bossProgress-container');
+    const bossText = document.getElementById('bossProgressText');
+    const tooltip = bootstrap.Tooltip.getOrCreateInstance(container);
+
+    if (bossWasDefeated()) {
+        container.classList.add('defeated');
+        bossBar.style.width = '100%';
+        bossBar.classList.add('defeated');
+        bossBar.classList.remove('progress-bar-striped');
+        bossProgressBar.classList.remove('clickable');
+        progressContainer.classList.add('disabled');
+        bossText.classList.remove('warningAnimation');
+        const defeatedBossAsText = getLastDefeatedBossAsText();
+        if (bossText.textContent !== defeatedBossAsText)
+        {
+            bossText.textContent = defeatedBossAsText;
+        }
+        tooltip.disable();
+
+        return;
+    }
+
+    container.classList.remove('defeated');
+    bossBar.classList.remove('defeated');
+    bossBar.classList.add('progress-bar-striped');
 
     const allowProgressAcceleration = gameData.bossEncounterCount >= bossBarAccelerationAllowedAfterBossEncounters;
 
-    const progressContainer = container.querySelector('.bossProgress-container');
 
     const remaining = getTimeUntilBossAppears();
     const totalWait = getBossAppearanceCycle();
@@ -2278,7 +2305,6 @@ function updateBossProgress() {
     bossBar.style.width = progressPercentage.toFixed(1) + '%';
     updateBossBarColor(progressPercentage, bossBar);
     bossBar.setAttribute('aria-valuenow', progressPercentage.toFixed(1));
-    const bossText = document.getElementById('bossProgressText');
     const newText = getBossProgressForeshadowingText(progressPercentage);
 
     if (bossText.textContent !== newText) {
@@ -2295,8 +2321,8 @@ function updateBossProgress() {
         bossText.classList.remove('warningAnimation');
     }
 
-    const tooltip = bootstrap.Tooltip.getOrCreateInstance(container);
     if (allowProgressAcceleration) {
+        bossProgressBar.classList.add('clickable');
         progressContainer.classList.remove('disabled');
         tooltip.enable();
         if (!container.matches(':hover')) {
@@ -2304,6 +2330,7 @@ function updateBossProgress() {
             tooltip.setContent({'.tooltip-inner': tooltipText});
         }
     } else {
+        bossProgressBar.classList.remove('clickable');
         progressContainer.classList.add('disabled');
         tooltip.disable();
     }
@@ -2882,7 +2909,6 @@ function initConfigNames() {
 let bossBarPressed = false;
 let bossBarPressStartTime = 0;
 let bossBarAcceleratedProgress = 0;
-const bossBarAccelerationAllowedAfterBossEncounters = 1;
 
 function initBossBattleProgressBar() {
     const barContainer = document.getElementById('bossProgress');

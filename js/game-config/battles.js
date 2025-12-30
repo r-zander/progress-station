@@ -5,6 +5,13 @@
  */
 const BATTLE_BASE_XP_GAIN = BASE_XP_GAIN;
 
+/**
+ * How often does the player need to encounter the boss before the encounter can be enforced?
+ *
+ * @type {number}
+ */
+const bossBarAccelerationAllowedAfterBossEncounters = 1;
+
 /** @type {number} */
 const numberOfSupportedTaskLayers = 11;
 

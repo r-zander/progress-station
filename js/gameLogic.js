@@ -309,7 +309,7 @@ function startNewPlaythrough() {
     // grant Essence Of Unknown
     const grantedEssenceOfUnknown = calculateEssenceOfUnknownGain(bossBattle.level);
     if (grantedEssenceOfUnknown > 0) {
-        addEssenceGain(grantedEssenceOfUnknown, bossBattle.type, bossBattle.name, bossBattle.level);
+        addEssenceGain(grantedEssenceOfUnknown, bossBattle.type, bossBattle.title, bossBattle.level);
     }
 
     playthroughReset('UPDATE_MAX_LEVEL');
@@ -322,13 +322,13 @@ function continueCurrentPlaythrough() {
     gameData.bossEncounterCount += 1;
     const grantedEssenceOfUnknown = calculateEssenceOfUnknownGain(bossBattle.level);
     if (grantedEssenceOfUnknown > 0) {
-        addEssenceGain(grantedEssenceOfUnknown, bossBattle.type, bossBattle.name, bossBattle.level);
+        addEssenceGain(grantedEssenceOfUnknown, bossBattle.type, bossBattle.title, bossBattle.level);
     }
 
     // TODO theoretically: UPDATE_MAX_LEVEL for everything
 
     gameData.bossesDefeated.push({
-        name: bossBattle.name,
+        name: bossBattle.title,
         cycle: Math.floor(startCycle + gameData.totalCycles),
         timestamp: Date.now(),
     });
@@ -342,6 +342,11 @@ function continueCurrentPlaythrough() {
 
 function bossWasDefeated() {
     return gameData.bossesDefeated.length > 0;
+}
+
+function getLastDefeatedBossAsText() {
+    const bossesDefeatedEntry = gameData.bossesDefeated[gameData.bossesDefeated.length - 1];
+    return `${bossesDefeatedEntry.name} was defeated in ${formatNumber(bossesDefeatedEntry.cycle)} IC`;
 }
 
 /**
