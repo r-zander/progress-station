@@ -161,6 +161,25 @@ const cheats = {
          */
         enableUpdates: () => {
             gameLoop.start();
+        },
+
+        skipToEndGame: () => {
+            cheats.AudioEngine.disableSounds();
+            cheats.Requirements.unlockAll();
+            Object.values(moduleOperations).forEach(/** @param {ModuleOperation} operation */ operation => {
+                operation.level = Math.max(operation.level, 3000 - 1);
+                operation.xp = operation.getMaxXp() + 1;
+            });
+            Object.values(battles).forEach(/** @param {Battle} battle */ battle => {
+                if (battle instanceof BossBattle) return;
+
+                battle.level = battle.targetLevel;
+            });
+            gridStrength.level = Math.max(operation.level, 34);
+            gridStrength.xp = gridStrength.getMaxXp() + 1;
+
+            cheats.AudioEngine.restoreSounds();
+            cheats.UI.refresh();
         }
     },
     Config: {
@@ -346,6 +365,11 @@ const cheats = {
                 }).join('\n');
             },
         },
+        Technologies: {
+            calculateRequiredData: () => {
+                return Object.values(technologies).reduce((sum, technology) => sum + technology.getCost(), 0);
+            }
+        }
     },
     Age: {
         set: (age) => {
@@ -386,7 +410,7 @@ const cheats = {
                 galacticSecret.isUnlocked = true;
             });
 
-            cheats.AudioEngine.disableSounds();
+            cheats.AudioEngine.restoreSounds();
             cheats.UI.refresh();
 
             console.log(`Unlocked ${count} requirements (technologies, galactic secrets, and all other requirements)`);
