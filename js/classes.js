@@ -57,7 +57,6 @@ class Entity {
     /**
      * @param {string} title
      * @param {string|undefined} description
-     * @param {Requirement[]|undefined} [requirements=undefined]
      */
     constructor(title, description) {
         this.type = this.constructor.name;
@@ -1072,6 +1071,68 @@ class Technology extends Entity {
             // HTML element or other
             return 'Station Features';
         }
+    }
+}
+
+class EssenceOfUnknownGainTechnology extends Technology {
+    /**
+     * @param {{
+     *     amount: number,
+     *     getDescription: () => string,
+     *     baseCost: number,
+     *     requirements?: Requirement[],
+     *     prerequisites?: Requirement[]
+     * }} baseData
+     */
+    constructor(baseData) {
+        super({
+            unlocks: {
+                type: 'CurrencyGain',
+                title: 'Extra ' + attributes.essenceOfUnknown.title,
+                name: 'EssenceOfUnknown',
+                getEffectDescription: baseData.getDescription,
+            },
+            baseCost: baseData.baseCost,
+            requirements: baseData.requirements,
+            prerequisites: baseData.prerequisites,
+        });
+
+        this.gainAmount = baseData.amount;
+        this.technologyRequirement = new TechnologyRequirement({technology: this}, baseData.prerequisites);
+    }
+
+    /**
+     * @override
+     */
+    get isUnlocked() {
+        return super.isUnlocked;
+    }
+
+    /**
+     * @override
+     */
+    set isUnlocked(unlocked) {
+        if (!this.isUnlocked && unlocked) {
+            addEssenceGain(this.gainAmount, this.type, this.name);
+        }
+
+        super.isUnlocked = unlocked;
+    }
+
+
+
+    /**
+     * @override
+     */
+    getDisplayedParent() {
+        return null;
+    }
+
+    /**
+     * @override
+     */
+    getBelongsTo() {
+        return 'Post Game';
     }
 }
 

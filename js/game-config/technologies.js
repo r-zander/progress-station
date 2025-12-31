@@ -420,3 +420,45 @@ technologies.GrowthLocationExtreme = new Technology({
         requirement: 200,
     })],
 });
+
+// ============================================================================
+// EXTRA ESSENCE OF UNKNOWN TECHNOLOGIES
+// ============================================================================
+// 11 boss waves give min. 2,047 Essence of Unknown
+// 10 galactic secrets require 29,524 Essence of Unknown total
+// --> 28 technologies provide up to 28,000 extra Essence of Unknown
+//
+// They form a chain: Technology 2 requires Technology 1, Technology 3 requires Technology 2, etc.
+// ============================================================================
+
+let previousTechnology = null;
+
+for (let techNumber = 1; techNumber <= 28; techNumber++) {
+    // Build the technology name: ExtraEssenceOfUnknown001, ExtraEssenceOfUnknown002, etc.
+    const techName = 'ExtraEssenceOfUnknown' + String(techNumber).padStart(3, "0");
+
+    // Start with the base configuration (same for all technologies)
+    const techConfig = {
+        amount: 1000,
+        baseCost: 10,
+        getDescription: () => `+<data value="1000" class="effect-value">${formatNumber(1000)}</data> ${attributes.essenceOfUnknown.inlineHtmlWithIcon}`,
+    };
+
+    // Set requirements based on whether this is the first technology or not
+    if (previousTechnology === null) {
+        // First technology: Only requires boss defeated
+        techConfig.requirements = [sharedRequirements.bossDefeated];
+        techConfig.prerequisites = undefined;
+    } else {
+        // All other technologies: Require boss defeated AND the previous technology in the chain
+        techConfig.requirements = [sharedRequirements.bossDefeated, previousTechnology.technologyRequirement];
+        techConfig.prerequisites = [previousTechnology.technologyRequirement];
+    }
+
+    // Create the technology and add it to the technologies list
+    const newTechnology = new EssenceOfUnknownGainTechnology(techConfig);
+    technologies[techName] = newTechnology;
+
+    // Remember this technology so the next one can require it
+    previousTechnology = newTechnology;
+}

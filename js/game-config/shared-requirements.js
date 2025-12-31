@@ -58,3 +58,8 @@ sharedRequirements.essenceOfUnknowFound = new AttributeRequirement('permanent', 
     attribute: attributes.essenceOfUnknown,
     requirement: 1,
 });
+// A bit weird, there but creating a new Requirement type just for this case feels worse
+sharedRequirements.bossDefeated = new FactionLevelsDefeatedRequirement('permanent', {
+    faction: factions.Boss,
+    requirement: bossBattle.targetLevel,
+});

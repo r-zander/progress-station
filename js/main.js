@@ -1195,6 +1195,9 @@ function createEssenceOfUnknownHistoryEntryDescription(entry) {
             case 'BossBattle':
                 descriptionText = `from ${entry.entity.level} defeated Boss waves`;
                 break;
+            case 'EssenceOfUnknownGainTechnology':
+                descriptionText = `from Extra ${attributes.essenceOfUnknown.title} Technology`;
+                break;
             default:
                 console.error('Essence of Unknown history: Unsupported entry.entity.type for gained essence', entry.entity.type);
                 break;
