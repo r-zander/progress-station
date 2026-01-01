@@ -130,7 +130,7 @@ class Task extends Entity {
      *     description?: string,
      *     xpGain?: number,
      *     maxXp: number,
-     *     effects: EffectDefinition[],
+     *     effects?: EffectDefinition[],
      * }} baseData
      */
     constructor(baseData) {
@@ -138,7 +138,7 @@ class Task extends Entity {
 
         this.xpGain = isNumber(baseData.xpGain) ? baseData.xpGain : BASE_XP_GAIN;
         this.maxXp = baseData.maxXp;
-        this.effects = baseData.effects;
+        this.effects = Array.isArray(baseData.effects) ? baseData.effects : [];
         this.xpMultipliers = [];
         this.xpMultipliers.push(this.getMaxLevelMultiplier.bind(this));
         // Yey lazy functions
@@ -328,8 +328,18 @@ class Task extends Entity {
 }
 
 class GridStrength extends Task {
+    /**
+     * @param {{
+     *  name: string,
+     *  title: string,
+     *  maxXp: number,
+     *  getMaxXp: function(number, number): number
+     *  }} baseData
+     */
     constructor(baseData) {
         super(baseData);
+        console.assert(isFunction(baseData.getMaxXp), 'baseData.getNaxXp needs to be a function');
+        this.configuredGetMaxXp = baseData.getMaxXp;
     }
 
     getXpGain() {
@@ -344,7 +354,7 @@ class GridStrength extends Task {
     }
 
     getMaxXp() {
-        return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.6, this.level));
+        return this.configuredGetMaxXp(this.level, this.maxXp);
     }
 
     onLevelUp(previousLevel, newLevel) {
@@ -354,8 +364,18 @@ class GridStrength extends Task {
 }
 
 class AnalysisCore extends Task {
+    /**
+     * @param {{
+     *  name: string,
+     *  title: string,
+     *  maxXp: number,
+     *  getMaxXp: function(number, number): number
+     *  }} baseData
+     */
     constructor(baseData) {
         super(baseData);
+        console.assert(isFunction(baseData.getMaxXp), 'baseData.getNaxXp needs to be a function');
+        this.configuredGetMaxXp = baseData.getMaxXp;
     }
 
     getXpGain() {
@@ -365,7 +385,7 @@ class AnalysisCore extends Task {
     }
 
     getMaxXp() {
-        return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.127, this.level));
+        return this.configuredGetMaxXp(this.level, this.maxXp);
     }
 
     onLevelUp(previousLevel, newLevel) {

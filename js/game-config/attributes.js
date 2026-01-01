@@ -110,5 +110,22 @@ function createGridStrengthAndLoadDescription() {
     ${attributes.gridStrength.inlineHtmlWithIcon}. Try deactivating modules to free up the energy grid!`;
 }
 
-const gridStrength = new GridStrength({name:'GridStrength', title: 'Grid Strength', maxXp: 500});
-const analysisCore = new AnalysisCore({name:'AnalysisCore', title: 'Analysis Core', maxXp: 200});
+const gridStrength = new GridStrength({
+    name:'GridStrength',
+    title: 'Grid Strength',
+    maxXp: 500,
+    getMaxXp: (currentLevel, baseMaxXp) => {
+        return Math.round(baseMaxXp * (currentLevel + 1) * Math.pow(1.6, currentLevel));
+    }
+});
+
+const analysisCore = new AnalysisCore({
+    name: 'AnalysisCore',
+    title: 'Analysis Core',
+    maxXp: 200,
+    getMaxXp: function(currentLevel, baseMaxXp) {
+        const exponentCap = 150;
+        const exponentLimit = 170;
+        return Math.round(baseMaxXp * (currentLevel + 1) * Math.pow(1.158, exponentCap * Math.tanh(currentLevel / exponentLimit)));
+    }
+});
