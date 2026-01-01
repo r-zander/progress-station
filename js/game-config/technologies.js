@@ -448,7 +448,10 @@ for (let techNumber = 1; techNumber <= 28; techNumber++) {
     if (previousTechnology === null) {
         // First technology: Only requires boss defeated
         techConfig.requirements = [sharedRequirements.bossDefeated];
-        techConfig.prerequisites = undefined;
+        techConfig.prerequisites = [new FactionLevelsDefeatedRequirement('permanent', {
+            faction: factions.Boss,
+            requirement: 1,
+        })];
     } else {
         // All other technologies: Require boss defeated AND the previous technology in the chain
         techConfig.requirements = [sharedRequirements.bossDefeated, previousTechnology.technologyRequirement];
