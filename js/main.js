@@ -827,7 +827,6 @@ function createLevel4TechnologyElements(displayLocked) {
         const domGetter = Dom.get(row);
 
         // Technology Name
-        domGetter.bySelector('.technology-name > .technology').title = technology.title;
         const parent = technology.getDisplayedParent();
         if (parent === null) {
             domGetter.bySelector('.technology-name .parent').remove();
@@ -836,6 +835,20 @@ function createLevel4TechnologyElements(displayLocked) {
             domGetter.bySelector('.technology-name .parent').textContent = parent;
         }
         domGetter.bySelector('.technology-name .name').textContent = technology.title;
+        let tooltip = '';
+        switch (technology.unlocks.type) {
+            case 'ModuleOperation':
+                tooltip = `
+Module:${Symbols.NON_BREAKING_SPACE}<b>${technology.unlocks.module.title}</b><br />
+Component:${Symbols.NON_BREAKING_SPACE}<b>${technology.unlocks.component.title}</b><br />
+New Operation:${Symbols.NON_BREAKING_SPACE}<b>${technology.unlocks.title}</b>`;
+                break;
+        }
+        if (tooltip !== '') {
+            domGetter.bySelector('.technology-name > .technology').title = tooltip;
+        } else {
+            domGetter.bySelector('.technology-name > .technology').removeAttribute('title');
+        }
 
         if (displayLocked) {
             domGetter.byClass('progressBar').addEventListener('pointerdown', (event) => {

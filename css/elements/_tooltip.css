@@ -1,0 +1,7 @@
+.tooltip-inner {
+
+    .truncation-details > & {
+        max-width: none;
+        text-align: start;
+    }
+}

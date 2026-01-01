@@ -21,5 +21,6 @@
 @import url(elements/_settings.css);
 @import url(elements/_story-modal.css);
 @import url(elements/_vfx.css);
+@import url(elements/_tooltip.css);
 
 @import url(modes/_sci-fi.css);
