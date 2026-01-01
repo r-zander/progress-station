@@ -63,3 +63,6 @@ sharedRequirements.bossDefeated = new FactionLevelsDefeatedRequirement('permanen
     faction: factions.Boss,
     requirement: bossBattle.targetLevel,
 });
+sharedRequirements.bossDefeated.toHtmlInternal = () => {
+    return `defeat <span class="name">${bossBattle.title}</span>`;
+};
