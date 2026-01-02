@@ -540,6 +540,30 @@ class Module extends Entity {
                 return gridLoadSum + component.getActiveOperation().getGridLoad();
             }, 0);
     }
+
+    getEffectDescription() {
+        /** @type {EffectType[]} */
+        const effectTypes = [];
+        let minGridLoad = 0;
+
+        this.components.forEach((component) => {
+            effectTypes.push(
+                ...component.operations[0]
+                    .getEffects()
+                    .map((effectDefinition) => effectDefinition.effectType),
+            );
+
+            minGridLoad += component.operations[0].getGridLoad();
+        });
+
+        const descriptionLines = effectTypes.map((effectType) => {
+           return `<data class="effect-value">${effectType.operator}</data> ${effectType.attribute.inlineHtmlWithIcon}`;
+        });
+
+        descriptionLines.push(`min <data value="${minGridLoad}" class="effect-value">${minGridLoad}</data> ${attributes.gridLoad.inlineHtml}`);
+
+        return descriptionLines.join('<br />');
+    }
 }
 
 class ModuleComponent extends Entity {
