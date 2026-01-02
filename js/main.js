@@ -1289,7 +1289,7 @@ function createAttributesHTML() {
     for (const attributeName in attributes) {
         const attribute = attributes[attributeName];
 
-        const inlineHTML = `<span class="attribute ${attribute.textClass}">${attribute.title}</span>`;
+        const inlineHTML = `<b class="attribute ${attribute.textClass}">${attribute.title}</b>`;
 
         attribute.inlineHtml = inlineHTML;
         if (attribute.icon === null) {
