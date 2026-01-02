@@ -2106,10 +2106,11 @@ function updateTechnologiesUI() {
     for (const key in technologies) {
         const technology = technologies[key];
         const row = Dom.get().byId(technology.domId);
+        const unlockedRow = Dom.get().byId(technology.unlockedDomId);
 
         if (technology.isUnlocked) {
             row.classList.add('hidden');
-            Dom.get().byId(technology.unlockedDomId).classList.remove('hidden');
+            unlockedRow.classList.remove('hidden');
             continue;
         }
 
@@ -2119,6 +2120,7 @@ function updateTechnologiesUI() {
         }
 
         row.classList.remove('hidden');
+        unlockedRow.classList.add('hidden');
 
         const domGetter = Dom.get(row);
 
@@ -2135,6 +2137,7 @@ function updateTechnologiesUI() {
             progressFillElement.classList.remove('unlocked');
             progressBarElement.classList.remove('unlocked');
             progressBarElement.classList.remove('clickable');
+            setProgress(progressFillElement, 0);
             const html = technology.getUnfulfilledRequirements()
                 .map(requirement => requirement.toHtml())
                 .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
@@ -2161,6 +2164,7 @@ function updateTechnologiesUI() {
             progressFillElement.classList.remove('unlocked');
             progressBarElement.classList.remove('unlocked');
             progressBarElement.classList.remove('clickable');
+            setProgress(progressFillElement, 0);
             costCell.classList.remove('affordable', 'unlocked', 'missing-requirement');
             costCell.classList.add('too-expensive');
         }
