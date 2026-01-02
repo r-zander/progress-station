@@ -2114,13 +2114,14 @@ function updateTechnologiesUI() {
             continue;
         }
 
+        unlockedRow.classList.add('hidden');
+
         if (!technology.isVisible()) {
             row.classList.add('hidden');
             continue;
         }
 
         row.classList.remove('hidden');
-        unlockedRow.classList.add('hidden');
 
         const domGetter = Dom.get(row);
 
