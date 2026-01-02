@@ -172,6 +172,7 @@ function initSettings() {
 
     // gameData.settings.audio.* is applied in the audio module itself - we just need to adjust the UI
     Dom.get().byId('audioEnabledSwitch').checked = gameData.settings.audio.enabled;
+    Dom.get().byId('audioBackgroundAudioEnabledSwitch').checked = gameData.settings.audio.enableBackgroundAudio;
 
     setupVolumeSlider('masterVolumeRange', 'masterVolumeOutput',
         () => gameData.settings.audio.masterVolume,
