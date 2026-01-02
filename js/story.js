@@ -70,7 +70,7 @@ function initBossFightIntro() {
             nameElement.textContent = deprepareTitle(bossBattle.title);
         });
         Dom.get().allBySelector('#bossFightIntroModal .bossTargetLevel').forEach((targetLevelElement) => {
-            formatValue(targetLevelElement, bossBattle.targetLevel, {keepNumber: true, forceInteger: true});
+            formatValue(targetLevelElement, bossBattle.targetLevel - 1, {keepNumber: true, forceInteger: true});
         });
         Dom.get().byId('delayBossBattleButton').classList.toggle('hidden', bossBattle.distance === 0);
         Dom.get().byId('bossDefenseModeExplanation').classList.toggle('hidden', !bossBattle.isInDefenseMode());
