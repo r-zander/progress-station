@@ -188,12 +188,12 @@ moduleOperations.AntiMaterialSwarm = new ModuleOperation({
 
 // Population
 moduleOperations.Survivors = new ModuleOperation({
-    title: 'Pick up survivors', maxXp: 4_000, gridLoad: 1,
+    title: 'Pick up survivors', maxXp: 4_000, gridLoad: 2,
     description: 'Space is vast, but you’re not leaving anyone behind. Rescue survivors to add their skills and stories to your crew.',
     effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.01}],
 });
 moduleOperations.Recruitment = new ModuleOperation({
-    title: 'Recruitment', maxXp: 16_000, gridLoad: 2,
+    title: 'Recruitment', maxXp: 16_000, gridLoad: 4,
     description: 'Broadcast a message across the stars and recruit willing and capable crewmates.',
     effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.03}],
 });
