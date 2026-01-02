@@ -175,7 +175,7 @@ const cheats = {
 
                 battle.level = battle.targetLevel;
             });
-            gridStrength.level = Math.max(operation.level, 34);
+            gridStrength.level = Math.max(gridStrength.level, 45);
             gridStrength.xp = gridStrength.getMaxXp() + 1;
 
             cheats.AudioEngine.restoreSounds();
