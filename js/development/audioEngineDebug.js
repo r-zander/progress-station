@@ -517,7 +517,7 @@ const AudioEngineDebug = (() => {
                           border-bottom-left-radius: 1rem;
                           border: 2px solid white;
                           border-right: none;">
-        <img src="../img/icons/buttons/sound.svg" style="height: 1.5rem; filter: invert(1)" />
+        <img src="./img/icons/buttons/sound.svg" style="height: 1.5rem; filter: invert(1)" />
 </a>`
         );
     }
