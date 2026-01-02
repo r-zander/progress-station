@@ -53,16 +53,20 @@ function formatValue(dataElement, value, config = {}) {
     config = Object.assign({}, defaultConfig, config);
 
     const toString = (value) => {
-        if (config.forceInteger || Number.isInteger(value)) {
-            return value.toFixed(0);
-        } else if (isFunction(config.toStringFn)) {
+        if (isFunction(config.toStringFn)) {
             return config.toStringFn(value);
+        } else if (Number.isInteger(value)) {
+            return value.toFixed(0);
         } else if (Math.abs(value) < 1) {
             return value.toFixed(2);
         } else {
             return value.toPrecision(3);
         }
     };
+
+    if (config.forceInteger) {
+        value = Math.round(value);
+    }
 
     // what tier? (determines SI symbol)
     const tier = Math.max(0, Math.log10(Math.abs(value)) / 3 | 0);

@@ -1564,7 +1564,7 @@ class CyclesPassedRequirement extends Requirement {
 class AttributeRequirement extends Requirement {
     /**
      * @param {'permanent'|'playthrough'|'update'} scope
-     * @param {{attribute: AttributeDefinition, requirement: number}} baseData
+     * @param {{attribute: AttributeDefinition, requirement: number|function(): number}} baseData
      * @param {Requirement[]} [prerequisites]
      */
     constructor(scope, baseData, prerequisites) {
@@ -1572,30 +1572,74 @@ class AttributeRequirement extends Requirement {
     }
 
     generateName() {
-        return `Attribute_${this.scope}_${this.baseData.attribute.name}_${this.baseData.requirement}`;
+        return `Attribute_${this.scope}_${this.baseData.attribute.name}_${this.#resolveRequiredValue(this.baseData)}`;
     }
 
     /**
-     * @param {{attribute: AttributeDefinition, requirement: number}} baseData
+     * @param {{attribute: AttributeDefinition, requirement: number|function(): number}} baseData
+     * @return {number}
+     */
+    #resolveRequiredValue(baseData) {
+        if (isFunction(baseData.requirement)) {
+            return baseData.requirement();
+        }
+
+        return baseData.requirement;
+    }
+
+    /**
+     * @param {{attribute: AttributeDefinition, requirement: number|function(): number}} baseData
      * @return {boolean}
      */
     getCondition(baseData) {
-        return baseData.attribute.getValue() >= baseData.requirement;
+        return baseData.attribute.getValue() >= this.#resolveRequiredValue(baseData);
     }
 
     /**
-     * @param {{attribute: AttributeDefinition, requirement: number}} baseData
+     * @param {{attribute: AttributeDefinition, requirement: number|function(): number}} baseData
      * @return {string}
      */
     toHtmlInternal(baseData) {
         const value = baseData.attribute.getValue();
+        const requiredValue = this.#resolveRequiredValue(baseData);
 
         // TODO format value correctly
         return `
 <span class="name">${baseData.attribute.title}</span>
 <data value="${value}">${formatNumber(value)}</data> /
-<data value="${baseData.requirement}">${formatNumber(baseData.requirement)}</data>
+<data value="${requiredValue}">${formatNumber(requiredValue)}</data>
 `;
+    }
+}
+
+// Could be extended to check for arbitrary attributes if they are less than their alltime or current record value.
+class PopulationDamagedRequirement extends Requirement {
+    /**
+     * @param {'permanent'|'playthrough'|'update'} scope
+     * @param {Requirement[]} [prerequisites]
+     */
+    constructor(scope, prerequisites) {
+        super('AttributeRequirement', scope, null, prerequisites);
+    }
+
+    generateName() {
+        return `PopulationDamaged_${this.scope}`;
+    }
+
+    /**
+     * @param {{attribute: AttributeDefinition, requirement: number|function(): number}} baseData
+     * @return {boolean}
+     */
+    getCondition(baseData) {
+        return attributes.population.getValue() <= (getMaximumPopulation() - 1);
+    }
+
+    /**
+     * @param {{attribute: AttributeDefinition, requirement: number|function(): number}} baseData
+     * @return {string}
+     */
+    toHtmlInternal(baseData) {
+        return `<span class="name">${attributes.population.title}</span> damaged`;
     }
 }
 

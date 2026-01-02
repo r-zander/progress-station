@@ -199,6 +199,10 @@ const htmlElementRequirements = {
             ],
             requirements: [sharedRequirements.NovaFliesLvl10],
         }),
+    maxPopulationDisplay: new HtmlElementWithRequirement({
+        elementsWithRequirements: [Dom.get().byId('maxPopulationDisplay')],
+        requirements: [new PopulationDamagedRequirement('playthrough')],
+    }),
     completedBattles: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [

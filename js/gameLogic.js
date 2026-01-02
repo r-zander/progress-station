@@ -36,7 +36,7 @@ function deactivateAllBattles() {
  * @return {boolean}
  */
 function isPopulationRegenerationActive(population) {
-    return !isAnyBattleActive() && population < gameData.stats.maxPopulation.current;
+    return !isAnyBattleActive() && population < getMaximumPopulation();
 }
 
 /**
@@ -59,6 +59,13 @@ function calculatePopulationDelta() {
     return populationDelta;
 }
 
+/**
+ * @return {number}
+ */
+function getMaximumPopulation() {
+    return gameData.stats.maxPopulation.current;
+}
+
 function updatePopulation() {
     if (!gameData.state.areAttributesUpdated) return;
 
@@ -66,14 +73,14 @@ function updatePopulation() {
     gameData.population = Math.max(gameData.population + applySpeed(calculatePopulationDelta()), 1);
     // Make sure we don't regenerate over the maxPopulation
     if (regenerationActive) {
-        gameData.population = Math.min(gameData.stats.maxPopulation.current, gameData.population);
+        gameData.population = Math.min(getMaximumPopulation(), gameData.population);
 
     // Check if in the next update the regeneration would start
     } else if (isPopulationRegenerationActive(gameData.population)) {
-        gameData.population = Math.max(gameData.stats.maxPopulation.current, gameData.population);
+        gameData.population = Math.max(getMaximumPopulation(), gameData.population);
     }
 
-    if (gameData.population > gameData.stats.maxPopulation.current) {
+    if (gameData.population > getMaximumPopulation()) {
         gameData.stats.maxPopulation.current = gameData.population;
     }
 
@@ -119,7 +126,7 @@ function updateStats() {
 function updateMaxStats() {
     gameData.stats.battlesFinished.max = Math.max(getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max);
     gameData.stats.wavesDefeated.max = Math.max(getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max);
-    gameData.stats.maxPopulation.max = Math.max(gameData.stats.maxPopulation.current, gameData.stats.maxPopulation.max);
+    gameData.stats.maxPopulation.max = Math.max(getMaximumPopulation(), gameData.stats.maxPopulation.max);
     gameData.stats.maxIndustry.max = Math.max(gameData.stats.maxIndustry.current, gameData.stats.maxIndustry.max);
     gameData.stats.maxGrowth.max = Math.max(gameData.stats.maxGrowth.current, gameData.stats.maxGrowth.max);
     gameData.stats.maxMilitary.max = Math.max(gameData.stats.maxMilitary.current, gameData.stats.maxMilitary.max);
