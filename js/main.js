@@ -3019,6 +3019,8 @@ function init() {
         }
     });
 
+    document.addEventListener('visibilitychange', updateUiIfNecessary);
+
     setInterval(gameData.save.bind(gameData), 3000);
 }
 
