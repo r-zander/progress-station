@@ -87,17 +87,6 @@ function updatePopulation() {
     }
 }
 
-function getPopulationProgressSpeedMultiplier() {
-    // Random ass formula ᕕ( ᐛ )ᕗ
-    // Pop 1 = x1
-    // Pop 10 ~= x3.4
-    // Pop 100 ~= x12
-    // Pop 1000 ~= x40
-    // Pop 10000 ~= x138
-    // Pop 40000 ~= x290
-    return Math.max(1, Math.pow(Math.round(gameData.population), 1 / 1.869));
-}
-
 function updateStats() {
     const danger = attributes.danger.getValue();
     if (danger > gameData.stats.maxDanger.current) {
