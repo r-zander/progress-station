@@ -92,6 +92,12 @@ const cheats = {
     Debug: {
         showStateTransitions: (enabled = true) => {
             _cheatConfig.showStateTransitions = enabled;
+        },
+
+        debugAudioEngine: () => {
+            cheats.AudioEngine.enableDebug();
+
+            console.log('Debug enabled. Disable via: cheats.AudioEngine.disableDebug()');
         }
     },
     GameSpeed: {
