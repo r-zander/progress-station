@@ -456,7 +456,7 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot, si
 
         initTooltip(level2DomGetter.byClass('maxLevel'), {
             title: () => {
-                return `<b>x${(1 + module.maxLevel / 500).toFixed(2)} XP</b> for all operations in this module.`;
+                return `<b>x${getMaxLevelMultiplier(module.maxLevel).toFixed(2)} XP</b> for all operations in this module.`;
             },
             html: true,
         });

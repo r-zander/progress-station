@@ -149,17 +149,17 @@ moduleOperations.MicroalloyGlass = new ModuleOperation({
 
 //Military
 moduleOperations.GlitzPlating = new ModuleOperation({
-    title: 'Glitz Plating', maxXp: 2_000, gridLoad: 1,
+    title: 'Glitz Plating', maxXp: 2_000, gridLoad: 2,
     description: 'Tougher than a Comet Crawler\'s shell, this armor resists most of galaxy\'s temper.',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.01}],
 });
 moduleOperations.NanoHardener = new ModuleOperation({
-    title: 'Nano Hardener', maxXp: 8_000, gridLoad: 2,
+    title: 'Nano Hardener', maxXp: 8_000, gridLoad: 4,
     description: 'Active Nano Robots that make the armor layer one of the hardest materials in the galaxy.',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.03}],
 });
 moduleOperations.PulseShield = new ModuleOperation({
-    title: 'Pulse Shield', maxXp: 32_000, gridLoad: 4,
+    title: 'Pulse Shield', maxXp: 32_000, gridLoad: 6,
     description: 'A shimmering barrier that guards against incoming threats and sends projectiles back from where they came.',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.08}],
 });

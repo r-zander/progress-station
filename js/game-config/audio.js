@@ -202,8 +202,8 @@ const SoundBank = {
 // Note: Music files would need to be created with separate layers
 // This is a placeholder structure for when music assets are available
 
-const slowThreshold = 0.07;
-const fastThreshold = 0.16;
+const slowThreshold = 0.10;
+const fastThreshold = 0.24;
 
 /** @type {import('../audioEngine.js').MusicState} */
 const LayeredMainThemeMusicState = {

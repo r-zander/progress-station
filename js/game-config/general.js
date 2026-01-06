@@ -32,6 +32,7 @@ const units = {
 const BASE_XP_GAIN = 10;
 
 function getPopulationProgressSpeedMultiplier() {
+    // TODO fix
     // +------------+----------------+
     // | Population | Progress Speed |
     // +------------+----------------+
@@ -59,5 +60,13 @@ function getPopulationProgressSpeedMultiplier() {
     // |       100B |       46415    |
     // |     196.5T |       58137    |
     // +------------+----------------+
-    return Math.max(1, Math.pow(Math.round(gameData.population), 1 / 3.00));
+    return Math.max(1, Math.pow(Math.round(gameData.population), 1 / 2.70));
+}
+
+/**
+ * @param maxLevel
+ * @return {number}
+ */
+function getMaxLevelMultiplier(maxLevel) {
+    return 1 + maxLevel / 400;
 }
