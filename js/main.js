@@ -1639,7 +1639,7 @@ function updateModuleOperationRow(operation, operationRequirementsContext) {
     row.classList.remove('hidden');
 
     const domGetter = Dom.get(row);
-    formatValue(domGetter.bySelector('.level > data'), operation.level, {keepNumber: true});
+    formatLevelValue(domGetter.bySelector('.level > data'), operation.level);
     formatValue(domGetter.bySelector('.xpGain > data'), operation.getXpGain());
     formatValue(domGetter.bySelector('.xpLeft > data'), operation.getXpLeft());
 
@@ -1709,12 +1709,12 @@ function updateModuleRow(module, moduleRequirementsContext) {
     level2Header.classList.toggle('inactive', !isActive);
 
     domGetter.byClass('moduleActivationSwitch').checked = module.isActive();
-    formatValue(domGetter.byClass('level'), module.getLevel());
+    formatLevelValue(domGetter.byClass('level'), module.getLevel());
 
     const maxLevelElement = domGetter.byClass('maxLevel');
     if (gameData.bossEncounterCount > 0) {
         maxLevelElement.classList.remove('hidden');
-        formatValue(domGetter.bySelector('.maxLevel > data'), module.maxLevel, {keepNumber: true});
+        formatLevelValue(domGetter.bySelector('.maxLevel > data'), module.maxLevel);
     } else {
         maxLevelElement.classList.add('hidden');
     }

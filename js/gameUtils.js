@@ -46,6 +46,7 @@ function formatValue(dataElement, value, config = {}) {
         prefixes: magnitudes,
         unit: '',
         forceSign: false,
+        // TODO does not support thousand separator
         keepNumber: false,
         forceInteger: false,
         toStringFn: undefined,
@@ -121,4 +122,10 @@ function formatEnergyValue(dataElement, amount, formatConfig = {}) {
         unit: units.energy,
         prefixes: metricPrefixes,
     }, formatConfig));
+}
+
+function formatLevelValue(dataElement, level) {
+    // TODO adjust formatValue and use that
+    dataElement.textContent = formatNumber(level);
+    dataElement.value = String(level);
 }
