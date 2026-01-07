@@ -13,6 +13,7 @@ body {
     color: var(--body-font-color);
     /*noinspection CssNoGenericFontName*/
     font-family: var(--body-font-family);
+    user-select: none;
 }
 
 h1, h2, h3, h4, h5, h6,
