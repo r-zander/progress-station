@@ -747,7 +747,7 @@ class Sector extends Entity {
      * Displayed in the technologies tab
      */
     getEffectDescription() {
-        return this.description || '-';
+        return this.pointsOfInterest[0].getEffectDescription();
     }
 }
 
