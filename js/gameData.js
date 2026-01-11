@@ -344,7 +344,7 @@ class GameData {
             enabled: false,
             toastAnswered: false,
             masterVolume: 0.5,
-            enableBackgroundAudio: false,
+            enableBackgroundAudio: true,
             musicVolume: 0.6,
             soundVolume: 0.7,
         }
