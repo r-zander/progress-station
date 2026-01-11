@@ -568,9 +568,13 @@ class GameData {
         }
     }
 
+    exportAsString() {
+        return window.btoa(unescape(encodeURIComponent(this.serializeAsJson())));
+    }
+
     export() {
         const importExportBox = document.getElementById('importExportBox');
-        importExportBox.value = window.btoa(unescape(encodeURIComponent(gameData.serializeAsJson())));
+        importExportBox.value = this.exportAsString();
     }
 
     /**

@@ -186,6 +186,14 @@ const cheats = {
 
             cheats.AudioEngine.restoreSounds();
             cheats.UI.refresh();
+        },
+
+        exportSave: () => {
+            console.log(gameData.exportAsString());
+        },
+
+        exportSaveAsJson: () => {
+            console.log(gameData.serializeAsJson());
         }
     },
     Config: {
