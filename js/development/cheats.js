@@ -443,6 +443,7 @@ const cheats = {
                 {effectType: EffectType.Research, baseValue: value},
                 {effectType: EffectType.Growth, baseValue: value},
                 {effectType: EffectType.Military, baseValue: value},
+                {effectType: EffectType.Energy, baseValue: value},
             ];
             cheats.UI.refresh();
         },
