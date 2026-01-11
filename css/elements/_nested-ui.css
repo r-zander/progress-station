@@ -102,6 +102,13 @@
     background-color: var(--panel-bg-color);
 }
 
+/* FIX for https://trello.com/c/efphnfbX/414-mobile-table-responsive-breaks-position-sticky */
+@media (max-width: 991.98px) {
+    .level3 {
+        position: static;
+    }
+}
+
 .level1 {
     .level2-header {
         top: 39px;
