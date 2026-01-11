@@ -60,7 +60,7 @@
         transform-origin: right;
     }
 
-    @media (min-width: 992px) {
+    @media (min-width: 1200px) {
         > div:first-child {
             width: var(--main-column-width);
         }
