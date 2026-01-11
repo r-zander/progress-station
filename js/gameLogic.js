@@ -177,7 +177,6 @@ function summonBoss(){
     gameData.bossBattleAvailable = true;
     gameData.bossAppearedCycle = gameData.cycles;
     gameData.transitionState(gameStates.BOSS_APPEARING);
-    GameEvents.BossAppearance.trigger(undefined);
     bossBarAcceleratedProgress = 0;
 
     // Force some updates, as this method could happen in between game loop updates

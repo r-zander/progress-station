@@ -31,30 +31,35 @@ function initIntro() {
 
 function initBossAppearance() {
     const modal = new bootstrap.Modal(document.getElementById('bossAppearanceModal'));
-    GameEvents.BossAppearance.subscribe(function () {
-        AudioEngine.postEvent(AudioEvents.BOSS_APPEARANCE, bossBattle);
-        modal.show();
-    });
-
+    const finalLevelModal = new bootstrap.Modal(document.getElementById('bossFinalLevelAppearanceModal'));
     GameEvents.GameStateChanged.subscribe( (payload) => {
         // TODO gameStates.TUTORIAL_PAUSED is a bad idea, as its generic but we need to show the correct "tutorial"
         //  currently there is only one - but this doesn't scale
         if (payload.newState !== gameStates.BOSS_APPEARING.name) return;
-        if (payload.previousState !== gameStates.NEW.name) return;
 
-        modal.show();
+        if (payload.previousState !== gameStates.NEW.name) {
+            AudioEngine.postEvent(AudioEvents.BOSS_APPEARANCE, bossBattle);
+        }
+
+        if (bossBattle.level === 10) {
+            // Boss was defeated before, but is now re-appearing with it's "final" (11th) level
+            finalLevelModal.show();
+        } else {
+            modal.show();
+        }
     });
 
     withCheats(cheats => {
         cheats.Story['BossAppearance'] = {
             trigger: () => {
-                GameEvents.BossAppearance.trigger(undefined);
+                gameData.transitionState(gameStates.BOSS_APPEARING);
             }
         };
     });
 
     window.acknowledgeBossBattle = function () {
         modal.hide();
+        finalLevelModal.hide();
         setTab('battles');
         Dom.get().byId(bossBattle.domId).scrollIntoView(false);
         gameData.transitionState(gameStates.PLAYING);

@@ -206,7 +206,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 9;
+    version = 10;
 
     /**
      * @type {string}
@@ -626,11 +626,45 @@ class GameData {
     }
 }
 
+/**
+ * @param {GameData} gameDataSave
+ * @param {GameState} newState
+ */
+function migrateGameState(gameDataSave, newState){
+    gameDataSave.previousStateName = gameDataSave.stateName;
+    gameDataSave.stateName = newState.name;
+}
+
+// Migrate from v5 to v6
 gameDataMigrations[5] = (gameDataSave) => {
     // Change default value of GameData.settings.vfx.followProgressBars
     if (_.has(gameDataSave, 'settings.vfx.followProgressBars')) {
         gameDataSave.settings.vfx.followProgressBars = false;
     }
+
+    return gameDataSave;
+};
+
+// Migrate from v9 to v10
+/**
+ *
+ * @param {GameData} gameDataSave
+ * @return {GameData}
+ */
+gameDataMigrations[9] = (gameDataSave) => {
+    // Find out if the boss was defeated before
+    if (gameDataSave.savedValues.battles['Boss10'].level === 10) {
+        // Set various fields so that the boss battle starts again
+        // Flatten Boss battle XP
+        gameDataSave.savedValues.battles['Boss10'].xp = 0;
+        // Basically a slightly modified version of `summonBoss` function
+        gameDataSave.bossBattleAvailable = true;
+        gameDataSave.bossAppearedCycle = gameData.cycles;
+        migrateGameState(gameDataSave, gameStates.BOSS_APPEARING);
+        bossBarAcceleratedProgress = 0;
+        // this could basically be treated either as "boss appearance" with 800 cycles etc OR be treated as "boss fight intro", throwing the player straight into the fight
+    }
+    // All good, keep on playing
 
     return gameDataSave;
 };
