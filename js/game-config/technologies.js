@@ -59,80 +59,6 @@ technologies.locationTabButton = new Technology({
     requirements: [sharedRequirements.NovaFliesLvl20],
 });
 
-technologies.BattleCoordinationI = new Technology({
-    unlocks: {
-        type: 'BattleSlot',
-        title: 'Battle Coordination I',
-        name: 'BattleCoordinationI',
-        getEffectDescription: () => 'Engage up to 2 battles at once.'
-    },
-    baseCost: 5,
-    // FIXME for BattleSlots and HtmlElement, the pre-requisites need to be passed down manually (see next assignment)
-    // prerequisites: [new FactionLevelsDefeatedRequirement('playthrough', {
-    //     faction: factions.NovaFlies,
-    //     requirement: 10 + 20 + 30 + 50,
-    // })],
-    requirements: [
-        sharedRequirements.battleTabButton,
-        new FactionLevelsDefeatedRequirement('playthrough', {
-            faction: factions.NovaFlies,
-            requirement: 10 + 20 + 30 + 50 + 75,
-        }),
-    ],
-});
-sharedRequirements.BattleCoordinationI = new TechnologyRequirement(
-    {technology: technologies.BattleCoordinationI},
-    [new FactionLevelsDefeatedRequirement('playthrough', {
-        faction: factions.NovaFlies,
-        requirement: 10 + 20 + 30 + 50,
-    })],
-);
-
-technologies.BattleCoordinationII = new Technology({
-    unlocks: {
-        type: 'BattleSlot',
-        title: 'Battle Coordination II',
-        name: 'BattleCoordinationII',
-        getEffectDescription: () => 'Engage up to 3 battles at once.'
-    },
-    baseCost: 10,
-    requirements: [sharedRequirements.BattleCoordinationI],
-});
-
-technologies.BattleCoordinationIII = new Technology({
-    unlocks: {
-        type: 'BattleSlot',
-        title: 'Battle Coordination III',
-        name: 'BattleCoordinationIII',
-        getEffectDescription: () => 'Engage up to 4 battles at once.'
-    },
-    baseCost: 15,
-    requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationII})],
-});
-
-technologies.BattleCoordinationIV = new Technology({
-    unlocks: {
-        type: 'BattleSlot',
-        title: 'Battle Coordination IV',
-        name: 'BattleCoordinationIV',
-        getEffectDescription: () => 'Engage up to 5 battles at once.'
-    },
-    baseCost: 20,
-    requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationIII})],
-});
-
-technologies.BattleCoordinationV = new Technology({
-    unlocks: {
-        type: 'BattleSlot',
-        title: 'Battle Coordination V',
-        name: 'BattleCoordinationV',
-        getEffectDescription: () => 'Engage up to 6 battles at once.'
-    },
-    baseCost: 25,
-    requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationIV})],
-});
-sharedRequirements.BattleCoordinationV = new TechnologyRequirement({technology: technologies.BattleCoordinationV});
-
 technologies.MiningBay = new Technology({
     unlocks: modules.MiningBay,
     baseCost: 5,
@@ -191,6 +117,77 @@ technologies.ArtificialEcosystem = new Technology({
         requirement: 100,
     })],
 });
+
+technologies.BattleCoordinationI = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination I',
+        name: 'BattleCoordinationI',
+        getEffectDescription: () => 'Engage up to 2 battles at once.'
+    },
+    baseCost: 5,
+    // FIXME for BattleSlots and HtmlElement, the pre-requisites need to be passed down manually (see next assignment)
+    // prerequisites: [new FactionLevelsDefeatedRequirement('playthrough', {
+    //     faction: factions.NovaFlies,
+    //     requirement: 10 + 20 + 30 + 50,
+    // })],
+    requirements: [
+        sharedRequirements.battleTabButton,
+        new FactionLevelsDefeatedRequirement('playthrough', {
+            faction: factions.NovaFlies,
+            requirement: 10 + 20 + 30 + 50 / 2,
+        }),
+    ],
+});
+sharedRequirements.BattleCoordinationI = new TechnologyRequirement(
+    {technology: technologies.BattleCoordinationI},
+    [sharedRequirements.NovaFliesLvl20],
+);
+
+technologies.BattleCoordinationII = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination II',
+        name: 'BattleCoordinationII',
+        getEffectDescription: () => 'Engage up to 3 battles at once.'
+    },
+    baseCost: 10,
+    requirements: [sharedRequirements.BattleCoordinationI],
+});
+
+technologies.BattleCoordinationIII = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination III',
+        name: 'BattleCoordinationIII',
+        getEffectDescription: () => 'Engage up to 4 battles at once.'
+    },
+    baseCost: 15,
+    requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationII})],
+});
+
+technologies.BattleCoordinationIV = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination IV',
+        name: 'BattleCoordinationIV',
+        getEffectDescription: () => 'Engage up to 5 battles at once.'
+    },
+    baseCost: 20,
+    requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationIII})],
+});
+
+technologies.BattleCoordinationV = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination V',
+        name: 'BattleCoordinationV',
+        getEffectDescription: () => 'Engage up to 6 battles at once.'
+    },
+    baseCost: 25,
+    requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationIV})],
+});
+sharedRequirements.BattleCoordinationV = new TechnologyRequirement({technology: technologies.BattleCoordinationV});
 
 technologies.GrowthLocationLow = new Technology({
     unlocks: pointsOfInterest.GrowthLocationLow,
