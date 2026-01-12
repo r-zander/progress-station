@@ -657,6 +657,8 @@ gameDataMigrations[9] = (gameDataSave) => {
         // Set various fields so that the boss battle starts again
         // Flatten Boss battle XP
         gameDataSave.savedValues.battles['Boss10'].xp = 0;
+        // Store the currently reached level to later disregard those for Essence of Unknown
+        gameDataSave.savedValues.battles['Boss10'].maxLevel = 10;
         // Basically a slightly modified version of `summonBoss` function
         gameDataSave.bossBattleAvailable = true;
         gameDataSave.bossAppearedCycle = gameData.cycles;

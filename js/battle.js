@@ -456,6 +456,7 @@ class BossBattle extends Battle {
 
         this.savedValues.distance = bossBattleDefaultDistance;
         this.savedValues.coveredDistance = 0;
+        this.savedValues.maxLevel = 0;
     }
 
     /**
