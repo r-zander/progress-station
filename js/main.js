@@ -2324,8 +2324,8 @@ function updateBossProgress() {
     bossBar.classList.remove('defeated');
     bossBar.classList.add('progress-bar-striped');
 
-    const allowProgressAcceleration = gameData.bossEncounterCount >= bossBarAccelerationAllowedAfterBossEncounters;
-
+    const allowProgressAcceleration = gameData.bossEncounterCount >= bossBarAccelerationAllowedAfterBossEncounters
+        && technologies.battleTabButton.isUnlocked;
 
     const remaining = getTimeUntilBossAppears();
     const totalWait = getBossAppearanceCycle();
