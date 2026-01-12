@@ -1151,8 +1151,12 @@ function createAttributeBalance(rowElement, effectTypes) {
                 }
                 return count;
             };
-            let battleValueFromRewardsFn = () => (Math.pow(standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue, battlesWonLength()));
-            let atLeastOneBattleWonToMakeItActiveFn = () => (battleValueFromRewardsFn() > 1 ? true : false);
+            let battleValueFromRewardsFn = () => {
+                const defaultValue = standardBattleMilitaryReward.effectType.getDefaultValue();
+                const baseValue = standardBattleMilitaryReward.baseValue;
+                return Math.pow(defaultValue + baseValue, battlesWonLength());
+            };
+            let atLeastOneBattleWonToMakeItActiveFn = () => (battleValueFromRewardsFn() > 1);
             let descriptionTextFn = () => ('x' + (standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue) + ' for ' + battlesWonLength() + ' battles defeated');
             createAttributeBalanceEntryDynamicDescription(
                 balanceElement,
@@ -1171,7 +1175,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                     battle.getReward.bind(battle),
                     () => battle.rewards,
                     effectType,
-                    'defeat ' + battle.title,
+                    'defeated ' + battle.title,
                     battle.isDone.bind(battle),
                 );
                 createAttributeBalanceEntryStaticDescription(
@@ -1179,7 +1183,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                     battle.getEffect.bind(battle),
                     battle.getEffects.bind(battle),
                     effectType,
-                    'Fighting ' + battle.title,
+                    'fighting ' + battle.title,
                     () => battle.isActive() && !battle.isDone(),
                 );
             }
@@ -1340,6 +1344,11 @@ function createAttributesUI() {
     createAttributeBalance(dangerCell, [EffectType.Danger, EffectType.DangerFactor]);
     rows.push(dangerCell);
 
+    const energyCell = createAttributeRow(attributes.energy);
+    Dom.get(energyCell).byClass('balance').classList.remove('hidden');
+    createAttributeBalance(energyCell, [EffectType.Energy, EffectType.EnergyFactor]);
+    rows.push(energyCell);
+
     // Grid Load
     const gridLoadRow = createAttributeRow(attributes.gridLoad);
     Dom.get(gridLoadRow).byClass('balance').classList.remove('hidden');
@@ -1400,6 +1409,8 @@ function createEnergyGridDisplay() {
     const tooltipText = createGridStrengthAndLoadDescription();
     Dom.get().byId('gridLabel').title = tooltipText;
     Dom.get().byId('gridStrength').title = tooltipText;
+
+    Dom.get().byId('energyLabel').title =  attributes.energy.description;
 
     const tickElementsTop = [];
     const tickElementsBottom = [];
@@ -2175,10 +2186,18 @@ function updateTechnologiesUI() {
 function updateAttributeRows() {
     for (const balanceEntry of attributeBalanceEntries) {
         if (balanceEntry.isActive()) {
-            formatValue(
-                Dom.get(balanceEntry.element).byClass('entryValue'),
-                balanceEntry.getEffect(balanceEntry.effectType),
-            );
+            if (balanceEntry.effectType.attribute === attributes.energy) {
+                formatEnergyValue(
+                    Dom.get(balanceEntry.element).byClass('entryValue'),
+                    balanceEntry.getEffect(balanceEntry.effectType),
+                );
+            } else {
+                formatValue(
+                    Dom.get(balanceEntry.element).byClass('entryValue'),
+                    balanceEntry.getEffect(balanceEntry.effectType),
+                );
+            }
+
             if (isFunction(balanceEntry.updateDescription)) {
                 balanceEntry.updateDescription();
             }
@@ -2381,6 +2400,7 @@ function updateHeatIndication() {
     Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="danger"]').classList.toggle('shake-and-pulse', isPopShrinking);
 }
 
+// TODO move attribute overview updates out of this function
 function updateStationOverview() {
     updateBossProgress();
     const cyclesTotalElement = Dom.get().byId('cyclesTotal');
@@ -2420,6 +2440,7 @@ function updateStationOverview() {
     updateEnergyGridBar();
     formatValue(Dom.get().bySelector('#attributeRows > .gridLoad > .value > data'), attributes.gridLoad.getValue());
     formatValue(Dom.get().bySelector('#attributeRows > .gridStrength > .value > data'), attributes.gridStrength.getValue());
+    formatEnergyValue(Dom.get().bySelector('#attributeRows > .energy > .value > data'), attributes.energy.getValue());
     const delta = gridStrength.getDelta();
     const gridStrengthDeltaElement = Dom.get().bySelector('#attributeRows > .gridStrength .delta');
     if (delta < 0.1) {
