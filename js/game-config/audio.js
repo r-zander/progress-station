@@ -6,7 +6,6 @@
  * @typedef {string} AudioEvent
  */
 
-// We will have to talk what events make sense and then to trigger them appropriately
 const AudioEvents = {
     MODULE_ON: 'MODULE_ON',
     MODULE_OFF: 'MODULE_OFF',
@@ -28,7 +27,7 @@ const AudioEvents = {
 
 const MusicIds = {
     MAIN_THEME: 'Music_MainTheme',
-    COMBAT_THEME: 'Music_Combat',
+    BOSS_THEME: 'Music_Boss',
 };
 
 // ============================================
@@ -275,6 +274,27 @@ const LayeredMainThemeMusicState = {
                 return false;
             },
         },
+    }
+};
+
+/** @type {import('../audioEngine.js').MusicState} */
+const BossThemeMusicState = {
+    name: MusicIds.BOSS_THEME,
+    layers: {
+        initial: {
+            segment: {
+                src: 'audio/music/ps_bgm_initial_layer.mp3',
+                volume: 0.15,
+                loop: true,
+                fadeInTime: 600,
+                fadeOutTime: 600
+            },
+            conditions: (_) => {
+                if (!gameData.state.musicInitialLayerPlaying) return false;
+
+                return true; // Always playing
+            },
+        },
         boss: {
             segment: {
                 src: 'audio/music/ps_bgm_bossbattle.mp3',
@@ -337,4 +357,25 @@ const LayeredMainThemeMusicState = {
 function initializeAudio() {
     AudioEngine.loadBank('Game', SoundBank);
     AudioEngine.registerMusicState(LayeredMainThemeMusicState);
+    AudioEngine.registerMusicState(BossThemeMusicState);
+
+    // Set music state based on game state
+    GameEvents.GameStateChanged.subscribe(
+        /**
+         * @param {{
+         *  previousState: string,
+         *  newState: String,
+         * }} payload
+         */
+        (payload) => {
+            switch (payload.newState) {
+                case gameStates.BOSS_FIGHT.name:
+                case gameStates.BOSS_FIGHT_PAUSED.name:
+                    AudioEngine.setState(MusicIds.BOSS_THEME, MusicIds.BOSS_THEME);
+                    break;
+                default:
+                    AudioEngine.setState(MusicIds.MAIN_THEME, MusicIds.MAIN_THEME);
+                    break;
+            }
+        });
 }

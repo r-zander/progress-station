@@ -142,7 +142,7 @@ const gameStates = {
         canChangeActivation: false,
         canEngageBattles: false,
         areBattlesVisible: false,
-        musicInitialLayerPlaying: false,
+        musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
     },
