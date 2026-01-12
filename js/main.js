@@ -698,7 +698,9 @@ function createLevel4FinishedBattleElements(battles) {
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
         domGetter.byClass('progressBar').classList.remove('clickable');
-        domGetter.bySelector('.progressBar').dataset.layer = String(numberOfSupportedTaskLayers);
+        if (battle instanceof BossBattle) {
+            domGetter.bySelector('.progressBar').dataset.layer = String(numberOfSupportedTaskLayers);
+        }
         domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
         formatValue(
             domGetter.bySelector('.level > data'),
