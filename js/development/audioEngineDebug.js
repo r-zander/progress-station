@@ -114,9 +114,6 @@ const AudioEngineDebug = (() => {
         statistics.lastMinuteAvg.totalProgressSpeed = calculateAverage(
             statistics.lastMinuteAvg.totalProgressSpeeds
         );
-
-        // Update overlay if enabled
-        updateOverlay();
     }
 
     /**
@@ -445,6 +442,8 @@ const AudioEngineDebug = (() => {
                 Samples: ${statistics.lastMinuteAvg.totalProgressSpeeds.length}
             </div>
         `;
+
+        requestAnimationFrame(updateOverlay);
     }
 
     /**
@@ -617,7 +616,7 @@ const AudioEngineDebug = (() => {
                 attachStatisticsListener();
             }
 
-            updateOverlay();
+            requestAnimationFrame(updateOverlay);
             console.log('AudioEngineDebug: Overlay restored from localStorage');
         }
     }
