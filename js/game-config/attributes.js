@@ -126,6 +126,6 @@ const analysisCore = new AnalysisCore({
     getMaxXp: function(currentLevel, baseMaxXp) {
         const exponentCap = 150;
         const exponentLimit = 170;
-        return Math.round(baseMaxXp * (currentLevel + 1) * Math.pow(1.158, exponentCap * Math.tanh(currentLevel / exponentLimit)));
+        return Math.round(baseMaxXp * (currentLevel + 1) * Math.pow(1.175, exponentCap * Math.tanh(currentLevel / exponentLimit)));
     }
 });
