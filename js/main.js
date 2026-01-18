@@ -1487,7 +1487,6 @@ function updateTechnologiesQuickDisplay() {
 function setBattleProgress(progressBar, battle) {
     const domGetter = Dom.get(progressBar);
     if (battle.isDone()) {
-        progressBar.dataset.layer = String(numberOfSupportedTaskLayers);
         domGetter.byClass('progressFill').style.width = '0%';
         return;
     }
