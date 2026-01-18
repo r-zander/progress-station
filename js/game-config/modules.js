@@ -47,7 +47,7 @@ moduleOperations.HeavyGlitz = new ModuleOperation({
 moduleOperations.Radiance = new ModuleOperation({
     title: 'Radiance', maxXp: 20_000, gridLoad: 4,
     description: 'Tingles in your hand but glows in the dark. Even heavier than the regular glitz.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.06}, {effectType: EffectType.ResearchFactor, baseValue: 0.03}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.06}, {effectType: EffectType.ResearchFactor, baseValue: 0.04}],
 });
 
 moduleOperations.BigSpinny = new ModuleOperation({
@@ -82,7 +82,7 @@ moduleOperations.Greenhouse = new ModuleOperation({
 moduleOperations.BossFertilizer = new ModuleOperation({
     title: 'Boss Fertilizer', maxXp: 40_000, gridLoad: 4,
     description: 'Let\'s face it, it\'s alien poop.',
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.04}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.05}],
 });
 // Research
 moduleOperations.FermentationTank = new ModuleOperation({
