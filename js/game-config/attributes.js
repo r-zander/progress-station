@@ -115,7 +115,7 @@ const gridStrength = new GridStrength({
     title: 'Grid Strength',
     maxXp: 500,
     getMaxXp: (currentLevel, baseMaxXp) => {
-        return Math.round(baseMaxXp * (currentLevel + 1) * Math.pow(1.6, currentLevel));
+        return Math.round(baseMaxXp * (currentLevel + 1) * Math.pow(1.445, currentLevel));
     }
 });
 
