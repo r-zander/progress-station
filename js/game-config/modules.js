@@ -47,7 +47,7 @@ moduleOperations.HeavyGlitz = new ModuleOperation({
 moduleOperations.Radiance = new ModuleOperation({
     title: 'Radiance', maxXp: 20_000, gridLoad: 4,
     description: 'Tingles in your hand but glows in the dark. Even heavier than the regular glitz.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.05}, {effectType: EffectType.ResearchFactor, baseValue: 0.05}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.06}, {effectType: EffectType.ResearchFactor, baseValue: 0.03}],
 });
 
 moduleOperations.BigSpinny = new ModuleOperation({
