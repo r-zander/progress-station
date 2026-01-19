@@ -169,20 +169,20 @@ const cheats = {
             gameLoop.start();
         },
 
-        skipToEndGame: () => {
+        skipToEndGame: (moduleLevels = 3000) => {
             cheats.AudioEngine.disableSounds();
             cheats.Requirements.unlockAll();
             Object.values(moduleOperations).forEach(/** @param {ModuleOperation} operation */ operation => {
-                operation.level = Math.max(operation.level, 3000 - 1);
-                operation.xp = operation.getMaxXp() + 1;
+                operation.level =  moduleLevels;
+                operation.xp = operation.getMaxXp();
             });
             Object.values(battles).forEach(/** @param {Battle} battle */ battle => {
                 if (battle instanceof BossBattle) return;
 
                 battle.level = battle.targetLevel;
             });
-            gridStrength.level = Math.max(gridStrength.level, 45);
-            gridStrength.xp = gridStrength.getMaxXp() + 1;
+            gridStrength.level = 53;
+            gridStrength.xp = gridStrength.getMaxXp();
 
             cheats.AudioEngine.restoreSounds();
             cheats.UI.refresh();
