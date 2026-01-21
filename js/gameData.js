@@ -206,7 +206,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 10;
+    version = 11;
 
     /**
      * @type {string}
@@ -670,6 +670,23 @@ gameDataMigrations[9] = (gameDataSave) => {
 
     return gameDataSave;
 };
+
+// Migrate from v10 to v11
+/**
+ *
+ * @param {GameData} gameDataSave
+ * @return {GameData}
+ */
+gameDataMigrations[10] = (gameDataSave) => {
+    // Introduce new field "mastery" that will inherit the current value of "maxLevel"
+    Object.values(gameDataSave.savedValues.modules).forEach(/** @param {ModuleSavedValues} savedValues */ (savedValues) => {
+        savedValues.mastery = savedValues.maxLevel;
+    });
+
+    return gameDataSave;
+};
+
+
 
 /**
  * Shows a generic warning modal with configurable content

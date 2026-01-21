@@ -323,6 +323,8 @@ class Task extends Entity {
             case 'RESET_MAX_LEVEL':
                 this.maxLevel = 0;
                 break;
+            default:
+                console.assert(true, 'Invalid maxLevelBehavior');
         }
     }
 }
@@ -418,6 +420,7 @@ class ModuleCategory extends Entity {
 /**
  * @typedef {Object} ModuleSavedValues
  * @property {number} maxLevel
+ * @property {number} mastery
  */
 
 class Module extends Entity {
@@ -457,6 +460,7 @@ class Module extends Entity {
     loadValues(savedValues) {
         validateParameter(savedValues, {
             maxLevel: JsTypes.Number,
+            mastery: JsTypes.Number,
         }, this);
         this.savedValues = savedValues;
     }
@@ -467,6 +471,7 @@ class Module extends Entity {
     static newSavedValues() {
         return {
             maxLevel: 0,
+            mastery: 0,
         };
     }
 
@@ -506,6 +511,14 @@ class Module extends Entity {
         this.savedValues.maxLevel = maxLevel;
     }
 
+    get mastery() {
+        return this.savedValues.mastery;
+    }
+
+    set mastery(mastery) {
+        this.savedValues.mastery = mastery;
+    }
+
     getLevel() {
         return this.components.reduce((levelSum, component) => levelSum + component.getOperationLevels(), 0);
     }
@@ -523,10 +536,13 @@ class Module extends Entity {
                 if (currentLevel > this.maxLevel) {
                     this.maxLevel = currentLevel;
                 }
+                this.mastery += this.getLevel();
                 break;
             case 'RESET_MAX_LEVEL':
                 this.maxLevel = 0;
                 break;
+            default:
+                console.assert(true, 'Invalid maxLevelBehavior');
         }
     }
 
@@ -657,7 +673,7 @@ class ModuleOperation extends Task {
     }
 
     get maxLevel() {
-        return this.module.maxLevel;
+        return this.module.mastery;
     }
 
     set maxLevel(maxLevel) {

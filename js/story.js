@@ -109,8 +109,8 @@ function populateLastRunStats() {
    for (const categoryKey in moduleCategories) {
         const category = moduleCategories[categoryKey];
         for (const module of category.modules) {
-            const newLevel = Math.max(module.getLevel(), module.maxLevel);
-            const prevMaxLevel = module.maxLevel;
+            const newLevel = module.mastery + module.getLevel();
+            const prevMaxLevel = module.mastery;
             const isNewRecord = module.getLevel() > module.maxLevel;
             if (newLevel === 0 && prevMaxLevel === 0) {
                 continue;
@@ -152,8 +152,8 @@ function populateLastRunStats() {
             speedCell.appendChild(speedValueElement);
             row.appendChild(speedCell);
 
-            const newOpSpeed = getMaxLevelMultiplier(Math.max(module.getLevel(), module.maxLevel));
-            const prevOpSpeed = getMaxLevelMultiplier(module.maxLevel);
+            const newOpSpeed = getMaxLevelMultiplier(module.mastery + module.getLevel());
+            const prevOpSpeed = getMaxLevelMultiplier(module.mastery);
             runningAnimations.push(animateStatValue(speedValueElement, prevOpSpeed, newOpSpeed, 6000, value => {
                 return `x ${value.toFixed(2)}`;
             }));
