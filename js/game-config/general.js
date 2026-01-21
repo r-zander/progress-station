@@ -68,5 +68,5 @@ function getPopulationProgressSpeedMultiplier() {
  * @return {number}
  */
 function getMaxLevelMultiplier(maxLevel) {
-    return 1 + maxLevel / 400;
+    return 1 + maxLevel / 500;
 }
