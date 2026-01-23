@@ -1726,7 +1726,7 @@ function updateModuleRow(module, moduleRequirementsContext) {
     const maxLevelElement = domGetter.byClass('maxLevel');
     if (gameData.bossEncounterCount > 0) {
         maxLevelElement.classList.remove('hidden');
-        formatLevelValue(domGetter.bySelector('.maxLevel > data'), module.maxLevel);
+        formatLevelValue(domGetter.bySelector('.maxLevel > data'), module.mastery);
     } else {
         maxLevelElement.classList.add('hidden');
     }
