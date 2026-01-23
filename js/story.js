@@ -103,7 +103,7 @@ function initBossFightIntro() {
 
 function populateLastRunStats() {
     Dom.get().byId('lastRunStationName').textContent = gameData.stationName;
-    Dom.get().byId('lastRunBossEncounters').textContent = formatNumber(gameData.bossEncounterCount);
+    Dom.get().byId('lastRunBossEncounters').textContent = formatNumber(gameData.bossEncounterCount + 1);
     Dom.get().byId('lastRunTravelTime').textContent = formatNumber(gameData.totalCycles);
 
     const tableBody = Dom.get().byId('lastRunModulesTable');
