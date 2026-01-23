@@ -62,9 +62,9 @@
             <!-- Date display -->
             <div id="cyclesTotal" class="secondary-stat help-text text-end flex-shrink-0"
                  title="Intergalactic Cycles" data-bs-placement="bottom">
-            <span class="label">Date:</span>
-            <data value="70" data-unit="IC">0</data>
-        </div>
+                <span class="label">Date:</span>
+                <data value="70" data-unit="IC">0</data>
+            </div>
         </div>
 
         <div id="energyGridDisplay" class="panel px-1 px-lg-3 py-1 d-flex flex-row overflow-hidden">
@@ -1499,6 +1499,31 @@
                 </h2>
             </div>
             <div class="modal-body">
+                <h3 class="fs-5 fw-light">Station</h3>
+                <section class="basedata-section mb-4">
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0" style="width: 19rem">
+                            <tbody>
+                            <tr>
+                                <td>Name:</td>
+                                <td id="lastRunStationName"></td>
+                            </tr>
+                            <tr>
+                                <td>Boss encounters:</td>
+                                <td id="lastRunBossEncounters"></td>
+                            </tr>
+                            <tr>
+                                <td>Travel Time:</td>
+
+                                <td>
+                                    <data value="70" data-unit="IC" id="lastRunTravelTime" class="text-start" >0</data>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
                 <!-- MODULES SECTION -->
                 <section class="modules-section mb-4">
                     <h3 class="fs-5 fw-light">Modules</h3>

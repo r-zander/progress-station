@@ -102,6 +102,10 @@ function initBossFightIntro() {
 }
 
 function populateLastRunStats() {
+    Dom.get().byId('lastRunStationName').textContent = gameData.stationName;
+    Dom.get().byId('lastRunBossEncounters').textContent = formatNumber(gameData.bossEncounterCount);
+    Dom.get().byId('lastRunTravelTime').textContent = formatNumber(gameData.totalCycles);
+
     const tableBody = Dom.get().byId('lastRunModulesTable');
     console.assert(tableBody !== null, 'Missing #lastRunModulesTable');
     tableBody.innerHTML = '';
@@ -162,7 +166,10 @@ function populateLastRunStats() {
         }
     }
 
-    setStatValue('statBossLevels', bossBattle.level, bossBattle.maxLevel, false);
+    const bossPartialLevel = bossBattle.xp / bossBattle.getMaxXp();
+    setStatValue('statBossLevels', bossBattle.level + bossPartialLevel, bossBattle.maxLevel + bossPartialLevel, false, (value) => {
+        return value.toPrecision(2);
+    });
     setStatValue('statBattlesFinished', getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max, false);
     setStatValue('statWavesDefeated', getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max, false);
     setStatValue('statEssenceOfUnknown', calculateEssenceOfUnknownGain(bossBattle.level), 0, false);
@@ -196,7 +203,7 @@ function animateStatValue(element, start, end, duration = 1500, formatFn) {
         const progress = Math.min((now - startTime) / duration, 1);
         const value = end * progress;
         if (formatFn) {
-            element.textContent = formatFn(value)
+            element.textContent = formatFn(value);
         } else {
             formatValue(element, value);
         }
@@ -244,8 +251,9 @@ const runningAnimations = [];
  * @param {number} currentValue
  * @param {number} recordValue
  * @param {boolean} useValueFormatting
+ * @param {function(number): string} customFormatFn
  */
-function setStatValue(id, currentValue, recordValue, useValueFormatting) {
+function setStatValue(id, currentValue, recordValue, useValueFormatting, customFormatFn = undefined) {
     const element = document.getElementById(id);
     console.assert(element !== null, 'Missing #' + id);
 
@@ -254,12 +262,17 @@ function setStatValue(id, currentValue, recordValue, useValueFormatting) {
         element.textContent = '0';
         return;
     }
-    if (isUndefined(recordValue)) {
-        recordValue = currentValue;
+
+    let formatFunc = customFormatFn;
+    if (useValueFormatting) {
+        console.assert(isUndefined(formatFunc), 'Can\'t set useValueFormatting=true and provide a customFormatFn!');
+        // If no customFormatFn was provided, formatFunc is now undefined --> which will lead to animateStatValue using formatValue
+    } else if (isUndefined(formatFunc)) {
+        formatFunc = (value) => {
+            return formatNumber(Math.round(value));
+        };
     }
-    const formatFunc = useValueFormatting ? undefined : value => {
-        return formatNumber(Math.round(value));
-    }
+
     runningAnimations.push(animateStatValue(element, recordValue, currentValue, 6000, formatFunc));
 }
 
