@@ -114,9 +114,6 @@ const AudioEngineDebug = (() => {
         statistics.lastMinuteAvg.totalProgressSpeed = calculateAverage(
             statistics.lastMinuteAvg.totalProgressSpeeds
         );
-
-        // Update overlay if enabled
-        updateOverlay();
     }
 
     /**
@@ -290,8 +287,8 @@ const AudioEngineDebug = (() => {
     function updateOverlay() {
         if (!overlayEnabled) return;
 
-        const debugDiv = document.getElementById('audioEngineDebug');
-        if (!debugDiv) return;
+        const debugDiv = Dom.get().bySelector('#audioEngineDebug > .offcanvas-body');
+        if (debugDiv === null) return;
 
         // Build debug info by introspecting AudioEngine state
         const musicDebug = buildDebugInfo();
@@ -382,72 +379,71 @@ const AudioEngineDebug = (() => {
         // Remove hidden class and update content
         debugDiv.classList.remove('hidden');
         debugDiv.innerHTML = `
+            <hr style="margin: 5px 0;">
+            <div style="margin-bottom: 8px;">
+                <strong>Howl Statistics:</strong><br>
+                ${howlStatsText}
+            </div>
+            <div style="margin-bottom: 8px;">
+                <strong>🔍 Howler.js Direct View:</strong><br>
+                <span style="font-size: 10px;">Total Howls: ${musicDebug.allHowlerSounds.length} | Instances: ${totalHowlerInstances} | Playing: ${playingHowlerInstances}</span><br>
+                ${allHowlerText}
+            </div>
+            <div style="margin-bottom: 8px;">
+                <strong>Music Layer Howls (Permanent):</strong><br>
+                <span style="font-size: 10px;">(🟢=Active, ⚪=Inactive)</span><br>
+                ${allMusicLayerDetailsText}
+            </div>
+            <div style="margin-bottom: 8px;">
+                <strong>Active SFX:</strong><br>
+                ${sfxDetailsText}
+            </div>
+            <div style="margin-bottom: 8px;">
+                <strong>Music State:</strong><br>
+                Active States:<br>
+                ${activeStatesText}<br>
+                <br>
+                Active Layers:<br>
+                ${activeLayersText}<br>
+                <br>
+                Registered: ${musicDebug.registeredStates.join(', ') || 'None'}
+            </div>
+            <div style="margin-bottom: 8px;">
+                <strong>Current Values:</strong><br>
+                Highest Attr: ${musicContext.highestAttribute}<br>
+                Avg Speed: ${formatValue(musicContext.avgProgressSpeed)}<br>
+                Median Speed: ${formatValue(musicContext.medianProgressSpeed)}<br>
+                Max Speed: ${formatValue(musicContext.maxProgressSpeed)}<br>
+                Total Speed: ${formatValue(musicContext.totalProgressSpeed)}<br>
+                Danger Level: ${formatValue(musicContext.dangerLevel)}<br>
+                Battles: ${musicContext.numberOfEngagedBattles}<br>
+                State: ${musicContext.gameState}
+            </div>
+            <div style="margin-bottom: 8px;">
+                <strong>All-Time Lowest:</strong><br>
+                Avg: ${formatValue(statistics.allTime.lowestProgressSpeed.avg)}<br>
+                Median: ${formatValue(statistics.allTime.lowestProgressSpeed.median)}<br>
+                Max: ${formatValue(statistics.allTime.lowestProgressSpeed.max)}<br>
+                Total: ${formatValue(statistics.allTime.lowestProgressSpeed.total)}
+            </div>
+            <div style="margin-bottom: 8px;">
+                <strong>All-Time Highest:</strong><br>
+                Avg: ${formatValue(statistics.allTime.highestProgressSpeed.avg)}<br>
+                Median: ${formatValue(statistics.allTime.highestProgressSpeed.median)}<br>
+                Max: ${formatValue(statistics.allTime.highestProgressSpeed.max)}<br>
+                Total: ${formatValue(statistics.allTime.highestProgressSpeed.total)}
+            </div>
             <div>
-                <strong>Audio Engine Debug</strong>
-                <hr style="margin: 5px 0;">
-                <div style="margin-bottom: 8px;">
-                    <strong>Howl Statistics:</strong><br>
-                    ${howlStatsText}
-                </div>
-                <div style="margin-bottom: 8px;">
-                    <strong>🔍 Howler.js Direct View:</strong><br>
-                    <span style="font-size: 10px;">Total Howls: ${musicDebug.allHowlerSounds.length} | Instances: ${totalHowlerInstances} | Playing: ${playingHowlerInstances}</span><br>
-                    ${allHowlerText}
-                </div>
-                <div style="margin-bottom: 8px;">
-                    <strong>Music Layer Howls (Permanent):</strong><br>
-                    <span style="font-size: 10px;">(🟢=Active, ⚪=Inactive)</span><br>
-                    ${allMusicLayerDetailsText}
-                </div>
-                <div style="margin-bottom: 8px;">
-                    <strong>Active SFX:</strong><br>
-                    ${sfxDetailsText}
-                </div>
-                <div style="margin-bottom: 8px;">
-                    <strong>Music State:</strong><br>
-                    Active States:<br>
-                    ${activeStatesText}<br>
-                    <br>
-                    Active Layers:<br>
-                    ${activeLayersText}<br>
-                    <br>
-                    Registered: ${musicDebug.registeredStates.join(', ') || 'None'}
-                </div>
-                <div style="margin-bottom: 8px;">
-                    <strong>Current Values:</strong><br>
-                    Highest Attr: ${musicContext.highestAttribute}<br>
-                    Avg Speed: ${formatValue(musicContext.avgProgressSpeed)}<br>
-                    Median Speed: ${formatValue(musicContext.medianProgressSpeed)}<br>
-                    Max Speed: ${formatValue(musicContext.maxProgressSpeed)}<br>
-                    Total Speed: ${formatValue(musicContext.totalProgressSpeed)}<br>
-                    Danger Level: ${formatValue(musicContext.dangerLevel)}<br>
-                    Battles: ${musicContext.numberOfEngagedBattles}<br>
-                    State: ${musicContext.gameState}
-                </div>
-                <div style="margin-bottom: 8px;">
-                    <strong>All-Time Lowest:</strong><br>
-                    Avg: ${formatValue(statistics.allTime.lowestProgressSpeed.avg)}<br>
-                    Median: ${formatValue(statistics.allTime.lowestProgressSpeed.median)}<br>
-                    Max: ${formatValue(statistics.allTime.lowestProgressSpeed.max)}<br>
-                    Total: ${formatValue(statistics.allTime.lowestProgressSpeed.total)}
-                </div>
-                <div style="margin-bottom: 8px;">
-                    <strong>All-Time Highest:</strong><br>
-                    Avg: ${formatValue(statistics.allTime.highestProgressSpeed.avg)}<br>
-                    Median: ${formatValue(statistics.allTime.highestProgressSpeed.median)}<br>
-                    Max: ${formatValue(statistics.allTime.highestProgressSpeed.max)}<br>
-                    Total: ${formatValue(statistics.allTime.highestProgressSpeed.total)}
-                </div>
-                <div>
-                    <strong>Last Minute Avg:</strong><br>
-                    Avg Speed: ${formatValue(statistics.lastMinuteAvg.avgProgressSpeed)}<br>
-                    Median Speed: ${formatValue(statistics.lastMinuteAvg.medianProgressSpeed)}<br>
-                    Max Speed: ${formatValue(statistics.lastMinuteAvg.maxProgressSpeed)}<br>
-                    Total Speed: ${formatValue(statistics.lastMinuteAvg.totalProgressSpeed)}<br>
-                    Samples: ${statistics.lastMinuteAvg.totalProgressSpeeds.length}
-                </div>
+                <strong>Last Minute Avg:</strong><br>
+                Avg Speed: ${formatValue(statistics.lastMinuteAvg.avgProgressSpeed)}<br>
+                Median Speed: ${formatValue(statistics.lastMinuteAvg.medianProgressSpeed)}<br>
+                Max Speed: ${formatValue(statistics.lastMinuteAvg.maxProgressSpeed)}<br>
+                Total Speed: ${formatValue(statistics.lastMinuteAvg.totalProgressSpeed)}<br>
+                Samples: ${statistics.lastMinuteAvg.totalProgressSpeeds.length}
             </div>
         `;
+
+        requestAnimationFrame(updateOverlay);
     }
 
     /**
@@ -490,16 +486,38 @@ const AudioEngineDebug = (() => {
 
         document.body.insertAdjacentHTML(
             'beforeend',
-`<div id="audioEngineDebug" 
-            class="position-fixed end-0 p-1 text-bg-dark hidden" 
-            style="top: 60px;
-            z-index: 2000;
-            max-width: 300px;
-            font-family: monospace
-            font-size: 12px;
-            border: 2px solid white;
-            max-height: calc(100vh - 60px - 151px);
-            overflow-y: auto;"></div>`
+`<div id="audioEngineDebug" class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Audio Engine Debug</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" 
+         style="font-size: 14px;">
+        
+    </div>
+</div>`);
+
+        const offcanvasElement = document.getElementById('audioEngineDebug');
+        bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement).show();
+        offcanvasElement.addEventListener('hide.bs.offcanvas', () => {
+            disableOverlay();
+        });
+        offcanvasElement.addEventListener('show.bs.offcanvas', () => {
+            enableOverlay();
+        });
+
+        document.body.insertAdjacentHTML(
+            'beforeend',
+`<a href="#audioEngineDebug" data-bs-toggle="offcanvas" class="text-bg-dark p-3" 
+                   style="position: fixed; 
+                          top: 2rem; 
+                          right: 0; 
+                          border-top-left-radius: 1rem;
+                          border-bottom-left-radius: 1rem;
+                          border: 2px solid white;
+                          border-right: none;">
+        <img src="./img/icons/buttons/sound.svg" style="height: 1.5rem; filter: invert(1)" />
+</a>`
         );
     }
 
@@ -541,6 +559,8 @@ const AudioEngineDebug = (() => {
 
         createOverlayElement();
 
+        bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('audioEngineDebug')).show();
+
         // Enable statistics if not already enabled
         if (!statisticsEnabled) {
             enableStatistics();
@@ -561,8 +581,8 @@ const AudioEngineDebug = (() => {
         localStorage.setItem('ps_audioEngineDebug_overlayEnabled', 'false');
 
         const debugDiv = document.getElementById('audioEngineDebug');
-        if (debugDiv) {
-            debugDiv.remove();
+        if (debugDiv !== null) {
+            bootstrap.Offcanvas.getOrCreateInstance(debugDiv).hide();
         }
 
         console.log('AudioEngineDebug: Overlay disabled');
@@ -596,7 +616,7 @@ const AudioEngineDebug = (() => {
                 attachStatisticsListener();
             }
 
-            updateOverlay();
+            requestAnimationFrame(updateOverlay);
             console.log('AudioEngineDebug: Overlay restored from localStorage');
         }
     }

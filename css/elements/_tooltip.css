@@ -1,0 +1,12 @@
+/* HACK: https://trello.com/c/qjpDynvT/392-tooltips-can-invisibly-overlay-the-ui-elements-become-unclickable */
+.tooltip {
+    pointer-events: none;
+}
+
+.tooltip-inner {
+
+    .truncation-details > & {
+        max-width: none;
+        text-align: start;
+    }
+}

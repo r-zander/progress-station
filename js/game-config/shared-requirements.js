@@ -15,7 +15,6 @@ sharedRequirements.attributeResearchUnlocked = new AttributeRequirement('playthr
     attribute: attributes.research,
     requirement: 0.01,
 });
-sharedRequirements.attributeResearch10 = battleRequirements[1];
 
 sharedRequirements.FourDPrinterLvl10 = new OperationLevelRequirement('playthrough', {
     operation: moduleOperations.FourDPrinter,
@@ -59,3 +58,11 @@ sharedRequirements.essenceOfUnknowFound = new AttributeRequirement('permanent', 
     attribute: attributes.essenceOfUnknown,
     requirement: 1,
 });
+// A bit weird, there but creating a new Requirement type just for this case feels worse
+sharedRequirements.bossDefeated = new FactionLevelsDefeatedRequirement('permanent', {
+    faction: factions.Boss,
+    requirement: bossBattle.targetLevel,
+});
+sharedRequirements.bossDefeated.toHtmlInternal = () => {
+    return `defeat <span class="name">${bossBattle.title}</span>`;
+};

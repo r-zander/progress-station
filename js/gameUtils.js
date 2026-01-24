@@ -46,6 +46,7 @@ function formatValue(dataElement, value, config = {}) {
         prefixes: magnitudes,
         unit: '',
         forceSign: false,
+        // TODO does not support thousand separator
         keepNumber: false,
         forceInteger: false,
         toStringFn: undefined,
@@ -53,16 +54,20 @@ function formatValue(dataElement, value, config = {}) {
     config = Object.assign({}, defaultConfig, config);
 
     const toString = (value) => {
-        if (config.forceInteger || Number.isInteger(value)) {
-            return value.toFixed(0);
-        } else if (isFunction(config.toStringFn)) {
+        if (isFunction(config.toStringFn)) {
             return config.toStringFn(value);
+        } else if (Number.isInteger(value)) {
+            return value.toFixed(0);
         } else if (Math.abs(value) < 1) {
             return value.toFixed(2);
         } else {
             return value.toPrecision(3);
         }
     };
+
+    if (config.forceInteger) {
+        value = Math.round(value);
+    }
 
     // what tier? (determines SI symbol)
     const tier = Math.max(0, Math.log10(Math.abs(value)) / 3 | 0);
@@ -117,4 +122,10 @@ function formatEnergyValue(dataElement, amount, formatConfig = {}) {
         unit: units.energy,
         prefixes: metricPrefixes,
     }, formatConfig));
+}
+
+function formatLevelValue(dataElement, level) {
+    // TODO adjust formatValue and use that
+    dataElement.textContent = formatNumber(level);
+    dataElement.value = String(level);
 }

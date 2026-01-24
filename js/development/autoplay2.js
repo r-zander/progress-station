@@ -760,7 +760,7 @@ class ConfigurationOptimizer {
         let xpGain = 10;
 
         // Apply multipliers (simplified version of actual game logic)
-        xpGain *= (1 + operation.maxLevel / 500); // Max level multiplier
+        xpGain *= getMaxLevelMultiplier(operation.maxLevel); // Max level multiplier
         xpGain *= attrs.industry; // Industry multiplier
         xpGain *= this.getPopulationMultiplier(attrs.population); // Population multiplier
 

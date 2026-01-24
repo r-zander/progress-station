@@ -57,7 +57,6 @@ class Entity {
     /**
      * @param {string} title
      * @param {string|undefined} description
-     * @param {Requirement[]|undefined} [requirements=undefined]
      */
     constructor(title, description) {
         this.type = this.constructor.name;
@@ -131,7 +130,7 @@ class Task extends Entity {
      *     description?: string,
      *     xpGain?: number,
      *     maxXp: number,
-     *     effects: EffectDefinition[],
+     *     effects?: EffectDefinition[],
      * }} baseData
      */
     constructor(baseData) {
@@ -139,7 +138,7 @@ class Task extends Entity {
 
         this.xpGain = isNumber(baseData.xpGain) ? baseData.xpGain : BASE_XP_GAIN;
         this.maxXp = baseData.maxXp;
-        this.effects = baseData.effects;
+        this.effects = Array.isArray(baseData.effects) ? baseData.effects : [];
         this.xpMultipliers = [];
         this.xpMultipliers.push(this.getMaxLevelMultiplier.bind(this));
         // Yey lazy functions
@@ -324,13 +323,25 @@ class Task extends Entity {
             case 'RESET_MAX_LEVEL':
                 this.maxLevel = 0;
                 break;
+            default:
+                console.assert(true, 'Invalid maxLevelBehavior');
         }
     }
 }
 
 class GridStrength extends Task {
+    /**
+     * @param {{
+     *  name: string,
+     *  title: string,
+     *  maxXp: number,
+     *  getMaxXp: function(number, number): number
+     *  }} baseData
+     */
     constructor(baseData) {
         super(baseData);
+        console.assert(isFunction(baseData.getMaxXp), 'baseData.getNaxXp needs to be a function');
+        this.configuredGetMaxXp = baseData.getMaxXp;
     }
 
     getXpGain() {
@@ -345,7 +356,7 @@ class GridStrength extends Task {
     }
 
     getMaxXp() {
-        return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.6, this.level));
+        return this.configuredGetMaxXp(this.level, this.maxXp);
     }
 
     onLevelUp(previousLevel, newLevel) {
@@ -355,8 +366,18 @@ class GridStrength extends Task {
 }
 
 class AnalysisCore extends Task {
+    /**
+     * @param {{
+     *  name: string,
+     *  title: string,
+     *  maxXp: number,
+     *  getMaxXp: function(number, number): number
+     *  }} baseData
+     */
     constructor(baseData) {
         super(baseData);
+        console.assert(isFunction(baseData.getMaxXp), 'baseData.getNaxXp needs to be a function');
+        this.configuredGetMaxXp = baseData.getMaxXp;
     }
 
     getXpGain() {
@@ -366,7 +387,7 @@ class AnalysisCore extends Task {
     }
 
     getMaxXp() {
-        return Math.round(this.maxXp * (this.level + 1) * Math.pow(1.127, this.level));
+        return this.configuredGetMaxXp(this.level, this.maxXp);
     }
 
     onLevelUp(previousLevel, newLevel) {
@@ -399,6 +420,7 @@ class ModuleCategory extends Entity {
 /**
  * @typedef {Object} ModuleSavedValues
  * @property {number} maxLevel
+ * @property {number} mastery
  */
 
 class Module extends Entity {
@@ -438,6 +460,7 @@ class Module extends Entity {
     loadValues(savedValues) {
         validateParameter(savedValues, {
             maxLevel: JsTypes.Number,
+            mastery: JsTypes.Number,
         }, this);
         this.savedValues = savedValues;
     }
@@ -448,6 +471,7 @@ class Module extends Entity {
     static newSavedValues() {
         return {
             maxLevel: 0,
+            mastery: 0,
         };
     }
 
@@ -487,6 +511,14 @@ class Module extends Entity {
         this.savedValues.maxLevel = maxLevel;
     }
 
+    get mastery() {
+        return this.savedValues.mastery;
+    }
+
+    set mastery(mastery) {
+        this.savedValues.mastery = mastery;
+    }
+
     getLevel() {
         return this.components.reduce((levelSum, component) => levelSum + component.getOperationLevels(), 0);
     }
@@ -504,10 +536,13 @@ class Module extends Entity {
                 if (currentLevel > this.maxLevel) {
                     this.maxLevel = currentLevel;
                 }
+                this.mastery += this.getLevel();
                 break;
             case 'RESET_MAX_LEVEL':
                 this.maxLevel = 0;
                 break;
+            default:
+                console.assert(true, 'Invalid maxLevelBehavior');
         }
     }
 
@@ -520,6 +555,30 @@ class Module extends Entity {
             .reduce((gridLoadSum, component) => {
                 return gridLoadSum + component.getActiveOperation().getGridLoad();
             }, 0);
+    }
+
+    getEffectDescription() {
+        /** @type {EffectType[]} */
+        const effectTypes = [];
+        let minGridLoad = 0;
+
+        this.components.forEach((component) => {
+            effectTypes.push(
+                ...component.operations[0]
+                    .getEffects()
+                    .map((effectDefinition) => effectDefinition.effectType),
+            );
+
+            minGridLoad += component.operations[0].getGridLoad();
+        });
+
+        const descriptionLines = effectTypes.map((effectType) => {
+           return `<data class="effect-value">${effectType.operator}</data> ${effectType.attribute.inlineHtmlWithIcon}`;
+        });
+
+        descriptionLines.push(`min <data value="${minGridLoad}" class="effect-value">${minGridLoad}</data> ${attributes.gridLoad.inlineHtml}`);
+
+        return descriptionLines.join('<br />');
     }
 }
 
@@ -614,7 +673,7 @@ class ModuleOperation extends Task {
     }
 
     get maxLevel() {
-        return this.module.maxLevel;
+        return this.module.mastery;
     }
 
     set maxLevel(maxLevel) {
@@ -671,7 +730,7 @@ class ModuleOperation extends Task {
     }
 
     getMaxLevelMultiplier() {
-        return 1 + this.maxLevel / 500;
+        return getMaxLevelMultiplier(this.maxLevel);
     }
 
     /**
@@ -698,6 +757,13 @@ class Sector extends Entity {
         for (const pointOfInterest of this.pointsOfInterest) {
             pointOfInterest.registerSector(this);
         }
+    }
+
+    /**
+     * Displayed in the technologies tab
+     */
+    getEffectDescription() {
+        return this.pointsOfInterest[0].getEffectDescription();
     }
 }
 
@@ -877,6 +943,12 @@ class Technology extends Entity {
     lastUpdate = performance.now();
 
     /**
+     * @readonly
+     * @var {string}
+     */
+    unlockedDomId;
+
+    /**
      * @param {{
      *     unlocks: Entity,
      *     baseCost: number,
@@ -894,8 +966,6 @@ class Technology extends Entity {
          */
         // TODO refactor: this should be passed into the TechnologyRequirement?
         this.requirements = baseData.requirements || [];
-        this.type = baseData.unlocks.type || baseData.unlocks.constructor.name;
-
 
         // Register a TechnologyRequirement on the entity being unlocked
         // (Only if the entity has a registerRequirement method - HTML elements don't)
@@ -903,6 +973,14 @@ class Technology extends Entity {
             this.technologyRequirement = new TechnologyRequirement({technology: this}, baseData.prerequisites);
             this.unlocks.registerRequirement(this.technologyRequirement);
         }
+    }
+
+    init() {
+        if (this.technologyRequirement !== null) return;
+
+        // The requirement was created and registered otherwise - we should be able to look it up
+        // noinspection JSValidateTypes
+        this.technologyRequirement = Requirement.lookup(TechnologyRequirement.generateName(this.name));
     }
 
     /**
@@ -919,9 +997,15 @@ class Technology extends Entity {
         return unlock.description || '';
     }
 
-    // TODO makes sense? seems weird with the static generators above
+    // Necessary as we are overriding the setter as well
     get name(){
-        return this.unlocks.name;
+        return super.name;
+    }
+
+    set name(name){
+        super.name = name;
+
+        this.unlockedDomId = 'row_unlocked_' + this.type + '_' + name;
     }
 
     /**
@@ -967,9 +1051,6 @@ class Technology extends Entity {
     }
 
     set isUnlocked(unlocked) {
-        if (unlocked === true) {
-            AudioEngine.postEvent(AudioEvents.TECHNOLOGY_UNLOCKED, this);
-        }
         this.savedValues.unlocked = unlocked;
     }
 
@@ -1012,53 +1093,19 @@ class Technology extends Entity {
         }
     }
 
-    // /**
-    //  * Purchase this technology
-    //  * @return {boolean} true if purchase was successful
-    //  */
-    // purchase() {
-    //     if (!this.canPurchase()) {
-    //         return false;
-    //     }
-    //
-    //     gameData.data -= this.getCost();
-    //     this.isUnlocked = true;
-    //
-    //     return true;
-    // }
-
-    getFormattedType(){
-        switch (this.type) {
-            case 'HtmlElement':
-                return 'Control';
-            default:
-                return _.startCase(this.type);
-        }
-    }
-
     /**
-     * Get the parent entity name (e.g., module category for modules, module for operations, sector for POIs)
-     * @return {string}
+     * Get the parent entity name if it should be displayed along-side the unlock name itself
+     * @return {string|null}
      */
-    getParent() {
+    getDisplayedParent() {
         const unlocks = this.unlocks;
 
-        if (unlocks.hasOwnProperty('moduleCategory')) {
-            // This is a Module
-            return '';
-        } else if (unlocks.hasOwnProperty('component')) {
+        if (unlocks.hasOwnProperty('component')) {
             // This is a ModuleOperation
             return unlocks.component.title;
-        } else if (unlocks.hasOwnProperty('sector')) {
-            // This is a PointOfInterest
-            return '';
-        } else if (unlocks.type === 'Sector') {
-            // This is a Sector
-            return '';
-        } else {
-            // HTML element or other
-            return '';
         }
+
+        return null;
     }
 
     /**
@@ -1085,22 +1132,67 @@ class Technology extends Entity {
             return 'Station Features';
         }
     }
+}
+
+class EssenceOfUnknownGainTechnology extends Technology {
+    /**
+     * @param {{
+     *     amount: number,
+     *     getDescription: () => string,
+     *     baseCost: number,
+     *     requirements?: Requirement[],
+     *     prerequisites?: Requirement[]
+     * }} baseData
+     */
+    constructor(baseData) {
+        super({
+            unlocks: {
+                type: 'CurrencyGain',
+                title: 'Extra ' + attributes.essenceOfUnknown.title,
+                name: 'EssenceOfUnknown',
+                getEffectDescription: baseData.getDescription,
+            },
+            baseCost: baseData.baseCost,
+            requirements: baseData.requirements,
+            prerequisites: baseData.prerequisites,
+        });
+
+        this.gainAmount = baseData.amount;
+        this.technologyRequirement = new TechnologyRequirement({technology: this}, baseData.prerequisites);
+    }
 
     /**
-     * Get the state of this technology
-     * @return {string} "Unlocked" | "Affordable" | "Missing requirement" | "Locked"
+     * @override
      */
-    getState() {
-        if (this.isUnlocked) {
-            return 'Unlocked';
+    get isUnlocked() {
+        return super.isUnlocked;
+    }
+
+    /**
+     * @override
+     */
+    set isUnlocked(unlocked) {
+        if (!this.isUnlocked && unlocked) {
+            addEssenceGain(this.gainAmount, this.type, this.name);
         }
-        if (!this.requirementsMet()) {
-            return 'Missing requirement';
-        }
-        if (this.canAfford()) {
-            return 'Affordable';
-        }
-        return 'Too expensive';
+
+        super.isUnlocked = unlocked;
+    }
+
+
+
+    /**
+     * @override
+     */
+    getDisplayedParent() {
+        return null;
+    }
+
+    /**
+     * @override
+     */
+    getBelongsTo() {
+        return 'Post Game';
     }
 }
 
@@ -1175,6 +1267,19 @@ class Requirement {
         // New requirement - register it
         this.#name = generatedName;
         requirementRegistry[generatedName] = this;
+    }
+
+    /**
+     * @param {string} name
+     * @return {Requirement}
+     * @throws {Error} if not found
+     */
+    static lookup(name){
+        if (requirementRegistry.hasOwnProperty(name)) {
+            return requirementRegistry[name];
+        }
+
+        throw new Error(`Failed to find requirement "${name}"`);
     }
 
     /**
@@ -1475,7 +1580,7 @@ class CyclesPassedRequirement extends Requirement {
 class AttributeRequirement extends Requirement {
     /**
      * @param {'permanent'|'playthrough'|'update'} scope
-     * @param {{attribute: AttributeDefinition, requirement: number}} baseData
+     * @param {{attribute: AttributeDefinition, requirement: number|function(): number}} baseData
      * @param {Requirement[]} [prerequisites]
      */
     constructor(scope, baseData, prerequisites) {
@@ -1483,30 +1588,74 @@ class AttributeRequirement extends Requirement {
     }
 
     generateName() {
-        return `Attribute_${this.scope}_${this.baseData.attribute.name}_${this.baseData.requirement}`;
+        return `Attribute_${this.scope}_${this.baseData.attribute.name}_${this.#resolveRequiredValue(this.baseData)}`;
     }
 
     /**
-     * @param {{attribute: AttributeDefinition, requirement: number}} baseData
+     * @param {{attribute: AttributeDefinition, requirement: number|function(): number}} baseData
+     * @return {number}
+     */
+    #resolveRequiredValue(baseData) {
+        if (isFunction(baseData.requirement)) {
+            return baseData.requirement();
+        }
+
+        return baseData.requirement;
+    }
+
+    /**
+     * @param {{attribute: AttributeDefinition, requirement: number|function(): number}} baseData
      * @return {boolean}
      */
     getCondition(baseData) {
-        return baseData.attribute.getValue() >= baseData.requirement;
+        return baseData.attribute.getValue() >= this.#resolveRequiredValue(baseData);
     }
 
     /**
-     * @param {{attribute: AttributeDefinition, requirement: number}} baseData
+     * @param {{attribute: AttributeDefinition, requirement: number|function(): number}} baseData
      * @return {string}
      */
     toHtmlInternal(baseData) {
         const value = baseData.attribute.getValue();
+        const requiredValue = this.#resolveRequiredValue(baseData);
 
         // TODO format value correctly
         return `
 <span class="name">${baseData.attribute.title}</span>
 <data value="${value}">${formatNumber(value)}</data> /
-<data value="${baseData.requirement}">${formatNumber(baseData.requirement)}</data>
+<data value="${requiredValue}">${formatNumber(requiredValue)}</data>
 `;
+    }
+}
+
+// Could be extended to check for arbitrary attributes if they are less than their alltime or current record value.
+class PopulationDamagedRequirement extends Requirement {
+    /**
+     * @param {'permanent'|'playthrough'|'update'} scope
+     * @param {Requirement[]} [prerequisites]
+     */
+    constructor(scope, prerequisites) {
+        super('AttributeRequirement', scope, null, prerequisites);
+    }
+
+    generateName() {
+        return `PopulationDamaged_${this.scope}`;
+    }
+
+    /**
+     * @param {{attribute: AttributeDefinition, requirement: number|function(): number}} baseData
+     * @return {boolean}
+     */
+    getCondition(baseData) {
+        return attributes.population.getValue() <= (getMaximumPopulation() - 1);
+    }
+
+    /**
+     * @param {{attribute: AttributeDefinition, requirement: number|function(): number}} baseData
+     * @return {string}
+     */
+    toHtmlInternal(baseData) {
+        return `<span class="name">${attributes.population.title}</span> damaged`;
     }
 }
 
@@ -1522,6 +1671,11 @@ class PointOfInterestVisitedRequirement extends Requirement {
 
     generateName() {
         return `PointOfInterestVisited_${this.scope}_${this.baseData.pointOfInterest.name}`;
+    }
+
+    isVisible() {
+        return technologies.locationTabButton.isUnlocked
+            && super.isVisible();
     }
 
     /**
@@ -1592,8 +1746,12 @@ class TechnologyRequirement extends Requirement {
         super('TechnologyRequirement', 'playthrough', baseData, prerequisites);
     }
 
+    static generateName(technologyName) {
+        return `Technology_${technologyName}`;
+    }
+
     generateName() {
-        return `Technology_${this.baseData.technology.name}`;
+        return TechnologyRequirement.generateName(this.baseData.technology.name);
     }
 
     /**
@@ -1610,8 +1768,18 @@ class TechnologyRequirement extends Requirement {
         switch (unlock.type) {
             case 'ModuleOperation':
                 return Requirement.hasRequirementsFulfilled(unlock.component.module);
+            case 'Sector':
+                return technologies.locationTabButton.isUnlocked;
             case 'PointOfInterest':
-                return Requirement.hasRequirementsFulfilled(unlock.sector);
+                return technologies.locationTabButton.isUnlocked &&
+                    Requirement.hasRequirementsFulfilled(unlock.sector);
+            case 'BattleSlot':
+                // Only show battle slots if their technology requirements are already
+                // fulfilled to simulate a tiered technology
+                // TODO this might be a general rule in the future, or at least some re-usable flag
+                return this.baseData.technology.requirements
+                    .filter((requirement) => requirement.type === 'TechnologyRequirement')
+                    .every((requirement) => requirement.baseData.technology.requirementsMet());
         }
 
         return true;
@@ -1621,6 +1789,7 @@ class TechnologyRequirement extends Requirement {
         // Show technology requirements when player has research unlocked
         return htmlElementRequirements.galacticSecretsTabButton.isCompleted()
             && this.unlockRequirementsVisible()
+            && this.baseData.technology.requirements.every(requirement => requirement.isVisible())
             && super.isVisible();
     }
 
@@ -1640,7 +1809,7 @@ class TechnologyRequirement extends Requirement {
      * @return {string}
      */
     toHtmlInternal(baseData) {
-        return `'<span class="name">${baseData.technology.title}</span>' Technology`;
+        return `unlock '<span class="name">${baseData.technology.title}</span>' Technology`;
     }
 }
 

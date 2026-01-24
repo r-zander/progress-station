@@ -25,6 +25,7 @@ technologies.MicroCyborgAutomat = new Technology({
     // No requirements - player just need to collect enough Data
     requirements: [],
 });
+sharedRequirements.MicroCyborgAutomat = technologies.MicroCyborgAutomat.technologyRequirement;
 
 technologies.KungFuManual = new Technology({
     unlocks: moduleOperations.KungFuManual,
@@ -40,16 +41,19 @@ technologies.battleTabButton = new Technology({
         type: 'HtmlElement',
         title: 'Battle Tab',
         name: 'battleTabButton',
+        getEffectDescription: () => 'Fight battles to gain passive rewards.'
     },
     baseCost: 3,
     requirements: [sharedRequirements.CoreBladeLvl10],
 });
+sharedRequirements.battleTabButton = new TechnologyRequirement({technology: technologies.battleTabButton});
 
 technologies.locationTabButton = new Technology({
     unlocks: {
         type: 'HtmlElement',
         title: 'Location Tab',
         name: 'locationTabButton',
+        getEffectDescription: () => 'Visit places of interest to modify the stations effect specialization.'
     },
     baseCost: 3,
     requirements: [sharedRequirements.NovaFliesLvl20],
@@ -113,6 +117,77 @@ technologies.ArtificialEcosystem = new Technology({
         requirement: 100,
     })],
 });
+
+technologies.BattleCoordinationI = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination I',
+        name: 'BattleCoordinationI',
+        getEffectDescription: () => 'Engage up to 2 battles at once.'
+    },
+    baseCost: 5,
+    // FIXME for BattleSlots and HtmlElement, the pre-requisites need to be passed down manually (see next assignment)
+    // prerequisites: [new FactionLevelsDefeatedRequirement('playthrough', {
+    //     faction: factions.NovaFlies,
+    //     requirement: 10 + 20 + 30 + 50,
+    // })],
+    requirements: [
+        sharedRequirements.battleTabButton,
+        new FactionLevelsDefeatedRequirement('playthrough', {
+            faction: factions.NovaFlies,
+            requirement: 10 + 20 + 30 + 50 / 2,
+        }),
+    ],
+});
+sharedRequirements.BattleCoordinationI = new TechnologyRequirement(
+    {technology: technologies.BattleCoordinationI},
+    [sharedRequirements.NovaFliesLvl20],
+);
+
+technologies.BattleCoordinationII = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination II',
+        name: 'BattleCoordinationII',
+        getEffectDescription: () => 'Engage up to 3 battles at once.'
+    },
+    baseCost: 10,
+    requirements: [sharedRequirements.BattleCoordinationI],
+});
+
+technologies.BattleCoordinationIII = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination III',
+        name: 'BattleCoordinationIII',
+        getEffectDescription: () => 'Engage up to 4 battles at once.'
+    },
+    baseCost: 15,
+    requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationII})],
+});
+
+technologies.BattleCoordinationIV = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination IV',
+        name: 'BattleCoordinationIV',
+        getEffectDescription: () => 'Engage up to 5 battles at once.'
+    },
+    baseCost: 20,
+    requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationIII})],
+});
+
+technologies.BattleCoordinationV = new Technology({
+    unlocks: {
+        type: 'BattleSlot',
+        title: 'Battle Coordination V',
+        name: 'BattleCoordinationV',
+        getEffectDescription: () => 'Engage up to 6 battles at once.'
+    },
+    baseCost: 25,
+    requirements: [new TechnologyRequirement({technology: technologies.BattleCoordinationIV})],
+});
+sharedRequirements.BattleCoordinationV = new TechnologyRequirement({technology: technologies.BattleCoordinationV});
 
 technologies.GrowthLocationLow = new Technology({
     unlocks: pointsOfInterest.GrowthLocationLow,
@@ -182,7 +257,7 @@ technologies.BetaSector = new Technology({
         new FactionLevelsDefeatedRequirement('playthrough', {
             faction: factions.Astrogoblins,
             requirement: 250,
-        }, [sharedRequirements.AstrogoblinsLvl75]),
+        }),
     ],
 });
 
@@ -342,3 +417,48 @@ technologies.GrowthLocationExtreme = new Technology({
         requirement: 200,
     })],
 });
+
+// ============================================================================
+// EXTRA ESSENCE OF UNKNOWN TECHNOLOGIES
+// ============================================================================
+// 11 boss waves give min. 2,047 Essence of Unknown
+// 10 galactic secrets require 29,524 Essence of Unknown total
+// --> 28 technologies provide up to 28,000 extra Essence of Unknown
+//
+// They form a chain: Technology 2 requires Technology 1, Technology 3 requires Technology 2, etc.
+// ============================================================================
+
+let previousTechnology = null;
+
+for (let techNumber = 1; techNumber <= 28; techNumber++) {
+    // Build the technology name: ExtraEssenceOfUnknown001, ExtraEssenceOfUnknown002, etc.
+    const techName = 'ExtraEssenceOfUnknown' + String(techNumber).padStart(3, "0");
+
+    // Start with the base configuration (same for all technologies)
+    const techConfig = {
+        amount: 1000,
+        baseCost: 10,
+        getDescription: () => `+<data value="1000" class="effect-value">${formatNumber(1000)}</data> ${attributes.essenceOfUnknown.inlineHtmlWithIcon}`,
+    };
+
+    // Set requirements based on whether this is the first technology or not
+    if (previousTechnology === null) {
+        // First technology: Only requires boss defeated
+        techConfig.requirements = [sharedRequirements.bossDefeated];
+        techConfig.prerequisites = [new FactionLevelsDefeatedRequirement('permanent', {
+            faction: factions.Boss,
+            requirement: 1,
+        })];
+    } else {
+        // All other technologies: Require boss defeated AND the previous technology in the chain
+        techConfig.requirements = [sharedRequirements.bossDefeated, previousTechnology.technologyRequirement];
+        techConfig.prerequisites = [previousTechnology.technologyRequirement];
+    }
+
+    // Create the technology and add it to the technologies list
+    const newTechnology = new EssenceOfUnknownGainTechnology(techConfig);
+    technologies[techName] = newTechnology;
+
+    // Remember this technology so the next one can require it
+    previousTechnology = newTechnology;
+}

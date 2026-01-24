@@ -263,6 +263,7 @@ data[data-suffix]::after {
 
 .icon {
     height: 1.5rem;
+    vertical-align: text-bottom;
 }
 
 a[target="_blank"]:after {

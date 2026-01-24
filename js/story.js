@@ -31,30 +31,35 @@ function initIntro() {
 
 function initBossAppearance() {
     const modal = new bootstrap.Modal(document.getElementById('bossAppearanceModal'));
-    GameEvents.BossAppearance.subscribe(function () {
-        AudioEngine.postEvent(AudioEvents.BOSS_APPEARANCE, bossBattle);
-        modal.show();
-    });
-
+    const finalLevelModal = new bootstrap.Modal(document.getElementById('bossFinalLevelAppearanceModal'));
     GameEvents.GameStateChanged.subscribe( (payload) => {
         // TODO gameStates.TUTORIAL_PAUSED is a bad idea, as its generic but we need to show the correct "tutorial"
         //  currently there is only one - but this doesn't scale
-        if (payload.newState !== gameStates.TUTORIAL_PAUSED.name) return;
-        if (payload.previousState !== gameStates.NEW.name) return;
+        if (payload.newState !== gameStates.BOSS_APPEARING.name) return;
 
-        modal.show();
+        if (payload.previousState !== gameStates.NEW.name) {
+            AudioEngine.postEvent(AudioEvents.BOSS_APPEARANCE, bossBattle);
+        }
+
+        if (bossBattle.level === 10) {
+            // Boss was defeated before, but is now re-appearing with it's "final" (11th) level
+            finalLevelModal.show();
+        } else {
+            modal.show();
+        }
     });
 
     withCheats(cheats => {
         cheats.Story['BossAppearance'] = {
             trigger: () => {
-                GameEvents.BossAppearance.trigger(undefined);
+                gameData.transitionState(gameStates.BOSS_APPEARING);
             }
         };
     });
 
     window.acknowledgeBossBattle = function () {
         modal.hide();
+        finalLevelModal.hide();
         setTab('battles');
         Dom.get().byId(bossBattle.domId).scrollIntoView(false);
         gameData.transitionState(gameStates.PLAYING);
@@ -70,7 +75,7 @@ function initBossFightIntro() {
             nameElement.textContent = deprepareTitle(bossBattle.title);
         });
         Dom.get().allBySelector('#bossFightIntroModal .bossTargetLevel').forEach((targetLevelElement) => {
-            formatValue(targetLevelElement, bossBattle.targetLevel, {keepNumber: true, forceInteger: true});
+            formatValue(targetLevelElement, bossBattle.targetLevel - 1, {keepNumber: true, forceInteger: true});
         });
         Dom.get().byId('delayBossBattleButton').classList.toggle('hidden', bossBattle.distance === 0);
         Dom.get().byId('bossDefenseModeExplanation').classList.toggle('hidden', !bossBattle.isInDefenseMode());
@@ -92,13 +97,15 @@ function initBossFightIntro() {
 
     window.startBossBattle = function () {
         modal.hide();
-        setTab('battles');
         gameData.transitionState(gameStates.BOSS_FIGHT);
-        bossBattle.start();
     };
 }
 
 function populateLastRunStats() {
+    Dom.get().byId('lastRunStationName').textContent = gameData.stationName;
+    Dom.get().byId('lastRunBossEncounters').textContent = formatNumber(gameData.bossEncounterCount + 1);
+    Dom.get().byId('lastRunTravelTime').textContent = formatNumber(gameData.totalCycles);
+
     const tableBody = Dom.get().byId('lastRunModulesTable');
     console.assert(tableBody !== null, 'Missing #lastRunModulesTable');
     tableBody.innerHTML = '';
@@ -106,8 +113,8 @@ function populateLastRunStats() {
    for (const categoryKey in moduleCategories) {
         const category = moduleCategories[categoryKey];
         for (const module of category.modules) {
-            const newLevel = Math.max(module.getLevel(), module.maxLevel);
-            const prevMaxLevel = module.maxLevel;
+            const newLevel = module.mastery + module.getLevel();
+            const prevMaxLevel = module.mastery;
             const isNewRecord = module.getLevel() > module.maxLevel;
             if (newLevel === 0 && prevMaxLevel === 0) {
                 continue;
@@ -130,7 +137,7 @@ function populateLastRunStats() {
 
             if (isNewRecord) {
                 const arrow = document.createElement('img');
-                arrow.src = 'img/icons/arrow-up.svg';
+                arrow.src = 'img/icons/upgrade.svg';
                 arrow.alt = 'New record';
                 arrow.className = 'stat-arrow';
                 arrow.classList.add('hidden');
@@ -149,8 +156,8 @@ function populateLastRunStats() {
             speedCell.appendChild(speedValueElement);
             row.appendChild(speedCell);
 
-            const newOpSpeed = (1 + Math.max(module.getLevel(), module.maxLevel) / 500);
-            const prevOpSpeed = (1 + module.maxLevel / 500);
+            const newOpSpeed = getMaxLevelMultiplier(module.mastery + module.getLevel());
+            const prevOpSpeed = getMaxLevelMultiplier(module.mastery);
             runningAnimations.push(animateStatValue(speedValueElement, prevOpSpeed, newOpSpeed, 6000, value => {
                 return `x ${value.toFixed(2)}`;
             }));
@@ -159,7 +166,10 @@ function populateLastRunStats() {
         }
     }
 
-    setStatValue('statBossLevels', bossBattle.level, bossBattle.maxLevel, false);
+    const bossPartialLevel = bossBattle.xp / bossBattle.getMaxXp();
+    setStatValue('statBossLevels', bossBattle.level + bossPartialLevel, bossBattle.maxLevel + bossPartialLevel, false, (value) => {
+        return value.toPrecision(2);
+    });
     setStatValue('statBattlesFinished', getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max, false);
     setStatValue('statWavesDefeated', getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max, false);
     setStatValue('statEssenceOfUnknown', calculateEssenceOfUnknownGain(bossBattle.level), 0, false);
@@ -193,7 +203,7 @@ function animateStatValue(element, start, end, duration = 1500, formatFn) {
         const progress = Math.min((now - startTime) / duration, 1);
         const value = end * progress;
         if (formatFn) {
-            element.textContent = formatFn(value)
+            element.textContent = formatFn(value);
         } else {
             formatValue(element, value);
         }
@@ -241,8 +251,9 @@ const runningAnimations = [];
  * @param {number} currentValue
  * @param {number} recordValue
  * @param {boolean} useValueFormatting
+ * @param {function(number): string} customFormatFn
  */
-function setStatValue(id, currentValue, recordValue, useValueFormatting) {
+function setStatValue(id, currentValue, recordValue, useValueFormatting, customFormatFn = undefined) {
     const element = document.getElementById(id);
     console.assert(element !== null, 'Missing #' + id);
 
@@ -251,12 +262,17 @@ function setStatValue(id, currentValue, recordValue, useValueFormatting) {
         element.textContent = '0';
         return;
     }
-    if (isUndefined(recordValue)) {
-        recordValue = currentValue;
+
+    let formatFunc = customFormatFn;
+    if (useValueFormatting) {
+        console.assert(isUndefined(formatFunc), 'Can\'t set useValueFormatting=true and provide a customFormatFn!');
+        // If no customFormatFn was provided, formatFunc is now undefined --> which will lead to animateStatValue using formatValue
+    } else if (isUndefined(formatFunc)) {
+        formatFunc = (value) => {
+            return formatNumber(Math.round(value));
+        };
     }
-    const formatFunc = useValueFormatting ? undefined : value => {
-        return formatNumber(Math.round(value));
-    }
+
     runningAnimations.push(animateStatValue(element, recordValue, currentValue, 6000, formatFunc));
 }
 
@@ -335,7 +351,7 @@ function initGameOver() {
 
     window.continueAfterWin = () => {
         modal.hide();
-        gameData.transitionState(gameStates.PLAYING);
+        continueCurrentPlaythrough();
     };
 
     window.resetAfterWin = () => {

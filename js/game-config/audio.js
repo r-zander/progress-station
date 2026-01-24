@@ -6,7 +6,6 @@
  * @typedef {string} AudioEvent
  */
 
-// We will have to talk what events make sense and then to trigger them appropriately
 const AudioEvents = {
     MODULE_ON: 'MODULE_ON',
     MODULE_OFF: 'MODULE_OFF',
@@ -28,7 +27,7 @@ const AudioEvents = {
 
 const MusicIds = {
     MAIN_THEME: 'Music_MainTheme',
-    COMBAT_THEME: 'Music_Combat',
+    BOSS_THEME: 'Music_Boss',
 };
 
 // ============================================
@@ -202,6 +201,9 @@ const SoundBank = {
 // Note: Music files would need to be created with separate layers
 // This is a placeholder structure for when music assets are available
 
+const slowThreshold = 0.10;
+const fastThreshold = 0.24;
+
 /** @type {import('../audioEngine.js').MusicState} */
 const LayeredMainThemeMusicState = {
     name: MusicIds.MAIN_THEME,
@@ -209,7 +211,7 @@ const LayeredMainThemeMusicState = {
         initial: {
             segment: {
                 src: 'audio/music/ps_bgm_initial_layer.mp3',
-                volume: 0.3,
+                volume: 0.15,
                 loop: true,
                 fadeInTime: 600,
                 fadeOutTime: 600
@@ -231,7 +233,7 @@ const LayeredMainThemeMusicState = {
             conditions: (musicContext) => {
                 if (!gameData.state.musicProgressLayerPlaying) return false;
 
-                return musicContext.avgProgressSpeed <= 0.30;
+                return musicContext.avgProgressSpeed <= slowThreshold;
             },
         },
         medium_progress: {
@@ -246,10 +248,10 @@ const LayeredMainThemeMusicState = {
                 if (!gameData.state.musicProgressLayerPlaying) return false;
 
                 // Slow progress?
-                if (musicContext.avgProgressSpeed <= 0.30) return false;
+                if (musicContext.avgProgressSpeed <= slowThreshold) return false;
 
                 // Fast progress?
-                if (musicContext.avgProgressSpeed > 0.80) return false;
+                if (musicContext.avgProgressSpeed > fastThreshold) return false;
 
                 // Then it's medium!
                 return true;
@@ -266,10 +268,31 @@ const LayeredMainThemeMusicState = {
             conditions: (musicContext) => {
                 if (!gameData.state.musicProgressLayerPlaying) return false;
 
-                if (musicContext.avgProgressSpeed > 0.80) return true;
+                if (musicContext.avgProgressSpeed > fastThreshold) return true;
 
                 // Not fast enough...
                 return false;
+            },
+        },
+    }
+};
+
+/** @type {import('../audioEngine.js').MusicState} */
+const BossThemeMusicState = {
+    name: MusicIds.BOSS_THEME,
+    layers: {
+        initial: {
+            segment: {
+                src: 'audio/music/ps_bgm_initial_layer.mp3',
+                volume: 0.15,
+                loop: true,
+                fadeInTime: 600,
+                fadeOutTime: 600
+            },
+            conditions: (_) => {
+                if (!gameData.state.musicInitialLayerPlaying) return false;
+
+                return true; // Always playing
             },
         },
         boss: {
@@ -334,4 +357,25 @@ const LayeredMainThemeMusicState = {
 function initializeAudio() {
     AudioEngine.loadBank('Game', SoundBank);
     AudioEngine.registerMusicState(LayeredMainThemeMusicState);
+    AudioEngine.registerMusicState(BossThemeMusicState);
+
+    // Set music state based on game state
+    GameEvents.GameStateChanged.subscribe(
+        /**
+         * @param {{
+         *  previousState: string,
+         *  newState: String,
+         * }} payload
+         */
+        (payload) => {
+            switch (payload.newState) {
+                case gameStates.BOSS_FIGHT.name:
+                case gameStates.BOSS_FIGHT_PAUSED.name:
+                    AudioEngine.setState(MusicIds.BOSS_THEME, MusicIds.BOSS_THEME);
+                    break;
+                default:
+                    AudioEngine.setState(MusicIds.MAIN_THEME, MusicIds.MAIN_THEME);
+                    break;
+            }
+        });
 }

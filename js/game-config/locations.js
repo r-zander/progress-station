@@ -21,7 +21,7 @@ const pointsOfInterest = {
         description: 'A cosmic ballet of stars creates a breathtaking celestial display. The radiant starlight powers the station. ' +
             'Additionally, this point of interest is known for advanced stargazing technology, attracting astronomers and enthusiasts from across the galaxy.',
         effects: [
-            {effectType: EffectType.Energy, baseValue: 10},
+            {effectType: EffectType.EnergyFactor, baseValue: 1},
             {effectType: EffectType.ResearchFactor, baseValue: 0.5},
             {effectType: EffectType.Danger, baseValue: 5}],
         modifiers: [],
@@ -50,7 +50,6 @@ const pointsOfInterest = {
         title: 'The Sneezy Supernova',
         description: 'A star about to go boom, but it\'s taking its sweet time. Stellar resources available, with a risk.',
         effects: [
-            {effectType: EffectType.GrowthFactor, baseValue: 0},
             {effectType: EffectType.IndustryFactor, baseValue: 9},
             {effectType: EffectType.EnergyFactor, baseValue: -0.2},
             {effectType: EffectType.Danger, baseValue: 250}],
@@ -80,7 +79,6 @@ const pointsOfInterest = {
         title: 'The Shadow Bazaar',
         description: 'A market run by actual shadows. Trade at your own risk, they\'re known for tricky deals.',
         effects: [
-            {effectType: EffectType.GrowthFactor, baseValue: 0},
             {effectType: EffectType.IndustryFactor, baseValue: 19},
             {effectType: EffectType.EnergyFactor, baseValue: -0.2},
             {effectType: EffectType.Danger, baseValue: 1000}],
@@ -110,7 +108,6 @@ const pointsOfInterest = {
         title: 'Nebula of Forgotten Ships',
         description: 'A graveyard of ancient spacecrafts, rumored to be haunted. Treasure trove of tech and secrets, but eerily guarded.',
         effects: [
-            {effectType: EffectType.GrowthFactor, baseValue: 0},
             {effectType: EffectType.IndustryFactor, baseValue: 49},
             {effectType: EffectType.EnergyFactor, baseValue: -0.2},
             {effectType: EffectType.Danger, baseValue: 10000}],

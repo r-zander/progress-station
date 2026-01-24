@@ -18,6 +18,7 @@ const localStorageKey = 'ps_gameDataSave';
  * @property {boolean} isBossBattleProgressing
  * @property {boolean} canChangeActivation
  * @property {boolean} canEngageBattles
+ * @property {boolean} areBattlesVisible
  * @property {boolean} musicInitialLayerPlaying
  * @property {boolean} musicProgressLayerPlaying
  * @property {boolean} musicBossPlaying
@@ -36,6 +37,7 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: false,
         canEngageBattles: false,
+        areBattlesVisible: true,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
@@ -48,6 +50,7 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
         canEngageBattles: true,
+        areBattlesVisible: true,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: true,
         musicBossPlaying: false,
@@ -60,11 +63,12 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
         canEngageBattles: false,
+        areBattlesVisible: true,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
     },
-    TUTORIAL_PAUSED: {
+    BOSS_APPEARING: {
         gameLoopRunning: false,
         isTimeProgressing: false,
         areAttributesUpdated: false,
@@ -72,6 +76,7 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
         canEngageBattles: false,
+        areBattlesVisible: true,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
@@ -84,6 +89,7 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: false,
         canEngageBattles: false,
+        areBattlesVisible: true,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
@@ -95,7 +101,8 @@ const gameStates = {
         areTasksProgressing: false,
         isBossBattleProgressing: true,
         canChangeActivation: true,
-        canEngageBattles: true,
+        canEngageBattles: false,
+        areBattlesVisible: false,
         musicInitialLayerPlaying: false,
         musicProgressLayerPlaying: false,
         musicBossPlaying: true,
@@ -108,6 +115,7 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: true,
         canEngageBattles: false,
+        areBattlesVisible: false,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
@@ -120,6 +128,7 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: false,
         canEngageBattles: false,
+        areBattlesVisible: false,
         musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
@@ -132,15 +141,16 @@ const gameStates = {
         isBossBattleProgressing: false,
         canChangeActivation: false,
         canEngageBattles: false,
-        musicInitialLayerPlaying: false,
+        areBattlesVisible: false,
+        musicInitialLayerPlaying: true,
         musicProgressLayerPlaying: false,
         musicBossPlaying: false,
     },
 };
 gameStates.NEW.validNextStates = [gameStates.PLAYING];
-gameStates.PLAYING.validNextStates = [gameStates.PAUSED, gameStates.TUTORIAL_PAUSED, gameStates.BOSS_FIGHT_INTRO];
+gameStates.PLAYING.validNextStates = [gameStates.PAUSED, gameStates.BOSS_APPEARING, gameStates.BOSS_FIGHT_INTRO];
 gameStates.PAUSED.validNextStates = [gameStates.PLAYING];
-gameStates.TUTORIAL_PAUSED.validNextStates = [gameStates.PLAYING];
+gameStates.BOSS_APPEARING.validNextStates = [gameStates.PLAYING];
 gameStates.BOSS_FIGHT_INTRO.validNextStates = [gameStates.PLAYING, gameStates.BOSS_FIGHT];
 gameStates.BOSS_FIGHT.validNextStates = [gameStates.DEAD, gameStates.BOSS_FIGHT_PAUSED, gameStates.BOSS_DEFEATED];
 gameStates.BOSS_FIGHT_PAUSED.validNextStates = [gameStates.BOSS_FIGHT];
@@ -166,6 +176,28 @@ const DEFAULT_RUN_STATS = {
     gridStrength: {current: 0, max: 0},
 };
 
+/**
+ * @typedef {Object} EntryEntity
+ * @property {string} type
+ * @property {string} name
+ * @property {number} [level]
+ */
+
+/**
+ * @typedef {Object} EssenceHistoryEntry
+ * @property {number} amount - Positive for gain, negative for spend
+ * @property {EntryEntity} entity
+ * @property {number} cycle
+ * @property {number} timestamp epoch milliseconds in UTC aka Date.now() when the entry was created
+ */
+
+/**
+ * @typedef {Object} DefeatedBossEntry
+ * @property {string} name
+ * @property {number} cycle
+ * @property {number} timestamp epoch milliseconds in UTC aka Date.now() when the entry was created
+ */
+
 class GameData {
 
     /**
@@ -174,7 +206,7 @@ class GameData {
      *
      * @type {number}
      */
-    version = 9;
+    version = 11;
 
     /**
      * @type {string}
@@ -227,6 +259,11 @@ class GameData {
     bossEncounterCount = 0;
 
     /**
+     * @var {DefeatedBossEntry[]}
+     */
+    bossesDefeated = [];
+
+    /**
      * @var {number}
      */
     bossAppearedCycle = 0;
@@ -245,21 +282,6 @@ class GameData {
      * @var {number}
      */
     data = 0;
-
-    /**
-     * @typedef {Object} EntryEntity
-     * @property {string} type
-     * @property {string} name
-     * @property {number} [level]
-     */
-
-    /**
-     * @typedef {Object} EssenceHistoryEntry
-     * @property {number} amount - Positive for gain, negative for spend
-     * @property {EntryEntity} entity
-     * @property {number} cycle
-     * @property {number} timestamp epoch milliseconds in UTC aka Date.now() when the entry was created
-     */
 
     /**
      * @type {EssenceHistoryEntry[]}
@@ -322,7 +344,7 @@ class GameData {
             enabled: false,
             toastAnswered: false,
             masterVolume: 0.5,
-            enableBackgroundAudio: false,
+            enableBackgroundAudio: true,
             musicVolume: 0.6,
             soundVolume: 0.7,
         }
@@ -546,9 +568,13 @@ class GameData {
         }
     }
 
+    exportAsString() {
+        return window.btoa(unescape(encodeURIComponent(this.serializeAsJson())));
+    }
+
     export() {
         const importExportBox = document.getElementById('importExportBox');
-        importExportBox.value = window.btoa(unescape(encodeURIComponent(gameData.serializeAsJson())));
+        importExportBox.value = this.exportAsString();
     }
 
     /**
@@ -600,6 +626,16 @@ class GameData {
     }
 }
 
+/**
+ * @param {GameData} gameDataSave
+ * @param {GameState} newState
+ */
+function migrateGameState(gameDataSave, newState){
+    gameDataSave.previousStateName = gameDataSave.stateName;
+    gameDataSave.stateName = newState.name;
+}
+
+// Migrate from v5 to v6
 gameDataMigrations[5] = (gameDataSave) => {
     // Change default value of GameData.settings.vfx.followProgressBars
     if (_.has(gameDataSave, 'settings.vfx.followProgressBars')) {
@@ -608,6 +644,49 @@ gameDataMigrations[5] = (gameDataSave) => {
 
     return gameDataSave;
 };
+
+// Migrate from v9 to v10
+/**
+ *
+ * @param {GameData} gameDataSave
+ * @return {GameData}
+ */
+gameDataMigrations[9] = (gameDataSave) => {
+    // Find out if the boss was defeated before
+    if (gameDataSave.savedValues.battles['Boss10'].level === 10) {
+        // Set various fields so that the boss battle starts again
+        // Flatten Boss battle XP
+        gameDataSave.savedValues.battles['Boss10'].xp = 0;
+        // Store the currently reached level to later disregard those for Essence of Unknown
+        gameDataSave.savedValues.battles['Boss10'].maxLevel = 10;
+        // Basically a slightly modified version of `summonBoss` function
+        gameDataSave.bossBattleAvailable = true;
+        gameDataSave.bossAppearedCycle = gameData.cycles;
+        migrateGameState(gameDataSave, gameStates.BOSS_APPEARING);
+        bossBarAcceleratedProgress = 0;
+        // this could basically be treated either as "boss appearance" with 800 cycles etc OR be treated as "boss fight intro", throwing the player straight into the fight
+    }
+    // All good, keep on playing
+
+    return gameDataSave;
+};
+
+// Migrate from v10 to v11
+/**
+ *
+ * @param {GameData} gameDataSave
+ * @return {GameData}
+ */
+gameDataMigrations[10] = (gameDataSave) => {
+    // Introduce new field "mastery" that will inherit the current value of "maxLevel"
+    Object.values(gameDataSave.savedValues.modules).forEach(/** @param {ModuleSavedValues} savedValues */ (savedValues) => {
+        savedValues.mastery = savedValues.maxLevel;
+    });
+
+    return gameDataSave;
+};
+
+
 
 /**
  * Shows a generic warning modal with configurable content

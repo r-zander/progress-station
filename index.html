@@ -62,9 +62,9 @@
             <!-- Date display -->
             <div id="cyclesTotal" class="secondary-stat help-text text-end flex-shrink-0"
                  title="Intergalactic Cycles" data-bs-placement="bottom">
-            <span class="label">Date:</span>
-            <data value="70" data-unit="IC">0</data>
-        </div>
+                <span class="label">Date:</span>
+                <data value="70" data-unit="IC">0</data>
+            </div>
         </div>
 
         <div id="energyGridDisplay" class="panel px-1 px-lg-3 py-1 d-flex flex-row overflow-hidden">
@@ -74,7 +74,8 @@
                     <img src="img/icons/grid.svg" class="icon" alt="Grid Icon" style="height: 30px;" />
                     <span class="flex-fill ms-1">Grid</span>
                 </p>
-                <p class="energy-bar energy-label d-flex align-items-center px-1 px-lg-2">
+                <p id="energyLabel" class="energy-bar energy-label d-flex align-items-center px-1 px-lg-2"
+                   title="[Filled by JavaScript]" data-bs-placement="bottom" data-bs-html="true">
                     <img src="img/icons/energy.svg" class="icon" alt="Energy Icon"/>
                     <span class="flex-fill ms-1">Energy</span>
                 </p>
@@ -134,9 +135,9 @@
                     <data id="populationDisplay" value="1">?</data>
                     (x<data id="populationProgressSpeedDisplay" value="1">?</data>)
                 </div>
-                <div class="secondary-stat">
+                <div id="maxPopulationDisplay" class="secondary-stat">
                     Max:
-                    <data id="maxPopulationDisplay" value="1">?</data>
+                    <data value="1">?</data>
                 </div>
             </div>
             <div class="primary-stat" data-attribute="industry"
@@ -247,7 +248,7 @@
                         <data id="dataDisplay" value="0">0</data>
                     </div>
                     <!--suppress HtmlUnknownTag -->
-                    <div class="primary-stat d-flex justify-content-center mt-2 d-none d-lg-block" data-attribute="essenceOfUnknown"
+                    <div class="primary-stat d-flex justify-content-center mt-1 d-none d-lg-block" data-attribute="essenceOfUnknown"
                          data-bs-placement="right" data-bs-html="true">
                         <img src="" class="icon me-1" alt=""/>
                         <span class="label" style=""></span>
@@ -355,7 +356,7 @@
             </template>
 
             <template id="level3TaskTemplate">
-                <div class="table-container ps-0 ps-lg-3 mt-2">
+                <div class="table-responsive-lg ps-0 ps-lg-3 mt-2">
                     <table class="table mb-0">
                         <thead class="level3">
                         <tr class="header-row">
@@ -364,8 +365,8 @@
                             </th>
                             <th class="level numeric">Level</th>
                             <th class="effect">Effect</th>
-                            <th class="xpGain numeric">Xp/Cycle</th>
-                            <th class="xpLeft numeric">Xp left</th>
+                            <th class="xpGain numeric">XP/Cycle</th>
+                            <th class="xpLeft numeric">XP left</th>
                             <th class="gridLoad numeric">Grid Load</th>
                         </tr>
                         </thead>
@@ -408,7 +409,7 @@
             </template>
 
             <template id="level3BattleTemplate">
-                <div class="table-container ps-0 ps-lg-3 mt-2">
+                <div class="table-responsive-lg ps-0 mt-2">
                     <table class="table mb-0">
                         <thead class="level3">
                         <tr class="header-row text-bg-light">
@@ -421,14 +422,14 @@
                         </tr>
                         </thead>
                         <tbody class="level4">
-                        <!-- repeat level 4 row -->
-                        <tr id="bossBattleDefenseModeHelp" class="hidden">
-                            <td colspan="6" style="color: var(--ps-cyan); margin-top: 4px">
-                                <img src="img/icons/shield.svg" class="icon-shield" alt="shield icon"
-                                     style="width: 1em; vertical-align: middle; margin-right: 0.3em;" />
-                                Boss shields active: Station damage capped, heat aura disabled.
-                            </td>
-                        </tr>
+                            <!-- repeat level 4 row -->
+                            <tr id="bossBattleDefenseModeHelp" class="hidden">
+                                <td colspan="6" style="color: var(--ps-cyan); margin-top: 4px">
+                                    <img src="img/icons/shield.svg" class="icon-shield" alt="shield icon"
+                                         style="width: 1em; vertical-align: middle; margin-right: 0.3em;" />
+                                    Boss shields active: Station damage capped, heat aura disabled.
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -485,7 +486,7 @@
             </template>
 
             <template id="level3PointOfInterestTemplate">
-                <div class="table-container ps-0 ps-lg-3">
+                <div class="table-responsive-lg ps-0">
                     <table class="table mb-0">
                         <thead class="level3">
                         <tr class="header-row text-bg-light">
@@ -517,6 +518,53 @@
                     </td>
                     <td class="effect"></td>
                     <td class="modifier hidden"></td>
+                </tr>
+            </template>
+
+            <template id="level3TechnologiesTemplate">
+                <div class="table-responsive-lg ps-0">
+                    <table class="table mb-0">
+                        <thead class="level3">
+                        <tr class="header-row text-bg-light">
+                            <th class="technology-name">Technology</th>
+                            <th class="belongs-to">Belongs to</th>
+                            <th class="effect">Effect</th>
+                            <th class="cost numeric">Cost</th>
+                        </tr>
+                        </thead>
+                        <tbody class="level4">
+                            <!-- repeat level 4 row -->
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <template id="level4TechnologyTemplate">
+                <tr class="technology-row">
+                    <td class="technology-name">
+                        <div class="technology progress progressBar descriptionTooltip clickable" role="progressbar" aria-label="Technology"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="technology.title"
+                             data-bs-placement="right" data-bs-html="true" data-bs-custom-class="truncation-details">
+                            <div class="moduleOperation progressFill progress-bar progress-bar-striped" style="width: 0"></div>
+                            <div class="progress-text d-flex px-2">
+                                <span class="unlocked-icon me-1">🗹</span>
+                                <span class="parent text-truncate">Parent</span>
+                                <span class="separator me-1">:</span>
+                                <span class="name text-truncate">technology.title</span>
+                            </div>
+                        </div>
+                        <div class="requirements-container">
+                            <div class="requirements help-text"></div>
+                        </div>
+                    </td>
+                    <td class="belongs-to"></td>
+                    <td class="effect"></td>
+                    <td class="cost numeric">
+                        <div class="">
+                            <data class="value" value="0">technology.cost</data>
+                            <slot class="data-attribute"></slot>
+                        </div>
+                    </td>
                 </tr>
             </template>
 
@@ -577,16 +625,24 @@
             <div id="battles" class="tab p-1 p-lg-3 overflow-hidden">
                 <ul class="tab-help-text help-text m-0">
                     <li class="battles-pose-danger">
-                        Engaged battles inflict
+                        Engaged <b>battles</b> inflict
                         <span class="primary-stat" data-attribute="danger" data-attribute-tooltip="false">
                             <img src="" class="icon" alt="" />
-                            <span class="label"></span></span>, draining population by that amount each cycle.
+                            <span class="label"></span></span>, draining <span class="primary-stat" data-attribute="population" data-attribute-tooltip="false">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span></span> by that amount each cycle.
+                    </li>
+                    <li class="battles-pose-danger">Should your
+                        <span class="primary-stat" data-attribute="population" data-attribute-tooltip="false">
+                            <img src="" class="icon" alt="" />
+                            <span class="label"></span></span> reach <data value="1">1</data>, all battles will be disenaged.
                     </li>
                     <li class="battles-pose-danger">
                         <span class="primary-stat" data-attribute="population" data-attribute-tooltip="false">
                             <img src="" class="icon" alt="" />
-                            <span class="label"></span></span> loss during a battle won't reduce your damage,
-                        but gains still boost it.</li>
+                            <span class="label"></span></span> loss during a battle won't reduce your <b>Station damage</b>,
+                        but gains still boost it.
+                    </li>
                     <li class="battles-pose-danger">Disengage battles by clicking them again.</li>
                     <li class="multiple-battles">Engage as many battles as you like.</li>
                 </ul>
@@ -602,7 +658,7 @@
 
             <div id="attributes" class="tab p-1 p-lg-3">
                 <!-- TODO: boxed design for mobile -> be able to have 1 attribute per row -->
-                <div class="table-container">
+                <div class="table-responsive-lg">
                     <table class="table">
                         <thead>
                         <tr>
@@ -647,13 +703,11 @@
             </div>
 
             <div id="galacticSecrets" class="tab p-1 p-lg-3">
-                <div id="analysisCore" class="panel px-1 px-lg-3 py-1 d-flex flex-column">
+                <div id="analysisCore" class="panel d-flex flex-column">
                     <div class="d-flex flex-row">
                         <div class="d-flex flex-column">
                             <p class="d-flex align-items-center px-1 px-lg-2" style="background-color: var(--ps-passive); height: 30px;">
-                                <!-- TODO replace energy icon -->
-                                <img src="img/icons/energy.svg" class="icon" alt="Energy Icon" style="background: black;">
-                                <span class="flex-fill ms-1">Analysis Core</span>
+                                <span class="flex-fill">Analysis Core</span>
                             </p>
                         </div>
 
@@ -662,11 +716,12 @@
                                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                                 <div class="analysis-core-bar progressFill current progress-bar progress-bar-striped" style="width: 0"></div>
                                 <div class="progress-text xp px-2">
-                                    <data value="0" data-unit="XP">+0</data><span>/cycle</span>
+                                    <data value="0">+0</data>
+                                    <span>XP/cycle</span>
                                 </div>
                                 <div class="progress-text xpLeft px-2 end-0">
-                                    <data value="0" data-unit="XP">+0</data>
-                                    <span>left</span>
+                                    <data value="0">+0</data>
+                                    <span>XP left</span>
                                 </div>
                             </div>
 
@@ -718,40 +773,31 @@
 
                     <div class="d-flex flex-row justify-content-between">
                         <div>
-                            Data available: <data id="currentDataDisplay" value="0">0</data>
+                            <span class="primary-stat" data-attribute="data" data-attribute-tooltip="false">
+                                <img src="" class="icon" alt="" />
+                                <span class="label"></span>
+                            </span> available: <data id="currentDataDisplay" value="0">0</data>
                         </div>
-                        <div>
-                            Generated Data: <data class="level" value="0">0</data>
+                        <div title="Each generated <b class=&quot;attribute text-data&quot;>Data</b> increases the amount of <b>XP required</b> to get the next <b class=&quot;attribute text-data&quot;>Data</b>."
+                             data-bs-html="true">
+                            Generated
+                            <span class="primary-stat" data-attribute="data" data-attribute-tooltip="false">
+                                <img src="" class="icon" alt="" />
+                                <span class="label"></span>
+                            </span>: <data class="level" value="0">0</data>
                         </div>
                     </div>
                 </div>
 
-                <ul class="tab-help-text help-text m-0">
-                    <li>Buy a technology by long pressing its progress bar.</li>
+                <ul class="tab-help-text help-text mt-4 mb-2">
+                    <li>Unlock a technology by long pressing its progress bar.</li>
                 </ul>
 
                 <!-- Technologies Table -->
-                <h4 class="mt-4 mb-2">Technologies</h4>
-                <div class="table-container ps-0 ps-lg-3">
-                    <table class="table mb-0">
-                        <thead class="level3">
-                        <tr class="header-row">
-                            <th class="technology-name">Technology</th>
-                            <th class="state hidden">State</th>
-                            <th class="type hidden">Type</th>
-                            <th class="belongs-to">Belongs to</th>
-                            <th class="effect">Effect</th>
-                            <th class="cost">Cost</th>
-                        </tr>
-                        </thead>
-                        <tbody id="technologiesTableBody" class="level4">
-                        <!-- Technologies will be added here dynamically -->
-                        </tbody>
-                    </table>
-                </div>
+                <slot id="lockedTechnologiesSlot"></slot>
 
                 <div id="galacticSecretsSection" class="mt-5">
-                    <ul class="tab-help-text help-text m-0">
+                    <ul class="tab-help-text help-text m-0 mb-2">
                         <li>Unravel a Galactic Secret by long pressing its progress bar.</li>
                         <li style="transform-origin: left">Each Secret costs
                             <data id="galacticSecretCostDisplay" value="1" class="text-body">1</data>
@@ -763,10 +809,10 @@
                         </li>
                         <li>After unraveling a Secret, the cost per Secret will increase <data value="3" class="text-body">x3</data>.</li>
                     </ul>
-                    <div class="table-container ps-0 ps-lg-3">
+                    <div class="table-responsive-lg ps-0">
                         <table class="table mb-0">
                             <thead class="level3">
-                            <tr class="header-row">
+                            <tr class="header-row text-bg-essence-of-unknown">
                                 <th class="name">
                                     Galactic Secret
                                 </th>
@@ -780,6 +826,10 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <div id="unlockedTechnologies" class="mt-5">
+                    <slot id="unlockedTechnologiesSlot"></slot>
                 </div>
             </div>
 
@@ -957,7 +1007,7 @@
                             A game by <a href="http://kringel.games/" target="_blank">Kringel Games</a>.
                         </p>
 
-                        <div class="table-container">
+                        <div class="table-responsive-lg">
                             <table class="table table-borderless table-striped align-middle w-auto">
                                 <tbody>
                                 <tr>
@@ -994,7 +1044,7 @@
                     </div>
                     <div class="col-sm-2">Special Thanks</div>
                     <div class="col-sm-10">
-                        <div class="table-container">
+                        <div class="table-responsive-lg">
                             <table class="table table-borderless table-striped align-middle w-auto">
                                 <tbody>
                                 <tr>
@@ -1046,6 +1096,52 @@
                                 by <a href="https://github.com/turuslan" target="_blank">Ruslan Tushov</a>
                             </li>
                             <li><a href="https://lodash.com/" target="_blank">Lodash</a></li>
+                            <li><a href="https://github.com/qbunt/romans" target="_blank">Romans</a>
+                                by <a href="https://github.com/qbunt" target="_blank">Jeremy Bunting</a></li>
+                        </ul>
+                        Icons (via <a href="https://game-icons.net" target="_blank">game-icons.net</a>)
+                        <ul>
+                            <li>by <a href="https://lorcblog.blogspot.com/" target="_blank">Lorc</a>
+                                <div>
+                                    <a href="https://game-icons.net/1x1/lorc/sentry-gun.html"><img src="img/icons/military.svg" class="icon" /></a>
+                                    <a href="https://game-icons.net/1x1/lorc/minions.html"><img src="img/icons/population.svg" class="icon" /></a>
+                                    <a href="https://game-icons.net/1x1/lorc/laser-sparks.html"><img src="img/icons/research.svg" class="icon" /></a>
+                                    <a href="https://game-icons.net/1x1/lorc/double-ringed-orb.html"><img src="img/icons/shield.svg" class="icon" /></a>
+                                    <a href="https://game-icons.net/1x1/lorc/bottom-right-3d-arrow.html"><img src="img/icons/upgrade.svg" class="icon" /></a>
+                                    <a href="https://game-icons.net/1x1/lorc/microchip.html"><img src="img/icons/data.svg" class="icon" /></a>
+                                    <a href="https://game-icons.net/1x1/lorc/alien-fire.html"><img src="img/icons/essence-of-unknown.svg" class="icon" /></a>
+                                    <a href="https://game-icons.net/1x1/lorc/lightning-arc.html"><img src="img/icons/grid.svg" class="icon" /></a>
+                                </div>
+                            </li>
+                            <li>by <a href="https://guard13007.com/" target="_blank">Guard13007</a>
+                                <div>
+                                    <a href="https://game-icons.net/1x1/guard13007/pause-button.html"><img src="img/icons/buttons/pause.svg" class="icon" /></a>
+                                    <a href="https://game-icons.net/1x1/guard13007/play-button.html"><img src="img/icons/buttons/play.svg" class="icon" /></a>
+                                </div>
+                            </li>
+                            <li>by <a href="https://delapouite.com/" target="_blank">Delapouite</a>
+                                <div style="filter: invert(1)">
+                                    <a href="https://game-icons.net/1x1/delapouite/sound.html"><img src="img/icons/buttons/sound.svg" class="icon" /></a>
+                                    <a href="https://game-icons.net/1x1/delapouite/sound-off.html"><img src="img/icons/buttons/sound-off.svg" class="icon" /></a>
+                                    <a href="https://game-icons.net/1x1/delapouite/sound-on.html"><img src="img/icons/buttons/sound-on.svg" class="icon" /></a>
+                                </div>
+                            </li>
+                            <li>by <a href="https://game-icons.net/" target="_blank">Cathelineau</a>
+                                <div>
+                                    <a href="https://game-icons.net/1x1/cathelineau/dread.html"><img src="img/icons/danger.svg" class="icon" /></a>
+                                    <a href="https://game-icons.net/1x1/delapouite/healing.html"><img src="img/icons/growth.svg" class="icon" /></a>
+                                </div>
+                            </li>
+                            <li>by <a href="http://opengameart.org/content/95-game-icons" target="_blank">sbed</a>
+                                <div>
+                                    <a href="https://game-icons.net/1x1/sbed/electric.html"><img src="img/icons/energy.svg" class="icon" /></a>
+                                </div>
+                            </li>
+                            <li>by <a href="http://darkzaitzev.deviantart.com/" target="_blank">DarkZaitzev</a>
+                                <div>
+                                    <a href="https://game-icons.net/1x1/darkzaitzev/big-gear.html"><img src="img/icons/industry.svg" class="icon" /></a>
+                                </div>
+                            </li>
                         </ul>
                         Images
                         <ul>
@@ -1157,6 +1253,37 @@
     </div>
 </div>
 
+<div id="bossFinalLevelAppearanceModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-4 fw-light">The ancient evil is not yet dead</h2>
+            </div>
+            <div class="modal-body">
+                <p>
+                    You and your crew were celebrating as suddenly your
+                    heart sinks into your stomach, and you get that same feeling as when
+                    you came to your senses alone on this very station.
+                </p>
+                <p>
+                    Sensors are going wild, the proximity alert shrieks and the light of stars
+                    gets swallowed by an unidentifiable mass.
+                </p>
+                <p class="text-danger fw-bold">
+                    You might have defeated the boss before, but it is back, with a vengeance!
+                </p>
+                <p class="help-text">
+                    In <data value="4">4</data> battles or <data value="800">800</data> cycles
+                    (whichever happens first) the boss battle will start.
+                </p>
+            </div>
+            <div class="modal-footer d-flex">
+                <button type="button" class="btn btn-primary ms-auto" onclick="acknowledgeBossBattle();">Prepare!</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="bossFightIntroModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -1226,7 +1353,7 @@
                     </p>
                     <ul class="help-text m-0">
                         <li>Your station's <b>damage</b> is capped to a <b>percentage</b> of the <b>current wave's HP</b></li>
-                        <li>It cannot use its aura of destruction - <span class="primary-stat" data-attribute="danger" data-bs-html="true">
+                        <li>The boss cannot use its aura of destruction - <span class="primary-stat" data-attribute="danger" data-bs-html="true">
                             <img src="" class="icon" alt="" />
                             <span class="label"></span>
                         </span> is disabled.</li>
@@ -1372,6 +1499,31 @@
                 </h2>
             </div>
             <div class="modal-body">
+                <h3 class="fs-5 fw-light">Station</h3>
+                <section class="basedata-section mb-4">
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0" style="width: 19rem">
+                            <tbody>
+                            <tr>
+                                <td>Name:</td>
+                                <td id="lastRunStationName"></td>
+                            </tr>
+                            <tr>
+                                <td>Boss encounters:</td>
+                                <td id="lastRunBossEncounters"></td>
+                            </tr>
+                            <tr>
+                                <td>Travel Time:</td>
+
+                                <td>
+                                    <data value="70" data-unit="IC" id="lastRunTravelTime" class="text-start" >0</data>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
                 <!-- MODULES SECTION -->
                 <section class="modules-section mb-4">
                     <h3 class="fs-5 fw-light">Modules</h3>

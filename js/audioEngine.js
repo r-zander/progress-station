@@ -970,9 +970,11 @@ class AudioEngine {
         }
 
         // Ensure playback is active
-        if (layerHowl.soundId === null || !layerHowl.howl.playing(layerHowl.soundId)) {
+        if (layerHowl.soundId === null) {
             const newSoundId = layerHowl.howl.play();
             layerHowl.soundId = newSoundId;
+        } else if (!layerHowl.howl.playing(layerHowl.soundId)) {
+            layerHowl.howl.play(layerHowl.soundId);
         }
 
         const soundId = layerHowl.soundId;
@@ -1131,11 +1133,12 @@ class AudioEngine {
                 continue;
             }
 
+            layerHowl.howl.volume(0); // Ensure 0 volume
             // Start playback if not already playing
-            if (layerHowl.soundId === null || !layerHowl.howl.playing(layerHowl.soundId)) {
-                layerHowl.howl.volume(0); // Ensure 0 volume
-                const soundId = layerHowl.howl.play();
-                layerHowl.soundId = soundId; // Store the sound ID
+            if (layerHowl.soundId === null) {
+                layerHowl.soundId = layerHowl.howl.play();
+            } else if (!layerHowl.howl.playing(layerHowl.soundId)) {
+                layerHowl.howl.play(layerHowl.soundId);
             }
         }
 

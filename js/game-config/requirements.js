@@ -157,6 +157,13 @@ const htmlElementRequirements = {
             requirements: [sharedRequirements.PocketLaboratoryLvl1],
             elementsToShowRequirements: [Dom.get().byId('galacticSecretsTabButtonRequirements')],
         }),
+    unlockedTechnologies: new HtmlElementWithRequirement(
+        {
+            elementsWithRequirements: [
+                Dom.lazy().byId('unlockedTechnologies'),
+            ],
+            requirements: [sharedRequirements.MicroCyborgAutomat],
+        }),
     growthDisplay: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [
@@ -180,7 +187,7 @@ const htmlElementRequirements = {
     battleTabButton: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().byId('battleTabButton')],
-            requirements: [new TechnologyRequirement({technology: technologies.battleTabButton})],
+            requirements: [sharedRequirements.battleTabButton],
             elementsToShowRequirements: [Dom.get().byId('battleTabButtonRequirements')],
         }),
     dangerDisplay: new HtmlElementWithRequirement(
@@ -192,6 +199,10 @@ const htmlElementRequirements = {
             ],
             requirements: [sharedRequirements.NovaFliesLvl10],
         }),
+    maxPopulationDisplay: new HtmlElementWithRequirement({
+        elementsWithRequirements: [Dom.get().byId('maxPopulationDisplay')],
+        requirements: [new PopulationDamagedRequirement('playthrough')],
+    }),
     completedBattles: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [
@@ -210,9 +221,8 @@ const htmlElementRequirements = {
             elementsWithRequirements: [
                 ...Dom.get().allByClass('multiple-battles'),
             ],
-            requirements: [battleRequirements[0]],
+            requirements: [sharedRequirements.BattleCoordinationI],
         }),
-    // TODO figure out essence of unknown integration with Technology
     essenceOfUnknownLabel: new HtmlElementWithRequirement(
         {
             elementsWithRequirements: [Dom.get().bySelector('#galacticSecretsTabButton > .primary-stat[data-attribute="essenceOfUnknown"]')],

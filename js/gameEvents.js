@@ -127,5 +127,4 @@ const GameEvents = {
         previousLevel: JsTypes.Number,
         nextLevel: JsTypes.Number
     }, false),
-    BossAppearance: new GameEvent(undefined),
 };

@@ -47,7 +47,7 @@ moduleOperations.HeavyGlitz = new ModuleOperation({
 moduleOperations.Radiance = new ModuleOperation({
     title: 'Radiance', maxXp: 20_000, gridLoad: 4,
     description: 'Tingles in your hand but glows in the dark. Even heavier than the regular glitz.',
-    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.05}, {effectType: EffectType.ResearchFactor, baseValue: 0.05}],
+    effects: [{effectType: EffectType.IndustryFactor, baseValue: 0.06}, {effectType: EffectType.ResearchFactor, baseValue: 0.04}],
 });
 
 moduleOperations.BigSpinny = new ModuleOperation({
@@ -82,7 +82,7 @@ moduleOperations.Greenhouse = new ModuleOperation({
 moduleOperations.BossFertilizer = new ModuleOperation({
     title: 'Boss Fertilizer', maxXp: 40_000, gridLoad: 4,
     description: 'Let\'s face it, it\'s alien poop.',
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.04}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.05}],
 });
 // Research
 moduleOperations.FermentationTank = new ModuleOperation({
@@ -149,81 +149,82 @@ moduleOperations.MicroalloyGlass = new ModuleOperation({
 
 //Military
 moduleOperations.GlitzPlating = new ModuleOperation({
-    title: 'Glitz Plating', maxXp: 2_000, gridLoad: 1,
+    title: 'Glitz Plating', maxXp: 5_000, gridLoad: 2,
     description: 'Tougher than a Comet Crawler\'s shell, this armor resists most of galaxy\'s temper.',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.01}],
 });
 moduleOperations.NanoHardener = new ModuleOperation({
-    title: 'Nano Hardener', maxXp: 8_000, gridLoad: 2,
+    title: 'Nano Hardener', maxXp: 25_000, gridLoad: 4,
     description: 'Active Nano Robots that make the armor layer one of the hardest materials in the galaxy.',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.03}],
 });
 moduleOperations.PulseShield = new ModuleOperation({
-    title: 'Pulse Shield', maxXp: 32_000, gridLoad: 3,
+    title: 'Pulse Shield', maxXp: 125_000, gridLoad: 6,
     description: 'A shimmering barrier that guards against incoming threats and sends projectiles back from where they came.',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.08}],
 });
 /** Galactic Secret */
 moduleOperations.BulletSponge = new ModuleOperation({
-    title: 'Bullet Sponge', maxXp: 80_000, gridLoad: 4,
+    title: 'Bullet Sponge', maxXp: 600_000, gridLoad: 10,
     description:'Alien tissue named appropriately for it\'s ability to absorb even the toughest hits',
     effects: [{effectType: EffectType.EnergyFactor, baseValue: 0.16}],
 });
 
 moduleOperations.RapidRumbleTower = new ModuleOperation({
-    title: 'Rapid Rumble Tower', maxXp: 4_000, gridLoad: 3,
+    title: 'Rapid Rumble Tower', maxXp: 8_000, gridLoad: 3,
     description: 'These turrets will quickly fill the vacuum of space with lead and your enemies with holes.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
 });
 moduleOperations.LaserTurrets = new ModuleOperation({
-    title: 'Laser Turrets', maxXp: 20_000, gridLoad: 6,
+    title: 'Laser Turrets', maxXp: 40_000, gridLoad: 6,
     description: 'Highly precise and devastatingly destructive. Even space ants fear the final form of the magnifying glass.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
 });
+/** Galactic Secret */
 moduleOperations.AntiMaterialSwarm = new ModuleOperation({
-    title: 'Anti-Material Swarm', maxXp: 80_000, gridLoad: 10,
+    title: 'Anti-Material Swarm', maxXp: 200_000, gridLoad: 10,
     description: 'A cloud of alien defenders swarming around the station, tearing through incoming missiles and ripping hulls to shreds.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.10}],
 });
 
 // Population
 moduleOperations.Survivors = new ModuleOperation({
-    title: 'Pick up survivors', maxXp: 4_000, gridLoad: 1,
+    title: 'Pick up survivors', maxXp: 10_000, gridLoad: 3,
     description: 'Space is vast, but you’re not leaving anyone behind. Rescue survivors to add their skills and stories to your crew.',
     effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.01}],
 });
 moduleOperations.Recruitment = new ModuleOperation({
-    title: 'Recruitment', maxXp: 16_000, gridLoad: 2,
+    title: 'Recruitment', maxXp: 40_000, gridLoad: 5,
     description: 'Broadcast a message across the stars and recruit willing and capable crewmates.',
     effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.03}],
 });
 moduleOperations.MechanoMaker = new ModuleOperation({
-    title: 'Mechano Maker', maxXp: 64_000, gridLoad: 8,
+    title: 'Mechano Maker', maxXp: 160_000, gridLoad: 7,
     description: 'Why wait for nature, when you can assemble new, mechanical crewmates all by yourself.',
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.20}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.05}],
 });
 /** Galactic Secret */
 moduleOperations.ReplicationChambers = new ModuleOperation({
-    title: 'Replication Chambers', maxXp: 500_000, gridLoad: 12,
+    title: 'Replication Chambers', maxXp: 640_000, gridLoad: 10,
     description: 'Cloning crewmates is pretty easy. You found the secret to having them survive for more than an hour.',
-    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.30}, {effectType: EffectType.Industry, baseValue: 0.50}],
+    effects: [{effectType: EffectType.GrowthFactor, baseValue: 0.10}, {effectType: EffectType.Industry, baseValue: 0.50}],
 });
 
 moduleOperations.UnitedbyPurpose = new ModuleOperation({
-    title: 'United by Purpose', maxXp: 8_000, gridLoad: 2,
+    title: 'United by Purpose', maxXp: 20_000, gridLoad: 3,
     description: 'Organics and Mechanics can agree: When the stations dies, everyone dies.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.01}],
 });
 moduleOperations.UnitedForVictory = new ModuleOperation({
-    title: 'United For Victory', maxXp: 32_000, gridLoad: 4,
+    title: 'United For Victory', maxXp: 80_000, gridLoad: 6,
     description: 'Strength in unity, victory through collaboration. This doctrine binds the crew as one, turning collective will into unstoppable force.',
     effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.03}],
 });
 /** Galactic Secret */
 moduleOperations.GloryToTheGreatHeroes = new ModuleOperation({
-    title: 'Glory to the Great Heroes', maxXp: 320_000, gridLoad: 10,
+    title: 'Glory to the Great Heroes', maxXp: 800_000, gridLoad: 10,
     description: 'Heroes inspire, their legends propel us forward. This principle celebrates extraordinary feats, encouraging all to reach beyond the stars.',
-    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.20}, {effectType: EffectType.Growth, baseValue: 0.50}],
+    effects: [{effectType: EffectType.MilitaryFactor, baseValue: 0.10}, {effectType: EffectType.Growth, baseValue: 0.50}],
 });
 
 

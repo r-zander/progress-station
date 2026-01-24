@@ -1,21 +1,21 @@
 :root {
     --ps-yellow: #ECA545;
     --ps-orange: #FD7D45;
-    /*--ps-pink2: #D9557D;*/
     --ps-pink1: #C12F5F; /*#AB016E*/
+    --ps-pink2: #D9557D;
     /*--ps-pink3: #C04D56;*/
-    --ps-red2: #CB3140;
     --ps-red: #ED3A44;
+    --ps-red2: #CB3140;
+    --ps-purple1: #67288F;
     --ps-purple2: #AE3EC9;
-    /*--ps-purple1: #67288F;*/
     --ps-dark-blue: #144A8B;
     --ps-blue: #5D8EC8;
     --ps-light-blue: #8FAFD4;
     --ps-cyan: #54E9D6;
     --ps-cyan-rgb: 84, 233, 214;
     /*--ps-green1: #48A07E;*/
+    --ps-green2: #02CC72;
     --ps-green3: #2ABF72;
-    /*--ps-green2: #02CC72;*/
     --ps-dark: #000000;
     --ps-light: #FFFFFF;
     --ps-light-transparent100: #FFFFFF00;
@@ -105,6 +105,11 @@
 
 .text-essence-of-unknown {
     color: var(--attr-essence-of-unknown-color);
+}
+
+.text-bg-essence-of-unknown {
+    color: var(--ps-light);
+    background-color: var(--attr-essence-of-unknown-color);
 }
 
 .text-grid-load {

@@ -36,7 +36,7 @@ function deactivateAllBattles() {
  * @return {boolean}
  */
 function isPopulationRegenerationActive(population) {
-    return !isAnyBattleActive() && population < gameData.stats.maxPopulation.current;
+    return !isAnyBattleActive() && population < getMaximumPopulation();
 }
 
 /**
@@ -59,6 +59,13 @@ function calculatePopulationDelta() {
     return populationDelta;
 }
 
+/**
+ * @return {number}
+ */
+function getMaximumPopulation() {
+    return gameData.stats.maxPopulation.current;
+}
+
 function updatePopulation() {
     if (!gameData.state.areAttributesUpdated) return;
 
@@ -66,14 +73,14 @@ function updatePopulation() {
     gameData.population = Math.max(gameData.population + applySpeed(calculatePopulationDelta()), 1);
     // Make sure we don't regenerate over the maxPopulation
     if (regenerationActive) {
-        gameData.population = Math.min(gameData.stats.maxPopulation.current, gameData.population);
+        gameData.population = Math.min(getMaximumPopulation(), gameData.population);
 
     // Check if in the next update the regeneration would start
     } else if (isPopulationRegenerationActive(gameData.population)) {
-        gameData.population = Math.max(gameData.stats.maxPopulation.current, gameData.population);
+        gameData.population = Math.max(getMaximumPopulation(), gameData.population);
     }
 
-    if (gameData.population > gameData.stats.maxPopulation.current) {
+    if (gameData.population > getMaximumPopulation()) {
         gameData.stats.maxPopulation.current = gameData.population;
     }
 
@@ -85,17 +92,6 @@ function updatePopulation() {
             deactivateAllBattles();
         }
     }
-}
-
-function getPopulationProgressSpeedMultiplier() {
-    // Random ass formula ᕕ( ᐛ )ᕗ
-    // Pop 1 = x1
-    // Pop 10 ~= x3.4
-    // Pop 100 ~= x12
-    // Pop 1000 ~= x40
-    // Pop 10000 ~= x138
-    // Pop 40000 ~= x290
-    return Math.max(1, Math.pow(Math.round(gameData.population), 1 / 1.869));
 }
 
 function updateStats() {
@@ -130,7 +126,7 @@ function updateStats() {
 function updateMaxStats() {
     gameData.stats.battlesFinished.max = Math.max(getNumberOfFinishedBattles(), gameData.stats.battlesFinished.max);
     gameData.stats.wavesDefeated.max = Math.max(getNumberOfDefeatedWaves(), gameData.stats.wavesDefeated.max);
-    gameData.stats.maxPopulation.max = Math.max(gameData.stats.maxPopulation.current, gameData.stats.maxPopulation.max);
+    gameData.stats.maxPopulation.max = Math.max(getMaximumPopulation(), gameData.stats.maxPopulation.max);
     gameData.stats.maxIndustry.max = Math.max(gameData.stats.maxIndustry.current, gameData.stats.maxIndustry.max);
     gameData.stats.maxGrowth.max = Math.max(gameData.stats.maxGrowth.current, gameData.stats.maxGrowth.max);
     gameData.stats.maxMilitary.max = Math.max(gameData.stats.maxMilitary.current, gameData.stats.maxMilitary.max);
@@ -169,7 +165,10 @@ function increaseCycle() {
     gameData.cycles += increase;
     gameData.totalCycles += increase;
 
-    if (!isBossBattleAvailable() && gameData.cycles >= getBossAppearanceCycle()) {
+    if (!isBossBattleAvailable() &&
+        gameData.cycles >= getBossAppearanceCycle() &&
+        !bossWasDefeated()
+    ) {
         summonBoss();
     }
 }
@@ -177,8 +176,7 @@ function increaseCycle() {
 function summonBoss(){
     gameData.bossBattleAvailable = true;
     gameData.bossAppearedCycle = gameData.cycles;
-    gameData.transitionState(gameStates.TUTORIAL_PAUSED);
-    GameEvents.BossAppearance.trigger(undefined);
+    gameData.transitionState(gameStates.BOSS_APPEARING);
     bossBarAcceleratedProgress = 0;
 
     // Force some updates, as this method could happen in between game loop updates
@@ -195,6 +193,18 @@ function updateBossDistance() {
     // Translate the elapsed time into distance according to config
     bossBattle.coveredDistance = Math.floor(overtime / bossBattleApproachInterval);
 }
+
+// Handle boss fight starting
+GameEvents.GameStateChanged.subscribe((payload) => {
+    if (payload.newState !== gameStates.BOSS_FIGHT.name) return;
+
+    // Disengage all regular battles - they won't progress, they just create additional danger, and they will get hidden anyway.
+    // Hiding battles happens via GameState.areBattlesVisible
+    deactivateAllBattles();
+    bossBattle.start();
+    // QoL - show the battles tab. The player can navigate away, but this is where the action is now happening
+    setTab('battles');
+});
 
 // noinspection JSUnusedGlobalSymbols -- used in HTML
 function togglePause() {
@@ -249,7 +259,7 @@ function doTasks() {
                 battle.stop();
                 // TODO VFX should not be called, but triggered via Event
                 if (isBoolean(gameData.settings.vfx.flashOnLevelUp) && gameData.settings.vfx.flashOnLevelUp) {
-                    VFX.flash(Dom.get().bySelector('#row_done_' + battle.name + ' .progressBar'));
+                    VFX.flash(Dom.get().bySelector(battle.doneDomId + ' .progressBar'));
                 }
             }
 
@@ -288,15 +298,50 @@ function startNewPlaythrough() {
 
     setPreviousStationName(gameData.stationName);
     setStationName(new SuffixGenerator(gameData.stationName).getNewName());
+    gameData.bossBattleAvailable = false;
     gameData.bossEncounterCount += 1;
 
     // grant Essence Of Unknown
-    const grantedEssenceOfUnknown = calculateEssenceOfUnknownGain(bossBattle.level);
+    const grantedEssenceOfUnknown = calculateEssenceOfUnknownGain(bossBattle.level - bossBattle.maxLevel);
     if (grantedEssenceOfUnknown > 0) {
-        addEssenceGain(grantedEssenceOfUnknown, bossBattle.type, bossBattle.name, bossBattle.level);
+        addEssenceGain(grantedEssenceOfUnknown, bossBattle.type, bossBattle.title, bossBattle.level);
     }
 
     playthroughReset('UPDATE_MAX_LEVEL');
+}
+
+function continueCurrentPlaythrough() {
+    setPreviousStationName(gameData.stationName);
+    // Unsummon boss
+    gameData.bossBattleAvailable = false;
+    gameData.bossEncounterCount += 1;
+    const grantedEssenceOfUnknown = calculateEssenceOfUnknownGain(bossBattle.level - bossBattle.maxLevel);
+    if (grantedEssenceOfUnknown > 0) {
+        addEssenceGain(grantedEssenceOfUnknown, bossBattle.type, bossBattle.title, bossBattle.level);
+    }
+
+    // TODO theoretically: UPDATE_MAX_LEVEL for everything
+
+    gameData.bossesDefeated.push({
+        name: bossBattle.title,
+        cycle: Math.floor(startCycle + gameData.totalCycles),
+        timestamp: Date.now(),
+    });
+
+    gameData.transitionState(gameStates.PLAYING);
+
+    // Force some updates, as this method could happen in between game loop updates
+    musicContext.update();
+    updateUiIfNecessary();
+}
+
+function bossWasDefeated() {
+    return gameData.bossesDefeated.length > 0;
+}
+
+function getLastDefeatedBossAsText() {
+    const bossesDefeatedEntry = gameData.bossesDefeated[gameData.bossesDefeated.length - 1];
+    return `${bossesDefeatedEntry.name} was defeated in ${formatNumber(bossesDefeatedEntry.cycle)} IC`;
 }
 
 /**

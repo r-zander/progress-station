@@ -9,7 +9,7 @@ const bossAppearanceCycle = 15_000;
 const emptyStationName = 'Unknown Station';
 
 // Not const to allow easy game speed increase
-let baseGameSpeed = 3.0;
+let baseGameSpeed = 4.0;
 
 const magnitudes = [
     '', 'k', 'M', 'B', 'T', 'q', 'Q', 'Sx', 'Sp', 'Oc',
@@ -21,7 +21,8 @@ const metricPrefixes = [
 ];
 const units = {
     energy: 'W',
-    storedEnergy: 'Wh'
+    storedEnergy: 'Wh',
+    experience: 'XP'
 };
 
 /**
@@ -29,3 +30,43 @@ const units = {
  * @type {number}
  */
 const BASE_XP_GAIN = 10;
+
+function getPopulationProgressSpeedMultiplier() {
+    // TODO fix
+    // +------------+----------------+
+    // | Population | Progress Speed |
+    // +------------+----------------+
+    // |          1 |           1    |
+    // |          2 |           1.25 |
+    // |          3 |           1.44 |
+    // |          5 |           1.70 |
+    // |         10 |           2.15 |
+    // |         20 |           2.71 |
+    // |         50 |           3.68 |
+    // |         75 |           4.21 |
+    // |        100 |           4.64 |
+    // |        200 |           5.84 |
+    // |        500 |           7.93 |
+    // |        750 |           9.08 |
+    // |       1000 |           9.99 |
+    // |       2000 |          12.5  |
+    // |       5000 |          17.0  |
+    // |       7500 |          19.5  |
+    // |        10k |          21.5  |
+    // |        20k |          27.1  |
+    // |         1M |         100    |
+    // |         2M |         125    |
+    // |        20B |        2714    |
+    // |       100B |       46415    |
+    // |     196.5T |       58137    |
+    // +------------+----------------+
+    return Math.max(1, Math.pow(Math.round(gameData.population), 1 / 2.70));
+}
+
+/**
+ * @param maxLevel
+ * @return {number}
+ */
+function getMaxLevelMultiplier(maxLevel) {
+    return 1 + maxLevel / 500;
+}

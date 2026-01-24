@@ -47,7 +47,7 @@ class LayeredTask extends Task {
     }
 
     /**
-     * @return {number}
+     * @return {number|string}
      */
     getDisplayedLevel() {
         return this.targetLevel - this.level;
@@ -112,6 +112,12 @@ function showDangerModal(onConfirm, onCancel) {
 
 class Battle extends LayeredTask {
     /**
+     * @readonly
+     * @var {string}
+     */
+    doneDomId;
+
+    /**
      *
      * @param {{
      *     title: string,
@@ -146,6 +152,17 @@ class Battle extends LayeredTask {
             attributes.military.getValue,
             this.getFlooredPopulationProgressSpeedMultiplier.bind(this),
         ];
+    }
+
+    // Necessary as we are overriding the setter as well
+    get name(){
+        return super.name;
+    }
+
+    set name(name){
+        super.name = name;
+
+        this.doneDomId = 'row_done_' + this.type + '_' + name;
     }
 
     /**
@@ -244,10 +261,11 @@ class Battle extends LayeredTask {
     }
 
     start() {
-        if (this.isDone()) {
-            // Can't activate completed battles
-            return;
-        }
+        // Can't activate completed battles
+        if (this.isDone()) return;
+
+        // Already active
+        if (this.isActive()) return;
 
         this.progressSpeedMultiplierFloor = getPopulationProgressSpeedMultiplier();
 
@@ -263,6 +281,8 @@ class Battle extends LayeredTask {
     }
 
     stop() {
+        if (!this.isActive()) return;
+
         this.progressSpeedMultiplierFloor = 0;
 
         gameData.activeEntities.battles.delete(this.name);
@@ -436,6 +456,7 @@ class BossBattle extends Battle {
 
         this.savedValues.distance = bossBattleDefaultDistance;
         this.savedValues.coveredDistance = 0;
+        this.savedValues.maxLevel = 0;
     }
 
     /**
@@ -458,7 +479,7 @@ class BossBattle extends Battle {
     }
 
     getMaxXp() {
-        return Math.round(this.maxXp * (this.level + 1) * Math.pow(10, this.level));
+        return Math.round(this.maxXp * (this.level + 1) * Math.pow(6.78, this.level));
     }
     // noinspection JSCheckFunctionSignatures
     getEffectDescription() {
@@ -476,6 +497,15 @@ class BossBattle extends Battle {
         }
 
         return this.rewardsDescription;
+    }
+
+    getDisplayedLevel() {
+        // Boss is cheating a bit ;) it has 10 waves and a secret, last wave
+        const displayedLevel = super.getDisplayedLevel() - 1;
+        if (displayedLevel === 0){
+            return 'Final';
+        }
+        return displayedLevel;
     }
 
     isInDefenseMode() {
@@ -545,6 +575,11 @@ class FactionLevelsDefeatedRequirement extends Requirement {
         return this.#getDefeatedLevels(baseData.faction) >= baseData.requirement;
     }
 
+    isVisible() {
+        return technologies.battleTabButton.isUnlocked
+            && super.isVisible();
+    }
+
     /**
      * @param {FactionDefinition} faction
      * @return {number}
@@ -565,7 +600,7 @@ class FactionLevelsDefeatedRequirement extends Requirement {
      */
     toHtmlInternal(baseData) {
         const defeatedLevels = this.#getDefeatedLevels(baseData.faction);
-        return `Defeated
+        return `defeat
 <span class="name">${baseData.faction.title}</span>
 waves
 <data value="${defeatedLevels}">${defeatedLevels}</data> /

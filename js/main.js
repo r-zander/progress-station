@@ -456,7 +456,7 @@ function createModuleLevel2Elements(categoryName, category, requirementsSlot, si
 
         initTooltip(level2DomGetter.byClass('maxLevel'), {
             title: () => {
-                return `<b>x${(1 + module.maxLevel / 500).toFixed(2)} XP</b> for all operations in this module.`;
+                return `<b>x${getMaxLevelMultiplier(module.mastery).toFixed(2)} XP</b> for all operations in this module.`;
             },
             html: true,
         });
@@ -612,7 +612,6 @@ function createSectorsUI(categoryDefinition, domId) {
 }
 
 /**
- *
  * @param {DomGetter} domGetter
  * @param {Battle} battle
  */
@@ -628,7 +627,6 @@ function initializeBattleElement(domGetter, battle) {
 }
 
 /**
- *
  * @param {Battle[]} battles
  * @return {HTMLElement[]}
  */
@@ -642,6 +640,7 @@ function createLevel4BattleElements(battles) {
         domGetter.byClass('progressBar').addEventListener('click', tryEngageBattle.bind(this, battle));
 
         if (battle instanceof BossBattle) {
+            level4Element.classList.add('bossBattle');
             for (let element of domGetter.allBySelector('.for-regular-battle')) {
                 element.remove();
             }
@@ -651,6 +650,7 @@ function createLevel4BattleElements(battles) {
             domGetter.bySelector('.dangerCell > .other-effects').innerHTML = battle.getEffectDescription();
             domGetter.byClass('rewards').innerHTML = battle.getRewardsDescription();
         } else {
+            level4Element.classList.add('regularBattle');
             for (const element of domGetter.allBySelector('.for-boss-battle')) {
                 element.remove();
             }
@@ -666,18 +666,20 @@ function createLevel4BattleElements(battles) {
     return level4Elements;
 }
 
+/**
+ * @return {HTMLElement}
+ */
 function createUnfinishedBattlesUI() {
     const level3Element = Dom.new.fromTemplate('level3BattleTemplate');
 
     level3Element.id = 'unfinishedBattles';
-    level3Element.classList.remove('ps-3');
 
     const domGetter = Dom.get(level3Element);
     domGetter.byClass('name').textContent = 'Open';
 
     /** @type {HTMLElement} */
     const level4Slot = domGetter.byClass('level4');
-    level4Slot.append(...createLevel4BattleElements(Object.values(battles)));
+    level4Slot.prepend(...createLevel4BattleElements(Object.values(battles)));
 
     return level3Element;
 }
@@ -691,12 +693,14 @@ function createLevel4FinishedBattleElements(battles) {
     const level4Elements = [];
     for (const battle of battles) {
         const level4Element = Dom.new.fromTemplate('level4BattleTemplate');
-        level4Element.id = 'row_done_' + battle.name;
+        level4Element.id = battle.doneDomId;
         level4Element.classList.add('hidden');
         const domGetter = Dom.get(level4Element);
         initializeBattleElement(domGetter, battle);
         domGetter.byClass('progressBar').classList.remove('clickable');
-        domGetter.bySelector('.progressBar').dataset.layer = String(numberOfLayers);
+        if (battle instanceof BossBattle) {
+            domGetter.bySelector('.progressBar').dataset.layer = String(numberOfSupportedTaskLayers);
+        }
         domGetter.bySelector('.progressBar .progressFill').style.width = '0%';
         formatValue(
             domGetter.bySelector('.level > data'),
@@ -722,7 +726,6 @@ function createFinishedBattlesUI() {
     const level3Element = Dom.new.fromTemplate('level3BattleTemplate');
 
     level3Element.id = 'finishedBattles';
-    level3Element.classList.remove('ps-3');
 
     const domGetter = Dom.get(level3Element);
     domGetter.byClass('header-row').classList.replace('text-bg-light', 'text-bg-dark');
@@ -789,6 +792,7 @@ function createGalacticSecretsUI() {
         level4Elements.push(level4Element);
     }
 
+    // TODO optimize
     window.addEventListener('pointerup', () => {
         for (const key in galacticSecrets) {
             const galacticSecret = galacticSecrets[key];
@@ -804,96 +808,132 @@ function createGalacticSecretsUI() {
     level4Slot.append(...level4Elements);
 }
 
-function createTechnologiesUI() {
-    const tbody = Dom.get().byId('technologiesTableBody');
+/**
+ *
+ * @return {HTMLElement[]}
+ */
+function createLevel4TechnologyElements(displayLocked) {
+    const level4Elements = [];
 
     for (const key in technologies) {
         const technology = technologies[key];
-        const row = document.createElement('tr');
-        row.id = `technology_${key}`;
+        const row = Dom.new.fromTemplate('level4TechnologyTemplate');
+        if (displayLocked) {
+            row.id = technology.domId;
+        } else {
+            row.id = technology.unlockedDomId;
+            row.classList.add('hidden');
+        }
         row.classList.add('technology-row');
 
+        const domGetter = Dom.get(row);
+
         // Technology Name
-        const parent = technology.getParent();
-        const nameCell = document.createElement('td');
-        nameCell.innerHTML =
-            `<div class="technology progress progressBar descriptionTooltip clickable" role="progressbar" aria-label="Technology"
-                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="${technology.title}"
-                 data-bs-placement="right">
-                <div class="moduleOperation progressFill progress-bar progress-bar-striped" style="width: 0%"></div>
-                <div class="progress-text d-flex px-2">
-                    <span class="unlocked-icon me-1">🗹</span>`
-            + (parent === '' ? '' :
-                   `<span class="parent text-truncate">${parent}</span>
-                    <span class="me-1">:</span>`
-            )
-            +      `<span class="name text-truncate">${technology.title}</span>
-                </div>
-            </div>
-            <div class="requirements-container">
-                <div class="requirements help-text"></div>
-            </div>`;
-        nameCell.classList.add('technology-name');
-        row.appendChild(nameCell);
+        const parent = technology.getDisplayedParent();
+        if (parent === null) {
+            domGetter.bySelector('.technology-name .parent').remove();
+            domGetter.bySelector('.technology-name .separator').remove();
+        } else {
+            domGetter.bySelector('.technology-name .parent').textContent = parent;
+        }
+        domGetter.bySelector('.technology-name .name').textContent = technology.title;
+        let tooltip = '';
+        switch (technology.unlocks.type) {
+            case 'ModuleOperation':
+                tooltip = `
+Module:${Symbols.NON_BREAKING_SPACE}<b>${technology.unlocks.module.title}</b><br />
+Component:${Symbols.NON_BREAKING_SPACE}<b>${technology.unlocks.component.title}</b><br />
+New Operation:${Symbols.NON_BREAKING_SPACE}<b>${technology.unlocks.title}</b>`;
+                break;
+        }
+        if (tooltip !== '') {
+            domGetter.bySelector('.technology-name > .technology').title = tooltip;
+        } else {
+            domGetter.bySelector('.technology-name > .technology').removeAttribute('title');
+        }
 
-        row.querySelector('.progressBar').addEventListener('pointerdown', (event) => {
-            if (technology.isUnlocked) return;
+        if (displayLocked) {
+            domGetter.byClass('progressBar').addEventListener('pointerdown', (event) => {
+                if (technology.isUnlocked) return;
 
-            const technologyCost = technology.getCost();
-            if (technologyCost > attributes.data.getValue()) {
-                // TODO
-                // visuallyDenyGalacticSecretUnlock(galacticSecret);
-                return;
-            }
+                const technologyCost = technology.getCost();
+                if (technologyCost > attributes.data.getValue()) {
+                    // TODO
+                    // visuallyDenyGalacticSecretUnlock(galacticSecret);
+                    return;
+                }
 
-            const tooltip = bootstrap.Tooltip.getInstance(event.currentTarget);
-            if (tooltip !== null) {
-                tooltip.hide();
-                tooltip.disable();
-            }
-            technology.inProgress = true;
-        });
+                const tooltip = bootstrap.Tooltip.getInstance(event.currentTarget);
+                if (tooltip !== null) {
+                    tooltip.hide();
+                    tooltip.disable();
+                }
+                technology.inProgress = true;
+            });
+        } else {
+            const progressElement = domGetter.byClass('progress');
+            const progressBarElement = domGetter.byClass('progressBar');
+            const progressFillElement = domGetter.byClass('progressFill');
+            const requirementsElement = domGetter.byClass('requirements');
+            const costCell = domGetter.byClass('cost');
 
-        // State
-        const stateCell = document.createElement('td');
-        stateCell.classList.add('state', 'hidden');
-        const stateBadge = document.createElement('span');
-        stateBadge.classList.add('badge', 'state-badge');
-        stateCell.appendChild(stateBadge);
-        row.appendChild(stateCell);
+            progressElement.classList.remove('hidden');
+            requirementsElement.remove();
+            progressFillElement.classList.add('unlocked');
+            progressBarElement.classList.add('unlocked');
+            progressBarElement.classList.remove('clickable');
+            costCell.classList.remove('affordable', 'too-expensive');
+            costCell.classList.add('unlocked');
 
-        // Type
-        const typeCell = document.createElement('td');
-        typeCell.textContent = technology.getFormattedType();
-        typeCell.classList.add('type', 'hidden');
-        row.appendChild(typeCell);
+            progressFillElement.style.removeProperty('width');
+        }
 
-        // Belongs to
-        const belongsToCell = document.createElement('td');
-        belongsToCell.textContent = technology.getBelongsTo();
-        belongsToCell.classList.add('belongs-to');
-        row.appendChild(belongsToCell);
+        domGetter.byClass('belongs-to').textContent = technology.getBelongsTo();
 
         // Effect
-        const effectCell = document.createElement('td');
-        effectCell.classList.add('effect');
         if (isFunction(technology.unlocks['getEffectDescription'])) {
-            effectCell.innerHTML = technology.unlocks.getEffectDescription(1);
+            domGetter.byClass('effect').innerHTML = technology.unlocks.getEffectDescription(1);
         } else {
-            effectCell.textContent = '-';
+            domGetter.byClass('effect').textContent = '-';
         }
-        row.appendChild(effectCell);
 
-        // Cost
-        const costCell = document.createElement('td');
-        costCell.classList.add('cost');
-        // TODO attribute icon
-        costCell.innerHTML = `<data class="value" value="${technology.getCost()}" = data-unit="Data">${technology.getCost()}</data>`;
-        row.appendChild(costCell);
+        formatValue(
+            domGetter.bySelector('.cost .value'),
+            technology.getCost(),
+            {
+                forceInteger: true,
+                keepNumber: true,
+            });
+        domGetter.bySelector('.cost .data-attribute').replaceWith(Dom.new.fromHtml(attributes.data.inlineHtmlWithIcon));
 
-        tbody.appendChild(row);
+        if (displayLocked) {
+            level4Elements.push(row);
+        } else {
+            // unshift --> unlocked technologies in reverse order
+            level4Elements.unshift(row);
+        }
     }
 
+
+    return level4Elements;
+}
+
+/**
+ * @return {HTMLElement}
+ */
+function createLockedTechnologiesUI() {
+    const level3Element = Dom.new.fromTemplate('level3TechnologiesTemplate');
+
+    level3Element.id = 'lockedTechnologies';
+
+    const domGetter = Dom.get(level3Element);
+    domGetter.byClass('technology-name').textContent = 'Technologies';
+
+    /** @type {HTMLElement} */
+    const level4Slot = domGetter.byClass('level4');
+    level4Slot.append(...createLevel4TechnologyElements(true));
+
+    // TODO optimize
     window.addEventListener('pointerup', () => {
         for (const key in technologies) {
             const technology = technologies[key];
@@ -904,6 +944,31 @@ function createTechnologiesUI() {
             }
         }
     });
+
+    return level3Element;
+}
+
+/**
+ * @return {HTMLElement}
+ */
+function createUnlockedTechnologiesUI() {
+    const level3Element = Dom.new.fromTemplate('level3TechnologiesTemplate');
+
+    const domGetter = Dom.get(level3Element);
+    domGetter.byClass('header-row').classList.replace('text-bg-light', 'text-bg-dark');
+    domGetter.byClass('technology-name').textContent = 'Unlocked Technologies';
+    domGetter.byClass('cost').textContent = 'Paid cost';
+
+    /** @type {HTMLElement} */
+    const level4Slot = domGetter.byClass('level4');
+    level4Slot.append(...createLevel4TechnologyElements(false));
+
+    return level3Element;
+}
+
+function createTechnologiesUI() {
+    Dom.get().byId('lockedTechnologiesSlot').replaceWith(createLockedTechnologiesUI());
+    Dom.get().byId('unlockedTechnologiesSlot').replaceWith(createUnlockedTechnologiesUI());
 }
 
 function createModulesQuickDisplay() {
@@ -1088,8 +1153,12 @@ function createAttributeBalance(rowElement, effectTypes) {
                 }
                 return count;
             };
-            let battleValueFromRewardsFn = () => (Math.pow(standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue, battlesWonLength()));
-            let atLeastOneBattleWonToMakeItActiveFn = () => (battleValueFromRewardsFn() > 1 ? true : false);
+            let battleValueFromRewardsFn = () => {
+                const defaultValue = standardBattleMilitaryReward.effectType.getDefaultValue();
+                const baseValue = standardBattleMilitaryReward.baseValue;
+                return Math.pow(defaultValue + baseValue, battlesWonLength());
+            };
+            let atLeastOneBattleWonToMakeItActiveFn = () => (battleValueFromRewardsFn() > 1);
             let descriptionTextFn = () => ('x' + (standardBattleMilitaryReward.effectType.getDefaultValue() + standardBattleMilitaryReward.baseValue) + ' for ' + battlesWonLength() + ' battles defeated');
             createAttributeBalanceEntryDynamicDescription(
                 balanceElement,
@@ -1108,7 +1177,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                     battle.getReward.bind(battle),
                     () => battle.rewards,
                     effectType,
-                    'Defeated ' + battle.title,
+                    'defeated ' + battle.title,
                     battle.isDone.bind(battle),
                 );
                 createAttributeBalanceEntryStaticDescription(
@@ -1116,7 +1185,7 @@ function createAttributeBalance(rowElement, effectTypes) {
                     battle.getEffect.bind(battle),
                     battle.getEffects.bind(battle),
                     effectType,
-                    'Fighting ' + battle.title,
+                    'fighting ' + battle.title,
                     () => battle.isActive() && !battle.isDone(),
                 );
             }
@@ -1144,6 +1213,9 @@ function createEssenceOfUnknownHistoryEntryDescription(entry) {
         switch (entry.entity.type) {
             case 'BossBattle':
                 descriptionText = `from ${entry.entity.level} defeated Boss waves`;
+                break;
+            case 'EssenceOfUnknownGainTechnology':
+                descriptionText = `from Extra ${attributes.essenceOfUnknown.title} Technology`;
                 break;
             default:
                 console.error('Essence of Unknown history: Unsupported entry.entity.type for gained essence', entry.entity.type);
@@ -1223,7 +1295,7 @@ function createAttributesHTML() {
     for (const attributeName in attributes) {
         const attribute = attributes[attributeName];
 
-        const inlineHTML = `<span class="attribute ${attribute.textClass}">${attribute.title}</span>`;
+        const inlineHTML = `<b class="attribute ${attribute.textClass}">${attribute.title}</b>`;
 
         attribute.inlineHtml = inlineHTML;
         if (attribute.icon === null) {
@@ -1273,6 +1345,11 @@ function createAttributesUI() {
     Dom.get(dangerCell).byClass('balance').classList.remove('hidden');
     createAttributeBalance(dangerCell, [EffectType.Danger, EffectType.DangerFactor]);
     rows.push(dangerCell);
+
+    const energyCell = createAttributeRow(attributes.energy);
+    Dom.get(energyCell).byClass('balance').classList.remove('hidden');
+    createAttributeBalance(energyCell, [EffectType.Energy, EffectType.EnergyFactor]);
+    rows.push(energyCell);
 
     // Grid Load
     const gridLoadRow = createAttributeRow(attributes.gridLoad);
@@ -1334,6 +1411,8 @@ function createEnergyGridDisplay() {
     const tooltipText = createGridStrengthAndLoadDescription();
     Dom.get().byId('gridLabel').title = tooltipText;
     Dom.get().byId('gridStrength').title = tooltipText;
+
+    Dom.get().byId('energyLabel').title =  attributes.energy.description;
 
     const tickElementsTop = [];
     const tickElementsBottom = [];
@@ -1408,7 +1487,6 @@ function updateTechnologiesQuickDisplay() {
 function setBattleProgress(progressBar, battle) {
     const domGetter = Dom.get(progressBar);
     if (battle.isDone()) {
-        progressBar.dataset.layer = String(numberOfLayers);
         domGetter.byClass('progressFill').style.width = '0%';
         return;
     }
@@ -1420,14 +1498,10 @@ function setBattleProgress(progressBar, battle) {
         return;
     }
 
-    const layerLevel = battle.level % numberOfLayers;
-    progressBarFill.dataset.layer = String(layerLevel);
-    if (battle.getDisplayedLevel() === 1) {
-        progressBar.dataset.layer = String(numberOfLayers);
-    } else {
-        const nextLayerLevel = (battle.level + 1) % numberOfLayers;
-        progressBar.dataset.layer = String(nextLayerLevel);
-    }
+    const layer = battle.level % numberOfSupportedTaskLayers;
+    const nextLayer = layer + 1; // No need to handle overflows, as [numberOfSupportedTaskLayers + 1] colors are supported
+    progressBarFill.dataset.layer = String(layer);
+    progressBar.dataset.layer = String(nextLayer);
 }
 
 function updateBattlesQuickDisplay() {
@@ -1577,7 +1651,7 @@ function updateModuleOperationRow(operation, operationRequirementsContext) {
     row.classList.remove('hidden');
 
     const domGetter = Dom.get(row);
-    formatValue(domGetter.bySelector('.level > data'), operation.level, {keepNumber: true});
+    formatLevelValue(domGetter.bySelector('.level > data'), operation.level);
     formatValue(domGetter.bySelector('.xpGain > data'), operation.getXpGain());
     formatValue(domGetter.bySelector('.xpLeft > data'), operation.getXpLeft());
 
@@ -1647,12 +1721,12 @@ function updateModuleRow(module, moduleRequirementsContext) {
     level2Header.classList.toggle('inactive', !isActive);
 
     domGetter.byClass('moduleActivationSwitch').checked = module.isActive();
-    formatValue(domGetter.byClass('level'), module.getLevel());
+    formatLevelValue(domGetter.byClass('level'), module.getLevel());
 
     const maxLevelElement = domGetter.byClass('maxLevel');
     if (gameData.bossEncounterCount > 0) {
         maxLevelElement.classList.remove('hidden');
-        formatValue(domGetter.bySelector('.maxLevel > data'), module.maxLevel, {keepNumber: true});
+        formatLevelValue(domGetter.bySelector('.maxLevel > data'), module.mastery);
     } else {
         maxLevelElement.classList.add('hidden');
     }
@@ -1745,14 +1819,14 @@ function updateModulesUI() {
  * @param visibleFactions
  * @param battle
  * @param visibleBattles
- * @param maxBattles
+ * @param {{limit: number, requirement: TechnologyRequirement|string}} maxBattles
  * @return {RequirementLike|null}
  */
 function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattles, maxBattles) {
     if (visibleFactions.hasOwnProperty(battle.faction.name)) {
         return {
             toHtml: () => {
-                return `${visibleFactions[battle.faction.name].title} defeated`;
+                return `defeat ${visibleFactions[battle.faction.name].title}`;
             },
             isVisible: () => true,
         };
@@ -1776,20 +1850,37 @@ function getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattle
     // Let's get dirty for some nice UX
     // If due to low research, only 1 battle can be shown, this battle explicitly mentioned
     if (maxBattles.limit === 1) {
-        return {
-            toHtml: () => {
-                // Find the open battle by looking up the one value in the visible factions
-                return `${Object.values(visibleFactions)[0].title} defeated or ` +
-                    maxBattles.requirement.toHtml();
-            },
-            isVisible: () => true,
-        };
+        let showRequirementHtml = false;
+        if (maxBattles.requirement.type === 'TechnologyRequirement') {
+            showRequirementHtml = maxBattles.requirement.baseData.technology.requirementsMet();
+        } else {
+            showRequirementHtml = maxBattles.requirement.isVisible();
+        }
+
+        if (showRequirementHtml) {
+            return {
+                toHtml: () => {
+                    // Find the open battle by looking up the one value in the visible factions
+                    return `defeat ${Object.values(visibleFactions)[0].title} or ` +
+                        maxBattles.requirement.toHtml();
+                },
+                isVisible: () => true,
+            };
+        } else {
+            return {
+                toHtml: () => {
+                    // Find the open battle by looking up the one value in the visible factions
+                    return `defeat ${Object.values(visibleFactions)[0].title}`;
+                },
+                isVisible: () => true,
+            };
+        }
     }
 
     // There is more than 1 battle open but there could be more battles visible
     return {
         toHtml: () => {
-            return 'Win any open battle or ' + maxBattles.requirement.toHtml();
+            return 'Win any open battle or unlock ' + maxBattles.requirement.toHtml();
         },
         isVisible: () => true,
     };
@@ -1799,7 +1890,7 @@ let battleRequirementsHtmlCache = '';
 
 function updateBattleRows() {
     // Determine visibility
-    const maxBattles = maximumAvailableBattles(attributes.research.getValue());
+    const maxBattles = maximumAvailableBattles();
     let visibleBattles = 0;
     const visibleFactions = {};
     const bossRow = Dom.get().byId(bossBattle.domId);
@@ -1821,13 +1912,18 @@ function updateBattleRows() {
         const battle = battles[key];
         const row = Dom.get().byId(battle.domId);
 
-        if (battle.isDone()) {
+        if (!gameData.state.areBattlesVisible && !(battle instanceof BossBattle)) {
             row.classList.add('hidden');
-            Dom.get().byId('row_done_' + battle.name).classList.remove('hidden');
             continue;
         }
 
-        Dom.get().byId('row_done_' + battle.name).classList.add('hidden');
+        if (battle.isDone()) {
+            row.classList.add('hidden');
+            Dom.get().byId(battle.doneDomId).classList.remove('hidden');
+            continue;
+        }
+
+        Dom.get().byId(battle.doneDomId).classList.add('hidden');
 
         const unfulfilledRequirement = getUnfulfilledBattleRequirements(visibleFactions, battle, visibleBattles, maxBattles);
 
@@ -1835,7 +1931,7 @@ function updateBattleRows() {
         if (battle instanceof BossBattle) {
             formatValue(
                 domGetter.bySelector('.dangerCell > .danger > data'),
-                battle.getRawEffect(EffectType.Danger)
+                battle.getRawEffect(EffectType.Danger),
             );
         } else {
             if (!updateRequirements(
@@ -1846,13 +1942,18 @@ function updateBattleRows() {
                 continue;
             }
 
-            visibleBattles++;
             visibleFactions[battle.faction.name] = battle;
 
             row.classList.remove('hidden');
         }
+        visibleBattles++;
 
-        formatValue(domGetter.bySelector('.level > data'), battle.getDisplayedLevel(), {keepNumber: true});
+        const displayedLevel = battle.getDisplayedLevel();
+        if (isString(displayedLevel)){
+            domGetter.bySelector('.level > data').textContent = displayedLevel;
+        } else {
+            formatValue(domGetter.bySelector('.level > data'), displayedLevel, {keepNumber: true});
+        }
         formatValue(domGetter.bySelector('.xpGain > data'), battle.getXpGain());
         formatValue(domGetter.bySelector('.xpLeft > data'), battle.getXpLeft());
 
@@ -1860,59 +1961,51 @@ function updateBattleRows() {
 
         const isActive = battle.isActive();
         domGetter.byClass('progressFill').classList.toggle('current', isActive);
-
-        if (isBossBattleAvailable() &&
-            visibleBattles === bossBattle.distance
-        ) {
-            if (row.nextElementSibling !== bossRow) { // Do not update the DOM if not necessary
-                row.after(bossRow);
-            }
-        }
     }
 
+    const bossBattleDefenseModeHelp = Dom.get().byId('bossBattleDefenseModeHelp');
     if (isBossBattleAvailable() && !bossBattle.isDone()) {
         bossRow.classList.remove('hidden');
 
         if (bossBattle.isActive()) {
             const bossDomGetter = Dom.get(bossRow);
             const bossInDefenseMode = bossBattle.isInDefenseMode();
-            const bossBattleDefenseModeHelp = Dom.get().byId('bossBattleDefenseModeHelp');
 
             bossDomGetter.byClass('progress').classList.toggle('glow-shield', bossInDefenseMode);
             bossDomGetter.byClass('xpGainCell').classList.toggle('defense-mode', bossInDefenseMode);
             bossDomGetter.byClass('dangerCell').classList.toggle('defense-mode', bossInDefenseMode);
-            bossBattleDefenseModeHelp.classList.toggle('hidden', !bossInDefenseMode);
             if (bossInDefenseMode) {
                 formatValue(bossDomGetter.bySelector('.xpCappedValue > data'), bossBattle.getDefenseModeXpGain());
+            }
+        }
 
-                if (bossRow.nextElementSibling !== bossBattleDefenseModeHelp) {
-                    bossRow.after(bossBattleDefenseModeHelp);
-                }
+        // Find visible battles to find the nth element
+        const visibleBattleRows = Dom.get(bossRow.parentElement).allBySelector('tr.regularBattle:not(.hidden)');
+        if (visibleBattleRows.length === 0) {
+            // if no elements exist --> keep bossRow where it is
+
+        } else if (bossBattle.distance >= visibleBattleRows.length) {
+            // if it doesn't exist --> move bossRow after last element
+            if (visibleBattleRows[visibleBattleRows.length - 1].nextSibling !== bossRow) {
+                visibleBattleRows[visibleBattleRows.length - 1].after(bossRow);
             }
-            // Boss should be in first position.
-            if (bossRow.previousElementSibling !== null) { // Do not update the DOM if not necessary
-                Dom.get()
-                    .bySelector('#unfinishedBattles tbody.level4')
-                    .prepend(bossRow);
+        } else {
+            // if it exists --> move bossRow before it
+            if (visibleBattleRows[bossBattle.distance].previousSibling !== bossRow) {
+                visibleBattleRows[bossBattle.distance].before(bossRow);
             }
-        } else if (visibleBattles < bossBattle.distance) {
-            // There are fewer battles visible than the boss distance --> move boss in last position.
-            // Is the bossRow already the last element?
-            if (bossRow.nextElementSibling !== requirementsContext.requirementsElement) { // Do not update the DOM if not necessary
-                requirementsContext.requirementsElement.before(bossRow);
-            }
-        } else if (bossBattle.distance === 0) {
-            // Boss should be in first position.
-            // Is the bossRow already the first element?
-            if (bossRow.previousElementSibling !== null) { // Do not update the DOM if not necessary
-                Dom.get()
-                    .bySelector('#unfinishedBattles tbody.level4')
-                    .prepend(bossRow);
-            }
+        }
+
+        // Ensure the help text row is always directly after the boss row
+        if (bossRow.nextElementSibling !== bossBattleDefenseModeHelp) {
+            bossRow.after(bossBattleDefenseModeHelp);
         }
     } else {
         bossRow.classList.add('hidden');
     }
+
+    const showBossBattleDefenseModeHelp = isBossBattleAvailable() && !bossBattle.isDone() && bossBattle.isActive() && bossBattle.isInDefenseMode();
+    Dom.get().byId('bossBattleDefenseModeHelp').classList.toggle('hidden', !showBossBattleDefenseModeHelp);
 
     requirementsContext.requirementsElement.classList.toggle('hidden', !requirementsContext.hasUnfulfilledRequirements);
 }
@@ -2024,18 +2117,25 @@ const technologiesRequirementHtmlCache = {};
 function updateTechnologiesUI() {
     for (const key in technologies) {
         const technology = technologies[key];
-        const row = Dom.get().byId(`technology_${key}`);
+        const row = Dom.get().byId(technology.domId);
+        const unlockedRow = Dom.get().byId(technology.unlockedDomId);
 
-        row.classList.toggle('hidden', !technology.isVisible());
+        if (technology.isUnlocked) {
+            row.classList.add('hidden');
+            unlockedRow.classList.remove('hidden');
+            continue;
+        }
+
+        unlockedRow.classList.add('hidden');
+
+        if (!technology.isVisible()) {
+            row.classList.add('hidden');
+            continue;
+        }
+
+        row.classList.remove('hidden');
 
         const domGetter = Dom.get(row);
-        const nameCell = domGetter.byClass('technology-name');
-        const stateBadge = domGetter.byClass('state-badge');
-
-        // Update state
-        const state = technology.getState();
-        stateBadge.textContent = state;
-        stateBadge.classList.remove('bg-success', 'bg-warning', 'bg-danger', 'bg-secondary');
 
         const progressElement = domGetter.byClass('progress');
         const progressBarElement = domGetter.byClass('progressBar');
@@ -2043,74 +2143,62 @@ function updateTechnologiesUI() {
         const requirementsElement = domGetter.byClass('requirements');
         const costCell = domGetter.byClass('cost');
 
-        switch (state) {
-            case 'Unlocked':
-                progressElement.classList.remove('hidden');
-                requirementsElement.classList.add('hidden');
-                progressFillElement.classList.add('unlocked');
-                progressBarElement.classList.add('unlocked');
-                progressBarElement.classList.remove('clickable');
-                costCell.classList.remove('affordable', 'too-expensive');
-                costCell.classList.add('unlocked');
-
-                progressFillElement.style.removeProperty('width');
-
-                stateBadge.classList.add('bg-secondary');
-                break;
-            case 'Affordable':
-                progressElement.classList.remove('hidden');
-                requirementsElement.classList.add('hidden');
-                progressFillElement.classList.toggle('unlocked', technology.inProgress);
-                progressBarElement.classList.remove('unlocked');
-                progressBarElement.classList.add('clickable');
-                setProgress(progressFillElement, technology.unlockProgress);
-                costCell.classList.add('affordable');
-                costCell.classList.remove('too-expensive', 'unlocked');
-
-                stateBadge.classList.add('bg-success');
-                break;
-            case 'Too expensive':
-                progressElement.classList.remove('hidden');
-                requirementsElement.classList.add('hidden');
-                progressFillElement.classList.remove('unlocked');
-                progressBarElement.classList.remove('unlocked');
-                progressBarElement.classList.remove('clickable');
-                costCell.classList.remove('affordable', 'unlocked');
-                costCell.classList.add('too-expensive');
-
-                stateBadge.classList.add('bg-warning');
-                break;
-            case 'Missing requirement':
-                progressElement.classList.add('hidden');
-                requirementsElement.classList.remove('hidden');
-                progressFillElement.classList.remove('unlocked');
-                progressBarElement.classList.remove('unlocked');
-                progressBarElement.classList.remove('clickable');
-                const html = technology.getUnfulfilledRequirements()
-                    .map(requirement => requirement.toHtml())
-                    .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
-                    .join(', ');
-                if (html !== technologiesRequirementHtmlCache[key]) {
-                    requirementsElement.innerHTML = html;
-                    technologiesRequirementHtmlCache[key] = html;
-                }
-                costCell.classList.remove('affordable', 'too-expensive', 'unlocked');
-
-                stateBadge.classList.add('bg-danger');
-                break;
+        if (!technology.requirementsMet()) {
+            // Missing requirements
+            progressElement.classList.add('hidden');
+            requirementsElement.classList.remove('hidden');
+            progressFillElement.classList.remove('unlocked');
+            progressBarElement.classList.remove('unlocked');
+            progressBarElement.classList.remove('clickable');
+            setProgress(progressFillElement, 0);
+            const html = technology.getUnfulfilledRequirements()
+                .map(requirement => requirement.toHtml())
+                .filter(requirementString => requirementString !== null && requirementString.trim() !== '')
+                .join(', ');
+            if (html !== technologiesRequirementHtmlCache[key]) {
+                requirementsElement.innerHTML = html;
+                technologiesRequirementHtmlCache[key] = html;
+            }
+            costCell.classList.remove('affordable', 'too-expensive', 'unlocked');
+            costCell.classList.add('missing-requirement');
+        } else if (technology.canAfford()) {
+            progressElement.classList.remove('hidden');
+            requirementsElement.classList.add('hidden');
+            progressFillElement.classList.toggle('unlocked', technology.inProgress);
+            progressBarElement.classList.remove('unlocked');
+            progressBarElement.classList.add('clickable');
+            setProgress(progressFillElement, technology.unlockProgress);
+            costCell.classList.add('affordable');
+            costCell.classList.remove('too-expensive', 'unlocked', 'missing-requirement');
+        } else {
+            // Too expensive
+            progressElement.classList.remove('hidden');
+            requirementsElement.classList.add('hidden');
+            progressFillElement.classList.remove('unlocked');
+            progressBarElement.classList.remove('unlocked');
+            progressBarElement.classList.remove('clickable');
+            setProgress(progressFillElement, 0);
+            costCell.classList.remove('affordable', 'unlocked', 'missing-requirement');
+            costCell.classList.add('too-expensive');
         }
-
-        formatValue(domGetter.bySelector('.cost > data'), technology.getCost(), {forceInteger: true, unit: 'Data'});
     }
 }
 
 function updateAttributeRows() {
     for (const balanceEntry of attributeBalanceEntries) {
         if (balanceEntry.isActive()) {
-            formatValue(
-                Dom.get(balanceEntry.element).byClass('entryValue'),
-                balanceEntry.getEffect(balanceEntry.effectType),
-            );
+            if (balanceEntry.effectType.attribute === attributes.energy) {
+                formatEnergyValue(
+                    Dom.get(balanceEntry.element).byClass('entryValue'),
+                    balanceEntry.getEffect(balanceEntry.effectType),
+                );
+            } else {
+                formatValue(
+                    Dom.get(balanceEntry.element).byClass('entryValue'),
+                    balanceEntry.getEffect(balanceEntry.effectType),
+                );
+            }
+
             if (isFunction(balanceEntry.updateDescription)) {
                 balanceEntry.updateDescription();
             }
@@ -2208,10 +2296,35 @@ function updateEnergyGridBar() {
 function updateBossProgress() {
     const container = document.getElementById('bossProgress');
     const bossBar = document.getElementById('bossProgressBar');
-
-    const allowProgressAcceleration = gameData.bossEncounterCount >= bossBarAccelerationAllowedAfterBossEncounters;
-
+    const bossProgressBar = container.querySelector('.bossProgressBar');
     const progressContainer = container.querySelector('.bossProgress-container');
+    const bossText = document.getElementById('bossProgressText');
+    const tooltip = bootstrap.Tooltip.getOrCreateInstance(container);
+
+    if (bossWasDefeated()) {
+        container.classList.add('defeated');
+        bossBar.style.width = '100%';
+        bossBar.classList.add('defeated');
+        bossBar.classList.remove('progress-bar-striped');
+        bossProgressBar.classList.remove('clickable');
+        progressContainer.classList.add('disabled');
+        bossText.classList.remove('warningAnimation');
+        const defeatedBossAsText = getLastDefeatedBossAsText();
+        if (bossText.textContent !== defeatedBossAsText)
+        {
+            bossText.textContent = defeatedBossAsText;
+        }
+        tooltip.disable();
+
+        return;
+    }
+
+    container.classList.remove('defeated');
+    bossBar.classList.remove('defeated');
+    bossBar.classList.add('progress-bar-striped');
+
+    const allowProgressAcceleration = gameData.bossEncounterCount >= bossBarAccelerationAllowedAfterBossEncounters
+        && technologies.battleTabButton.isUnlocked;
 
     const remaining = getTimeUntilBossAppears();
     const totalWait = getBossAppearanceCycle();
@@ -2233,7 +2346,6 @@ function updateBossProgress() {
     bossBar.style.width = progressPercentage.toFixed(1) + '%';
     updateBossBarColor(progressPercentage, bossBar);
     bossBar.setAttribute('aria-valuenow', progressPercentage.toFixed(1));
-    const bossText = document.getElementById('bossProgressText');
     const newText = getBossProgressForeshadowingText(progressPercentage);
 
     if (bossText.textContent !== newText) {
@@ -2250,8 +2362,8 @@ function updateBossProgress() {
         bossText.classList.remove('warningAnimation');
     }
 
-    const tooltip = bootstrap.Tooltip.getOrCreateInstance(container);
     if (allowProgressAcceleration) {
+        bossProgressBar.classList.add('clickable');
         progressContainer.classList.remove('disabled');
         tooltip.enable();
         if (!container.matches(':hover')) {
@@ -2259,6 +2371,7 @@ function updateBossProgress() {
             tooltip.setContent({'.tooltip-inner': tooltipText});
         }
     } else {
+        bossProgressBar.classList.remove('clickable');
         progressContainer.classList.add('disabled');
         tooltip.disable();
     }
@@ -2288,6 +2401,7 @@ function updateHeatIndication() {
     Dom.get().bySelector('#attributesDisplay .primary-stat[data-attribute="danger"]').classList.toggle('shake-and-pulse', isPopShrinking);
 }
 
+// TODO move attribute overview updates out of this function
 function updateStationOverview() {
     updateBossProgress();
     const cyclesTotalElement = Dom.get().byId('cyclesTotal');
@@ -2327,6 +2441,7 @@ function updateStationOverview() {
     updateEnergyGridBar();
     formatValue(Dom.get().bySelector('#attributeRows > .gridLoad > .value > data'), attributes.gridLoad.getValue());
     formatValue(Dom.get().bySelector('#attributeRows > .gridStrength > .value > data'), attributes.gridStrength.getValue());
+    formatEnergyValue(Dom.get().bySelector('#attributeRows > .energy > .value > data'), attributes.energy.getValue());
     const delta = gridStrength.getDelta();
     const gridStrengthDeltaElement = Dom.get().bySelector('#attributeRows > .gridStrength .delta');
     if (delta < 0.1) {
@@ -2354,12 +2469,11 @@ function updateStationOverview() {
     formatValue(Dom.get().byId('populationProgressSpeedDisplay'), getPopulationProgressSpeedMultiplier(), {});
     formatValue(Dom.get().bySelector('#attributeRows > .population > .value > data'), population, {forceInteger: true});
     formatValue(Dom.get().bySelector('#attributeRows > .population .delta'), calculatePopulationDelta(), {forceSign: true});
-    const maxPopulationDisplayElement = Dom.get().byId('maxPopulationDisplay');
-    formatValue(maxPopulationDisplayElement, gameData.stats.maxPopulation.current, {forceInteger: true});
+    formatValue(Dom.get().bySelector('#maxPopulationDisplay > data'), gameData.stats.maxPopulation.current, {forceInteger: true});
     const regenerationActive = isPopulationRegenerationActive(population);
-    const maxPopulationDisplayParent = maxPopulationDisplayElement.closest('.secondary-stat');
-    maxPopulationDisplayParent.classList.toggle('help-text', !regenerationActive);
-    maxPopulationDisplayParent.classList.toggle('regeneration-active', regenerationActive);
+    const maxPopulationDisplay = Dom.get().byId('maxPopulationDisplay');
+    maxPopulationDisplay.classList.toggle('help-text', !regenerationActive);
+    maxPopulationDisplay.classList.toggle('regeneration-active', regenerationActive);
 
     const research = attributes.research.getValue();
     formatValue(Dom.get().byId('researchDisplay'), research);
@@ -2454,6 +2568,12 @@ function progressTechnologies() {
                 previousLevel: 0,
                 nextLevel: 1,
             });
+            AudioEngine.postEvent(AudioEvents.TECHNOLOGY_UNLOCKED, technology);
+            const unlockedTechnologyRow = Dom.get().byId(technology.unlockedDomId);
+            // Move as first row. Yes, this won't be restored on reloading the page -
+            // but it helps to understand early the Open + Unlocked table
+            // Bug: https://trello.com/c/3GtiWSMF/422-unlocked-technologies-order-wont-restore-on-reloading-the-game
+            unlockedTechnologyRow.parentElement.prepend(unlockedTechnologyRow);
         }
         technology.unlockProgress = 0;
     }
@@ -2804,6 +2924,13 @@ function initRequirements() {
     Requirement.allRequirements = null;
 }
 
+function initTechnologies() {
+    for (const key in technologies) {
+        const technology = technologies[key];
+        technology.init(requirementRegistry);
+    }
+}
+
 function initConfigNames() {
     assignNames(gameStates);
     gridStrength.name = 'gridStrength';
@@ -2817,13 +2944,13 @@ function initConfigNames() {
     assignNames(battles);
     assignNames(pointsOfInterest);
     assignNames(sectors);
+    assignNames(technologies);
     assignNames(galacticSecrets);
 }
 
 let bossBarPressed = false;
 let bossBarPressStartTime = 0;
 let bossBarAcceleratedProgress = 0;
-const bossBarAccelerationAllowedAfterBossEncounters = 1;
 
 function initBossBattleProgressBar() {
     const barContainer = document.getElementById('bossProgress');
@@ -2844,6 +2971,7 @@ function initBossBattleProgressBar() {
 function init() {
     initConfigNames();
     initRequirements();
+    initTechnologies();
     createAttributesHTML();
     createAttributeDescriptions();
 
@@ -2912,6 +3040,8 @@ function init() {
             gameLoop.start();
         }
     });
+
+    document.addEventListener('visibilitychange', updateUiIfNecessary);
 
     setInterval(gameData.save.bind(gameData), 3000);
 }
