@@ -354,6 +354,18 @@ class GameData {
 
     ignoredVersionUpgrades = [];
 
+    /**
+     * The currently active loadout icon key (e.g. 'population', 'industry', etc.) or null if none.
+     * @type {string|null}
+     */
+    currentLoadoutIcon = null;
+
+    /**
+     * Loadouts keyed by icon name. Each loadout stores the module/operation activation state.
+     * @type {Object<string, {modules: string[], operations: string[]}>}
+     */
+    loadoutsByIcon = {};
+
     constructor() {
         this.initValues();
         this.initSavedValues();
