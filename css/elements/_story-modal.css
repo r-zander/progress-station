@@ -122,8 +122,8 @@
             border-radius: 18px;
             animation: 2s fuse infinite linear;
             /* Little trick to add a bit of space for the animated box-shadow without losing the layout */
-            margin-inline: -1rem;
-            padding-inline: 1rem;
+            margin-inline: -0.5rem;
+            padding-inline: 0.5rem;
         }
     }
 

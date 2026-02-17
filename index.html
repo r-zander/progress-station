@@ -1498,11 +1498,11 @@
                     Damage Report
                 </h2>
             </div>
-            <div class="modal-body">
-                <h3 class="fs-5 fw-light">Station</h3>
+            <div class="modal-body py-1">
+                <h3 class="fs-5 fw-light mb-0">Station</h3>
                 <section class="basedata-section mb-4">
                     <div class="table-responsive">
-                        <table class="table table-borderless align-middle mb-0" style="width: 19rem">
+                        <table class="table table-borderless table-sm w-auto align-middle mb-0">
                             <tbody>
                             <tr>
                                 <td>Name:</td>
@@ -1510,7 +1510,9 @@
                             </tr>
                             <tr>
                                 <td>Boss encounters:</td>
-                                <td id="lastRunBossEncounters"></td>
+                                <td>
+                                    <data value="0" id="lastRunBossEncounters" class="text-start">0</data>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Travel Time:</td>
@@ -1528,7 +1530,12 @@
                 <section class="modules-section mb-4">
                     <h3 class="fs-5 fw-light">Modules</h3>
                     <div class="table-responsive">
-                        <table class="table table-borderless align-middle mb-0">
+                        <table class="table table-sm table-borderless align-middle mb-0">
+                            <colgroup>
+                                <col style="width: 33.3%" />
+                                <col style="width: 33.3%" />
+                                <col style="width: 33.3%" />
+                            </colgroup>
                             <thead>
                             <tr>
                                 <th scope="col">&nbsp;</th>
@@ -1549,9 +1556,9 @@
 
                 <!-- STATS SECTION -->
                 <section>
-                    <h3 class="fs-5 fw-light mb-3">Stats</h3>
-                    <div class="container-fluid">
-                        <div class="row g-5">
+                    <h3 class="fs-5 fw-light mb-0">Stats</h3>
+                    <div class="container-fluid" style="--bs-gutter-x: 0.5rem;">
+                        <div class="row gx-4">
                             <div class="col-md-4">
                                 <div class="stat-row"><span>Battle waves defeated</span><data id="statWavesDefeated" value="0">0</data></div>
                                 <div class="stat-row"><span>Battles finished</span><data id="statBattlesFinished" value="0">0</data></div>
@@ -1610,7 +1617,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row g-5">
+                        <div class="row gx-4">
                             <div class="col-md-4">
                                 <div class="stat-row stat-essence-of-unknown">
                                     <div class="stat-label">
