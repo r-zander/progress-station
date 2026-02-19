@@ -301,14 +301,6 @@ const AudioEngineDebug = (() => {
         // Build debug info by introspecting AudioEngine state
         const musicDebug = buildDebugInfo();
 
-        // Format active state
-        const activeStateText = musicDebug.activeState !== null
-            ? musicDebug.activeState.name
-            : 'None';
-        const pendingStateText = musicDebug.pendingState !== null
-            ? musicDebug.pendingState.name
-            : 'None';
-
         // Format active layers
         const activeLayersText = musicDebug.activeLayers.length > 0
             ? musicDebug.activeLayers
@@ -408,10 +400,6 @@ const AudioEngineDebug = (() => {
                 ${sfxDetailsText}
             </div>
             <div style="margin-bottom: 8px;">
-                <strong>Music State:</strong><br>
-                Active: ${activeStateText}<br>
-                Pending: ${pendingStateText}<br>
-                <br>
                 Active Layers:<br>
                 ${activeLayersText}<br>
                 <br>
@@ -495,7 +483,7 @@ const AudioEngineDebug = (() => {
 
         document.body.insertAdjacentHTML(
             'beforeend',
-`<div id="audioEngineDebug" class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1">
+`<div id="audioEngineDebug" class="offcanvas offcanvas-end" style="z-index: 2000" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title">Audio Engine Debug</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>

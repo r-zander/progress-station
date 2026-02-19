@@ -198,37 +198,35 @@ const SoundBank = {
 // MUSIC CONFIGURATION
 // ============================================
 
-// Note: Music files would need to be created with separate layers
-// This is a placeholder structure for when music assets are available
-
 const slowThreshold = 0.10;
 const fastThreshold = 0.24;
+
+/** @type  {import('../audioEngine.js').MusicLayer} */
+const INITIAL_MUSIC_LAYER = {
+    segment: {
+        src: 'audio/music/ps_bgm_initial_layer.mp3',
+        volume: 0.25,
+        loop: true,
+        fadeInTime: 600,
+        fadeOutTime: 600
+    },
+    conditions: (_) => {
+        return gameData.state.musicInitialLayerPlaying;
+    },
+};
 
 /** @type {import('../audioEngine.js').MusicState} */
 const LayeredMainThemeMusicState = {
     name: MusicIds.MAIN_THEME,
     layers: {
-        initial: {
-            segment: {
-                src: 'audio/music/ps_bgm_initial_layer.mp3',
-                volume: 0.15,
-                loop: true,
-                fadeInTime: 600,
-                fadeOutTime: 600
-            },
-            conditions: (_) => {
-                if (!gameData.state.musicInitialLayerPlaying) return false;
-
-                return true; // Always playing
-            },
-        },
+        initial: INITIAL_MUSIC_LAYER,
         slow_progress: {
             segment: {
                 src: 'audio/music/ps_bgm_low_layer.mp3',
                 volume: 1.0,
                 loop: true,
                 fadeInTime: 6000,
-                fadeOutTime: 6000
+                fadeOutTime: 1000
             },
             conditions: (musicContext) => {
                 if (!gameData.state.musicProgressLayerPlaying) return false;
@@ -242,7 +240,7 @@ const LayeredMainThemeMusicState = {
                 volume: 1.0,
                 loop: true,
                 fadeInTime: 6000,
-                fadeOutTime: 6000
+                fadeOutTime: 1000
             },
             conditions: (musicContext) => {
                 if (!gameData.state.musicProgressLayerPlaying) return false;
@@ -281,20 +279,7 @@ const LayeredMainThemeMusicState = {
 const BossThemeMusicState = {
     name: MusicIds.BOSS_THEME,
     layers: {
-        initial: {
-            segment: {
-                src: 'audio/music/ps_bgm_initial_layer.mp3',
-                volume: 0.15,
-                loop: true,
-                fadeInTime: 600,
-                fadeOutTime: 600
-            },
-            conditions: (_) => {
-                if (!gameData.state.musicInitialLayerPlaying) return false;
-
-                return true; // Always playing
-            },
-        },
+        initial: INITIAL_MUSIC_LAYER,
         boss: {
             segment: {
                 src: 'audio/music/ps_bgm_bossbattle.mp3',
@@ -311,41 +296,6 @@ const BossThemeMusicState = {
         },
     }
 };
-
-// /** @type {import('../audioEngine.js').MusicState} */
-// const CombatMusicState = {
-//     name: MusicIds.COMBAT_THEME,
-//     layers: {
-//         initial: {
-//             segment: {
-//                 src: 'audio/music/ps_bgm_initial_layer.mp3',
-//                 volume: 0.5,
-//                 loop: true,
-//                 fadeInTime: 600,
-//                 fadeOutTime: 600
-//             },
-//             conditions: (_) => {
-//                 if (!gameData.state.musicInitialLayerPlaying) return false;
-//
-//                 return true; // Always playing
-//             },
-//         },
-//         boss: {
-//             segment: {
-//                 src: 'audio/music/ps_bgm_bossbattle.mp3',
-//                 volume: 1.0,
-//                 loop: true,
-//                 fadeInTime: 0,
-//                 fadeOutTime: 8000
-//             },
-//             conditions: (_) => {
-//                 if (!gameData.state.musicBossPlaying) return false;
-//
-//                 return true; // Always playing
-//             },
-//         },
-//     }
-// };
 
 // ============================================
 // INITIALIZATION

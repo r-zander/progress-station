@@ -77,6 +77,8 @@
  * @typedef {Object} MusicState
  * @property {string} name - State name
  * @property {Object.<string, MusicLayer>} layers - Named layers with conditions
+ * @property {Promise<void>} [loadingPromise] - Attached at runtime when preload begins. Idempotency key: if present, loading has already started.
+ * @property {boolean} [isStarted] - Attached at runtime; true after #startMusicStateSynchronized completes. Guards #updateMusicLayers.
  */
 
 /**
@@ -379,15 +381,6 @@ class AudioEngine {
     /** @type {MusicState|null} Currently active music state (direct reference) */
     static #activeState = null;
 
-    /** @type {MusicState|null} Music state currently being preloaded — #updateMusicLayers must not touch it */
-    static #pendingState = null;
-
-    /** @type {Object.<string, 'unloaded'|'loading'|'loaded'>} Loading state per music state */
-    static #musicStateLoadingStatus = {};
-
-    /** @type {Object.<string, Promise<void>>} Active loading promises per music state */
-    static #musicStateLoadingPromises = {};
-
     // ============================================
     // PUBLIC API
     // ============================================
@@ -593,37 +586,27 @@ class AudioEngine {
         const previous = AudioEngine.#activeState;
         AudioEngine.#activeState = musicState;
 
+        // Guard: #updateMusicLayers must not touch this state until #startMusicStateSynchronized completes
+        musicState.isStarted = false;
+
         // Stop layers from previous state
         if (previous !== null) {
             AudioEngine.#stopMusicState(previous);
-
-            // If the previous state was still pending start, clean up its guard
-            if (AudioEngine.#pendingState === previous) {
-                console.warn(`AudioEngine: State '${previous.name}' was still pending start when superseded by '${stateName}'.`);
-                AudioEngine.#pendingState = null;
-            }
+            // No #pendingState cleanup needed - previous state's .then() checks #activeState
         }
-
-        // Guard: prevent #updateMusicLayers from touching this state during preload
-        AudioEngine.#pendingState = musicState;
 
         AudioEngine.#preloadMusicState(musicState)
             .then(() => {
-                // Verify we're still in this state (user might have switched)
                 if (AudioEngine.#activeState === musicState) {
                     AudioEngine.#startMusicStateSynchronized(musicState);
-                } else if (AudioEngine.#pendingState === musicState) {
-                    // Only clear if still ours — a newer setState may have claimed #pendingState
-                    AudioEngine.#pendingState = null;
                 }
+                // else: state was superseded - the .then() for the new state will handle it
             })
             .catch((error) => {
-                console.error(`AudioEngine: Failed to preload/start music state ${stateName}:`, error);
+                console.error(`AudioEngine: Failed to preload/start ${stateName}:`, error);
                 // Attempt to start anyway with whatever loaded
                 if (AudioEngine.#activeState === musicState) {
                     AudioEngine.#startMusicStateSynchronized(musicState);
-                } else if (AudioEngine.#pendingState === musicState) {
-                    AudioEngine.#pendingState = null;
                 }
             });
     }
@@ -698,7 +681,7 @@ class AudioEngine {
             banks: AudioEngine.#loadedSoundBanks,
             musicStates: AudioEngine.#musicStates,
             activeState: AudioEngine.#activeState,
-            pendingState: AudioEngine.#pendingState,
+            activeStateIsStarted: AudioEngine.#activeState?.isStarted,
         };
     }
 
@@ -752,6 +735,11 @@ class AudioEngine {
         } else {
             gameData.settings.audio.enabled = force;
             Dom.get().byId('audioEnabledSwitch').checked = force;
+        }
+
+        // Eagerly preload all states when audio is first enabled so state switches are instantaneous
+        if (gameData.settings.audio.enabled) {
+            AudioEngine.#preloadAllStates();
         }
 
         AudioEngine.updateHowlerMute();
@@ -933,8 +921,8 @@ class AudioEngine {
     static #updateMusicLayers() {
         if (AudioEngine.#activeState === null) return;
 
-        // Skip if the active state is still being preloaded — it'll be started by #startMusicStateSynchronized
-        if (AudioEngine.#pendingState === AudioEngine.#activeState) return;
+        // Skip if the active state hasn't been synchronized yet - #startMusicStateSynchronized will call us
+        if (AudioEngine.#activeState.isStarted !== true) return;
 
         for (const layerName in AudioEngine.#activeState.layers) {
             const layer = AudioEngine.#activeState.layers[layerName];
@@ -952,16 +940,41 @@ class AudioEngine {
     }
 
     /**
+     * Returns true if the given layer object (by identity) appears anywhere in musicState.layers.
+     * Used to detect shared layer instances during state transitions.
+     * @param {MusicLayer} layer
+     * @param {MusicState} musicState
+     * @returns {boolean}
+     */
+    static #layerBelongsToState(layer, musicState) {
+        for (const layerName in musicState.layers) {
+            if (musicState.layers[layerName] === layer) return true;
+        }
+        return false;
+    }
+
+    /**
      * Stop a music state (all its layers).
      * Fades out active layers, then stops Howl playback and resets soundIds
      * so layers restart from 0:00 when the state is re-entered.
      *
+     * Shared layers - layer objects that also appear in the incoming state (#activeState) -
+     * are skipped so they continue playing uninterrupted through the transition.
+     *
      * @param {MusicState} musicState
      */
     static #stopMusicState(musicState) {
+        // AudioEngine.#activeState is already the incoming state at this point (set in setState)
+        const incomingState = AudioEngine.#activeState;
+
         for (const layerName in musicState.layers) {
             const layer = musicState.layers[layerName];
             if (layer.runtime === undefined) continue;
+
+            // Shared layer: same object instance exists in the incoming state → keep it playing
+            if (incomingState !== null && AudioEngine.#layerBelongsToState(layer, incomingState)) {
+                continue;
+            }
 
             // Remove from active tracking
             layer.runtime.isActive = false;
@@ -976,7 +989,7 @@ class AudioEngine {
                 `AudioEngine: #stopMusicState found non-numeric soundId for ${musicState.name}/${layerName}: ${soundId}`
             );
 
-            // Reset soundId immediately — prevents any other code path from using the stale id
+            // Reset soundId immediately - prevents any other code path from using the stale id
             layer.runtime.soundId = null;
 
             if (isNumber(segment.fadeOutTime) && segment.fadeOutTime > 0) {
@@ -990,10 +1003,15 @@ class AudioEngine {
             }
         }
 
-        // Verify: no active layers should remain for this state
+        // Verify: no active layers should remain for this state (except shared ones)
         for (const layerName in musicState.layers) {
             const layer = musicState.layers[layerName];
             if (layer.runtime === undefined) continue;
+
+            // Shared layer - isActive and soundId intentionally preserved
+            if (incomingState !== null && AudioEngine.#layerBelongsToState(layer, incomingState)) {
+                continue;
+            }
 
             console.assert(
                 !layer.runtime.isActive,
@@ -1009,7 +1027,7 @@ class AudioEngine {
     /**
      * Fade in a music layer.
      * The layer must already be playing (started by #startMusicStateSynchronized).
-     * This method only handles volume — it never calls play().
+     * This method only handles volume - it never calls play().
      *
      * @param {MusicLayer} layer
      */
@@ -1018,16 +1036,10 @@ class AudioEngine {
         if (layer.runtime === undefined || layer.runtime.howl === null || layer.runtime.soundId === null) {
             console.assert(false,
                 `AudioEngine: #startLayer called but layer is not playing (soundId is null). ` +
-                `This means #startMusicStateSynchronized hasn't run yet — possible race condition.`
+                `This means #startMusicStateSynchronized hasn't run yet - possible race condition.`
             );
             return;
         }
-
-        console.assert(
-            AudioEngine.#pendingState !== AudioEngine.#activeState,
-            `AudioEngine: #startLayer called while active state is still pending start. ` +
-            `#updateMusicLayers should have skipped this state.`
-        );
 
         const segment = layer.segment;
         const targetVolume = segment.volume * gameData.settings.audio.musicVolume;
@@ -1080,26 +1092,18 @@ class AudioEngine {
     }
 
     /**
-     * Preload all layers for a music state
-     * Creates Howl instances and waits for all to finish loading
+     * Preload all layers for a music state.
+     * Idempotent: returns the existing promise if loading has already started.
+     * Creates Howl instances and waits for all to finish loading.
      *
      * @param {MusicState} musicState - The music state to preload
      * @returns {Promise<void>} Resolves when all layers are loaded
      */
     static #preloadMusicState(musicState) {
-        const stateName = musicState.name;
-
-        // Check if already loaded or loading
-        const status = AudioEngine.#musicStateLoadingStatus[stateName];
-        if (status === 'loaded') {
-            return Promise.resolve(); // Already loaded
+        // Idempotent: return existing promise if loading already started
+        if (musicState.loadingPromise !== undefined) {
+            return musicState.loadingPromise;
         }
-        if (status === 'loading') {
-            return AudioEngine.#musicStateLoadingPromises[stateName]; // Return existing promise
-        }
-
-        // Mark as loading
-        AudioEngine.#musicStateLoadingStatus[stateName] = 'loading';
 
         // Create array of promises for each layer
         const loadPromises = [];
@@ -1124,15 +1128,12 @@ class AudioEngine {
                 });
 
                 // Listen for load completion
-                howl.once('load', () => {
-                    resolve();
-                });
+                howl.once('load', resolve, undefined);
 
                 // Listen for load errors
                 howl.once('loaderror', (soundId, error) => {
-                    console.error(`Failed to load layer ${stateName}/${layerName}:`, error);
-                    reject(new Error(`Layer ${stateName}/${layerName} failed to load: ${error}`));
-                });
+                    reject(error);
+                }, undefined);
 
                 // Store the runtime on the layer object immediately (before loading completes)
                 // This prevents duplicate creation if preload called multiple times
@@ -1146,21 +1147,26 @@ class AudioEngine {
             loadPromises.push(layerPromise);
         }
 
-        // Wait for all layers to load
-        const allLoadedPromise = Promise.all(loadPromises)
+        musicState.loadingPromise = Promise.all(loadPromises)
             .then(() => {
-                AudioEngine.#musicStateLoadingStatus[stateName] = 'loaded';
-                console.log(`AudioEngine: All layers loaded for music state: ${stateName}`);
+                console.log(`AudioEngine: All layers loaded for ${musicState.name}`);
             })
-            .catch((error) => {
-                // Even if some layers failed, mark as loaded so we can try to play what we have
-                AudioEngine.#musicStateLoadingStatus[stateName] = 'loaded';
-                console.error(`AudioEngine: Error loading music state ${stateName}:`, error);
-                // Don't re-throw - allow partial playback
+            .catch((err) => {
+                console.error(`AudioEngine: Error loading ${musicState.name}:`, err);
+                // Allow partial playback - don't re-throw
             });
 
-        AudioEngine.#musicStateLoadingPromises[stateName] = allLoadedPromise;
-        return allLoadedPromise;
+        return musicState.loadingPromise;
+    }
+
+    /**
+     * Preload all registered music states eagerly.
+     * Safe to call multiple times - #preloadMusicState is idempotent.
+     */
+    static #preloadAllStates() {
+        for (const stateName in AudioEngine.#musicStates) {
+            AudioEngine.#preloadMusicState(AudioEngine.#musicStates[stateName]);
+        }
     }
 
     /**
@@ -1173,24 +1179,18 @@ class AudioEngine {
      * @param {MusicState} musicState - The music state to start
      */
     static #startMusicStateSynchronized(musicState) {
-        console.assert(
-            AudioEngine.#pendingState === musicState,
-            `AudioEngine: #startMusicStateSynchronized called for '${musicState.name}' but it's not the pending state. This means #updateMusicLayers could have raced with us.`
-        );
 
-        // Step 1: Stop any stale instances (edge case: #stopMusicState fade-cleanup hasn't finished yet)
+        // Step 1: Stop any stale instances.
+        // soundId !== null at this point means the layer is shared from the previous state
+        // and was intentionally preserved by #stopMusicState - do not stop it.
         for (const layerName in musicState.layers) {
             const layer = musicState.layers[layerName];
             if (layer.runtime === undefined || layer.runtime.howl === null) continue;
-
-            if (layer.runtime.soundId !== null) {
-                console.warn(`AudioEngine: Stale soundId found for ${musicState.name}/${layerName} during synchronized start — stopping it.`);
-                layer.runtime.howl.stop(layer.runtime.soundId);
-                layer.runtime.soundId = null;
-            }
+            // soundId !== null → shared layer, skip
         }
 
-        // Step 2: Start ALL layers at 0 volume simultaneously
+        // Step 2: Start ALL layers at 0 volume simultaneously.
+        // Shared layers (soundId !== null) are already playing - preserve them.
         const startedSoundIds = [];
         for (const layerName in musicState.layers) {
             const layer = musicState.layers[layerName];
@@ -1200,10 +1200,10 @@ class AudioEngine {
                 continue;
             }
 
-            console.assert(
-                layer.runtime.soundId === null,
-                `AudioEngine: soundId for ${musicState.name}/${layerName} should be null before play(), but is ${layer.runtime.soundId}. Step 1 should have cleaned this up.`
-            );
+            // Shared layer: already playing, keep its soundId and isActive state
+            if (layer.runtime.soundId !== null) {
+                continue;
+            }
 
             layer.runtime.soundId = layer.runtime.howl.play();
             layer.runtime.howl.volume(0, layer.runtime.soundId);
@@ -1216,7 +1216,7 @@ class AudioEngine {
             startedSoundIds.push({ layerName, soundId: layer.runtime.soundId });
         }
 
-        // Verify no duplicate soundIds (would mean Howler reused an id — should never happen)
+        // Verify no duplicate soundIds (would mean Howler reused an id - should never happen)
         const ids = startedSoundIds.map(e => e.soundId);
         console.assert(
             ids.length === new Set(ids).size,
@@ -1224,7 +1224,7 @@ class AudioEngine {
         );
 
         // Step 3: Allow #updateMusicLayers to manage this state from now on
-        AudioEngine.#pendingState = null;
+        musicState.isStarted = true;
 
         // Step 4: Evaluate conditions and fade in active layers
         AudioEngine.#updateMusicLayers();
