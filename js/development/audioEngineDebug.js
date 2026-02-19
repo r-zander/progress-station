@@ -170,39 +170,46 @@ const AudioEngineDebug = (() => {
     function buildDebugInfo() {
         const debugState = AudioEngine.getDebugState();
 
-        // Build active layers summary
+        // Build active layers summary and all music layer Howls from registered states
         const activeLayers = [];
-        for (const layerKey in debugState.activeLayers) {
-            const layerKeyParts = layerKey.split('##');
-            const howl = debugState.activeLayers[layerKey].howl;
-            const soundId = debugState.activeLayers[layerKey].soundId;
-
-            activeLayers.push({
-                state: layerKeyParts[0],
-                layer: layerKeyParts[1],
-                isPlaying: howl?.playing(soundId) || false,
-                volume: howl?.volume(soundId),
-                muted: howl?.mute(soundId),
-                soundId: soundId,
-            });
-        }
-
-        // Introspect ALL music layer Howls (permanent storage)
         const allMusicLayerHowls = [];
-        for (const layerKey in debugState.layerHowls) {
-            const layerKeyParts = layerKey.split('##');
-            const howl = debugState.layerHowls[layerKey].howl;
-            const soundId = debugState.layerHowls[layerKey].soundId;
-            const isActive = debugState.activeLayers[layerKey] !== undefined;
+        let totalMusicHowls = 0;
+        let activeMusicHowls = 0;
 
-            allMusicLayerHowls.push({
-                state: layerKeyParts[0],
-                layer: layerKeyParts[1],
-                primarySoundId: soundId,
-                instances: extractHowlInstances(howl),
-                howlState: howl.state(),
-                isActive: isActive,
-            });
+        for (const stateName in debugState.musicStates) {
+            const musicState = debugState.musicStates[stateName];
+            for (const layerName in musicState.layers) {
+                const layer = musicState.layers[layerName];
+                if (layer.runtime === undefined) continue;
+
+                totalMusicHowls++;
+                const howl = layer.runtime.howl;
+                const soundId = layer.runtime.soundId;
+                const isActive = layer.runtime.isActive;
+
+                if (isActive) {
+                    activeMusicHowls++;
+                    activeLayers.push({
+                        state: stateName,
+                        layer: layerName,
+                        isPlaying: howl !== null ? howl.playing(soundId) : false,
+                        volume: howl !== null ? howl.volume(soundId) : undefined,
+                        muted: howl !== null ? howl.mute(soundId) : undefined,
+                        soundId: soundId,
+                    });
+                }
+
+                if (howl !== null) {
+                    allMusicLayerHowls.push({
+                        state: stateName,
+                        layer: layerName,
+                        primarySoundId: soundId,
+                        instances: extractHowlInstances(howl),
+                        howlState: howl.state(),
+                        isActive: isActive,
+                    });
+                }
+            }
         }
 
         // Introspect sound effect Howls from banks
@@ -263,12 +270,13 @@ const AudioEngineDebug = (() => {
         });
 
         return {
-            activeStates: {...debugState.activeStates},
+            activeState: debugState.activeState,
+            pendingState: debugState.pendingState,
             activeLayers: activeLayers,
             registeredStates: Object.keys(debugState.musicStates),
             howlStats: {
-                totalMusicHowls: Object.keys(debugState.layerHowls).length,
-                activeMusicHowls: Object.keys(debugState.activeLayers).length,
+                totalMusicHowls: totalMusicHowls,
+                activeMusicHowls: activeMusicHowls,
                 totalSoundEffectHowls: soundEffectHowls.length,
                 playingInstances: playingInstances,
                 stoppedInstances: stoppedInstances,
@@ -293,11 +301,12 @@ const AudioEngineDebug = (() => {
         // Build debug info by introspecting AudioEngine state
         const musicDebug = buildDebugInfo();
 
-        // Format active states
-        const activeStatesText = Object.keys(musicDebug.activeStates).length > 0
-            ? Object.entries(musicDebug.activeStates)
-                .map(([group, state]) => `${group}: ${state}`)
-                .join('<br>')
+        // Format active state
+        const activeStateText = musicDebug.activeState !== null
+            ? musicDebug.activeState.name
+            : 'None';
+        const pendingStateText = musicDebug.pendingState !== null
+            ? musicDebug.pendingState.name
             : 'None';
 
         // Format active layers
@@ -400,8 +409,8 @@ const AudioEngineDebug = (() => {
             </div>
             <div style="margin-bottom: 8px;">
                 <strong>Music State:</strong><br>
-                Active States:<br>
-                ${activeStatesText}<br>
+                Active: ${activeStateText}<br>
+                Pending: ${pendingStateText}<br>
                 <br>
                 Active Layers:<br>
                 ${activeLayersText}<br>

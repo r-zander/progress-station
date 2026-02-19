@@ -371,10 +371,10 @@ function initializeAudio() {
             switch (payload.newState) {
                 case gameStates.BOSS_FIGHT.name:
                 case gameStates.BOSS_FIGHT_PAUSED.name:
-                    AudioEngine.setState(MusicIds.BOSS_THEME, MusicIds.BOSS_THEME);
+                    AudioEngine.setState(MusicIds.BOSS_THEME);
                     break;
                 default:
-                    AudioEngine.setState(MusicIds.MAIN_THEME, MusicIds.MAIN_THEME);
+                    AudioEngine.setState(MusicIds.MAIN_THEME);
                     break;
             }
         });
