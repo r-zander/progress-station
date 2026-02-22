@@ -327,7 +327,7 @@
                         <div class="name" title="Component Description" data-bs-placement="right">
                             Mining Bay
                         </div>
-                        <div title="The sum of all operation levels in this module. Determines the module's mastery after encountering the boss."
+                        <div title="The sum of all operation levels in this module. Increases the module's mastery after encountering the boss."
                              data-bs-placement="top">
                             Level:
                             <data class="level" value="32">32</data>
@@ -1406,11 +1406,13 @@
                 <p>
                     With the last of your strength, you save yourself in the rescue capsule.
                 </p>
+                <p class="help-text mt-3 mb-0">
+                    In the next play-through, you will progress much faster:
+                </p>
                 <ul class="help-text m-0">
-                    <li>In the next play-through, you will progress much faster.</li>
-                    <li>Each operation in a module progresses <data value="X" data-unit="%">X</data> faster,
-                        where <data value="X">X</data> is the module's mastery.</li>
-                    <li>Module's mastery = sum of that module's operations maximum reached level.</li>
+                    <li>Each <b>Module</b>'s <b>Mastery</b>  makes its <b>operations</b> progress faster.</li>
+                    <li>The <b>Mastery</b> increases with each play-through by the <b>Module</b>'s level.</li>
+                    <li><b>Operation</b>'s XP multiplier = 1 + (parent's <b>Module Mastery</b> / 500)</li>
                 </ul>
             </div>
             <div class="modal-footer d-flex">
@@ -1542,7 +1544,7 @@
                                 <th scope="col">New Mastery</th>
                                 <th scope="col">
                                     <span data-bs-toggle="tooltip" data-bs-placement="top"
-                                          title="Higher module mastery increases operation speed (1 + mastery / 500)">
+                                          title="Higher module mastery increases operation progress speed (1 + mastery / 500)">
                                         Operation XP Multiplier
                                     </span>
                                 </th>
