@@ -327,7 +327,7 @@
                         <div class="name" title="Component Description" data-bs-placement="right">
                             Mining Bay
                         </div>
-                        <div title="The sum of all operation levels in this module. Determines the module's mastery after encountering the boss."
+                        <div title="The sum of all operation levels in this module. Increases the module's mastery after encountering the boss."
                              data-bs-placement="top">
                             Level:
                             <data class="level" value="32">32</data>
@@ -1406,11 +1406,13 @@
                 <p>
                     With the last of your strength, you save yourself in the rescue capsule.
                 </p>
+                <p class="help-text mt-3 mb-0">
+                    In the next play-through, you will progress much faster:
+                </p>
                 <ul class="help-text m-0">
-                    <li>In the next play-through, you will progress much faster.</li>
-                    <li>Each operation in a module progresses <data value="X" data-unit="%">X</data> faster,
-                        where <data value="X">X</data> is the module's mastery.</li>
-                    <li>Module's mastery = sum of that module's operations maximum reached level.</li>
+                    <li>Each <b>Module</b>'s <b>Mastery</b>  makes its <b>operations</b> progress faster.</li>
+                    <li>The <b>Mastery</b> increases with each play-through by the <b>Module</b>'s level.</li>
+                    <li><b>Operation</b>'s XP multiplier = 1 + (parent's <b>Module Mastery</b> / 500)</li>
                 </ul>
             </div>
             <div class="modal-footer d-flex">
@@ -1498,11 +1500,11 @@
                     Damage Report
                 </h2>
             </div>
-            <div class="modal-body">
-                <h3 class="fs-5 fw-light">Station</h3>
+            <div class="modal-body py-1">
+                <h3 class="fs-5 fw-light mb-0">Station</h3>
                 <section class="basedata-section mb-4">
                     <div class="table-responsive">
-                        <table class="table table-borderless align-middle mb-0" style="width: 19rem">
+                        <table class="table table-borderless table-sm w-auto align-middle mb-0">
                             <tbody>
                             <tr>
                                 <td>Name:</td>
@@ -1510,7 +1512,9 @@
                             </tr>
                             <tr>
                                 <td>Boss encounters:</td>
-                                <td id="lastRunBossEncounters"></td>
+                                <td>
+                                    <data value="0" id="lastRunBossEncounters" class="text-start">0</data>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Travel Time:</td>
@@ -1528,14 +1532,19 @@
                 <section class="modules-section mb-4">
                     <h3 class="fs-5 fw-light">Modules</h3>
                     <div class="table-responsive">
-                        <table class="table table-borderless align-middle mb-0">
+                        <table class="table table-sm table-borderless align-middle mb-0">
+                            <colgroup>
+                                <col style="width: 33.3%" />
+                                <col style="width: 33.3%" />
+                                <col style="width: 33.3%" />
+                            </colgroup>
                             <thead>
                             <tr>
                                 <th scope="col">&nbsp;</th>
                                 <th scope="col">New Mastery</th>
                                 <th scope="col">
                                     <span data-bs-toggle="tooltip" data-bs-placement="top"
-                                          title="Higher module mastery increases operation speed (1 + mastery / 500)">
+                                          title="Higher module mastery increases operation progress speed (1 + mastery / 500)">
                                         Operation XP Multiplier
                                     </span>
                                 </th>
@@ -1549,9 +1558,9 @@
 
                 <!-- STATS SECTION -->
                 <section>
-                    <h3 class="fs-5 fw-light mb-3">Stats</h3>
-                    <div class="container-fluid">
-                        <div class="row g-5">
+                    <h3 class="fs-5 fw-light mb-0">Stats</h3>
+                    <div class="container-fluid" style="--bs-gutter-x: 0.5rem;">
+                        <div class="row gx-4">
                             <div class="col-md-4">
                                 <div class="stat-row"><span>Battle waves defeated</span><data id="statWavesDefeated" value="0">0</data></div>
                                 <div class="stat-row"><span>Battles finished</span><data id="statBattlesFinished" value="0">0</data></div>
@@ -1610,7 +1619,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row g-5">
+                        <div class="row gx-4">
                             <div class="col-md-4">
                                 <div class="stat-row stat-essence-of-unknown">
                                     <div class="stat-label">
