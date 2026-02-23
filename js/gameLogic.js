@@ -327,6 +327,7 @@ function continueCurrentPlaythrough() {
         cycle: Math.floor(startCycle + gameData.totalCycles),
         timestamp: Date.now(),
     });
+    logAction('BossDefeated', { boss: bossBattle.name });
 
     gameData.transitionState(gameStates.PLAYING);
 

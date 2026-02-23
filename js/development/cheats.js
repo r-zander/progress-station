@@ -189,11 +189,11 @@ const cheats = {
         },
 
         exportSave: () => {
-            console.log(gameData.exportAsString());
+            gameData.exportAsString().then(str => console.log(str));
         },
 
         exportSaveAsJson: () => {
-            console.log(gameData.serializeAsJson());
+            gameData.serializeAsJson().then(json => console.log(json));
         }
     },
     Config: {

@@ -270,6 +270,7 @@ class Battle extends LayeredTask {
         this.progressSpeedMultiplierFloor = getPopulationProgressSpeedMultiplier();
 
         gameData.activeEntities.battles.add(this.name);
+        logAction('BattleEngaged', { battle: this.name });
         GameEvents.TaskActivityChanged.trigger({
             type: this.type,
             name: this.name,
@@ -286,6 +287,7 @@ class Battle extends LayeredTask {
         this.progressSpeedMultiplierFloor = 0;
 
         gameData.activeEntities.battles.delete(this.name);
+        logAction('BattleDisengaged', { battle: this.name });
         GameEvents.TaskActivityChanged.trigger({
             type: this.type,
             name: this.name,

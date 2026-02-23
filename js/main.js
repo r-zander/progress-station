@@ -156,6 +156,7 @@ function setPointOfInterest(name) {
         newActivityState: false,
     });
     gameData.activeEntities.pointOfInterest = name;
+    logAction('LocationChanged', { location: name });
     GameEvents.TaskActivityChanged.trigger({
         type: PointOfInterest.name,
         name: name,
@@ -303,6 +304,7 @@ function tryActivateOperation(component, operation) {
 
     // This needs to go through the component as it needs to disable other operations
     component.activateOperation(operation);
+    logAction('OperationActivated', { operation: operation.name, component: component.name });
     updateUiIfNecessary();
 }
 
@@ -2378,6 +2380,7 @@ function updateBossProgress() {
 
     if (bossBarPressed && progressPercentage >= 100 && !gameData.bossBattleAvailable) {
         summonBoss();
+        logAction('BossSummonedEarly');
         bossBarPressed = false;
     }
 }
@@ -2560,6 +2563,7 @@ function progressTechnologies() {
         } else {
             // Unlock & pay the required essence of unknown
             technology.isUnlocked = true;
+            logAction('TechnologyUnlocked', { technology: technology.name });
             technology.inProgress = false;
             addDataLost(technologyCost, technology.type, technology.title);
             GameEvents.TaskLevelChanged.trigger({
@@ -2593,6 +2597,7 @@ function progressGalacticSecrets() {
         } else {
             // Unlock & pay the required essence of unknown
             galacticSecret.isUnlocked = true;
+            logAction('GalacticSecretUnlocked', { galacticSecret: galacticSecret.name });
             galacticSecret.inProgress = false;
             addEssenceLost(galacticSecretCost, galacticSecret.type, galacticSecret.title);
             GameEvents.TaskLevelChanged.trigger({
@@ -2682,6 +2687,23 @@ function logEssenceTransaction(amount, entityType, entityName, entityLevel) {
         const balanceElement = Dom.get(rowElement).byClass('balance');
         createEssenceOfUnknownBalanceEntry(balanceElement, entry);
     }
+}
+
+
+/**
+ * @param {string} action
+ * @param {Object} [params]
+ */
+function logAction(action, params) {
+    const cycle = Math.floor(startCycle + gameData.totalCycles);
+
+    /** @type {ActionLogEntry} */
+    const entry = { cycle, action };
+    if (params !== undefined) {
+        entry.params = params;
+    }
+
+    gameData.actionLog.push(entry);
 }
 
 
@@ -2983,67 +3005,67 @@ function init() {
      */
     gameData.skipSave = true;
 
-    gameData.tryLoading();
+    gameData.tryLoading().then(() => {
+        createLinkBehavior();
+        createModulesUI(moduleCategories, 'modulesTable');
+        createSectorsUI(sectors, 'sectorTable');
+        createBattlesUI(battles, 'battlesTable');
+        createGalacticSecretsUI(galacticSecrets, 'galacticSecrets');
+        createTechnologiesUI();
+        createModulesQuickDisplay();
+        createBattlesQuickDisplay();
 
-    createLinkBehavior();
-    createModulesUI(moduleCategories, 'modulesTable');
-    createSectorsUI(sectors, 'sectorTable');
-    createBattlesUI(battles, 'battlesTable');
-    createGalacticSecretsUI(galacticSecrets, 'galacticSecrets');
-    createTechnologiesUI();
-    createModulesQuickDisplay();
-    createBattlesQuickDisplay();
+        createAttributesDisplay();
+        createAttributesUI();
+        createEnergyGridDisplay();
 
-    createAttributesDisplay();
-    createAttributesUI();
-    createEnergyGridDisplay();
+        initTabBehavior();
+        initTooltips();
+        initStationName();
+        AudioEngine.init();
+        initSettings();
+        initBossBattleProgressBar();
 
-    initTabBehavior();
-    initTooltips();
-    initStationName();
-    AudioEngine.init();
-    initSettings();
-    initBossBattleProgressBar();
+        cleanUpDom();
+        BreakpointCssClasses.init();
+        // BreakpointCssClasses.setDebugEnabled(true);
 
-    cleanUpDom();
-    BreakpointCssClasses.init();
-    // BreakpointCssClasses.setDebugEnabled(true);
+        gameData.skipSave = false;
+        gameData.save();
+        displayLoaded();
 
-    gameData.skipSave = false;
-    gameData.save();
-    displayLoaded();
+        // Implications are a bit hard to see here:
+        // - gameLoop is set to immediateTick --> update + updateLayout will run when gameLoop.start is called
+        // - update will stop the gameLoop again - should the gameState require to do so
+        // - the set-up GameStateChanged listener afterward take care of
+        //   re-starting the gameLoop, should the gameState require to do so
+        gameLoop = new GameLoop({
+            targetTicksPerSecond: targetTicksPerSecond,
+            maxUpdatesPerTick: 2 * 60 * 1000 / targetTicksPerSecond, // up to 2min catch-up
+            immediateTick: true,
+            onUpdate: update,
+            onRender: updateLayout,
+            onPanic: (gameLoop) => {
+                // Discard remaining missing time - we won't catch up for more than 2 minutes
+                gameLoop.timing.lag = 0;
+            }
+        });
 
-    // Implications are a bit hard to see here:
-    // - gameLoop is set to immediateTick --> update + updateLayout will run when gameLoop.start is called
-    // - update will stop the gameLoop again - should the gameState require to do so
-    // - the set-up GameStateChanged listener afterward take care of
-    //   re-starting the gameLoop, should the gameState require to do so
-    gameLoop = new GameLoop({
-        targetTicksPerSecond: targetTicksPerSecond,
-        maxUpdatesPerTick: 2 * 60 * 1000 / targetTicksPerSecond, // up to 2min catch-up
-        immediateTick: true,
-        onUpdate: update,
-        onRender: updateLayout,
-        onPanic: (gameLoop) => {
-            // Discard remaining missing time - we won't catch up for more than 2 minutes
-            gameLoop.timing.lag = 0;
-        }
+        gameLoop.start();
+
+        GameEvents.GameStateChanged.subscribe((/** @var {{previousState: string, newState: string}} */ payload) => {
+            const newGameState = gameStates[payload.newState];
+
+            // Only starting - stopping happens at the end of update()
+            if (newGameState.gameLoopRunning) {
+                gameLoop.start();
+            }
+        });
+
+        document.addEventListener('visibilitychange', updateUiIfNecessary);
+
+        setInterval(gameData.save.bind(gameData), 3000);
     });
-
-    gameLoop.start();
-
-    GameEvents.GameStateChanged.subscribe((/** @var {{previousState: string, newState: string}} */ payload) => {
-        const newGameState = gameStates[payload.newState];
-
-        // Only starting - stopping happens at the end of update()
-        if (newGameState.gameLoopRunning) {
-            gameLoop.start();
-        }
-    });
-
-    document.addEventListener('visibilitychange', updateUiIfNecessary);
-
-    setInterval(gameData.save.bind(gameData), 3000);
 }
 
 init();

@@ -26,6 +26,7 @@ function initIntro() {
     window.finishIntro = function () {
         modal.hide();
         gameData.transitionState(gameStates.PLAYING);
+        logAction('GameStarted');
     };
 }
 

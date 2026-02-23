@@ -496,9 +496,11 @@ class Module extends Entity {
     setActive(active) {
         if (active) {
             gameData.activeEntities.modules.add(this.name);
+            logAction('ModuleActivated', { module: this.name });
             AudioEngine.postEvent(AudioEvents.MODULE_ON, this);
         } else {
             gameData.activeEntities.modules.delete(this.name);
+            logAction('ModuleDeactivated', { module: this.name });
             AudioEngine.postEvent(AudioEvents.MODULE_OFF, this);
         }
     }

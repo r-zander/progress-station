@@ -198,6 +198,46 @@ const DEFAULT_RUN_STATS = {
  * @property {number} timestamp epoch milliseconds in UTC aka Date.now() when the entry was created
  */
 
+/**
+ * @typedef {Object} ActionLogEntry
+ * @property {number} cycle  - Math.floor(startCycle + gameData.totalCycles)
+ * @property {string} action - Human-readable action type string
+ * @property {Object} [params] - Optional action-specific parameters
+ */
+
+/**
+ * JSON-stringifies `value`, deflate-compresses it, and returns a base64 string.
+ * @param {*} value
+ * @returns {Promise<string>}
+ */
+function compressToBase64(value) {
+    const bytes = new TextEncoder().encode(JSON.stringify(value));
+    const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate'));
+    return new Response(stream).arrayBuffer().then(function(buffer) {
+        const u8 = new Uint8Array(buffer);
+        let binary = '';
+        for (let i = 0; i < u8.length; i++) {
+            binary += String.fromCharCode(u8[i]);
+        }
+        return window.btoa(binary);
+    });
+}
+
+/**
+ * Decodes a base64 deflate-compressed string and JSON-parses the result.
+ * @param {string} b64
+ * @returns {Promise<*>}
+ */
+function decompressFromBase64(b64) {
+    const binary = window.atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate'));
+    return new Response(stream).text().then(function(text) { return JSON.parse(text); });
+}
+
 class GameData {
 
     /**
@@ -287,6 +327,11 @@ class GameData {
      * @type {EssenceHistoryEntry[]}
      */
     essenceOfUnknownHistory = [];
+
+    /**
+     * @type {ActionLogEntry[]}
+     */
+    actionLog = [];
 
     /**
      * Values from {@link Entity}s that are saved.
@@ -423,13 +468,15 @@ class GameData {
     }
 
     /**
-     * @return {boolean} true if there was a save game. false if not (aka new game)
+     * @return {Promise<boolean>} true if there was a save game. false if not (aka new game)
      */
     tryLoading() {
         const localStorageItem = localStorage.getItem(localStorageKey);
-        let saveGameFound = localStorageItem !== '' && localStorageItem !== null;
+        const saveGameFound = localStorageItem !== '' && localStorageItem !== null;
+        let gameDataSave = null;
+
         if (saveGameFound) {
-            const gameDataSave = JSON.parse(localStorageItem);
+            gameDataSave = JSON.parse(localStorageItem);
             this.#checkSaveGameVersion(gameDataSave);
 
             // noinspection JSUnresolvedReference
@@ -478,7 +525,13 @@ class GameData {
             this.stats[key] = structuredClone(DEFAULT_RUN_STATS[key]);
         }
 
-        return saveGameFound;
+        if (saveGameFound && gameDataSave.actionLogCompressed !== undefined) {
+            return decompressFromBase64(gameDataSave.actionLogCompressed)
+                .then(log  => { this.actionLog = log; })
+                .catch(()  => { this.actionLog = []; })
+                .then(()   => saveGameFound);
+        }
+        return Promise.resolve(saveGameFound);
     }
 
     #checkSaveGameVersion(gameDataSave) {
@@ -537,8 +590,9 @@ class GameData {
 
     save() {
         if (this.skipSave) return;
-
-        localStorage.setItem(localStorageKey, gameData.serializeAsJson());
+        this.serializeAsJson().then(json => {
+            localStorage.setItem(localStorageKey, json);
+        });
     }
 
     reset() {
@@ -574,13 +628,18 @@ class GameData {
         }
     }
 
+    /**
+     * @return {Promise<string>}
+     */
     exportAsString() {
-        return window.btoa(unescape(encodeURIComponent(this.serializeAsJson())));
+        return this.serializeAsJson().then(json => window.btoa(unescape(encodeURIComponent(json))));
     }
 
     export() {
         const importExportBox = document.getElementById('importExportBox');
-        importExportBox.value = this.exportAsString();
+        this.exportAsString().then(str => {
+            importExportBox.value = str;
+        });
     }
 
     /**
@@ -618,16 +677,18 @@ class GameData {
     }
 
     /**
-     *
-     * @return {string}
+     * @return {Promise<string>}
      */
     serializeAsJson() {
-        return JSON.stringify(this, (key, value) => {
-            if (value instanceof Set) {
-                return [...value];
-            }
-
+        const replacer = (key, value) => {
+            if (key === 'actionLog') return undefined;   // excluded; stored compressed instead
+            if (value instanceof Set) return [...value];
             return value;
+        };
+        return compressToBase64(this.actionLog).then(compressed => {
+            const obj = JSON.parse(JSON.stringify(this, replacer));
+            obj.actionLogCompressed = compressed;
+            return JSON.stringify(obj);
         });
     }
 }
