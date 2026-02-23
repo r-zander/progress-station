@@ -328,13 +328,19 @@ class GameData {
      * @var {{
      *     darkMode: boolean,
      *     sciFiMode: boolean,
-     *     background: string,
+     *     background: {
+     *         style: string,
+     *         animated: boolean
+     *     },
      * }}
      */
     settings = {
         darkMode: undefined,
         sciFiMode: true,
-        background: 'space',
+        background: {
+            style: 'space',
+            animated: true,
+        },
         vfx: {
             followProgressBars: false,
             splashOnLevelUp: false,

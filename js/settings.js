@@ -96,7 +96,21 @@ function toggleSciFiMode(force = undefined) {
     gameData.save();
 }
 
-function setBackground(background) {
+/**
+ * @param {boolean} force
+ */
+function toggleStarAnimation(force = undefined) {
+    const body = document.getElementById('body');
+    if (force === undefined) {
+        gameData.settings.background.animated = !gameData.settings.background.animated;
+    } else {
+        gameData.settings.background.animated = force;
+    }
+    body.classList.toggle('disable-star-animation', !gameData.settings.background.animated);
+    gameData.save();
+}
+
+function setBackground(style) {
     const body = document.getElementById('body');
     body.classList.forEach((cssClass, index, classList) => {
         if (cssClass.startsWith('background-')) {
@@ -104,9 +118,9 @@ function setBackground(background) {
         }
     });
 
-    body.classList.add('background-' + background);
-    document.querySelector(`.background-${background} > input[type="radio"]`).checked = true;
-    gameData.settings.background = background;
+    body.classList.add('background-' + style);
+    document.querySelector(`.background-${style} > input[type="radio"]`).checked = true;
+    gameData.settings.background.style = style;
     gameData.save();
 }
 
@@ -155,9 +169,13 @@ function setupVolumeSlider(rangeId, outputId, getValue, setValue) {
 
 function initSettings() {
     const background = gameData.settings.background;
-    if (isString(background)) {
-        setBackground(background);
+    if (isString(background.style)) {
+        setBackground(background.style);
     }
+    if (isBoolean(background.animated)) {
+        toggleStarAnimation(background.animated);
+    }
+    Dom.get().byId('disableStarAnimationSwitch').checked = !background.animated;
 
     if (isBoolean(gameData.settings.darkMode)) {
         toggleLightDarkMode(gameData.settings.darkMode);

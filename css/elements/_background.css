@@ -215,6 +215,10 @@
     animation: animStar linear infinite;
 }
 
+body.disable-star-animation .stars-active .stars {
+    animation-play-state: paused;
+}
+
 @keyframes animStar {
     from {
         transform: translateX(0);
