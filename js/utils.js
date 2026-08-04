@@ -265,7 +265,6 @@ function getLocale(localeOverride = undefined) {
 function formatNumber(value, locale = undefined) {
     locale = getLocale(locale);
 
-    // noinspection JSCheckFunctionSignatures
     return value.toLocaleString(locale, {
         // useGrouping: false,
         trailingZeroDisplay: 'stripIfInteger',

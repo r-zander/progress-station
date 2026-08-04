@@ -6,3 +6,7 @@
 /dataSources.local.xml
 # Editor-based HTTP Client requests
 /httpRequests/
+# Not-shared configurations
+/deployment.xml
+/go.imports.xml
+/statistic.xml
