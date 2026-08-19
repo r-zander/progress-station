@@ -869,7 +869,19 @@ class GalacticSecret extends Entity {
      * @param {ModuleOperation} unlock
      */
     static #createTitle(unlock) {
-        return unlock.component.title + ': ' + unlock.title;
+        return Localization.t('entity.GalacticSecret.titleFormat', {
+            component: deprepareTitle(unlock.component.title),
+            operation: deprepareTitle(unlock.title),
+        });
+    }
+
+    /**
+     * The title was composed from the unlocked operation at parse time - rebuild it once the
+     * translation overlay has been applied to that operation.
+     */
+    refreshDerivedTitle() {
+        this.title = prepareTitle(GalacticSecret.#createTitle(this.unlocks));
+        this.description = this.unlocks.description;
     }
 
     /**
@@ -997,6 +1009,15 @@ class Technology extends Entity {
      */
     static #createDescription(unlock) {
         return unlock.description || '';
+    }
+
+    /**
+     * The title was copied from the unlocked entity at parse time - rebuild it once the
+     * translation overlay has been applied to that entity.
+     */
+    refreshDerivedTitle() {
+        this.title = prepareTitle(Technology.#createTitle(this.unlocks));
+        this.description = Technology.#createDescription(this.unlocks);
     }
 
     // Necessary as we are overriding the setter as well

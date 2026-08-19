@@ -2953,6 +2953,22 @@ function initTechnologies() {
     }
 }
 
+/**
+ * Lets translated prose embed attribute markup as {{attr.danger}} instead of making
+ * translators write the spans themselves.
+ *
+ * @return {Record<string, string>}
+ */
+function buildAttributeGlobals() {
+    const globals = {};
+    for (const [name, attribute] of Object.entries(attributes)) {
+        globals['attr.' + name] = attribute.inlineHtmlWithIcon;
+        globals['attrText.' + name] = attribute.inlineHtml;
+    }
+
+    return globals;
+}
+
 function initConfigNames() {
     assignNames(gameStates);
     gridStrength.name = 'gridStrength';
@@ -2994,9 +3010,8 @@ function init() {
     initConfigNames();
     initRequirements();
     initTechnologies();
-    createAttributesHTML();
-    createAttributeDescriptions();
 
+    // Has to stay synchronous - vfx.js reads gameData while it is being parsed
     gameData = new GameData();
     /*
      * During the setup a lot of functions are called that trigger an auto save.
@@ -3005,7 +3020,17 @@ function init() {
      */
     gameData.skipSave = true;
 
-    gameData.tryLoading().then(() => {
+    Localization.ready.then(() => {
+        Localization.applyToConfig();
+        // Bakes the - by now translated - attribute titles into markup that other descriptions embed
+        createAttributesHTML();
+        createAttributeDescriptions();
+        Localization.setGlobals(buildAttributeGlobals());
+        // Has to precede initTooltips() - Bootstrap copies `title` away when it builds a Tooltip
+        Localization.applyToDom(document);
+
+        return gameData.tryLoading();
+    }).then(() => {
         createLinkBehavior();
         createModulesUI(moduleCategories, 'modulesTable');
         createSectorsUI(sectors, 'sectorTable');

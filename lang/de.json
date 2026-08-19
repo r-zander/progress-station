@@ -1,0 +1,52 @@
+{
+  "@locale": "de-DE",
+
+  "format.magnitude": [
+    "", "Tsd.", "Mio.", "Mrd.", "Bio.", "Brd.", "Trio.", "Trd.", "Quad.", "Quid.",
+    "Quin.", "Sex.", "Sept.", "Okt.", "Non.", "Dez.", "UDez.", "DDez.", "TDez.", "QDez."
+  ],
+  "format.unit.experience": "EP",
+
+  "ui.tab.modules": "Module",
+  "ui.tab.technologies": "Technologien",
+  "ui.tab.battles": "Gefechte",
+  "ui.tab.location": "Standort",
+  "ui.tab.settings": "Einstellungen",
+
+  "ui.settings.stationName": "Stationsname",
+  "ui.settings.rerollName": "Neu würfeln",
+  "ui.settings.importExport": "Spielstand im-/exportieren",
+  "ui.settings.import": "Importieren",
+  "ui.settings.export": "Exportieren",
+  "ui.settings.languageReloadHint": "Das Ändern der Sprache lädt das Spiel neu.",
+  "ui.settings.sound": "Ton",
+  "ui.settings.sound.general": "Allgemein",
+  "ui.settings.sound.enable": "Aktivieren",
+  "ui.settings.sound.enableBackground": "Wiedergabe im Hintergrund aktivieren",
+  "ui.settings.sound.masterVolume": "Gesamtlautstärke",
+  "ui.settings.visual": "Darstellung",
+  "ui.settings.experimental": "Experimentell",
+  "ui.settings.dangerZone": "Vorsicht!",
+  "ui.credits.title": "Mitwirkende",
+
+  "entity.Attribute.industry.title": "Industrie",
+  "entity.Attribute.population.title": "Bevölkerung",
+  "entity.Attribute.danger.title": "Gefahr",
+  "entity.Attribute.military.title": "Militär",
+  "entity.Attribute.research.title": "Forschung",
+  "entity.Attribute.growth.title": "Wachstum",
+  "entity.Attribute.energy.title": "Energie",
+
+  "entity.Faction.NovaFlies.title": "Novafliegen",
+  "entity.Faction.NovaFlies.description": "Ähnlich den längst verlorenen Glühwürmchen der Erde leuchten diese Käfer aus eigener Kraft. Wer ihre gigantische Zahl und blendende Helligkeit erlebt, versteht den Namen sofort.",
+  "entity.Faction.Astrogoblins.title": "Astrogoblins",
+
+  "entity.Battle.NovaFlies10.title": "Harmlose Novafliegen",
+  "entity.Battle.Astrogoblins10.title": "Mickrige Astrogoblins",
+
+  "entity.ModuleOperation.StandbyGenerator.title": "Notstromgenerator",
+  "entity.ModuleOperation.StandbyGenerator.description": "Der gute alte Klassiker unter den Energiequellen. Er mag ächzen und qualmen, aber er hält das Licht an, wenn alles andere versagt.",
+
+  "entity.GalacticSecret.titleFormat": "{{component}}: {{operation}}",
+  "technology.extraCurrency": "Extra {{attribute}}"
+}

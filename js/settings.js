@@ -125,6 +125,35 @@ function setBackground(style) {
 }
 
 /**
+ * @param {string} languageCode
+ */
+function setLanguage(languageCode) {
+    gameData.settings.language = languageCode;
+    // The mirror is what boot reads - and it has to be written even if save() is currently skipped
+    Localization.persistPreference(languageCode);
+    gameData.save();
+    location.reload();
+}
+
+function initLanguageSetting() {
+    const languageCodes = Object.keys(LocalizationLanguages);
+    // Nothing to pick from until a second language ships
+    if (languageCodes.length < 2) return;
+
+    const selectElement = /** @type {HTMLSelectElement} */ (Dom.get().byId('languageSelect'));
+    for (const languageCode of languageCodes) {
+        const optionElement = document.createElement('option');
+        optionElement.value = languageCode;
+        // Autonyms are never translated - they need to be readable in every language
+        optionElement.textContent = LocalizationLanguages[languageCode].autonym;
+        selectElement.append(optionElement);
+    }
+    selectElement.value = Localization.language;
+
+    Dom.get().byId('languageSettingsRow').classList.remove('hidden');
+}
+
+/**
  * Sets up a volume slider with its output display and change handler.
  * @param {string} rangeId - The ID of the range input element
  * @param {string} outputId - The ID of the output display element
@@ -168,6 +197,10 @@ function setupVolumeSlider(rangeId, outputId, getValue, setValue) {
 
 
 function initSettings() {
+    initLanguageSetting();
+    // The mirror wins - it is what the running session actually booted with
+    gameData.settings.language = Localization.language;
+
     const background = gameData.settings.background;
     if (isString(background.style)) {
         setBackground(background.style);

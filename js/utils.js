@@ -247,14 +247,14 @@ function validateParameter(parameter, definition, context, ) {
 
 /**
  * @param {string} [localeOverride]
+ * @return {string}
  */
 function getLocale(localeOverride = undefined) {
     if (isString(localeOverride)) {
         return localeOverride;
     }
 
-    // return navigator.language;
-    return 'en-US';
+    return Localization.locale;
 }
 
 /**

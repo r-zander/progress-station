@@ -370,16 +370,32 @@ class GameData {
     stats = structuredClone(DEFAULT_RUN_STATS);
 
     /**
-     * @var {{
+     * @type {{
+     *     language: string|undefined,
      *     darkMode: boolean,
      *     sciFiMode: boolean,
      *     background: {
      *         style: string,
      *         animated: boolean
      *     },
+     *     vfx: {
+     *         followProgressBars: boolean,
+     *         splashOnLevelUp: boolean,
+     *         flashOnLevelUp: boolean
+     *     },
+     *     audio: {
+     *         enabled: boolean,
+     *         toastAnswered: boolean,
+     *         masterVolume: number,
+     *         enableBackgroundAudio: boolean,
+     *         musicVolume: number,
+     *         soundVolume: number
+     *     },
      * }}
      */
     settings = {
+        // undefined --> never chosen, boot falls back to the browser language
+        language: undefined,
         darkMode: undefined,
         sciFiMode: true,
         background: {

@@ -11,7 +11,8 @@ const emptyStationName = 'Unknown Station';
 // Not const to allow easy game speed increase
 let baseGameSpeed = 4.0;
 
-const magnitudes = [
+// Not const - these are short scale, a long scale language overrides them via format.magnitude
+let magnitudes = [
     '', 'k', 'M', 'B', 'T', 'q', 'Q', 'Sx', 'Sp', 'Oc',
     'No', 'Dc', 'UDc', 'DDc', 'TDc', 'qDc', 'QDc', 'SDc', 'SpDc', 'ODc'
 ];

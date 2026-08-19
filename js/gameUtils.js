@@ -46,7 +46,6 @@ function formatValue(dataElement, value, config = {}) {
         prefixes: magnitudes,
         unit: '',
         forceSign: false,
-        // TODO does not support thousand separator
         keepNumber: false,
         forceInteger: false,
         toStringFn: undefined,
@@ -57,11 +56,11 @@ function formatValue(dataElement, value, config = {}) {
         if (isFunction(config.toStringFn)) {
             return config.toStringFn(value);
         } else if (Number.isInteger(value)) {
-            return value.toFixed(0);
+            return Localization.number(value, 'integer');
         } else if (Math.abs(value) < 1) {
-            return value.toFixed(2);
+            return Localization.number(value, 'fraction2');
         } else {
-            return value.toPrecision(3);
+            return Localization.number(value, 'precision3');
         }
     };
 

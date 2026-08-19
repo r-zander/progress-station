@@ -84,6 +84,27 @@ function prepareRequirementsForTSV(requirements, locale) {
     return result;
 }
 
+/**
+ * @param {string} content
+ * @param {string} fileName
+ */
+function downloadAsFile(content, fileName) {
+    const url = URL.createObjectURL(new Blob([content], {type: 'application/json'}));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * @param {string} message
+ * @return {string[]} the {{placeholder}} names, sorted so two messages can be compared
+ */
+function extractPlaceholders(message) {
+    return Array.from(message.matchAll(/\{\{(.*?)}}/g), (match) => match[1]).sort();
+}
+
 const _cheatConfig = {
     showStateTransitions: false,
 };
@@ -438,6 +459,78 @@ const cheats = {
         },
         generateArray: (amount = 1) => {
             return Array.from(Array(amount), () => stationNameGenerator.generate());
+        },
+    },
+    Localization: {
+        /**
+         * The template handed to translators. Regenerate and commit lang/en.json whenever English
+         * copy changes - the resulting git diff is the re-translation work order.
+         *
+         * @return {string}
+         */
+        exportEnglish: () => {
+            const sorted = {};
+            for (const key of Array.from(Localization.defaults.keys()).sort()) {
+                sorted[key] = Localization.defaults.get(key);
+            }
+
+            const json = JSON.stringify(sorted, null, 2);
+            downloadAsFile(json, 'en.json');
+            console.log(`Exported ${Localization.defaults.size} keys to en.json`);
+
+            return json;
+        },
+
+        /**
+         * Compares a catalog against the live English. 'en' checks whether the committed
+         * lang/en.json still matches the code.
+         *
+         * @param {string} languageCode
+         * @return {Promise<void>}
+         */
+        diff: (languageCode) => {
+            return fetch(`lang/${languageCode}.json`)
+                .then((response) => response.json())
+                .then((catalog) => {
+                    const missing = [];
+                    const stale = [];
+                    const placeholderMismatch = [];
+
+                    for (const [key, english] of Localization.defaults) {
+                        if (!isDefined(catalog[key])) {
+                            missing.push(key);
+                            continue;
+                        }
+
+                        // Array values like format.magnitude carry no placeholders
+                        if (!isString(english)) continue;
+
+                        const expected = extractPlaceholders(english);
+                        const actual = extractPlaceholders(catalog[key]);
+                        if (expected.join() !== actual.join()) {
+                            placeholderMismatch.push(`${key}: expected {{${expected.join('}}, {{')}}}`);
+                        }
+                    }
+
+                    for (const key of Object.keys(catalog)) {
+                        // @locale is metadata, not a message
+                        if (key !== '@locale' && !Localization.defaults.has(key)) {
+                            stale.push(key);
+                        }
+                    }
+
+                    console.log(`--- lang/${languageCode}.json vs. the live English ---`);
+                    console.log(`missing (${missing.length})`, missing);
+                    console.log(`stale (${stale.length})`, stale);
+                    console.log(`placeholder mismatch (${placeholderMismatch.length})`, placeholderMismatch);
+                });
+        },
+
+        /**
+         * Keys that were looked up at runtime but neither the catalog nor the code knew - typos.
+         */
+        missingKeys: () => {
+            console.log(Array.from(Localization.missingKeys).sort());
         },
     },
     Story: {

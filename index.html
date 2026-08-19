@@ -197,7 +197,7 @@
                  class-lg="flex-column mt-3 gap-1" >
                 <button id="modulesTabButton" class="tabButton panel p-3" onClick="setTab('modules');">
                     <!--suppress HtmlUnknownTag -->
-                    <h3>Modules</h3>
+                    <h3 data-i18n="ui.tab.modules">Modules</h3>
 
                     <template id="moduleQuickTaskDisplayTemplate">
                         <div class="quickTaskDisplayContainer hidden d-none d-lg-block">
@@ -228,7 +228,7 @@
                 </div>
                 <button id="galacticSecretsTabButton" class="tabButton panel p-3" onClick="setTab('galacticSecrets');">
                     <!--suppress HtmlUnknownTag -->
-                    <h3>Technologies</h3>
+                    <h3 data-i18n="ui.tab.technologies">Technologies</h3>
                     <!--suppress HtmlUnknownTag -->
                     <div class="quickTaskDisplay mt-2" title="Analysis Core" data-bs-placement="bottom">
                         <div class=" progress progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
@@ -262,7 +262,7 @@
                 </div>
                 <button id="battleTabButton" class="tabButton panel p-3" onClick="setTab('battles');">
                     <!--suppress HtmlUnknownTag -->
-                    <h3>Battles</h3>
+                    <h3 data-i18n="ui.tab.battles">Battles</h3>
                     <template id="battleQuickTaskDisplayTemplate">
                         <div class="quickTaskDisplay mt-2 d-none d-lg-block">
                             <div class="progress battle progressBar" role="progressbar" aria-label="Task" aria-valuenow="0"
@@ -285,7 +285,7 @@
                 </div>
                 <button id="locationTabButton" class="tabButton panel p-3" onClick="setTab('location');">
                     <!--suppress HtmlUnknownTag -->
-                    <h3>Location</h3>
+                    <h3 data-i18n="ui.tab.location">Location</h3>
                     <!--suppress HtmlUnknownTag -->
                     <div id="locationQuickDisplay" class="point-of-interest mt-2 w-100 px-2 d-none d-lg-flex"
                             title="Sector: Point of Interest" data-bs-placement="bottom">
@@ -297,7 +297,7 @@
 
                 <button id="settingsTabButton" class="tabButton panel mt-auto p-3" onClick="setTab('settings');">
                     <!--suppress HtmlUnknownTag -->
-                    <h3>Settings</h3>
+                    <h3 data-i18n="ui.tab.settings">Settings</h3>
                 </button>
             </nav>
         </aside>
@@ -835,11 +835,12 @@
 
             <div id="settings" class="tab p-1 p-lg-3">
                 <div class="d-flex align-items-start">
-                    <h3>Settings</h3>
+                    <h3 data-i18n="ui.tab.settings">Settings</h3>
                     <button type="button" class="btn-close ms-auto" aria-label="Close"></button>
                 </div>
                 <div class="row">
-                    <label for="settingsStationNameInput" class="col-sm-2 col-form-label">Station Name</label>
+                    <label for="settingsStationNameInput" class="col-sm-2 col-form-label"
+                           data-i18n="ui.settings.stationName">Station Name</label>
                     <div class="col-sm-10">
                         <input type="text"
                                id="settingsStationNameInput"
@@ -847,34 +848,46 @@
                                maxlength="30"
                                placeholder=""/>
                         <div class="d-flex mt-2 gap-2 justify-content-end">
-                            <button class="btn btn-dark" onClick="rerollStationName();">Re-roll</button>
+                            <button class="btn btn-dark" onClick="rerollStationName();" data-i18n="ui.settings.rerollName">Re-roll</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="row mt-3">
-                    <label for="importExportBox" class="col-sm-2 col-form-label">Import/export save</label>
+                    <label for="importExportBox" class="col-sm-2 col-form-label"
+                           data-i18n="ui.settings.importExport">Import/export save</label>
                     <div class="col-sm-10">
                         <textarea id="importExportBox" class="form-control" rows="3"></textarea>
 
                         <div class="d-flex mt-2 gap-2 justify-content-end">
-                            <button class="btn btn-dark" onClick="gameData.import();">Import</button>
-                            <button class="btn btn-dark" onClick="gameData.export();">Export</button>
+                            <button class="btn btn-dark" onClick="gameData.import();" data-i18n="ui.settings.import">Import</button>
+                            <button class="btn btn-dark" onClick="gameData.export();" data-i18n="ui.settings.export">Export</button>
                         </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3 hidden" id="languageSettingsRow">
+                    <label for="languageSelect" class="col-sm-2 col-form-label">Language</label>
+                    <div class="col-sm-10">
+                        <select id="languageSelect" class="form-select" style="max-width: 20em"
+                                onchange="setLanguage(this.value);"></select>
+                        <div class="help-text mt-1" data-i18n="ui.settings.languageReloadHint">Changing the language
+                            reloads the game.</div>
                     </div>
                 </div>
 
                 <div class="row mt-3">
                     <div class="col-sm-12 d-flex align-items-baseline justify-content-between">
-                        <h3>Sound</h3>
+                        <h3 data-i18n="ui.settings.sound">Sound</h3>
                     </div>
-                    <div class="col-sm-2">General</div>
+                    <div class="col-sm-2" data-i18n="ui.settings.sound.general">General</div>
                     <div class="col-sm-10">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
                                    role="switch" id="audioEnabledSwitch"
                                    onclick="AudioEngine.toggleEnabled();">
-                            <label class="form-check-label" for="audioEnabledSwitch">
+                            <label class="form-check-label" for="audioEnabledSwitch"
+                                   data-i18n="ui.settings.sound.enable">
                                 Enable
                             </label>
                         </div>
@@ -882,12 +895,14 @@
                             <input class="form-check-input" type="checkbox"
                                    role="switch" id="audioBackgroundAudioEnabledSwitch"
                                    onclick="AudioEngine.toggleBackgroundAudio();">
-                            <label class="form-check-label" for="audioBackgroundAudioEnabledSwitch">
+                            <label class="form-check-label" for="audioBackgroundAudioEnabledSwitch"
+                                   data-i18n="ui.settings.sound.enableBackground">
                                 Enable background playback
                             </label>
                         </div>
                     </div>
-                    <div class="col-sm-2"><label for="masterVolumeRange" class="form-label">Master Volume</label></div>
+                    <div class="col-sm-2"><label for="masterVolumeRange" class="form-label"
+                                                 data-i18n="ui.settings.sound.masterVolume">Master Volume</label></div>
                     <div class="col-sm-10">
                         <div class="d-flex">
                             <input type="range" class="form-range" id="masterVolumeRange" style="max-width: 20em"
@@ -915,7 +930,7 @@
 
                 <div class="row mt-3">
                     <div class="col-sm-12 d-flex align-items-baseline justify-content-between">
-                        <h3>Visual</h3>
+                        <h3 data-i18n="ui.settings.visual">Visual</h3>
                     </div>
                     <div class="col-sm-2">Background</div>
                     <div class="col-sm-10">
@@ -932,7 +947,7 @@
 
                 <div class="row mt-3 bg-danger">
                     <div class="col-sm-12 d-flex align-items-baseline justify-content-between">
-                        <h3>Experimental</h3>
+                        <h3 data-i18n="ui.settings.experimental">Experimental</h3>
                         <p class="ms-3 text-light text-opacity-75">Enabling these will reduce the game's performance!</p>
                     </div>
                     <div class="col-sm-2">VFX</div>
@@ -1016,7 +1031,7 @@
 
                 <div class="row mt-3">
                     <div class="col-sm-12 d-flex align-items-baseline justify-content-between">
-                        <h3>Credits</h3>
+                        <h3 data-i18n="ui.credits.title">Credits</h3>
                     </div>
                     <div id="credits" class="col-sm-2">Team</div>
                     <div class="col-sm-10">
@@ -1176,7 +1191,7 @@
 
                 <div class="row mt-3">
                     <div class="col-sm-12 d-flex align-items-baseline justify-content-between">
-                        <h3>Careful now!</h3>
+                        <h3 data-i18n="ui.settings.dangerZone">Careful now!</h3>
                     </div>
                     <div class="col-sm-2 col-form-label">Hard reset game</div>
                     <div class="col-sm-10">
@@ -1676,6 +1691,7 @@
 <script type="text/javascript" src="vendor/howler.js-2.2.4/howler.core.min.js"></script>
 <script type="text/javascript" src="vendor/romans-3.1.0/romans.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/localization.js"></script>
 <script type="text/javascript" src="js/gameLoop.js"></script>
 <script type="text/javascript" src="js/gameUtils.js"></script>
 <script type="text/javascript" src="js/gameEvents.js"></script>
